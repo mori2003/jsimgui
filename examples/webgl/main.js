@@ -41,7 +41,7 @@ function frame() {
     ImGui.Text("Also see the other examples:");
     ImGui.Bullet();
     if (ImGui.TextLink("Three.js")) {
-        globalThis.open("https://mori2003.github.io/jsimgui/examples/three-gl/", "_self");
+        globalThis.open("https://mori2003.github.io/jsimgui/examples/threegl/", "_self");
     }
     ImGui.SameLine();
     ImGui.Text("(WebGL2 Renderer)");
