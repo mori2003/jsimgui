@@ -171,8 +171,8 @@ async function compileWasm(release) {
         "MainExport",
         "-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS",
         //"-DIMGUI_DISABLE_DEMO_WINDOWS",
-        "-Os",
-        //"-flto",
+        "-Oz",
+        "-flto",
     );
 
     // // Compile jsimgui-demo.
