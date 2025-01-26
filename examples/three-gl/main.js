@@ -1,12 +1,5 @@
 // deno-lint-ignore-file
-import {
-    ImEnum,
-    ImGui,
-    ImGuiImplOpenGL3,
-    ImGuiImplWeb,
-    ImVec2,
-    ImVec4,
-} from "@mori2003/jsimgui";
+import { ImEnum, ImGui, ImGuiImplWeb, ImVec2 } from "@mori2003/jsimgui";
 import * as THREE from "three";
 
 const canvas = document.querySelector("#render-canvas");
@@ -72,20 +65,16 @@ await ImGuiImplWeb.Init(canvas);
 const style = ImGui.GetStyle();
 style.WindowRounding = 7;
 
-
-const showDemo = [false];
-const docking = [false];
+export const showDemo = [false];
+export const docking = [false];
 
 const stopRotation = [false];
 const cubeColor = [0.0, 0.0, 0.5];
 const cubeRotation = [45, 45, 45];
 const cubePosition = [0, 1, 0];
 
-const plotHistory = [];
-
 function frame() {
-    ImGuiImplOpenGL3.NewFrame();
-    ImGui.NewFrame();
+    ImGuiImplWeb.BeginRender();
 
     ImGui.SetNextWindowPos(new ImVec2(10, 10), ImEnum.Cond.Once);
     ImGui.SetNextWindowSize(new ImVec2(330, 125), ImEnum.Cond.Once);
@@ -97,8 +86,8 @@ function frame() {
         globalThis.open("https://github.com/mori2003/jsimgui/", "_self");
     }
     ImGui.Spacing();
-    ImGui.Text("Also see the other examples:")
-    ImGui.Bullet()
+    ImGui.Text("Also see the other examples:");
+    ImGui.Bullet();
     if (ImGui.TextLink("WebGL2")) {
         globalThis.open("https://mori2003.github.io/jsimgui/examples/webgl/", "_self");
     }
@@ -115,11 +104,11 @@ function frame() {
             const io = ImGui.GetIO();
             io.ConfigFlags &= ~ImEnum.ConfigFlags.DockingEnable;
         }
-    };
+    }
     ImGui.End();
 
     ImGui.SetNextWindowPos(new ImVec2(10, 150), ImEnum.Cond.Once);
-    ImGui.SetNextWindowSize(new ImVec2(400, 600), ImEnum.Cond.Once);
+    ImGui.SetNextWindowSize(new ImVec2(400, 500), ImEnum.Cond.Once);
     ImGui.Begin("Playground");
 
     if (!stopRotation[0]) {
@@ -135,37 +124,13 @@ function frame() {
     ImGui.Checkbox("Stop Rotation", stopRotation);
     ImGui.SliderFloat3("cube.rotation", cubeRotation, 0, 360);
     ImGui.SliderFloat3("cube.position", cubePosition, -2, 2);
-    ImGui.ColorEdit3("Cube Color", cubeColor);
+    ImGui.ColorPicker3("cube.material.color", cubeColor);
+
     cube.rotation.x = THREE.MathUtils.degToRad(cubeRotation[0]);
     cube.rotation.y = THREE.MathUtils.degToRad(cubeRotation[1]);
     cube.rotation.z = THREE.MathUtils.degToRad(cubeRotation[2]);
     cube.position.set(cubePosition[0], cubePosition[1], cubePosition[2]);
     cube.material.color.set(cubeColor[0], cubeColor[1], cubeColor[2]);
-
-    ImGui.Separator();
-
-    plotHistory.push(Math.random() * 25);
-    if (plotHistory.length > 20) plotHistory.shift();
-    ImGui.PlotLines("Random 0-25", plotHistory, plotHistory.length, 0, "", 0, 25, new ImVec2(0, 50));
-    ImGui.PlotHistogram("cube.rotation.y", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 10, 0, "", 0, 10, new ImVec2(0, 0));
-    ImGui.ColorPicker4("cube.material.color", cubeColor);
-
-    //ImGui.Combo("cube.material.color", "test",  "test", 0);
-    ImGui.InputText("test2", "test", 10, 0);
-    ImGui.InputTextMultiline("test3", "test", 10, new ImVec2(0, 0), 0);
-    ImGui.InputTextWithHint("test4", "test", "test", 10, 0);
-
-    if (ImGui.BeginCombo("mesh", "cube")) {
-        ImGui.Selectable("cube", false);
-        ImGui.Selectable("sphere", false);
-        ImGui.Selectable("cylinder", false);
-        ImGui.EndCombo();
-    }
-
-
-    //ImGui.SetClipboardText("test");
-    //console.log(ImGui.GetClipboardText());
-
     ImGui.End();
 
     if (showDemo[0]) ImGui.ShowDemoWindow(showDemo);
@@ -173,7 +138,6 @@ function frame() {
     renderer.render(scene, camera);
     renderer.resetState();
 
-    ImGui.Render();
-    ImGuiImplOpenGL3.RenderDrawData(ImGui.GetDrawData());
+    ImGuiImplWeb.EndRender();
 }
 renderer.setAnimationLoop(frame);

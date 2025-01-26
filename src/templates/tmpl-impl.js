@@ -1,8 +1,3 @@
-// deno-lint-ignore-file
-import {
-    ImGui,
-    ImGuiImplOpenGL3
-} from "@mori2003/jsimgui";
 
 /**
  * Namespace for the Web implementation of jsimgui.

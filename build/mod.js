@@ -2136,6 +2136,16 @@ export const ImGuiImplWeb = {
         }
     },
 
+    BeginRender: () => {
+        ImGuiImplOpenGL3.NewFrame();
+        ImGui.NewFrame();
+    },
+
+    EndRender: () => {
+        ImGui.Render();
+        ImGuiImplOpenGL3.RenderDrawData(ImGui.GetDrawData());
+    },
+
     /**
      * Sets up the IO for the canvas.
      * @param {HTMLCanvasElement} canvas The canvas element.
