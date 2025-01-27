@@ -1,6 +1,6 @@
 {
-    "name": "jsimgui",
-    "version": "0.1.3",
+    "name": "@mori2003/jsimgui",
+    "version": "0.1.32",
     "license": "MIT",
     "author": "mori2003",
     "description": "JavaScript bindings for Dear ImGui.",
@@ -10,14 +10,12 @@
     "bugs": "https://github.com/mori2003/jsimgui/issues",
     "homepage": "https://github.com/mori2003/jsimgui#readme",
 
-    "main": "build/mod.js",
-    "module": "build/mod.js",
+    "exports": "./build/mod.js",
     "type": "module",
+
     "files": [
         "build/",
-        ".npmrc",
         "deno.json",
-        "deno.lock",
         "LICENSE",
         "package.json",
         "README.md"
