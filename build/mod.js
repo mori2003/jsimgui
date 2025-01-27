@@ -1,11 +1,4 @@
 /**
- * jsimgui - JavaScript bindings for Dear ImGui.
- *
- * @module jsimgui
- * @version 0.1.3
- * @author mori2003
- * @license MIT
- *
  * @file
  * The JavaScript API for exported ImGui functions, structs and enums.
  *
