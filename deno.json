@@ -1,4 +1,17 @@
 {
+    "name": "@mori2003/jsimgui",
+    "version": "0.1.3",
+    "exports": "./build/mod.js",
+    "include": [
+        "build/",
+        ".npmrc",
+        "deno.json",
+        "deno.lock",
+        "LICENSE",
+        "package.json",
+        "README.md"
+    ],
+
     "lint": {
         "include": [
             "src/",
