@@ -158,7 +158,7 @@ async function compileWasm(release) {
             "-sEXPORTED_RUNTIME_METHODS=GL",
             "-sMIN_WEBGL_VERSION=2",
             "-sMAX_WEBGL_VERSION=2",
-            "-sUSE_WEBGPU=1",
+            //"-sUSE_WEBGPU=1",
 
             ...compFlags,
         );
@@ -171,8 +171,15 @@ async function compileWasm(release) {
         "MainExport",
         "-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS",
         //"-DIMGUI_DISABLE_DEMO_WINDOWS",
+        //"-DIMGUI_DISABLE_DEBUG_TOOLS",
         "-Oz",
         "-flto",
+        "-fno-rtti",
+        "-fno-exceptions",
+        "-DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0",
+        "-sMALLOC=emmalloc",
+        "-sWASM_BIGINT",
+        "-sENVIRONMENT=web",
     );
 
     // // Compile jsimgui-demo.
