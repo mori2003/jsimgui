@@ -1,6 +1,6 @@
 {
     "name": "@mori2003/jsimgui",
-    "version": "0.1.32",
+    "version": "0.1.4",
     "license": "MIT",
     "author": "mori2003",
     "description": "JavaScript bindings for Dear ImGui.",
@@ -10,8 +10,8 @@
     "bugs": "https://github.com/mori2003/jsimgui/issues",
     "homepage": "https://github.com/mori2003/jsimgui#readme",
 
-    "exports": "./build/mod.js",
     "type": "module",
+    "exports": "./build/mod.js",
 
     "files": [
         "build/",
@@ -27,11 +27,16 @@
         "build:gen-data": "deno run --allow-run ./src/build.js --data",
         "build:gen-bindings": "deno run --allow-run ./src/build.js --bindings",
         "build:compile-wasm": "deno run --allow-run -R -W ./src/build.js --wasm",
-        "build:full": "deno task build:gen-bindings && deno task build:compile-wasm"
+        "build:compile-wasm-release": "deno run --allow-run -R -W ./src/build.js --wasm --release",
+        "build:full": "deno task build:gen-bindings && deno task build:compile-wasm",
+        "build:full-release": "deno task build:gen-bindings && deno task build:compile-wasm-release",
+
+        "build:gen-types": "tsc --declaration --emitDeclarationOnly --allowJs ./build/mod.js && rm ./build/jsimgui.d.ts"
     },
 
     "dependencies": {
         "@std/cli": "npm:@jsr/std__cli@^1.0.11",
-        "@std/assert": "npm:@jsr/std__assert@^1.0.11"
+        "@std/assert": "npm:@jsr/std__assert@^1.0.11",
+        "typescript": "^5.7.3"
     }
 }

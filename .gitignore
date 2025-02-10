@@ -1,3 +1,4 @@
 .em_cache/
 node_modules/
 tmp/
+examples/dev

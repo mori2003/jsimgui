@@ -1,5 +1,31 @@
 
 /**
+ * Namespace that provides access to the OpenGL3 backend functions.
+ * @namespace {ImGuiImplOpenGL3}
+ */
+export const ImGuiImplOpenGL3 = {
+    /** [Manual] Initializes the OpenGL3 backend. @returns {boolean} */
+    Init: () => {
+        return Mod.main.cImGui_ImplOpenGL3_Init();
+    },
+
+    /** [Manual] Shuts down the OpenGL3 backend. @returns {void} */
+    Shutdown: () => {
+        return Mod.main.cImGui_ImplOpenGL3_Shutdown();
+    },
+
+    /** [Manual] Starts a new OpenGL3 frame. @returns {void} */
+    NewFrame: () => {
+        return Mod.main.cImGui_ImplOpenGL3_NewFrame();
+    },
+
+    /** [Manual] Renders the OpenGL3 frame. @param {ImDrawData} draw_data @returns {void} */
+    RenderDrawData: (draw_data) => {
+        return Mod.main.cImGui_ImplOpenGL3_RenderDrawData(draw_data.unwrap());
+    },
+};
+
+/**
  * Namespace for the Web implementation of jsimgui.
  * @namespace {ImGuiImplWeb}
  */
@@ -10,6 +36,7 @@ export const ImGuiImplWeb = {
      */
     Init: async (canvas) => {
         await Mod.initMain();
+        Mod.main.FS.mount(Mod.main.MEMFS, { root: '.' }, '.');
 
         const context = canvas.getContext("webgl2") || canvas.getContext("webgpu");
 
@@ -26,16 +53,6 @@ export const ImGuiImplWeb = {
 
             ImGuiImplOpenGL3.Init();
         }
-    },
-
-    BeginRender: () => {
-        ImGuiImplOpenGL3.NewFrame();
-        ImGui.NewFrame();
-    },
-
-    EndRender: () => {
-        ImGui.Render();
-        ImGuiImplOpenGL3.RenderDrawData(ImGui.GetDrawData());
     },
 
     /**
@@ -244,4 +261,56 @@ export const ImGuiImplWeb = {
             io.AddFocusEvent(false);
         });
     },
+
+    BeginRender: () => {
+        ImGuiImplOpenGL3.NewFrame();
+        ImGui.NewFrame();
+    },
+
+    EndRender: () => {
+        ImGui.Render();
+        ImGuiImplOpenGL3.RenderDrawData(ImGui.GetDrawData());
+    },
+
+    /**
+     * Loads a font from a URL and writes it to the filesystem.
+     * @param {string} font - The URL of the font.
+     */
+    LoadFont: async (font) => {
+        let font_data = await fetch(font).then(res => res.arrayBuffer());
+        font_data = new Uint8Array(font_data);
+        Mod.main.FS.writeFile(font, font_data);
+    },
+
+    /**
+     * Loads an image into a WebGL texture and returns the ImGui texture ID.
+     * @param {HTMLImageElement} image - The image element.
+     * @returns {ImTextureID} - The ImGui texture ID.
+     */
+    LoadImage: (image) => {
+        return new Promise((resolve, reject) => {
+            image.onload = () => {
+                const gl = document.querySelector("canvas").getContext("webgl2");
+                const texture = gl.createTexture();
+
+                gl.bindTexture(gl.TEXTURE_2D, texture);
+
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+                const id = Mod.main.GL.getNewId(Mod.main.GL.textures);
+                texture.name = id;
+                Mod.main.GL.textures[id] = texture;
+
+                resolve(id);
+            };
+
+            image.onerror = (error) => {
+                reject(error);
+            };
+        });
+    },
+
 };

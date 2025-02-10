@@ -5,10 +5,9 @@ JavaScript bindings for the [Dear ImGui](https://github.com/ocornut/imgui) libra
 Currently only compatible with WebGL2. Built with: [Dear ImGui](https://github.com/ocornut/imgui), [Dear Bindings](https://github.com/dearimgui/dear_bindings), [Deno](https://deno.com/) and [Emscripten](https://emscripten.org/).
 
 ## Todo
-The library is currently in a very early stage but core functionality is there. It's also not optimized yet in terms of performance & size (Wasm binary is about ~750kb).
+The library is currently in a very early stage but core functionality is there. Expect many bugs and missing features!
 
-Some planned goals are:
-- [ ] Improve documentation and usage with JSDoc comments
+Currently missing but planned:
 - [ ] Clipboard support
 - [ ] Image and ImageButton
 - [ ] Custom fonts
