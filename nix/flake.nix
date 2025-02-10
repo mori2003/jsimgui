@@ -21,6 +21,7 @@
             python3Packages.ply
 
             clang-tools
+            twiggy
           ];
 
           CPLUS_INCLUDE_PATH = "${pkgs.emscripten}/share/emscripten/cache/sysroot/include";

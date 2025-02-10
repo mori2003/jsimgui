@@ -62,9 +62,6 @@ function onWindowResize() {
 
 await ImGuiImplWeb.Init(canvas);
 
-const style = ImGui.GetStyle();
-style.WindowRounding = 7;
-
 export const showDemo = [false];
 export const docking = [false];
 

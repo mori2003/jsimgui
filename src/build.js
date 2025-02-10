@@ -6,10 +6,11 @@
  * 2. Generating C++ and JavaScript bindings
  * 3. Compiling the C++ code to WebAssembly using Emscripten
  *
- * Usage:
- * deno run --allow-run build.js [--data] [--bindings] [--wasm]
+ * deno run --allow-run build.js [--data] [--bindings] [--wasm] [--release]
+ * --data: Generate the dcimgui json data files
  * --bindings: Generate the bindings
  * --wasm: Compile to WebAssembly
+ * --release: Compile in release mode (enable optimizations)
  */
 
 import { parseArgs } from "@std/cli";
@@ -26,39 +27,33 @@ async function main() {
     }
 
     if (flags.data) {
-        console.log("%cGenerating dcimgui data...", "color: blue;");
-        await generateData();
-        console.log("%cDone.", "color: lightgreen;");
+        await runTask(generateData, "Generating dcimgui data...");
     }
 
     if (flags.bindings) {
-        console.log("%cGenerating bindings...", "color: blue;");
-        await generateBindings();
-        console.log("%cDone.", "color: lightgreen;");
+        await runTask(generateBindings, "Generating bindings...");
     }
 
     if (flags.wasm) {
-        console.log("%cCompiling wasm...", "color: blue;");
-        await compileWasm(flags.release);
-        console.log("%cDone.", "color: lightgreen;");
+        await runTask(compileWasm, "Compiling wasm...", flags.release);
     }
 
     console.log("%cBuild complete.", "color: green;");
 }
 
-/**
- * Runs a command and returns the status.
- * @param {string} cmd - The command to run.
- * @param {string[]} args - The arguments to pass to the command.
- * @returns {Promise<Deno.CommandStatus>} The status of the command.
- */
+/** Runs a task and logs the result. */
+async function runTask(task, log, ...args) {
+    console.log(`%c${log}...`, "color: blue;");
+    await task(...args);
+    console.log(`%cDone.`, "color: lightgreen;");
+}
+
+/** Runs a command and returns the status. */
 async function runCmd(cmd, ...args) {
     return await new Deno.Command(cmd, { args }).spawn().status;
 }
 
-/**
- * Generates the dcimgui files for the bindings.
- */
+/** Generates the dcimgui files for the bindings. */
 async function generateData() {
     await runCmd(
         "python",
@@ -88,23 +83,28 @@ async function generateData() {
     );
 }
 
-/**
- * Generates the JS and CPP bindings files.
- */
+/** Generates the JS and CPP bindings files. */
 async function generateBindings() {
     await runCmd(
         "deno",
         "run",
+        //"--check",
         "-R",
         "-W",
         "./src/generator/main.js",
         "--jsonData",
         "./third_party/dear_bindings/dcimgui.json",
         "--outCpp",
-        "./intermediate/jsimgui.cpp",
+        "./intermediate/jsimgui-gen.cpp",
         "--outJs",
         "./build/mod.js",
     );
+
+    // await runCmd(
+    //     "deno",
+    //     "fmt",
+    //     "./build/mod.js",
+    // );
 }
 
 /**
@@ -112,24 +112,38 @@ async function generateBindings() {
  * @param {boolean} release - Whether to compile in release mode.
  */
 async function compileWasm(release) {
-    // TODO: Compile the wasm binaries using emcc
-    // when release is true: compile using -Os, flto, closure compiler?
-    const outCore = "./build/jsimgui";
-    const outDemo = "./build/jsimgui-demo";
-
-    const compIncludes = [
-        "-I./third_party/imgui/",
-        "-I./third_party/imgui/backends",
-        "-I./third_party/dear_bindings",
+    const compFlags = [
+        "-fno-rtti",
+        "-fno-exceptions",
+        "-DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0",
+        "-sMALLOC=emmalloc",
+        "-sWASM_BIGINT",
+        "-sENVIRONMENT=web",
     ];
 
-    const compFlags = [];
+    if (release) {
+        compFlags.push(
+            "-Oz",
+            "-flto",
+        );
+    } else {
+        compFlags.push(
+            "-O0",
+            //"-fsanitize=leak",
+            //"-fsanitize=address",
+            //"-sALLOW_MEMORY_GROWTH"
+        );
+    }
 
-    const compile = async (inFile, outFile, moduleName, ...compFlags) => {
+    const compile = async (
+        inFile,
+        outFile,
+        moduleName,
+        ...compFlags
+    ) => {
         await runCmd(
             "emcc",
             inFile,
-
             "./third_party/imgui/imgui.cpp",
             "./third_party/imgui/imgui_demo.cpp",
             "./third_party/imgui/imgui_draw.cpp",
@@ -140,23 +154,18 @@ async function compileWasm(release) {
             "./third_party/dear_bindings/dcimgui.cpp",
             "./third_party/dear_bindings/dcimgui_internal.cpp",
             "./third_party/dear_bindings/dcimgui_impl_opengl3.cpp",
-
             "-I./third_party/imgui/",
             "-I./third_party/imgui/backends",
             "-I./third_party/dear_bindings",
-
             "-o",
             outFile,
-
             "--cache=./.em_cache",
             "-lembind",
             "-sMODULARIZE=1",
             "-sEXPORT_ES6=1",
             `-sEXPORT_NAME=${moduleName}`,
-
-            // Target only WebGL2
-            "-sEXPORTED_RUNTIME_METHODS=GL",
-            "-sMIN_WEBGL_VERSION=2",
+            "-sEXPORTED_RUNTIME_METHODS=GL,FS,MEMFS",
+            "-sMIN_WEBGL_VERSION=2", // Target only WebGL2
             "-sMAX_WEBGL_VERSION=2",
             //"-sUSE_WEBGPU=1",
 
@@ -164,44 +173,12 @@ async function compileWasm(release) {
         );
     };
 
-    // Compile jsimgui.
     await compile(
-        "./intermediate/jsimgui.cpp",
+        "./intermediate/jsimgui-gen.cpp",
         "./build/jsimgui.js",
         "MainExport",
-        "-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS",
-        //"-DIMGUI_DISABLE_DEMO_WINDOWS",
-        //"-DIMGUI_DISABLE_DEBUG_TOOLS",
-        "-Oz",
-        "-flto",
-        "-fno-rtti",
-        "-fno-exceptions",
-        "-DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0",
-        "-sMALLOC=emmalloc",
-        "-sWASM_BIGINT",
-        "-sENVIRONMENT=web",
+        ...compFlags,
     );
-
-    // // Compile jsimgui-demo.
-    // await compile(
-    //     "./intermediate/jsimgui-demo.cpp",
-    //     "./build/jsimgui-demo.js",
-    //     "DemoExport",
-    //     "-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS",
-    // );
-
-    /**
-     * Fixes the imports in the js loader by prepending "node:" so that
-     * Deno can evaluate the loader for the tests.
-     * @param {string} file - The file to fix.
-     */
-    const fixImports = (file) => {
-        const fileContent = Deno.readTextFileSync(file);
-
-        Deno.writeTextFileSync(file, fileContent);
-    };
-
-    //fixImports();
 }
 
 main();

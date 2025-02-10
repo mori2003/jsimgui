@@ -8,18 +8,21 @@
 import { parseArgs } from "@std/cli";
 import { generateBindings } from "./binding.js";
 
+/**
+ * Main entry point for the generator tool.
+ */
 function main() {
     const flags = parseArgs(Deno.args, {
         string: ["jsonData", "outCpp", "outJs"],
+        default: {
+            jsonData: "third_party/dear_bindings/dcimgui.json",
+            outCpp: "intermediate/jsimgui-gen.cpp",
+            outJs: "./build/mod.js",
+        },
     });
 
-    const fileContent = Deno.readTextFileSync(flags.jsonData);
-
-    if (!fileContent) {
-        throw new Error(`Failed to read file: ${flags.jsonData}`);
-    }
-
-    generateBindings(fileContent, flags.outCpp, flags.outJs);
+    const fileData = Deno.readTextFileSync(flags.jsonData);
+    generateBindings(fileData, flags.outCpp, flags.outJs);
 }
 
 main();
