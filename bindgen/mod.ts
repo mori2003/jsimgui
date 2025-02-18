@@ -19,43 +19,54 @@
  * For source code and more information:
  * @see {@link https://github.com/mori2003/jsimgui|jsimgui}
  */
+
 // @ts-ignore: MainExport will be imported when compiled in the build directory.
 import MainExport from "./jsimgui.js";
+
 /* -------------------------------------------------------------------------- */
 /* 1. Core Module */
 /* -------------------------------------------------------------------------- */
+
 export const Mod = {
     _export: null,
+
     /** Initialize the WASM module. */
-    async Init() {
+    async Init(): Promise<void> {
         if (Mod._export) {
             throw new Error("WASM module already initialized.");
         }
+
         // @ts-ignore
-        await MainExport().then((module) => {
+        await MainExport().then((module): void => {
             Mod._export = module;
         });
     },
-    get export() {
+
+    get export(): any {
         if (!Mod._export) {
             throw new Error("WASM module not initialized. Did you call ImGuiImplWeb.Init()?");
         }
+
         return this._export;
     },
 };
+
 /** A class that wraps a reference to an ImGui struct. */
 class StructBinding {
-    _ptr;
-    constructor(name) {
+    _ptr: any;
+
+    constructor(name: string) {
         this._ptr = new Mod.export[name]();
     }
-    static wrap(ptr) {
+
+    static wrap(ptr: any): any {
         // biome-ignore lint/complexity/noThisInStatic: <explanation>
         const wrap = Reflect.construct(this, []);
         wrap._ptr = ptr;
         return wrap;
     }
 }
+
 /* -------------------------------------------------------------------------- */
 /* 2. Enums */
 /* -------------------------------------------------------------------------- */
@@ -74,12 +85,14 @@ class StructBinding {
 /** Web implementation of Jsimgui. */
 export const ImGuiImplWeb = {
     /** Initialize Dear ImGui on the given canvas. Only WebGL2 is supported. */
-    async Init(canvas) {
+    async Init(canvas: HTMLCanvasElement): Promise<void> {
         const canvasContext = canvas.getContext("webgl2");
         if (!(canvasContext && canvasContext instanceof WebGL2RenderingContext)) {
             throw new Error("Failed to get WebGL2 context.");
         }
+
         await Mod.Init();
+
         //ImGui.CreateContext(null);
         //ImGuiImplWeb.SetupIO(canvas);
     },
