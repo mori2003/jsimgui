@@ -89,7 +89,7 @@ ImGui.SetNextWindowPos(new ImVec2(10, 10), ImEnum.Cond.Once);
 1. Clone the repository
 
 ```bash
-git clone https://github.com/mori2003/jsimgui.git
+git clone https://github.com/mori2003/jsimgui.git --recurse-submodules
 cd jsimgui
 ```
 
