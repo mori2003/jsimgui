@@ -1,4 +1,9 @@
 .em_cache/
+.cache/
+docs/dev/
+
 node_modules/
-tmp/
-examples/dev
+bun.lock
+
+compile_commands.json
+deno.lock
