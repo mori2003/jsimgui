@@ -4,6 +4,7 @@ import { toTsType } from "./types.js";
 import { isStructBound } from "./struct.ts";
 import { functionBindings } from "./bindings.ts";
 
+/** Filter out functions by a given prefix. Also filters out overload variants. */
 function filterFunctionsByPrefix(functions: ImGuiFunction[], prefix: string): ImGuiFunction[] {
     const excludedSuffixes = ["ID", "V", "Callback", "Ptr", "Str", "ImVec2", "ImVec4"];
 
@@ -14,6 +15,7 @@ function filterFunctionsByPrefix(functions: ImGuiFunction[], prefix: string): Im
     );
 }
 
+/** Get the TypeScript default value from a c++ default value string. */
 function getTsDefaultValue(defaultValue: string): string {
     if (!defaultValue) {
         return "";
@@ -79,6 +81,7 @@ function getCallArgsTs(args: ImGuiArgument[]): string {
         .join(", ");
 }
 
+/** Generates TypeScript code for a function. */
 export function getFunctionCodeTs(functionData: ImGuiFunction): string {
     if (functionBindings[functionData.name]?.exclude) {
         return "";
@@ -109,6 +112,7 @@ export function getFunctionCodeTs(functionData: ImGuiFunction): string {
     ].join("");
 }
 
+/** Generates TypeScript code for a class method. */
 export function getMethodCodeTs(functionData: ImGuiFunction): string {
     if (functionBindings[functionData.name]?.exclude) {
         return "";
@@ -204,6 +208,7 @@ function getCallArgsCpp(args: ImGuiArgument[]): string {
         .join(", ");
 }
 
+/** Generates C++ code for a function. */
 function getFunctionCodeCpp(functionData: ImGuiFunction): string {
     if (functionBindings[functionData.name]?.exclude) {
         return "";
@@ -264,6 +269,7 @@ function getFunctionCodeCpp(functionData: ImGuiFunction): string {
     ].join("");
 }
 
+/** Generates C++ code for a struct method. */
 export function getMethodCodeCpp(functionData: ImGuiFunction): string {
     if (functionBindings[functionData.name]?.exclude) {
         return "";
@@ -278,9 +284,9 @@ export function getMethodCodeCpp(functionData: ImGuiFunction): string {
     const callArgs = getCallArgsCpp(functionData.arguments);
 
     return `.function("${functionData.name}", override([](${funcArgs}){ return ${functionData.name}(${callArgs}); }), allow_ptr())\n`;
-
 }
 
+/** Generates C++ code for the functions in the ImGui data. */
 export function generateFunctionsCpp(jsonData: ImGuiData): string {
     const functions = filterFunctionsByPrefix(jsonData.functions, "ImGui_");
     return functions.map((func) => getFunctionCodeCpp(func)).join("");

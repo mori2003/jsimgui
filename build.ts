@@ -4,7 +4,7 @@
 
 import { stdout, exit, argv } from "node:process";
 import { existsSync } from "node:fs";
-import { execSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { styleText } from "node:util";
 import { main as generatorMain } from "./src/main.js";
 
@@ -43,8 +43,17 @@ function main(): void {
     stdout.write(styleText(["bold", "greenBright"], `    📦 Build completed in ${duration}s\n`));
 }
 
-function runCommand(cmd: string): string {
-    return execSync(cmd, { encoding: "utf-8" });
+function runCommand(cmd: string): void {
+    const [command, ...args] = cmd.split(" ");
+    const result = spawnSync(command, args, {
+        encoding: "utf-8",
+        shell: true,
+    });
+
+    if (result.error) {
+        stdout.write(styleText("red", result.error.message));
+        exit(1);
+    }
 }
 
 function buildSteps(steps: { fn: () => void; name: string; skip?: boolean }[]): void {

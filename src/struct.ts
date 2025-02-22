@@ -8,6 +8,7 @@ export function isStructBound(structDeclaration: string): boolean {
     return structDeclaration in structBindings;
 }
 
+/** Generates TypeScript code for a struct. */
 function getStructCodeTs(structData: ImGuiStruct, functions: ImGuiFunction[]): string {
     const structComment =
         structBindings[structData.name]?.override?.comment ??
@@ -64,24 +65,26 @@ function getStructCodeTs(structData: ImGuiStruct, functions: ImGuiFunction[]): s
     ].join("");
 }
 
+/** Generates TypeScript code for the structs in the ImGui data. */
 export function generateStructsTs(jsonData: ImGuiData): string {
     const structs = jsonData.structs.filter((struct) => struct.name in structBindings);
 
     return structs.map((struct) => getStructCodeTs(struct, jsonData.functions)).join("");
 }
 
+/** Generates C++ code for a struct. */
 function getStructCodeCpp(structData: ImGuiStruct, functions: ImGuiFunction[]): string {
     let fields = [""];
     if (!structBindings[structData.name]?.opaque) {
         fields = structData.fields.map((field) => {
-        if (structBindings[structData.name]?.exclude?.fields?.includes(field.name)) {
-            return "";
-        }
+            if (structBindings[structData.name]?.exclude?.fields?.includes(field.name)) {
+                return "";
+            }
 
-        return [
-            `.function("get_${field.name}", override([](const ${structData.name}& self){ return self.${field.name}; }), rvp_ref(), allow_ptr())\n`,
-            `.function("set_${field.name}", override([](${structData.name}& self, ${field.type.declaration} value){ self.${field.name} = value; }), allow_ptr())\n`,
-        ].join("");
+            return [
+                `.function("get_${field.name}", override([](const ${structData.name}& self){ return self.${field.name}; }), rvp_ref(), allow_ptr())\n`,
+                `.function("set_${field.name}", override([](${structData.name}& self, ${field.type.declaration} value){ self.${field.name} = value; }), allow_ptr())\n`,
+            ].join("");
         });
     }
 
@@ -104,6 +107,7 @@ function getStructCodeCpp(structData: ImGuiStruct, functions: ImGuiFunction[]): 
     ].join("");
 }
 
+/** Generates C++ code for the structs in the ImGui data. */
 export function generateStructsCpp(jsonData: ImGuiData): string {
     const structs = jsonData.structs.filter((struct) => struct.name in structBindings);
 

@@ -73,22 +73,33 @@ function frame() {
     ImGuiImplWeb.BeginRender();
 
     ImGui.SetNextWindowPos(new ImVec2(10, 10), ImGui.Cond.Once);
-    ImGui.SetNextWindowSize(new ImVec2(330, 125), ImGui.Cond.Once);
+    ImGui.SetNextWindowSize(new ImVec2(330, 175), ImGui.Cond.Once);
     ImGui.Begin("Three.js");
 
+    ImGui.SeparatorText("Welcome");
     ImGui.Text("Welcome to jsimgui!");
-    ImGui.SameLine();
-    if (ImGui.TextLink("(Source Code)")) {
-        globalThis.open("https://github.com/mori2003/jsimgui/", "_self");
-    }
+    ImGui.TextDisabled(`Using ImGui v${ImGui.GetVersion()}-docking`);
+
     ImGui.Spacing();
-    ImGui.Text("Also see the other examples:");
-    ImGui.Bullet();
-    if (ImGui.TextLink("WebGL2")) {
-        globalThis.open("https://mori2003.github.io/jsimgui/examples/webgl/", "_self");
+
+    if (ImGui.TreeNode("Other Examples")) {
+        ImGui.Bullet();
+        if (ImGui.TextLink("WebGL2")) {
+            globalThis.open("https://mori2003.github.io/jsimgui/docs/examples/webgl/", "_self");
+        }
+        ImGui.SameLine();
+        ImGui.Text("(Clear Canvas)");
+        ImGui.Spacing();
+        ImGui.TreePop();
     }
-    ImGui.SameLine();
-    ImGui.Text("(Clear Canvas)");
+
+    if (ImGui.TreeNode("Source Code")) {
+        if (ImGui.TextLink("Github")) {
+            globalThis.open("https://github.com/mori2003/jsimgui/", "_self");
+        }
+        ImGui.TreePop();
+    }
+
     ImGui.Spacing();
     ImGui.Checkbox("Show ImGui Demo", showDemo);
     ImGui.SameLine();
@@ -103,7 +114,7 @@ function frame() {
     }
     ImGui.End();
 
-    ImGui.SetNextWindowPos(new ImVec2(10, 150), ImGui.Cond.Once);
+    ImGui.SetNextWindowPos(new ImVec2(10, 200), ImGui.Cond.Once);
     ImGui.SetNextWindowSize(new ImVec2(400, 500), ImGui.Cond.Once);
     ImGui.Begin("Playground");
 

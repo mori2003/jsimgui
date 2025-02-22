@@ -11,7 +11,6 @@ export function toTsType(type: string): string {
         float: "number",
         double: "number",
         char: "string",
-        // biome-ignore lint/style/useNamingConvention:
         size_t: "number",
         "unsigned int": "number",
         "const char*": "string",
@@ -43,6 +42,7 @@ export function toTsType(type: string): string {
     return tsType;
 }
 
+/** Generates TypeScript type definitions from the ImGui data. */
 export function generateTypedefs(jsonData: ImGuiData): string {
     const baseTypeMap = new Map([
         ["void", "void"],

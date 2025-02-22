@@ -36,7 +36,7 @@ function frame() {
     ImGui.Begin("WebGL");
 
     ImGui.SeparatorText("Welcome");
-    ImGui.Text("Welcome to jsimgui! (WIP)");
+    ImGui.Text("Welcome to jsimgui!");
     ImGui.TextDisabled(`Using ImGui v${ImGui.GetVersion()}-docking`);
 
     ImGui.Spacing();
@@ -44,7 +44,7 @@ function frame() {
     if (ImGui.TreeNode("Other Examples")) {
         ImGui.Bullet();
         if (ImGui.TextLink("Three.js")) {
-            globalThis.open("https://mori2003.github.io/jsimgui/examples/threegl/", "_self");
+            globalThis.open("https://mori2003.github.io/jsimgui/docs/examples/threegl/", "_self");
         }
         ImGui.SameLine();
         ImGui.Text("(WebGL2 Renderer)");
@@ -92,7 +92,6 @@ function frame() {
     }
 
     if (ImGui.CollapsingHeader("Playground")) {
-        ImGui.ColorEdit3("clearColor", color);
         ImGui.Text("JavaScript Playground");
         ImGui.SameLine();
         ImGui.TextColored(new ImVec4(1, 1, 0, 1), "(Called every frame!)");

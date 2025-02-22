@@ -1,15 +1,18 @@
 import { formatComment } from "./comment.ts";
 import type { ImGuiData, ImGuiEnum } from "./interface.js";
 
+/** Trims the field name to remove the enum name prefix. */
 function trimFieldName(fieldName: string, enumName: string): string {
     return fieldName.startsWith(enumName) ? fieldName.slice(enumName.length) : fieldName;
 }
 
+/** Trims the enum name to remove the "ImGui" prefix and "_" suffix. */
 function trimEnumName(enumName: string): string {
     const trimmed = enumName.endsWith("_") ? enumName.slice(0, -1) : enumName;
     return trimmed.startsWith("ImGui") ? trimmed.slice(5) : trimmed;
 }
 
+/** Generates TypeScript code for an enum. */
 function getEnumCode(enumData: ImGuiEnum): string {
     const trimmedName = trimEnumName(enumData.name);
     const enumComment = formatComment(enumData.comments?.preceding?.[0]);

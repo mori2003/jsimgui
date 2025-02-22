@@ -15,6 +15,10 @@ function isObsoleteElement(element: any): boolean {
     );
 }
 
+/**
+ * Filters out elements and subelements from the given data based on the filter function.
+ * Used to filter out internal and obsolete elements.
+ */
 function filterElements(data: any, filterFunction: (element: any) => boolean): any {
     if (Array.isArray(data)) {
         return data

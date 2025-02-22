@@ -1714,6 +1714,10 @@ bind_func("ImGui_IsMouseDoubleClicked", [](ImGuiMouseButton button){
     return ImGui_IsMouseDoubleClicked(button);
 });
 
+bind_func("ImGui_IsMouseReleasedWithDelay", [](ImGuiMouseButton button, float delay){
+    return ImGui_IsMouseReleasedWithDelay(button, delay);
+});
+
 bind_func("ImGui_GetMouseClickedCount", [](ImGuiMouseButton button){
     return ImGui_GetMouseClickedCount(button);
 });

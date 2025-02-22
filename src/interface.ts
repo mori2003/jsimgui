@@ -50,13 +50,13 @@ export interface TypeDescription {
 }
 
 export interface ImGuiStruct {
-    name:                          string;
+    name: string;
     original_fully_qualified_name: string;
-    forward_declaration:           boolean;
-    fields:                        StructField[];
-    comments?:                     ImGuiComment;
-    is_internal:                   boolean;
-    conditionals?:                 ImGuiConditional[];
+    forward_declaration: boolean;
+    fields: StructField[];
+    comments?: ImGuiComment;
+    is_internal: boolean;
+    conditionals?: ImGuiConditional[];
 }
 
 export interface StructField {

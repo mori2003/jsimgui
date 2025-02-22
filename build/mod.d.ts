@@ -563,6 +563,7 @@ export declare class ImDrawList extends StructBinding {
 export declare class ImDrawData extends StructBinding {
     constructor();
 }
+/** A font input\/source (we may rename this to ImFontSource in the future) */
 export declare class ImFontConfig extends StructBinding {
     constructor();
 }
@@ -1470,12 +1471,14 @@ export declare const ImGui: Readonly<{
         NoDragDrop: number;
         /**              \/\/ ColorButton: disable border (which is enforced by default) */
         NoBorder: number;
+        /**              \/\/ ColorEdit, ColorPicker, ColorButton: disable alpha in the preview,. Contrary to _NoAlpha it may still be edited when calling ColorEdit4()\/ColorPicker4(). For ColorButton() this does the same as _NoAlpha. */
+        AlphaOpaque: number;
+        /**              \/\/ ColorEdit, ColorPicker, ColorButton: disable rendering a checkerboard background behind transparent color. */
+        AlphaNoBg: number;
+        /**              \/\/ ColorEdit, ColorPicker, ColorButton: display half opaque \/ half transparent preview. */
+        AlphaPreviewHalf: number;
         /**              \/\/ ColorEdit, ColorPicker: show vertical alpha bar\/gradient in picker. */
         AlphaBar: number;
-        /**              \/\/ ColorEdit, ColorPicker, ColorButton: display preview as a transparent color over a checkerboard, instead of opaque. */
-        AlphaPreview: number;
-        /**              \/\/ ColorEdit, ColorPicker, ColorButton: display half opaque \/ half checkerboard, instead of opaque. */
-        AlphaPreviewHalf: number;
         /**              \/\/ (WIP) ColorEdit: Currently only disable 0.0f..1.0f limits in RGBA edition (note: you probably want to use ImGuiColorEditFlags_Float flag as well). */
         HDR: number;
         /** [Display]    \/\/ ColorEdit: override _display_ type among RGB\/HSV\/Hex. ColorPicker: select any combination using one or more of RGB\/HSV\/Hex. */
@@ -2336,6 +2339,8 @@ export declare const ImGui: Readonly<{
     IsMouseReleased(button: ImGuiMouseButton): boolean;
     /** did mouse button double-clicked? Same as GetMouseClickedCount() == 2. (note that a double-click will also report IsMouseClicked() == true) */
     IsMouseDoubleClicked(button: ImGuiMouseButton): boolean;
+    /** delayed mouse release (use very sparingly!). Generally used with 'delay >= io.MouseDoubleClickTime' + combined with a 'io.MouseClickedLastCount==1' test. This is a very rarely used UI idiom, but some apps use this: e.g. MS Explorer single click on an icon to rename. */
+    IsMouseReleasedWithDelay(button: ImGuiMouseButton, delay: number): boolean;
     /** return the number of successive mouse-clicks at the time where a click happen (otherwise 0). */
     GetMouseClickedCount(button: ImGuiMouseButton): number;
     /** is mouse hovering given bounding rect (in screen space). clipped by current clipping settings, but disregarding of other consideration of focus\/window ordering\/popup-block. */
