@@ -1,6 +1,6 @@
 {
     "name": "@mori2003/jsimgui",
-    "version": "0.1.5",
+    "version": "0.2.0",
     "exports": "./build/mod.js",
     "publish": {
         "include": ["build/", "jsr.json", "LICENSE", "package.json", "README.md"],
