@@ -1,0 +1,111 @@
+import type { ImGuiStruct, ImGuiData, ImGuiFunction } from "./interface.ts";
+import { formatComment } from "./comment.ts";
+import { toTsType } from "./types.ts";
+import { structBindings } from "./bindings.ts";
+import { getMethodCodeCpp, getMethodCodeTs } from "./function.ts";
+
+export function isStructBound(structDeclaration: string): boolean {
+    return structDeclaration in structBindings;
+}
+
+function getStructCodeTs(structData: ImGuiStruct, functions: ImGuiFunction[]): string {
+    const structComment =
+        structBindings[structData.name]?.override?.comment ??
+        formatComment(structData.comments?.attached ?? structData.comments?.preceding?.[0]);
+
+    const ctor =
+        structBindings[structData.name]?.override?.ctor ??
+        `    constructor() { super("${structData.name}"); }\n`;
+
+    let fields = [""];
+    if (!structBindings[structData.name]?.opaque) {
+        fields = structData.fields.map((field) => {
+            if (structBindings[structData.name]?.exclude?.fields?.includes(field.name)) {
+                return "";
+            }
+
+            const fieldComment = formatComment(field.comments?.attached);
+            const type = toTsType(field.type.declaration);
+
+            return [
+                fieldComment ? `    /** ${fieldComment} */\n` : "",
+                `    get ${field.name}(): ${type} {`,
+                type in structBindings
+                    ? ` return ${type}.wrap(this._ptr.get_${field.name}()); `
+                    : ` return this._ptr.get_${field.name}(); `,
+                "}\n",
+                `    set ${field.name}(v: ${type}) {`,
+                type in structBindings
+                    ? ` this._ptr.set_${field.name}(v._ptr); `
+                    : ` this._ptr.set_${field.name}(v); `,
+                "}\n",
+                "\n",
+            ].join("");
+        });
+    }
+
+    const structMethods = functions.filter((func) => func.original_class === structData.name);
+
+    let methods = [""];
+    if (!structBindings[structData.name]?.opaque) {
+        methods = structMethods.map((method) => {
+            return getMethodCodeTs(method);
+        });
+    }
+
+    return [
+        structComment ? `/** ${structComment} */\n` : "",
+        `export class ${structData.name} extends StructBinding {\n`,
+        ctor,
+        ...fields,
+        ...methods,
+        "}\n",
+        "\n",
+    ].join("");
+}
+
+export function generateStructsTs(jsonData: ImGuiData): string {
+    const structs = jsonData.structs.filter((struct) => struct.name in structBindings);
+
+    return structs.map((struct) => getStructCodeTs(struct, jsonData.functions)).join("");
+}
+
+function getStructCodeCpp(structData: ImGuiStruct, functions: ImGuiFunction[]): string {
+    let fields = [""];
+    if (!structBindings[structData.name]?.opaque) {
+        fields = structData.fields.map((field) => {
+        if (structBindings[structData.name]?.exclude?.fields?.includes(field.name)) {
+            return "";
+        }
+
+        return [
+            `.function("get_${field.name}", override([](const ${structData.name}& self){ return self.${field.name}; }), rvp_ref(), allow_ptr())\n`,
+            `.function("set_${field.name}", override([](${structData.name}& self, ${field.type.declaration} value){ self.${field.name} = value; }), allow_ptr())\n`,
+        ].join("");
+        });
+    }
+
+    const structMethods = functions.filter((func) => func.original_class === structData.name);
+
+    let methods = [""];
+    if (!structBindings[structData.name]?.opaque) {
+        methods = structMethods.map((method) => {
+            return getMethodCodeCpp(method);
+        });
+    }
+
+    return [
+        `bind_struct<${structData.name}>("${structData.name}")\n`,
+        ".constructor<>()\n",
+        ...fields,
+        ...methods,
+        ";\n",
+        "\n",
+    ].join("");
+}
+
+export function generateStructsCpp(jsonData: ImGuiData): string {
+    const structs = jsonData.structs.filter((struct) => struct.name in structBindings);
+
+    return structs.map((struct) => getStructCodeCpp(struct, jsonData.functions)).join("");
+}

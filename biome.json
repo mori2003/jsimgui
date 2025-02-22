@@ -21,7 +21,13 @@
     },
     "linter": {
         "enabled": true,
-        "ignore": ["build/", "src/interface.ts"],
+        "ignore": [
+            "build/",
+            "src/interface.ts",
+            "src/bindings.ts",
+            "src/templates/",
+            "bindgen/mod.ts"
+        ],
         "rules": {
             "all": true,
             "suspicious": {
@@ -31,19 +37,7 @@
                 "noNodejsModules": "off"
             },
             "style": {
-                "useNamingConvention": {
-                    "level": "warn",
-                    "options": {
-                        "conventions": [
-                            {
-                                "selector": {
-                                    "kind": "objectLiteralMethod"
-                                },
-                                "formats": ["PascalCase"]
-                            }
-                        ]
-                    }
-                }
+                "useNamingConvention": "off"
             }
         }
     },

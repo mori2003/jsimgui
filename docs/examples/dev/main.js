@@ -1,4 +1,4 @@
-import { Mod, ImEnum, ImGui, ImGuiImplWeb, ImVec2, ImVec4 } from "@mori2003/jsimgui";
+import { ImGui, ImGuiImplWeb, ImGuiImplOpenGL3, ImVec2, ImVec4 } from "@mori2003/jsimgui";
 
 const canvas = document.querySelector("#render-canvas");
 const context = canvas.getContext("webgl2");
@@ -34,13 +34,21 @@ const showDemo = [true];
 const docking = [false];
 
 
-console.log(ImGui.GetVersion());
+// console.log(ImGui.GetVersion());
+
+// const io = ImGui.GetIO();
+// console.log(io);
+//const vec = new ImVec2(canvas.clientWidth, canvas.clientHeight);
+//console.log(vec);
+//io.DisplaySize = vec;
 
 function frame() {
-    ImGuiImplWeb.BeginRender();
+    //ImGuiImplWeb.BeginRender();
+    ImGuiImplOpenGL3.NewFrame();
+    ImGui.NewFrame();
 
-    ImGui.SetNextWindowPos(new ImVec2(10, 10), ImEnum.Cond.Once);
-    ImGui.SetNextWindowSize(new ImVec2(330, 125), ImEnum.Cond.Once);
+    ImGui.SetNextWindowPos(new ImVec2(10, 10), ImGui.Cond.Once);
+    ImGui.SetNextWindowSize(new ImVec2(330, 125), ImGui.Cond.Once);
     ImGui.Begin("WebGL", new ImVec2(10, 10), 0);
     ImGui.Button("Hello, World!");
 
@@ -56,7 +64,9 @@ function frame() {
     context.clearColor(color[0], color[1], color[2], 1.0);
     context.clear(context.COLOR_BUFFER_BIT);
 
-    ImGuiImplWeb.EndRender();
+    //ImGuiImplWeb.EndRender();
+    ImGui.Render();
+    ImGuiImplOpenGL3.RenderDrawData(ImGui.GetDrawData());
 
     requestAnimationFrame(frame);
 }

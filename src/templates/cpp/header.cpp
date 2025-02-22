@@ -31,13 +31,6 @@ constexpr auto bind_struct(const std::string &name) {
   return emscripten::class_<Struct>(name.c_str());
 }
 
-#define bind_prop(className, name, type) \
-    .function("get_"#name , override([](const className& self){ return self.name; }), rvp_ref(), allow_ptr()) \
-    .function("set_"#name , override([](className& self, type value){ self.name = value; }), allow_ptr())
-
-#define bind_method(name, func, ...) \
-    .function(name, override(func), __VA_ARGS__)
-
 template<typename T>
 class ArrayParam {
     private:

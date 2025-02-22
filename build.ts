@@ -17,19 +17,25 @@ function main(): void {
         stdout.write(styleText("white", "  --skip-metadata\n"));
         stdout.write(styleText("white", "  --skip-bindings\n"));
         stdout.write(styleText("white", "  --skip-wasm\n"));
+        stdout.write(styleText("white", "  --skip-typescript\n"));
+        stdout.write(styleText("white", "  --skip-format\n"));
         exit(0);
     }
 
-    const skipMetadata = argv.includes("--skip-metadata");
-    const skipBindings = argv.includes("--skip-bindings");
-    const skipWasm = argv.includes("--skip-wasm");
+    const args = {
+        skipMetadata: argv.includes("--skip-metadata"),
+        skipBindings: argv.includes("--skip-bindings"),
+        skipWasm: argv.includes("--skip-wasm"),
+        skipTypeScript: argv.includes("--skip-typescript"),
+        skipFormat: argv.includes("--skip-format"),
+    };
 
     buildSteps([
-        { fn: checkMetadata, name: "📑 Checking metadata", skip: skipMetadata },
-        { fn: generateBindings, name: "🔗 Generating bindings", skip: skipBindings },
-        { fn: compileWasm, name: "🛠️ Compiling WASM", skip: skipWasm },
-        { fn: compileTypeScript, name: "📘 Compiling TypeScript" },
-        { fn: formatJavaScript, name: "🧹 Formatting/Linting output" },
+        { fn: checkMetadata, name: "📑 Checking metadata", skip: args.skipMetadata },
+        { fn: generateBindings, name: "🔗 Generating bindings", skip: args.skipBindings },
+        { fn: compileWasm, name: "🛠️ Compiling WASM", skip: args.skipWasm },
+        { fn: compileTypeScript, name: "📘 Compiling TypeScript", skip: args.skipTypeScript },
+        { fn: formatJavaScript, name: "🧹 Formatting/Linting output", skip: args.skipFormat },
     ]);
 
     const endTime = Date.now();
@@ -99,6 +105,7 @@ function checkMetadata(): void {
             [
                 "python",
                 "./third_party/dear_bindings/dear_bindings.py",
+                "--nogeneratedefaultargfunctions",
                 "-o",
                 "./third_party/dear_bindings/dcimgui",
                 "./third_party/imgui/imgui.h",
@@ -139,6 +146,21 @@ function compileWasm(): void {
         [
             "em++",
             "bindgen/jsimgui.cpp",
+
+            "./third_party/imgui/imgui.cpp",
+            "./third_party/imgui/imgui_demo.cpp",
+            "./third_party/imgui/imgui_draw.cpp",
+            "./third_party/imgui/imgui_tables.cpp",
+            "./third_party/imgui/imgui_widgets.cpp",
+            "./third_party/imgui/backends/imgui_impl_opengl3.cpp",
+            "./third_party/imgui/backends/imgui_impl_wgpu.cpp",
+            "./third_party/dear_bindings/dcimgui.cpp",
+            "./third_party/dear_bindings/dcimgui_internal.cpp",
+            "./third_party/dear_bindings/dcimgui_impl_opengl3.cpp",
+            "-I./third_party/imgui/",
+            "-I./third_party/imgui/backends",
+            "-I./third_party/dear_bindings",
+
             "-o build/jsimgui-em.js",
             "--cache=./.em_cache",
             "-std=c++20",
@@ -147,6 +169,11 @@ function compileWasm(): void {
             "-sMODULARIZE=1",
             "-sEXPORT_ES6=1",
             "-sEXPORT_NAME=MainExport",
+
+            "-lembind",
+            "-sEXPORTED_RUNTIME_METHODS=GL,FS,MEMFS",
+            "-sMIN_WEBGL_VERSION=2", // Target only WebGL2
+            "-sMAX_WEBGL_VERSION=2",
 
             "-Oz",
             "-flto",
@@ -162,6 +189,7 @@ function compileTypeScript(): void {
 
 function formatJavaScript(): void {
     runCommand("./node_modules/.bin/biome format --write ./build/jsimgui-em.js");
+    runCommand("./node_modules/.bin/biome format --write ./build/mod.js");
 }
 
 main();

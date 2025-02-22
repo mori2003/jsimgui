@@ -21,7 +21,7 @@
  */
 
 // @ts-ignore: MainExport will be imported when compiled in the build directory.
-import MainExport from "./jsimgui.js";
+import MainExport from "./jsimgui-em.js";
 
 /* -------------------------------------------------------------------------- */
 /* 1. Core Module */
@@ -31,7 +31,7 @@ export const Mod = {
     _export: null,
 
     /** Initialize the WASM module. */
-    async Init(): Promise<void> {
+    async init(): Promise<void> {
         if (Mod._export) {
             throw new Error("WASM module already initialized.");
         }

@@ -60,12 +60,26 @@ export interface ImGuiStruct {
 }
 
 export interface StructField {
-
+    name: string;
+    type: TypeDescription;
+    comments?: ImGuiComment;
+    is_internal: boolean;
+    conditionals?: ImGuiConditional[];
 }
 
 export interface ImGuiFunction {
     name: string;
     original_fully_qualified_name: string;
+    return_type: TypeDescription;
+    comments?: ImGuiComment;
+    arguments: ImGuiArgument[];
+    original_class: string;
+}
+
+export interface ImGuiArgument {
+    name: string;
+    type: TypeDescription;
+    default_value?: string;
 }
 
 export interface ImGuiComment {

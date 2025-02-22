@@ -1,9 +1,8 @@
 .em_cache/
 .cache/
-docs/dev/
-
+.venv/
+docs/examples/dev/
 node_modules/
 bun.lock
-
 compile_commands.json
 deno.lock
