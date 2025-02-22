@@ -12,62 +12,52 @@ canvas.height = canvas.clientHeight * devicePixelRatio;
 await ImGuiImplWeb.Init(canvas);
 
 
+const imgJsLogo = new Image();
+imgJsLogo.src = "javascript.png";
+const jsLogo = await ImGuiImplWeb.LoadImage(canvas, imgJsLogo);
 
-// const io = ImGui.GetIO();
-// await ImGuiImplWeb.LoadFont("inter-regular.ttf");
-// io.Fonts.AddFontDefault();
-// io.Fonts.AddFontFromFileTTF("inter-regular.ttf", 16, null);
-//console.log(io.Fonts.GetGlyphRangesDefault());
-
-
-// const imgJsLogo = new Image();
-// imgJsLogo.src = "javascript.png";
-// const texJsLogo = await ImGuiImplWeb.LoadImage(imgJsLogo);
-
-// const imgWasmLogo = new Image();
-// imgWasmLogo.crossOrigin = "anonymous";
-// imgWasmLogo.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/WebAssembly_Logo.svg/2048px-WebAssembly_Logo.svg.png";
-// const texWasmLogo = await ImGuiImplWeb.LoadImage(imgWasmLogo);
+const imgWasmLogo = new Image();
+imgWasmLogo.crossOrigin = "anonymous";
+imgWasmLogo.src =
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/WebAssembly_Logo.svg/2048px-WebAssembly_Logo.svg.png";
+const wasmLogo = await ImGuiImplWeb.LoadImage(canvas, imgWasmLogo);
 
 const color = [0.0, 0.5, 0.5];
+const data = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 const showDemo = [true];
 const docking = [false];
-
-
-// console.log(ImGui.GetVersion());
-
-// const io = ImGui.GetIO();
-// console.log(io);
-//const vec = new ImVec2(canvas.clientWidth, canvas.clientHeight);
-//console.log(vec);
-//io.DisplaySize = vec;
+//const inputText = ["Hello, World!"];
 
 function frame() {
-    //ImGuiImplWeb.BeginRender();
-    ImGuiImplOpenGL3.NewFrame();
-    ImGui.NewFrame();
+    ImGuiImplWeb.BeginRender();
 
     ImGui.SetNextWindowPos(new ImVec2(10, 10), ImGui.Cond.Once);
     ImGui.SetNextWindowSize(new ImVec2(330, 125), ImGui.Cond.Once);
-    ImGui.Begin("WebGL", new ImVec2(10, 10), 0);
-    ImGui.Button("Hello, World!");
 
-    ImGui.Text("Hello, World!");
-    ImGui.TextColored(new ImVec4(1.0, 0.0, 0.0, 1.0), "Hello, World!");
-    ImGui.TextDisabled("Hello, World!");
-    ImGui.TextWrapped("Hello, World! Hello, World! Hello, World! Hello, World! Hello, World! Hello, World! Hello, World!");
-    ImGui.LabelText("Hello, World!", "Hello, World!");
-    ImGui.BulletText("Hello, World!");
-    ImGui.SeparatorText("Hello, World!");
+
+
+    ImGui.Begin("jsimgui");
+    ImGui.Text("JavaScript bindings for Dear ImGui");
+    ImGui.Image(jsLogo, new ImVec2(50, 50));
+    ImGui.SameLine();
+    ImGui.Image(wasmLogo, new ImVec2(50, 50));
+    if (ImGui.Button("Click me")) {
+        console.log("Button clicked!");
+    }
+
+
+    //ImGui.PlotLines("My Plot", data, data.length);
+    //ImGui.InputText("Input Text", inputText);
     ImGui.End();
+
+    if (showDemo[0]) {
+        ImGui.ShowDemoWindow(showDemo);
+    }
 
     context.clearColor(color[0], color[1], color[2], 1.0);
     context.clear(context.COLOR_BUFFER_BIT);
 
-    //ImGuiImplWeb.EndRender();
-    ImGui.Render();
-    ImGuiImplOpenGL3.RenderDrawData(ImGui.GetDrawData());
-
+    ImGuiImplWeb.EndRender();
     requestAnimationFrame(frame);
 }
 

@@ -1,4 +1,4 @@
-import { Mod, ImEnum, ImGui, ImGuiImplWeb, ImVec2, ImVec4 } from "@mori2003/jsimgui";
+import { ImGui, ImGuiImplWeb, ImVec2, ImVec4 } from "@mori2003/jsimgui";
 
 const canvas = document.querySelector("#render-canvas");
 const context = canvas.getContext("webgl2");
@@ -15,21 +15,27 @@ const color = [0.0, 0.5, 0.5];
 const showDemo = [true];
 const docking = [false];
 
-let code = [`ImGui.SetNextWindowPos(new ImVec2(450, 200), ImEnum.Cond.Once);
-ImGui.SetNextWindowSize(new ImVec2(330, 125), ImEnum.Cond.Once);
+const imgJsLogo = new Image();
+imgJsLogo.src = "javascript.png";
+const jsLogo = await ImGuiImplWeb.LoadImage(canvas, imgJsLogo);
+
+let code = [
+    `ImGui.SetNextWindowPos(new ImVec2(450, 200), ImGui.Cond.Once);
+ImGui.SetNextWindowSize(new ImVec2(330, 125), ImGui.Cond.Once);
 ImGui.Begin("New Window");
 ImGui.Text("Hello, World!");
-ImGui.End();`];
+ImGui.End();`,
+];
 let evalCode = "";
 
 function frame() {
     ImGuiImplWeb.BeginRender();
 
-    ImGui.SetNextWindowPos(new ImVec2(10, 10), ImEnum.Cond.Once);
-    ImGui.SetNextWindowSize(new ImVec2(330, 400), ImEnum.Cond.Once);
+    ImGui.SetNextWindowPos(new ImVec2(10, 10), ImGui.Cond.Once);
+    ImGui.SetNextWindowSize(new ImVec2(330, 400), ImGui.Cond.Once);
     ImGui.Begin("WebGL");
 
-    ImGui.SeparatorText("Welcome")
+    ImGui.SeparatorText("Welcome");
     ImGui.Text("Welcome to jsimgui! (WIP)");
     ImGui.TextDisabled(`Using ImGui v${ImGui.GetVersion()}-docking`);
 
@@ -59,18 +65,16 @@ function frame() {
     if (ImGui.Checkbox("Enable Docking", docking)) {
         if (docking[0]) {
             const io = ImGui.GetIO();
-            io.ConfigFlags |= ImEnum.ConfigFlags.DockingEnable;
+            io.ConfigFlags |= ImGui.ConfigFlags.DockingEnable;
         } else {
             const io = ImGui.GetIO();
-            io.ConfigFlags &= ~ImEnum.ConfigFlags.DockingEnable;
+            io.ConfigFlags &= ~ImGui.ConfigFlags.DockingEnable;
         }
     }
 
     ImGui.SeparatorText("Features");
 
     if (ImGui.CollapsingHeader("Widgets")) {
-        ImGui.Text("Widgets");
-
         if (ImGui.Button("Button")) {
             alert("Button pressed");
         }
@@ -78,6 +82,8 @@ function frame() {
         ImGui.Text("Text");
         ImGui.TextColored(new ImVec4(1, 1, 0, 1), "Colored Text");
         ImGui.TextDisabled("Disabled Text");
+
+        ImGui.Image(jsLogo, new ImVec2(50, 50));
 
         const values = [0, 1, 2, 3, 4];
         ImGui.ColorEdit3("clearColor", color);

@@ -2893,6 +2893,43 @@ export const ImGui = Object.freeze({
     TextLinkOpenURL(label, url) {
         return Mod.export.ImGui_TextLinkOpenURL(label, url);
     },
+    /** Widgets: Images */
+    Image(
+        user_texture_id,
+        image_size,
+        uv0 = new ImVec2(0, 0),
+        uv1 = new ImVec2(1, 1),
+        tint_col = new ImVec4(1, 1, 1, 1),
+        border_col = new ImVec4(0, 0, 0, 0),
+    ) {
+        return Mod.export.ImGui_Image(
+            user_texture_id,
+            image_size?._ptr || null,
+            uv0?._ptr || null,
+            uv1?._ptr || null,
+            tint_col?._ptr || null,
+            border_col?._ptr || null,
+        );
+    },
+    ImageButton(
+        str_id,
+        user_texture_id,
+        image_size,
+        uv0 = new ImVec2(0, 0),
+        uv1 = new ImVec2(1, 1),
+        bg_col = new ImVec4(0, 0, 0, 0),
+        tint_col = new ImVec4(1, 1, 1, 1),
+    ) {
+        return Mod.export.ImGui_ImageButton(
+            str_id,
+            user_texture_id,
+            image_size?._ptr || null,
+            uv0?._ptr || null,
+            uv1?._ptr || null,
+            bg_col?._ptr || null,
+            tint_col?._ptr || null,
+        );
+    },
     /** Widgets: Combo Box (Dropdown) */
     BeginCombo(label, preview_value, flags = 0) {
         return Mod.export.ImGui_BeginCombo(label, preview_value, flags);
@@ -3041,7 +3078,7 @@ export const ImGui = Object.freeze({
         return Mod.export.ImGui_InputText(label, buf, buf_size, flags);
     },
     InputTextMultiline(label, buf, buf_size, size = new ImVec2(0, 0), flags = 0) {
-        return Mod.export.ImGui_InputTextMultiline(label, buf, buf_size, size, flags);
+        return Mod.export.ImGui_InputTextMultiline(label, buf, buf_size, size?._ptr, flags);
     },
     InputTextWithHint(label, hint, buf, buf_size, flags = 0) {
         return Mod.export.ImGui_InputTextWithHint(label, hint, buf, buf_size, flags);
@@ -3666,34 +3703,41 @@ export const ImGui = Object.freeze({
 /* 5. Web Implementation */
 /* -------------------------------------------------------------------------- */
 export const ImGuiImplOpenGL3 = {
-    /** [Manual] Initializes the OpenGL3 backend. */
+    /** Initializes the OpenGL3 backend. */
     Init() {
         return Mod.export.cImGui_ImplOpenGL3_Init();
     },
-    /** [Manual] Shuts down the OpenGL3 backend. */
+    /** Shuts down the OpenGL3 backend. */
     Shutdown() {
         return Mod.export.cImGui_ImplOpenGL3_Shutdown();
     },
-    /** [Manual] Starts a new OpenGL3 frame. */
+    /** Starts a new OpenGL3 frame. */
     NewFrame() {
         return Mod.export.cImGui_ImplOpenGL3_NewFrame();
     },
-    /** [Manual] Renders the OpenGL3 frame. */
+    /** Renders the OpenGL3 frame. */
     RenderDrawData(draw_data) {
         return Mod.export.cImGui_ImplOpenGL3_RenderDrawData(draw_data._ptr);
     },
 };
 function handleCanvasSize(canvas, io) {
-    const updateCanvasSize = () => {
-        const displayWidth = canvas.clientWidth;
-        const displayHeight = canvas.clientHeight;
+    const setDisplayProperties = () => {
+        const displayWidth = Math.floor(canvas.clientWidth);
+        const displayHeight = Math.floor(canvas.clientHeight);
         const dpr = globalThis.devicePixelRatio || 1;
-        canvas.width = displayWidth * dpr;
-        canvas.height = displayHeight * dpr;
+        const bufferWidth = Math.max(1, Math.round(displayWidth * dpr));
+        const bufferHeight = Math.max(1, Math.round(displayHeight * dpr));
+        canvas.width = bufferWidth;
+        canvas.height = bufferHeight;
+        const gl = canvas.getContext("webgl2");
+        if (gl) {
+            gl.viewport(0, 0, bufferWidth, bufferHeight);
+        }
         io.DisplaySize = new ImVec2(displayWidth, displayHeight);
+        io.DisplayFramebufferScale = new ImVec2(dpr, dpr);
     };
-    updateCanvasSize();
-    globalThis.addEventListener("resize", updateCanvasSize);
+    setDisplayProperties();
+    globalThis.addEventListener("resize", setDisplayProperties);
 }
 function handleMouseEvents(canvas, io) {
     canvas.addEventListener("mousemove", (event) => {
@@ -3741,9 +3785,9 @@ function handleMouseEvents(canvas, io) {
         }
     });
     const mouseMap = {
-        0: 0,
-        1: 2,
-        2: 1,
+        0: ImGui.MouseButton.Left,
+        1: ImGui.MouseButton.Middle,
+        2: ImGui.MouseButton.Right,
     };
     canvas.addEventListener("mousedown", (event) => {
         io.AddMouseButtonEvent(mouseMap[event.button], true);
@@ -3756,97 +3800,86 @@ function handleMouseEvents(canvas, io) {
     });
 }
 function handleKeyboardEvents(canvas, io) {
-    const keyMap = {
-        Tab: ImGui.Key._Tab,
-        ArrowLeft: ImGui.Key._LeftArrow,
-        ArrowRight: ImGui.Key._RightArrow,
-        ArrowUp: ImGui.Key._UpArrow,
-        ArrowDown: ImGui.Key._DownArrow,
-        PageUp: ImGui.Key._PageUp,
-        PageDown: ImGui.Key._PageDown,
-        Home: ImGui.Key._Home,
-        End: ImGui.Key._End,
-        Insert: ImGui.Key._Insert,
-        Delete: ImGui.Key._Delete,
-        Backspace: ImGui.Key._Backspace,
-        Space: ImGui.Key._Space,
-        Enter: ImGui.Key._Enter,
-        Escape: ImGui.Key._Escape,
-        Control: ImGui.Key._LeftCtrl,
-        Shift: ImGui.Key._LeftShift,
-        Alt: ImGui.Key._LeftAlt,
-        Super: ImGui.Key._LeftSuper,
-        0: ImGui.Key._0,
-        1: ImGui.Key._1,
-        2: ImGui.Key._2,
-        3: ImGui.Key._3,
-        4: ImGui.Key._4,
-        5: ImGui.Key._5,
-        6: ImGui.Key._6,
-        7: ImGui.Key._7,
-        8: ImGui.Key._8,
-        9: ImGui.Key._9,
-        A: ImGui.Key._A,
-        a: ImGui.Key._A,
-        B: ImGui.Key._B,
-        b: ImGui.Key._B,
-        C: ImGui.Key._C,
-        c: ImGui.Key._C,
-        D: ImGui.Key._D,
-        d: ImGui.Key._D,
-        E: ImGui.Key._E,
-        e: ImGui.Key._E,
-        F: ImGui.Key._F,
-        f: ImGui.Key._F,
-        G: ImGui.Key._G,
-        g: ImGui.Key._G,
-        H: ImGui.Key._H,
-        h: ImGui.Key._H,
-        I: ImGui.Key._I,
-        i: ImGui.Key._I,
-        J: ImGui.Key._J,
-        j: ImGui.Key._J,
-        K: ImGui.Key._K,
-        k: ImGui.Key._K,
-        L: ImGui.Key._L,
-        l: ImGui.Key._L,
-        M: ImGui.Key._M,
-        m: ImGui.Key._M,
-        N: ImGui.Key._N,
-        n: ImGui.Key._N,
-        O: ImGui.Key._O,
-        o: ImGui.Key._O,
-        P: ImGui.Key._P,
-        p: ImGui.Key._P,
-        Q: ImGui.Key._Q,
-        q: ImGui.Key._Q,
-        R: ImGui.Key._R,
-        r: ImGui.Key._R,
-        S: ImGui.Key._S,
-        s: ImGui.Key._S,
-        T: ImGui.Key._T,
-        t: ImGui.Key._T,
-        U: ImGui.Key._U,
-        u: ImGui.Key._U,
-        V: ImGui.Key._V,
-        v: ImGui.Key._V,
-        W: ImGui.Key._W,
-        w: ImGui.Key._W,
-        X: ImGui.Key._X,
-        x: ImGui.Key._X,
-        Y: ImGui.Key._Y,
-        y: ImGui.Key._Y,
-        Z: ImGui.Key._Z,
-        z: ImGui.Key._Z,
+    const keyboardMap = new Map();
+    const bindKey = (keys, value) => {
+        const keyArray = Array.isArray(keys) ? keys : [keys];
+        const valueArray = Array.isArray(value) ? value : [value];
+        for (const key of keyArray) {
+            const existing = keyboardMap.get(key) || [];
+            keyboardMap.set(key, [...existing, ...valueArray]);
+        }
     };
+    for (let i = 0; i <= 9; i++) {
+        bindKey(`${i}`, ImGui.Key[`_${i}`]);
+        bindKey(`Numpad${i}`, ImGui.Key[`_Keypad${i}`]);
+    }
+    for (let i = 1; i <= 24; i++) {
+        bindKey(`F${i}`, ImGui.Key[`_F${i}`]);
+    }
+    for (const letter of "ABCDEFGHIJKLMNOPQRSTUVWXYZ") {
+        bindKey([letter, letter.toLowerCase()], ImGui.Key[`_${letter}`]);
+    }
+    bindKey("'", ImGui.Key._Apostrophe);
+    bindKey(",", ImGui.Key._Comma);
+    bindKey("-", ImGui.Key._Minus);
+    bindKey(".", ImGui.Key._Period);
+    bindKey("/", ImGui.Key._Slash);
+    bindKey(";", ImGui.Key._Semicolon);
+    bindKey("=", ImGui.Key._Equal);
+    bindKey("[", ImGui.Key._LeftBracket);
+    bindKey("\\", ImGui.Key._Backslash);
+    bindKey("]", ImGui.Key._RightBracket);
+    bindKey("`", ImGui.Key._GraveAccent);
+    bindKey("CapsLock", ImGui.Key._CapsLock);
+    bindKey("ScrollLock", ImGui.Key._ScrollLock);
+    bindKey("NumLock", ImGui.Key._NumLock);
+    bindKey("PrintScreen", ImGui.Key._PrintScreen);
+    bindKey("Pause", ImGui.Key._Pause);
+    bindKey("NumpadDecimal", ImGui.Key._KeypadDecimal);
+    bindKey("NumpadDivide", ImGui.Key._KeypadDivide);
+    bindKey("NumpadMultiply", ImGui.Key._KeypadMultiply);
+    bindKey("NumpadSubtract", ImGui.Key._KeypadSubtract);
+    bindKey("NumpadAdd", ImGui.Key._KeypadAdd);
+    bindKey("NumpadEnter", ImGui.Key._KeypadEnter);
+    bindKey("NumpadEqual", ImGui.Key._KeypadEqual);
+    bindKey("Tab", [ImGui.Key._Tab]);
+    bindKey("ArrowLeft", [ImGui.Key._LeftArrow]);
+    bindKey("ArrowRight", [ImGui.Key._RightArrow]);
+    bindKey("ArrowUp", [ImGui.Key._UpArrow]);
+    bindKey("ArrowDown", [ImGui.Key._DownArrow]);
+    bindKey("PageUp", [ImGui.Key._PageUp]);
+    bindKey("PageDown", [ImGui.Key._PageDown]);
+    bindKey("Home", [ImGui.Key._Home]);
+    bindKey("End", [ImGui.Key._End]);
+    bindKey("Insert", [ImGui.Key._Insert]);
+    bindKey("Delete", [ImGui.Key._Delete]);
+    bindKey("Backspace", ImGui.Key._Backspace);
+    bindKey(" ", [ImGui.Key._Space]);
+    bindKey("Enter", [ImGui.Key._Enter]);
+    bindKey("Escape", [ImGui.Key._Escape]);
+    bindKey("Control", [ImGui.Key._LeftCtrl, ImGui.Key.ImGuiMod_Ctrl]);
+    bindKey("Shift", [ImGui.Key._LeftShift, ImGui.Key.ImGuiMod_Shift]);
+    bindKey("Alt", [ImGui.Key._LeftAlt, ImGui.Key.ImGuiMod_Alt]);
+    bindKey("Super", [ImGui.Key._LeftSuper, ImGui.Key.ImGuiMod_Super]);
+    // TODO: Fix too fast repeated inputs (Backspace, Delete...).
     canvas.addEventListener("keydown", (event) => {
-        io.AddKeyEvent(keyMap[event.key], true);
+        const keys = keyboardMap.get(event.key);
+        if (keys) {
+            for (const key of keys) {
+                io.AddKeyEvent(key, true);
+            }
+        }
         if (event.key.length === 1) {
             io.AddInputCharactersUTF8(event.key);
         }
     });
     canvas.addEventListener("keyup", (event) => {
-        io.AddKeyEvent(keyMap[event.key], false);
+        const keys = keyboardMap.get(event.key);
+        if (keys) {
+            for (const key of keys) {
+                io.AddKeyEvent(key, false);
+            }
+        }
     });
 }
 /** Setup IO for the browser. */
@@ -3886,5 +3919,37 @@ export const ImGuiImplWeb = {
         );
         Mod.export.GL.makeContextCurrent(handle);
         ImGuiImplOpenGL3.Init();
+    },
+    /** Begin a new frame. Call this at the beginning of your render loop. */
+    BeginRender() {
+        ImGuiImplOpenGL3.NewFrame();
+        ImGui.NewFrame();
+    },
+    /** End the current frame. Call this at the end of your render loop. */
+    EndRender() {
+        ImGui.Render();
+        ImGuiImplOpenGL3.RenderDrawData(ImGui.GetDrawData());
+    },
+    /** Load an image to the WebGL2 context and return the texture id. */
+    LoadImage(canvas, image) {
+        return new Promise((resolve, reject) => {
+            image.onload = () => {
+                const gl = canvas.getContext("webgl2");
+                if (!gl) {
+                    return;
+                }
+                const texture = gl.createTexture();
+                gl.bindTexture(gl.TEXTURE_2D, texture);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+                const id = Mod.export.GL.getNewId(Mod.export.GL.textures);
+                Mod.export.GL.textures[id] = texture;
+                resolve(id);
+            };
+            image.onerror = (error) => {
+                reject(error);
+            };
+        });
     },
 };

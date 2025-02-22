@@ -1,5 +1,4 @@
-// deno-lint-ignore-file
-import { ImEnum, ImGui, ImGuiImplWeb, ImVec2 } from "@mori2003/jsimgui";
+import { ImGui, ImGuiImplWeb, ImVec2 } from "@mori2003/jsimgui";
 import * as THREE from "three";
 
 const canvas = document.querySelector("#render-canvas");
@@ -73,8 +72,8 @@ const cubePosition = [0, 1, 0];
 function frame() {
     ImGuiImplWeb.BeginRender();
 
-    ImGui.SetNextWindowPos(new ImVec2(10, 10), ImEnum.Cond.Once);
-    ImGui.SetNextWindowSize(new ImVec2(330, 125), ImEnum.Cond.Once);
+    ImGui.SetNextWindowPos(new ImVec2(10, 10), ImGui.Cond.Once);
+    ImGui.SetNextWindowSize(new ImVec2(330, 125), ImGui.Cond.Once);
     ImGui.Begin("Three.js");
 
     ImGui.Text("Welcome to jsimgui!");
@@ -96,16 +95,16 @@ function frame() {
     if (ImGui.Checkbox("Enable Docking", docking)) {
         if (docking[0]) {
             const io = ImGui.GetIO();
-            io.ConfigFlags |= ImEnum.ConfigFlags.DockingEnable;
+            io.ConfigFlags |= ImGui.ConfigFlags.DockingEnable;
         } else {
             const io = ImGui.GetIO();
-            io.ConfigFlags &= ~ImEnum.ConfigFlags.DockingEnable;
+            io.ConfigFlags &= ~ImGui.ConfigFlags.DockingEnable;
         }
     }
     ImGui.End();
 
-    ImGui.SetNextWindowPos(new ImVec2(10, 150), ImEnum.Cond.Once);
-    ImGui.SetNextWindowSize(new ImVec2(400, 500), ImEnum.Cond.Once);
+    ImGui.SetNextWindowPos(new ImVec2(10, 150), ImGui.Cond.Once);
+    ImGui.SetNextWindowSize(new ImVec2(400, 500), ImGui.Cond.Once);
     ImGui.Begin("Playground");
 
     if (!stopRotation[0]) {

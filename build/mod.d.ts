@@ -2059,6 +2059,9 @@ export declare const ImGui: Readonly<{
     TextLink(label: string): boolean;
     /** hyperlink text button, automatically open file\/url when clicked */
     TextLinkOpenURL(label: string, url?: string): void;
+    /** Widgets: Images */
+    Image(user_texture_id: ImTextureID, image_size: ImVec2, uv0?: ImVec2, uv1?: ImVec2, tint_col?: ImVec4, border_col?: ImVec4): void;
+    ImageButton(str_id: string, user_texture_id: ImTextureID, image_size: ImVec2, uv0?: ImVec2, uv1?: ImVec2, bg_col?: ImVec4, tint_col?: ImVec4): boolean;
     /** Widgets: Combo Box (Dropdown) */
     BeginCombo(label: string, preview_value: string, flags?: ImGuiComboFlags): boolean;
     /** only call EndCombo() if BeginCombo() returns true! */
@@ -2363,18 +2366,24 @@ export declare const ImGui: Readonly<{
     UpdatePlatformWindows(): void;
 }>;
 export declare const ImGuiImplOpenGL3: {
-    /** [Manual] Initializes the OpenGL3 backend. */
+    /** Initializes the OpenGL3 backend. */
     Init(): boolean;
-    /** [Manual] Shuts down the OpenGL3 backend. */
+    /** Shuts down the OpenGL3 backend. */
     Shutdown(): void;
-    /** [Manual] Starts a new OpenGL3 frame. */
+    /** Starts a new OpenGL3 frame. */
     NewFrame(): void;
-    /** [Manual] Renders the OpenGL3 frame. */
+    /** Renders the OpenGL3 frame. */
     RenderDrawData(draw_data: ImDrawData): void;
 };
 /** Web implementation of Jsimgui. */
 export declare const ImGuiImplWeb: {
     /** Initialize Dear ImGui on the given canvas. Only WebGL2 is supported. */
     Init(canvas: HTMLCanvasElement): Promise<void>;
+    /** Begin a new frame. Call this at the beginning of your render loop. */
+    BeginRender(): void;
+    /** End the current frame. Call this at the end of your render loop. */
+    EndRender(): void;
+    /** Load an image to the WebGL2 context and return the texture id. */
+    LoadImage(canvas: HTMLCanvasElement, image: HTMLImageElement): Promise<ImTextureID>;
 };
 export {};

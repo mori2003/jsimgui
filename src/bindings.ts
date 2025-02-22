@@ -52,10 +52,6 @@ export const functionBindings: Record<string, FunctionBinding> = {
     ImGui_PlotLines: ImGui_PlotLines(),
     ImGui_PlotHistogram: ImGui_PlotHistogram(),
 
-    ImGui_Image: { exclude: true }, // WIP
-    ImGui_ImageButton: { exclude: true }, // WIP
-
-
     ImGuiIO_SetKeyEventNativeData: { exclude: true },
     ImFontAtlas_AddFontFromMemoryCompressedTTF: { exclude: true },
     ImFontAtlas_AddFontFromMemoryCompressedBase85TTF: { exclude: true },
@@ -374,9 +370,11 @@ function ImGui_InputText() {
             cplusplus: [
                 "bind_func(\"ImGui_InputText\", [](std::string label, emscripten::val buf, size_t buf_size, ImGuiInputTextFlags flags){\n",
                 "    auto buf_bind = buf[0].as<std::string>();\n",
-                "    auto buf_data = buf_bind.data();\n",
-                "    const auto ret = ImGui_InputText(label.c_str(), buf_data, buf_size, flags, nullptr, nullptr);\n",
-                "    buf.set(0, std::string(buf_data));\n",
+                "    std::vector<char> buf_data(buf_size);\n",
+                "    strncpy(buf_data.data(), buf_bind.c_str(), buf_size - 1);\n",
+                "    buf_data[buf_size - 1] = '\\0';\n",
+                "    const auto ret = ImGui_InputText(label.c_str(), buf_data.data(), buf_size, flags, nullptr, nullptr);\n",
+                "    buf.set(0, std::string(buf_data.data()));\n",
                 "    return ret;\n",
                 "});\n",
                 "\n",
@@ -389,15 +387,17 @@ function ImGui_InputTextMultiline() {
     return {
         override: {
             typescript: [
-                "    InputTextMultiline(label: string, buf: string[], buf_size: number, size: ImVec2 = new ImVec2(0, 0), flags: ImGuiInputTextFlags = 0): boolean { return Mod.export.ImGui_InputTextMultiline(label, buf, buf_size, size, flags); },\n",
+                "    InputTextMultiline(label: string, buf: string[], buf_size: number, size: ImVec2 = new ImVec2(0, 0), flags: ImGuiInputTextFlags = 0): boolean { return Mod.export.ImGui_InputTextMultiline(label, buf, buf_size, size?._ptr, flags); },\n",
                 "\n",
             ].join(""),
             cplusplus: [
                 "bind_func(\"ImGui_InputTextMultiline\", [](std::string label, emscripten::val buf, size_t buf_size, ImVec2 size, ImGuiInputTextFlags flags){\n",
                 "    auto buf_bind = buf[0].as<std::string>();\n",
-                "    auto buf_data = buf_bind.data();\n",
-                "    const auto ret = ImGui_InputTextMultiline(label.c_str(), buf_data, buf_size, size, flags, nullptr, nullptr);\n",
-                "    buf.set(0, std::string(buf_data));\n",
+                "    std::vector<char> buf_data(buf_size);\n",
+                "    strncpy(buf_data.data(), buf_bind.c_str(), buf_size - 1);\n",
+                "    buf_data[buf_size - 1] = '\\0';\n",
+                "    const auto ret = ImGui_InputTextMultiline(label.c_str(), buf_data.data(), buf_size, size, flags, nullptr, nullptr);\n",
+                "    buf.set(0, std::string(buf_data.data()));\n",
                 "    return ret;\n",
                 "});\n",
                 "\n",
@@ -416,9 +416,11 @@ function ImGui_InputTextWithHint() {
             cplusplus: [
                 "bind_func(\"ImGui_InputTextWithHint\", [](std::string label, std::string hint, emscripten::val buf, size_t buf_size, ImGuiInputTextFlags flags){\n",
                 "    auto buf_bind = buf[0].as<std::string>();\n",
-                "    auto buf_data = buf_bind.data();\n",
-                "    const auto ret = ImGui_InputTextWithHint(label.c_str(), hint.c_str(), buf_data, buf_size, flags, nullptr, nullptr);\n",
-                "    buf.set(0, std::string(buf_data));\n",
+                "    std::vector<char> buf_data(buf_size);\n",
+                "    strncpy(buf_data.data(), buf_bind.c_str(), buf_size - 1);\n",
+                "    buf_data[buf_size - 1] = '\\0';\n",
+                "    const auto ret = ImGui_InputTextWithHint(label.c_str(), hint.c_str(), buf_data.data(), buf_size, flags, nullptr, nullptr);\n",
+                "    buf.set(0, std::string(buf_data.data()));\n",
                 "    return ret;\n",
                 "});\n",
                 "\n",

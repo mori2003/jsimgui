@@ -982,6 +982,14 @@ bind_func("ImGui_TextLinkOpenURL", [](std::string label, std::string url){
     return ImGui_TextLinkOpenURL(label.c_str(), url.c_str());
 }, allow_ptr());
 
+bind_func("ImGui_Image", [](ImTextureID user_texture_id, ImVec2 image_size, ImVec2 uv0, ImVec2 uv1, ImVec4 tint_col, ImVec4 border_col){
+    return ImGui_Image(user_texture_id, image_size, uv0, uv1, tint_col, border_col);
+});
+
+bind_func("ImGui_ImageButton", [](std::string str_id, ImTextureID user_texture_id, ImVec2 image_size, ImVec2 uv0, ImVec2 uv1, ImVec4 bg_col, ImVec4 tint_col){
+    return ImGui_ImageButton(str_id.c_str(), user_texture_id, image_size, uv0, uv1, bg_col, tint_col);
+}, allow_ptr());
+
 bind_func("ImGui_BeginCombo", [](std::string label, std::string preview_value, ImGuiComboFlags flags){
     return ImGui_BeginCombo(label.c_str(), preview_value.c_str(), flags);
 }, allow_ptr());
@@ -1120,25 +1128,31 @@ bind_func("ImGui_VSliderInt", [](std::string label, ImVec2 size, emscripten::val
 
 bind_func("ImGui_InputText", [](std::string label, emscripten::val buf, size_t buf_size, ImGuiInputTextFlags flags){
     auto buf_bind = buf[0].as<std::string>();
-    auto buf_data = buf_bind.data();
-    const auto ret = ImGui_InputText(label.c_str(), buf_data, buf_size, flags, nullptr, nullptr);
-    buf.set(0, std::string(buf_data));
+    std::vector<char> buf_data(buf_size);
+    strncpy(buf_data.data(), buf_bind.c_str(), buf_size - 1);
+    buf_data[buf_size - 1] = '\0';
+    const auto ret = ImGui_InputText(label.c_str(), buf_data.data(), buf_size, flags, nullptr, nullptr);
+    buf.set(0, std::string(buf_data.data()));
     return ret;
 });
 
 bind_func("ImGui_InputTextMultiline", [](std::string label, emscripten::val buf, size_t buf_size, ImVec2 size, ImGuiInputTextFlags flags){
     auto buf_bind = buf[0].as<std::string>();
-    auto buf_data = buf_bind.data();
-    const auto ret = ImGui_InputTextMultiline(label.c_str(), buf_data, buf_size, size, flags, nullptr, nullptr);
-    buf.set(0, std::string(buf_data));
+    std::vector<char> buf_data(buf_size);
+    strncpy(buf_data.data(), buf_bind.c_str(), buf_size - 1);
+    buf_data[buf_size - 1] = '\0';
+    const auto ret = ImGui_InputTextMultiline(label.c_str(), buf_data.data(), buf_size, size, flags, nullptr, nullptr);
+    buf.set(0, std::string(buf_data.data()));
     return ret;
 });
 
 bind_func("ImGui_InputTextWithHint", [](std::string label, std::string hint, emscripten::val buf, size_t buf_size, ImGuiInputTextFlags flags){
     auto buf_bind = buf[0].as<std::string>();
-    auto buf_data = buf_bind.data();
-    const auto ret = ImGui_InputTextWithHint(label.c_str(), hint.c_str(), buf_data, buf_size, flags, nullptr, nullptr);
-    buf.set(0, std::string(buf_data));
+    std::vector<char> buf_data(buf_size);
+    strncpy(buf_data.data(), buf_bind.c_str(), buf_size - 1);
+    buf_data[buf_size - 1] = '\0';
+    const auto ret = ImGui_InputTextWithHint(label.c_str(), hint.c_str(), buf_data.data(), buf_size, flags, nullptr, nullptr);
+    buf.set(0, std::string(buf_data.data()));
     return ret;
 });
 

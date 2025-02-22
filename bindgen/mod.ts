@@ -2445,6 +2445,11 @@ export const ImGui = Object.freeze({
     /** hyperlink text button, automatically open file\/url when clicked */
     TextLinkOpenURL(label: string, url?: string): void { return Mod.export.ImGui_TextLinkOpenURL(label, url); },
 
+    /** Widgets: Images */
+    Image(user_texture_id: ImTextureID, image_size: ImVec2, uv0: ImVec2 = new ImVec2(0, 0), uv1: ImVec2 = new ImVec2(1, 1), tint_col: ImVec4 = new ImVec4(1, 1, 1, 1), border_col: ImVec4 = new ImVec4(0, 0, 0, 0)): void { return Mod.export.ImGui_Image(user_texture_id, image_size?._ptr || null, uv0?._ptr || null, uv1?._ptr || null, tint_col?._ptr || null, border_col?._ptr || null); },
+
+    ImageButton(str_id: string, user_texture_id: ImTextureID, image_size: ImVec2, uv0: ImVec2 = new ImVec2(0, 0), uv1: ImVec2 = new ImVec2(1, 1), bg_col: ImVec4 = new ImVec4(0, 0, 0, 0), tint_col: ImVec4 = new ImVec4(1, 1, 1, 1)): boolean { return Mod.export.ImGui_ImageButton(str_id, user_texture_id, image_size?._ptr || null, uv0?._ptr || null, uv1?._ptr || null, bg_col?._ptr || null, tint_col?._ptr || null); },
+
     /** Widgets: Combo Box (Dropdown) */
     BeginCombo(label: string, preview_value: string, flags: ImGuiComboFlags = 0): boolean { return Mod.export.ImGui_BeginCombo(label, preview_value, flags); },
 
@@ -2498,7 +2503,7 @@ export const ImGui = Object.freeze({
 
     InputText(label: string, buf: string[], buf_size: number, flags: ImGuiInputTextFlags = 0): boolean { return Mod.export.ImGui_InputText(label, buf, buf_size, flags); },
 
-    InputTextMultiline(label: string, buf: string[], buf_size: number, size: ImVec2 = new ImVec2(0, 0), flags: ImGuiInputTextFlags = 0): boolean { return Mod.export.ImGui_InputTextMultiline(label, buf, buf_size, size, flags); },
+    InputTextMultiline(label: string, buf: string[], buf_size: number, size: ImVec2 = new ImVec2(0, 0), flags: ImGuiInputTextFlags = 0): boolean { return Mod.export.ImGui_InputTextMultiline(label, buf, buf_size, size?._ptr, flags); },
 
     InputTextWithHint(label: string, hint: string, buf: string[], buf_size: number, flags: ImGuiInputTextFlags = 0): boolean { return Mod.export.ImGui_InputTextWithHint(label, hint, buf, buf_size, flags); },
 
@@ -2925,42 +2930,51 @@ export const ImGui = Object.freeze({
 /* -------------------------------------------------------------------------- */
 
 export const ImGuiImplOpenGL3 = {
-    /** [Manual] Initializes the OpenGL3 backend. */
+    /** Initializes the OpenGL3 backend. */
     Init(): boolean {
         return Mod.export.cImGui_ImplOpenGL3_Init();
     },
 
-    /** [Manual] Shuts down the OpenGL3 backend. */
+    /** Shuts down the OpenGL3 backend. */
     Shutdown(): void {
         return Mod.export.cImGui_ImplOpenGL3_Shutdown();
     },
 
-    /** [Manual] Starts a new OpenGL3 frame. */
+    /** Starts a new OpenGL3 frame. */
     NewFrame(): void {
         return Mod.export.cImGui_ImplOpenGL3_NewFrame();
     },
 
-    /** [Manual] Renders the OpenGL3 frame. */
+    /** Renders the OpenGL3 frame. */
     RenderDrawData(draw_data: ImDrawData): void {
         return Mod.export.cImGui_ImplOpenGL3_RenderDrawData(draw_data._ptr);
     },
 };
 
 function handleCanvasSize(canvas: HTMLCanvasElement, io: ImGuiIO): void {
-    const updateCanvasSize = (): void => {
-        const displayWidth = canvas.clientWidth;
-        const displayHeight = canvas.clientHeight;
+    const setDisplayProperties = (): void => {
+        const displayWidth = Math.floor(canvas.clientWidth);
+        const displayHeight = Math.floor(canvas.clientHeight);
 
         const dpr = globalThis.devicePixelRatio || 1;
 
-        canvas.width = displayWidth * dpr;
-        canvas.height = displayHeight * dpr;
+        const bufferWidth = Math.max(1, Math.round(displayWidth * dpr));
+        const bufferHeight = Math.max(1, Math.round(displayHeight * dpr));
+
+        canvas.width = bufferWidth;
+        canvas.height = bufferHeight;
+
+        const gl = canvas.getContext("webgl2");
+        if (gl) {
+            gl.viewport(0, 0, bufferWidth, bufferHeight);
+        }
 
         io.DisplaySize = new ImVec2(displayWidth, displayHeight);
+        io.DisplayFramebufferScale = new ImVec2(dpr, dpr);
     };
-    updateCanvasSize();
 
-    globalThis.addEventListener("resize", updateCanvasSize);
+    setDisplayProperties();
+    globalThis.addEventListener("resize", setDisplayProperties);
 }
 
 function handleMouseEvents(canvas: HTMLCanvasElement, io: ImGuiIO): void {
@@ -3012,9 +3026,9 @@ function handleMouseEvents(canvas: HTMLCanvasElement, io: ImGuiIO): void {
     });
 
     const mouseMap: Record<number, number> = {
-        0: 0,
-        1: 2,
-        2: 1,
+        0: ImGui.MouseButton.Left,
+        1: ImGui.MouseButton.Middle,
+        2: ImGui.MouseButton.Right,
     };
 
     canvas.addEventListener("mousedown", (event) => {
@@ -3031,95 +3045,87 @@ function handleMouseEvents(canvas: HTMLCanvasElement, io: ImGuiIO): void {
 }
 
 function handleKeyboardEvents(canvas: HTMLCanvasElement, io: ImGuiIO): void {
-    const keyMap: Record<string, number> = {
-        "Tab": ImGui.Key._Tab,
-        "ArrowLeft": ImGui.Key._LeftArrow,
-        "ArrowRight": ImGui.Key._RightArrow,
-        "ArrowUp": ImGui.Key._UpArrow,
-        "ArrowDown": ImGui.Key._DownArrow,
-        "PageUp": ImGui.Key._PageUp,
-        "PageDown": ImGui.Key._PageDown,
-        "Home": ImGui.Key._Home,
-        "End": ImGui.Key._End,
-        "Insert": ImGui.Key._Insert,
-        "Delete": ImGui.Key._Delete,
-        "Backspace": ImGui.Key._Backspace,
-        "Space": ImGui.Key._Space,
-        "Enter": ImGui.Key._Enter,
-        "Escape": ImGui.Key._Escape,
+    const keyboardMap: Map<string, number[]> = new Map();
 
-        "Control": ImGui.Key._LeftCtrl,
-        "Shift": ImGui.Key._LeftShift,
-        "Alt": ImGui.Key._LeftAlt,
-        "Super": ImGui.Key._LeftSuper,
+    const bindKey = (keys: string | string[], value: number | number[]): void => {
+        const keyArray = Array.isArray(keys) ? keys : [keys];
+        const valueArray = Array.isArray(value) ? value : [value];
 
-        "0": ImGui.Key._0,
-        "1": ImGui.Key._1,
-        "2": ImGui.Key._2,
-        "3": ImGui.Key._3,
-        "4": ImGui.Key._4,
-        "5": ImGui.Key._5,
-        "6": ImGui.Key._6,
-        "7": ImGui.Key._7,
-        "8": ImGui.Key._8,
-        "9": ImGui.Key._9,
-
-        "A": ImGui.Key._A,
-        "a": ImGui.Key._A,
-        "B": ImGui.Key._B,
-        "b": ImGui.Key._B,
-        "C": ImGui.Key._C,
-        "c": ImGui.Key._C,
-        "D": ImGui.Key._D,
-        "d": ImGui.Key._D,
-        "E": ImGui.Key._E,
-        "e": ImGui.Key._E,
-        "F": ImGui.Key._F,
-        "f": ImGui.Key._F,
-        "G": ImGui.Key._G,
-        "g": ImGui.Key._G,
-        "H": ImGui.Key._H,
-        "h": ImGui.Key._H,
-        "I": ImGui.Key._I,
-        "i": ImGui.Key._I,
-        "J": ImGui.Key._J,
-        "j": ImGui.Key._J,
-        "K": ImGui.Key._K,
-        "k": ImGui.Key._K,
-        "L": ImGui.Key._L,
-        "l": ImGui.Key._L,
-        "M": ImGui.Key._M,
-        "m": ImGui.Key._M,
-        "N": ImGui.Key._N,
-        "n": ImGui.Key._N,
-        "O": ImGui.Key._O,
-        "o": ImGui.Key._O,
-        "P": ImGui.Key._P,
-        "p": ImGui.Key._P,
-        "Q": ImGui.Key._Q,
-        "q": ImGui.Key._Q,
-        "R": ImGui.Key._R,
-        "r": ImGui.Key._R,
-        "S": ImGui.Key._S,
-        "s": ImGui.Key._S,
-        "T": ImGui.Key._T,
-        "t": ImGui.Key._T,
-        "U": ImGui.Key._U,
-        "u": ImGui.Key._U,
-        "V": ImGui.Key._V,
-        "v": ImGui.Key._V,
-        "W": ImGui.Key._W,
-        "w": ImGui.Key._W,
-        "X": ImGui.Key._X,
-        "x": ImGui.Key._X,
-        "Y": ImGui.Key._Y,
-        "y": ImGui.Key._Y,
-        "Z": ImGui.Key._Z,
-        "z": ImGui.Key._Z,
+        for (const key of keyArray) {
+            const existing = keyboardMap.get(key) || [];
+            keyboardMap.set(key, [...existing, ...valueArray]);
+        }
     };
 
+    for (let i = 0; i <= 9; i++) {
+        bindKey(`${i}`, ImGui.Key[`_${i}` as keyof typeof ImGui.Key]);
+        bindKey(`Numpad${i}`, ImGui.Key[`_Keypad${i}` as keyof typeof ImGui.Key]);
+    }
+
+    for (let i = 1; i <= 24; i++) {
+        bindKey(`F${i}`, ImGui.Key[`_F${i}` as keyof typeof ImGui.Key]);
+    }
+
+    for (const letter of "ABCDEFGHIJKLMNOPQRSTUVWXYZ") {
+        bindKey([letter, letter.toLowerCase()], ImGui.Key[`_${letter}` as keyof typeof ImGui.Key]);
+    }
+
+    bindKey("'", ImGui.Key._Apostrophe);
+    bindKey(",", ImGui.Key._Comma);
+    bindKey("-", ImGui.Key._Minus);
+    bindKey(".", ImGui.Key._Period);
+    bindKey("/", ImGui.Key._Slash);
+    bindKey(";", ImGui.Key._Semicolon);
+    bindKey("=", ImGui.Key._Equal);
+    bindKey("[", ImGui.Key._LeftBracket);
+    bindKey("\\", ImGui.Key._Backslash);
+    bindKey("]", ImGui.Key._RightBracket);
+    bindKey("`", ImGui.Key._GraveAccent);
+
+    bindKey("CapsLock", ImGui.Key._CapsLock);
+    bindKey("ScrollLock", ImGui.Key._ScrollLock);
+    bindKey("NumLock", ImGui.Key._NumLock);
+    bindKey("PrintScreen", ImGui.Key._PrintScreen);
+    bindKey("Pause", ImGui.Key._Pause);
+
+    bindKey("NumpadDecimal", ImGui.Key._KeypadDecimal);
+    bindKey("NumpadDivide", ImGui.Key._KeypadDivide);
+    bindKey("NumpadMultiply", ImGui.Key._KeypadMultiply);
+    bindKey("NumpadSubtract", ImGui.Key._KeypadSubtract);
+    bindKey("NumpadAdd", ImGui.Key._KeypadAdd);
+    bindKey("NumpadEnter", ImGui.Key._KeypadEnter);
+    bindKey("NumpadEqual", ImGui.Key._KeypadEqual);
+
+    bindKey("Tab", [ImGui.Key._Tab]);
+    bindKey("ArrowLeft", [ImGui.Key._LeftArrow]);
+    bindKey("ArrowRight", [ImGui.Key._RightArrow]);
+    bindKey("ArrowUp", [ImGui.Key._UpArrow]);
+    bindKey("ArrowDown", [ImGui.Key._DownArrow]);
+    bindKey("PageUp", [ImGui.Key._PageUp]);
+    bindKey("PageDown", [ImGui.Key._PageDown]);
+    bindKey("Home", [ImGui.Key._Home]);
+    bindKey("End", [ImGui.Key._End]);
+    bindKey("Insert", [ImGui.Key._Insert]);
+    bindKey("Delete", [ImGui.Key._Delete]);
+    bindKey("Backspace", ImGui.Key._Backspace);
+    bindKey(" ", [ImGui.Key._Space]);
+    bindKey("Enter", [ImGui.Key._Enter]);
+    bindKey("Escape", [ImGui.Key._Escape]);
+
+    bindKey("Control", [ImGui.Key._LeftCtrl, ImGui.Key.ImGuiMod_Ctrl]);
+    bindKey("Shift", [ImGui.Key._LeftShift, ImGui.Key.ImGuiMod_Shift]);
+    bindKey("Alt", [ImGui.Key._LeftAlt, ImGui.Key.ImGuiMod_Alt]);
+    bindKey("Super", [ImGui.Key._LeftSuper, ImGui.Key.ImGuiMod_Super]);
+
+    // TODO: Fix too fast repeated inputs (Backspace, Delete...).
     canvas.addEventListener("keydown", (event) => {
-        io.AddKeyEvent(keyMap[event.key], true);
+        const keys = keyboardMap.get(event.key);
+
+        if (keys) {
+            for (const key of keys) {
+                io.AddKeyEvent(key, true);
+            }
+        }
 
         if (event.key.length === 1) {
             io.AddInputCharactersUTF8(event.key);
@@ -3127,7 +3133,13 @@ function handleKeyboardEvents(canvas: HTMLCanvasElement, io: ImGuiIO): void {
     });
 
     canvas.addEventListener("keyup", (event) => {
-        io.AddKeyEvent(keyMap[event.key], false);
+        const keys = keyboardMap.get(event.key);
+
+        if (keys) {
+            for (const key of keys) {
+                io.AddKeyEvent(key, false);
+            }
+        }
     });
 }
 
@@ -3178,5 +3190,45 @@ export const ImGuiImplWeb = {
         Mod.export.GL.makeContextCurrent(handle);
 
         ImGuiImplOpenGL3.Init();
+    },
+
+    /** Begin a new frame. Call this at the beginning of your render loop. */
+    BeginRender(): void {
+        ImGuiImplOpenGL3.NewFrame();
+        ImGui.NewFrame();
+    },
+
+    /** End the current frame. Call this at the end of your render loop. */
+    EndRender(): void {
+        ImGui.Render();
+        ImGuiImplOpenGL3.RenderDrawData(ImGui.GetDrawData());
+    },
+
+    /** Load an image to the WebGL2 context and return the texture id. */
+    LoadImage(canvas: HTMLCanvasElement, image: HTMLImageElement): Promise<ImTextureID> {
+        return new Promise((resolve, reject) => {
+            image.onload = () => {
+                const gl = canvas.getContext("webgl2");
+                if (!gl) {
+                    return;
+                }
+
+                const texture = gl.createTexture();
+
+                gl.bindTexture(gl.TEXTURE_2D, texture);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+                const id = Mod.export.GL.getNewId(Mod.export.GL.textures);
+                Mod.export.GL.textures[id] = texture;
+
+                resolve(id);
+            };
+
+            image.onerror = (error) => {
+                reject(error);
+            };
+        });
     },
 };

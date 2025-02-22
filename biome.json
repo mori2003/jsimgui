@@ -23,6 +23,7 @@
         "enabled": true,
         "ignore": [
             "build/",
+            "docs/",
             "src/interface.ts",
             "src/bindings.ts",
             "src/templates/",
