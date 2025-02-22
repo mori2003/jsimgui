@@ -34,6 +34,7 @@ if (ImGui.Button("Click me")) {
 The library is currently in a very early stage but core functionality is there. Expect bugs and missing features!
 
 Currently missing but planned:
+
 - Better font support: custom fonts, icon/emoji fonts...
 - Clipboard support
 - Saving ImGui settings
