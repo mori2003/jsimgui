@@ -1,3 +1,4 @@
+/* @ts-self-types="./mod.d.ts" */
 /**
  * The TypeScript/JavaScript API for jsimgui.
  * Gives access to the exported ImGui functions, structs and enums.
