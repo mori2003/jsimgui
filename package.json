@@ -1,6 +1,6 @@
 {
     "name": "@mori2003/jsimgui",
-    "version": "0.1.5",
+    "version": "0.2.0",
     "license": "MIT",
     "author": "mori2003",
     "description": "JavaScript bindings for Dear ImGui.",
