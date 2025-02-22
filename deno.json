@@ -1,0 +1,27 @@
+{
+    "$schema": "https://deno.land/x/deno/cli/schemas/config-file.v1.json",
+    "name": "@mori2003/jsimgui",
+    "version": "0.2.0",
+    "exports": "./build/mod.js",
+
+    "publish": {
+        "include": ["build/", "deno.json", "LICENSE", "package.json", "README.md"],
+        "exclude": [
+            "bindgen/",
+            "node_modules/",
+            "docs/",
+            "src/",
+            "third_party/",
+            ".gitignore",
+            ".gitmodules",
+            "biome.json",
+            "build.ts",
+            "tsconfig.json"
+        ]
+    },
+
+    "compilerOptions": {
+        "lib": ["DOM", "ESNext"],
+        "strict": true
+    }
+}
