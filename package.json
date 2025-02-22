@@ -1,10 +1,9 @@
 {
     "name": "@mori2003/jsimgui",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "license": "MIT",
     "author": "mori2003",
     "description": "JavaScript bindings for Dear ImGui.",
-
     "keywords": ["imgui", "wasm", "webgl2"],
     "repository": "github:mori2003/jsimgui",
     "bugs": "https://github.com/mori2003/jsimgui/issues",
@@ -12,31 +11,14 @@
 
     "type": "module",
     "exports": "./build/mod.js",
+    "types": "./build/mod.d.ts",
+    "files": ["build/", "LICENSE", "package.json", "README.md"],
 
-    "files": [
-        "build/",
-        "deno.json",
-        "LICENSE",
-        "package.json",
-        "README.md"
-    ],
-
-    "scripts": {
-        "dev": "deno run -R -W --watch=./src ./src/generator/main.js",
-
-        "build:gen-data": "deno run --allow-run ./src/build.js --data",
-        "build:gen-bindings": "deno run --allow-run ./src/build.js --bindings",
-        "build:compile-wasm": "deno run --allow-run -R -W ./src/build.js --wasm",
-        "build:compile-wasm-release": "deno run --allow-run -R -W ./src/build.js --wasm --release",
-        "build:full": "deno task build:gen-bindings && deno task build:compile-wasm",
-        "build:full-release": "deno task build:gen-bindings && deno task build:compile-wasm-release",
-
-        "build:gen-types": "tsc --declaration --emitDeclarationOnly --allowJs ./build/mod.js && rm ./build/jsimgui.d.ts"
+    "devDependencies": {
+        "@biomejs/biome": "1.9.4",
+        "@types/node": "latest"
     },
-
-    "dependencies": {
-        "@std/cli": "npm:@jsr/std__cli@^1.0.11",
-        "@std/assert": "npm:@jsr/std__assert@^1.0.11",
-        "typescript": "^5.7.3"
+    "peerDependencies": {
+        "typescript": "^5.0.0"
     }
 }
