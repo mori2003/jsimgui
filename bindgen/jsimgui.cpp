@@ -1,12 +1,18 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
+#include <emscripten/html5_webgl.h>
+#include <emscripten/html5_webgpu.h>
 
 #include <dcimgui.h>
 #include <dcimgui_impl_opengl3.h>
+#include <dcimgui_impl_wgpu.h>
 #include <dcimgui_internal.h>
 
 #include <vector>
 #include <string>
+//#include <webgpu/webgpu.h>
+#include <webgpu/webgpu.h>
+#include <webgpu/webgpu_cpp.h>
 
 constexpr auto allow_ptr() {
     return emscripten::allow_raw_pointers();
@@ -101,23 +107,69 @@ class ArrayParam<bool> {
         }
 };
 
+/* -------------------------------------------------------------------------- */
+/* Manual Backend Bindings - WebGL and WebGPU */
+/* -------------------------------------------------------------------------- */
+
 EMSCRIPTEN_BINDINGS(impl) {
 
-    bind_func("cImGui_ImplOpenGL3_Init", [](){
-        return cImGui_ImplOpenGL3_Init();
-    });
+/* -------------------------------------------------------------------------- */
+/* WebGL */
+/* -------------------------------------------------------------------------- */
 
-    bind_func("cImGui_ImplOpenGL3_Shutdown", [](){
-        return cImGui_ImplOpenGL3_Shutdown();
-    });
+bind_func("cImGui_ImplOpenGL3_Init", [](){
+    return cImGui_ImplOpenGL3_Init();
+});
 
-    bind_func("cImGui_ImplOpenGL3_NewFrame", [](){
-        return cImGui_ImplOpenGL3_NewFrame();
-    });
+bind_func("cImGui_ImplOpenGL3_Shutdown", [](){
+    return cImGui_ImplOpenGL3_Shutdown();
+});
 
-    bind_func("cImGui_ImplOpenGL3_RenderDrawData", [](ImDrawData* draw_data){
-        cImGui_ImplOpenGL3_RenderDrawData(draw_data);
-    }, allow_ptr());
+bind_func("cImGui_ImplOpenGL3_NewFrame", [](){
+    return cImGui_ImplOpenGL3_NewFrame();
+});
+
+bind_func("cImGui_ImplOpenGL3_RenderDrawData", [](ImDrawData* draw_data){
+    return cImGui_ImplOpenGL3_RenderDrawData(draw_data);
+}, allow_ptr());
+
+/* -------------------------------------------------------------------------- */
+/* WebGPU */
+/* -------------------------------------------------------------------------- */
+
+bind_func("cImGui_ImplWGPU_Init", [](){
+    wgpu::Device device = wgpu::Device::Acquire(emscripten_webgpu_get_device());
+
+    ImGui_ImplWGPU_InitInfo init_info = {
+        .Device = device.MoveToCHandle(),
+        .NumFramesInFlight = 3,
+        .RenderTargetFormat = WGPUTextureFormat_BGRA8Unorm,
+        .DepthStencilFormat = WGPUTextureFormat_Undefined,
+        .PipelineMultisampleState = {
+            .count = 1,
+            .mask = UINT32_MAX,
+            .alphaToCoverageEnabled = false,
+        },
+    };
+
+    return cImGui_ImplWGPU_Init(&init_info);
+});
+
+bind_func("cImGui_ImplWGPU_Shutdown", [](){
+    return cImGui_ImplWGPU_Shutdown();
+});
+
+bind_func("cImGui_ImplWGPU_NewFrame", [](){
+    return cImGui_ImplWGPU_NewFrame();
+});
+
+bind_func("cImGui_ImplWGPU_RenderDrawData", [](ImDrawData* draw_data, int pass_encoder_handle){
+    wgpu::RenderPassEncoder pass_encoder = wgpu::RenderPassEncoder::Acquire(
+        emscripten_webgpu_import_render_pass_encoder(pass_encoder_handle)
+    );
+
+    return cImGui_ImplWGPU_RenderDrawData(draw_data, pass_encoder.MoveToCHandle());
+}, allow_ptr());
 
 }
 /* -------------------------------------------------------------------------- */

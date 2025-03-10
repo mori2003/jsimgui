@@ -6,16 +6,10 @@
  *
  * Index:
  * 1. Core Module
- * 2. Enums
- * 3. Typedefs
- * 4. Structs
- * 5. Functions
- * 6. Web Implementation
- *
- * Most of the API is auto-generated, but some implementations are manually overwritten.
- * The bindings are tagged:
- * [Manual] - Manually overwritten bindings.
- * [Auto] - Automatically generated bindings.
+ * 2. Typedefs
+ * 3. Structs
+ * 4. ImGui Object - Enums/Flags & Functions
+ * 5. Web Implementation
  *
  * For source code and more information:
  * @see {@link https://github.com/mori2003/jsimgui|jsimgui}
@@ -25,7 +19,9 @@ import MainExport from "./jsimgui-em.js";
 /* -------------------------------------------------------------------------- */
 /* 1. Core Module */
 /* -------------------------------------------------------------------------- */
+/** The main WASM module. */
 export const Mod = {
+    /** The WASM module exports. */
     _export: null,
     /** Initialize the WASM module. */
     async init() {
@@ -37,6 +33,7 @@ export const Mod = {
             Mod._export = module;
         });
     },
+    /** Access to the WASM exports. */
     get export() {
         if (!Mod._export) {
             throw new Error("WASM module not initialized. Did you call ImGuiImplWeb.Init()?");
@@ -46,10 +43,12 @@ export const Mod = {
 };
 /** A class that wraps a reference to an ImGui struct. */
 class StructBinding {
+    /** The reference to the underlying C++ struct. */
     _ptr;
     constructor(name) {
         this._ptr = new Mod.export[name]();
     }
+    /** Wrap a new C++ struct into a JS wrapper */
     static wrap(ptr) {
         // biome-ignore lint/complexity/noThisInStatic: <explanation>
         const wrap = Reflect.construct(this, []);
@@ -3728,6 +3727,25 @@ export const ImGuiImplOpenGL3 = {
         return Mod.export.cImGui_ImplOpenGL3_RenderDrawData(draw_data._ptr);
     },
 };
+export const ImGuiImplWGPU = {
+    /** Initializes the WebGPU backend. */
+    Init() {
+        return Mod.export.cImGui_ImplWGPU_Init();
+    },
+    /** Shuts down the WebGPU backend. */
+    Shutdown() {
+        return Mod.export.cImGui_ImplWGPU_Shutdown();
+    },
+    /** Starts a new WebGPU frame. */
+    NewFrame() {
+        return Mod.export.cImGui_ImplWGPU_NewFrame();
+    },
+    /** Renders the WebGPU frame. */
+    RenderDrawData(draw_data, pass_encoder) {
+        const handle = Mod.export.JsValStore.add(pass_encoder);
+        return Mod.export.cImGui_ImplWGPU_RenderDrawData(draw_data._ptr, handle);
+    },
+};
 function handleCanvasSize(canvas, io) {
     const setDisplayProperties = () => {
         const displayWidth = Math.floor(canvas.clientWidth);
@@ -3911,14 +3929,14 @@ function setupIO(canvas) {
 }
 /** Web implementation of Jsimgui. */
 export const ImGuiImplWeb = {
-    /** Initialize Dear ImGui on the given canvas. Only WebGL2 is supported. */
-    async Init(canvas) {
-        const canvasContext = canvas.getContext("webgl2");
-        if (!(canvasContext && canvasContext instanceof WebGL2RenderingContext)) {
-            throw new Error("Failed to get WebGL2 context.");
-        }
+    /** Initialize Dear ImGui with WebGL2 Backend on the given canvas. */
+    async InitWebGL(canvas) {
         await Mod.init();
         Mod.export.FS.mount(Mod.export.MEMFS, { root: "." }, ".");
+        const canvasContext = canvas.getContext("webgl2");
+        if (!canvasContext) {
+            throw new Error("Failed to create WebGL2 context.");
+        }
         ImGui.CreateContext();
         setupIO(canvas);
         const handle = Mod.export.GL.registerContext(
@@ -3928,23 +3946,42 @@ export const ImGuiImplWeb = {
         Mod.export.GL.makeContextCurrent(handle);
         ImGuiImplOpenGL3.Init();
     },
-    /** Begin a new frame. Call this at the beginning of your render loop. */
-    BeginRender() {
+    /** Initialize Dear ImGui with WebGPU Backend on the given canvas. */
+    async InitWebGPU(canvas, device) {
+        await Mod.init();
+        Mod.export.FS.mount(Mod.export.MEMFS, { root: "." }, ".");
+        ImGui.CreateContext();
+        setupIO(canvas);
+        Mod.export.preinitializedWebGPUDevice = device;
+        ImGuiImplWGPU.Init();
+    },
+    /** Begin a new ImGui WebGL frame. Call this at the beginning of your render loop. */
+    BeginRenderWebGL() {
         ImGuiImplOpenGL3.NewFrame();
         ImGui.NewFrame();
     },
-    /** End the current frame. Call this at the end of your render loop. */
-    EndRender() {
+    /** Begin a new ImGui WebGPU frame. Call this at the beginning of your render loop. */
+    BeginRenderWebGPU() {
+        ImGuiImplWGPU.NewFrame();
+        ImGui.NewFrame();
+    },
+    /** End the current ImGui WebGL frame. Call this at the end of your render loop. */
+    EndRenderWebGL() {
         ImGui.Render();
         ImGuiImplOpenGL3.RenderDrawData(ImGui.GetDrawData());
     },
-    /** Load an image to the WebGL2 context and return the texture id. */
-    LoadImage(canvas, image) {
+    /** End the current ImGui WebGPU frame. Call this before passEncoder.end(). */
+    EndRenderWebGPU(passEncoder) {
+        ImGui.Render();
+        ImGuiImplWGPU.RenderDrawData(ImGui.GetDrawData(), passEncoder);
+    },
+    /** Load an image to be used on a WebGL canvas. Returns the texture id. */
+    LoadImageWebGL(canvas, image) {
         return new Promise((resolve, reject) => {
             image.onload = () => {
                 const gl = canvas.getContext("webgl2");
                 if (!gl) {
-                    return;
+                    throw new Error("Failed to create WebGL2 context.");
                 }
                 const texture = gl.createTexture();
                 gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -3953,6 +3990,65 @@ export const ImGuiImplWeb = {
                 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
                 const id = Mod.export.GL.getNewId(Mod.export.GL.textures);
                 Mod.export.GL.textures[id] = texture;
+                resolve(id);
+            };
+            image.onerror = (error) => {
+                reject(error);
+            };
+        });
+    },
+    /** Load an image to be used on a WebGPU canvas. Returns the texture id. */
+    LoadImageWebGPU(device, image) {
+        return new Promise((resolve, reject) => {
+            image.onload = () => {
+                const textureDescriptor = {
+                    usage:
+                        GPUTextureUsage.COPY_DST |
+                        GPUTextureUsage.TEXTURE_BINDING |
+                        GPUTextureUsage.RENDER_ATTACHMENT,
+                    dimension: "2d",
+                    size: {
+                        width: image.width,
+                        height: image.height,
+                        depthOrArrayLayers: 1,
+                    },
+                    format: "rgba8unorm",
+                    mipLevelCount: 1,
+                    sampleCount: 1,
+                };
+                const texture = device.createTexture(textureDescriptor);
+                const textureDestination = {
+                    texture: texture,
+                    mipLevel: 0,
+                    origin: {
+                        x: 0,
+                        y: 0,
+                        z: 0,
+                    },
+                    aspect: "all",
+                };
+                const copySize = {
+                    width: image.width,
+                    height: image.height,
+                    depthOrArrayLayers: 1,
+                };
+                device.queue.copyExternalImageToTexture(
+                    { source: image },
+                    textureDestination,
+                    copySize,
+                );
+                const textureViewDescriptor = {
+                    format: "rgba8unorm",
+                    dimension: "2d",
+                    baseMipLevel: 0,
+                    mipLevelCount: 1,
+                    baseArrayLayer: 0,
+                    arrayLayerCount: 1,
+                    aspect: "all",
+                };
+                const textureView = texture.createView(textureViewDescriptor);
+                Mod.export.WebGPU.mgrTexture.create(texture);
+                const id = Mod.export.WebGPU.mgrTextureView.create(textureView);
                 resolve(id);
             };
             image.onerror = (error) => {

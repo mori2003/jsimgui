@@ -79,7 +79,7 @@ export function generateTypedefs(jsonData: ImGuiData): string {
     }
 
     const typedefs = Array.from(newTypedefMap.keys()).map((typedef) => {
-        return `export type ${typedef} = ${newTypedefMap.get(typedef)};\n`;
+        return `/** TODO: Add comment */\nexport type ${typedef} = ${newTypedefMap.get(typedef)};\n`;
     });
 
     return typedefs.join("");

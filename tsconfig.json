@@ -5,6 +5,7 @@
         "outDir": "./build",
 
         "lib": ["ESNext", "DOM"],
+        "types": ["@webgpu/types"],
         "target": "ESNext",
         "module": "ESNext",
         "moduleDetection": "force",

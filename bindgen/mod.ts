@@ -7,16 +7,10 @@
  *
  * Index:
  * 1. Core Module
- * 2. Enums
- * 3. Typedefs
- * 4. Structs
- * 5. Functions
- * 6. Web Implementation
- *
- * Most of the API is auto-generated, but some implementations are manually overwritten.
- * The bindings are tagged:
- * [Manual] - Manually overwritten bindings.
- * [Auto] - Automatically generated bindings.
+ * 2. Typedefs
+ * 3. Structs
+ * 4. ImGui Object - Enums/Flags & Functions
+ * 5. Web Implementation
  *
  * For source code and more information:
  * @see {@link https://github.com/mori2003/jsimgui|jsimgui}
@@ -29,7 +23,9 @@ import MainExport from "./jsimgui-em.js";
 /* 1. Core Module */
 /* -------------------------------------------------------------------------- */
 
+/** The main WASM module. */
 export const Mod = {
+    /** The WASM module exports. */
     _export: null,
 
     /** Initialize the WASM module. */
@@ -44,6 +40,7 @@ export const Mod = {
         });
     },
 
+    /** Access to the WASM exports. */
     get export(): any {
         if (!Mod._export) {
             throw new Error("WASM module not initialized. Did you call ImGuiImplWeb.Init()?");
@@ -55,12 +52,14 @@ export const Mod = {
 
 /** A class that wraps a reference to an ImGui struct. */
 class StructBinding {
+    /** The reference to the underlying C++ struct. */
     _ptr: any;
 
     constructor(name: string) {
         this._ptr = new Mod.export[name]();
     }
 
+    /** Wrap a new C++ struct into a JS wrapper */
     static wrap(ptr: any): any {
         // biome-ignore lint/complexity/noThisInStatic: <explanation>
         const wrap = Reflect.construct(this, []);
@@ -73,60 +72,115 @@ class StructBinding {
 /* 2. Typedefs */
 /* -------------------------------------------------------------------------- */
 
+/** TODO: Add comment */
 export type ImGuiID = number;
+/** TODO: Add comment */
 export type ImS8 = number;
+/** TODO: Add comment */
 export type ImU8 = number;
+/** TODO: Add comment */
 export type ImS16 = number;
+/** TODO: Add comment */
 export type ImU16 = number;
+/** TODO: Add comment */
 export type ImS32 = number;
+/** TODO: Add comment */
 export type ImU32 = number;
+/** TODO: Add comment */
 export type ImS64 = BigInt;
+/** TODO: Add comment */
 export type ImU64 = BigInt;
+/** TODO: Add comment */
 export type ImGuiDir = number;
+/** TODO: Add comment */
 export type ImGuiKey = number;
+/** TODO: Add comment */
 export type ImGuiMouseSource = number;
+/** TODO: Add comment */
 export type ImGuiSortDirection = number;
+/** TODO: Add comment */
 export type ImGuiCol = number;
+/** TODO: Add comment */
 export type ImGuiCond = number;
+/** TODO: Add comment */
 export type ImGuiDataType = number;
+/** TODO: Add comment */
 export type ImGuiMouseButton = number;
+/** TODO: Add comment */
 export type ImGuiMouseCursor = number;
+/** TODO: Add comment */
 export type ImGuiStyleVar = number;
+/** TODO: Add comment */
 export type ImGuiTableBgTarget = number;
+/** TODO: Add comment */
 export type ImDrawFlags = number;
+/** TODO: Add comment */
 export type ImDrawListFlags = number;
+/** TODO: Add comment */
 export type ImFontAtlasFlags = number;
+/** TODO: Add comment */
 export type ImGuiBackendFlags = number;
+/** TODO: Add comment */
 export type ImGuiButtonFlags = number;
+/** TODO: Add comment */
 export type ImGuiChildFlags = number;
+/** TODO: Add comment */
 export type ImGuiColorEditFlags = number;
+/** TODO: Add comment */
 export type ImGuiConfigFlags = number;
+/** TODO: Add comment */
 export type ImGuiComboFlags = number;
+/** TODO: Add comment */
 export type ImGuiDockNodeFlags = number;
+/** TODO: Add comment */
 export type ImGuiDragDropFlags = number;
+/** TODO: Add comment */
 export type ImGuiFocusedFlags = number;
+/** TODO: Add comment */
 export type ImGuiHoveredFlags = number;
+/** TODO: Add comment */
 export type ImGuiInputFlags = number;
+/** TODO: Add comment */
 export type ImGuiInputTextFlags = number;
+/** TODO: Add comment */
 export type ImGuiItemFlags = number;
+/** TODO: Add comment */
 export type ImGuiKeyChord = number;
+/** TODO: Add comment */
 export type ImGuiPopupFlags = number;
+/** TODO: Add comment */
 export type ImGuiMultiSelectFlags = number;
+/** TODO: Add comment */
 export type ImGuiSelectableFlags = number;
+/** TODO: Add comment */
 export type ImGuiSliderFlags = number;
+/** TODO: Add comment */
 export type ImGuiTabBarFlags = number;
+/** TODO: Add comment */
 export type ImGuiTabItemFlags = number;
+/** TODO: Add comment */
 export type ImGuiTableFlags = number;
+/** TODO: Add comment */
 export type ImGuiTableColumnFlags = number;
+/** TODO: Add comment */
 export type ImGuiTableRowFlags = number;
+/** TODO: Add comment */
 export type ImGuiTreeNodeFlags = number;
+/** TODO: Add comment */
 export type ImGuiViewportFlags = number;
+/** TODO: Add comment */
 export type ImGuiWindowFlags = number;
+/** TODO: Add comment */
 export type ImTextureID = BigInt;
+/** TODO: Add comment */
 export type ImDrawIdx = number;
+/** TODO: Add comment */
 export type ImWchar32 = number;
+/** TODO: Add comment */
 export type ImWchar16 = number;
+/** TODO: Add comment */
 export type ImWchar = number;
+/** TODO: Add comment */
 export type ImGuiSelectionUserData = BigInt;
 
 /* -------------------------------------------------------------------------- */
@@ -2959,6 +3013,29 @@ export const ImGuiImplOpenGL3 = {
     },
 };
 
+export const ImGuiImplWGPU = {
+    /** Initializes the WebGPU backend. */
+    Init(): boolean {
+        return Mod.export.cImGui_ImplWGPU_Init();
+    },
+
+    /** Shuts down the WebGPU backend. */
+    Shutdown(): void {
+        return Mod.export.cImGui_ImplWGPU_Shutdown();
+    },
+
+    /** Starts a new WebGPU frame. */
+    NewFrame(): void {
+        return Mod.export.cImGui_ImplWGPU_NewFrame();
+    },
+
+    /** Renders the WebGPU frame. */
+    RenderDrawData(draw_data: ImDrawData, pass_encoder: GPURenderPassEncoder): void {
+        const handle = Mod.export.JsValStore.add(pass_encoder);
+        return Mod.export.cImGui_ImplWGPU_RenderDrawData(draw_data._ptr, handle);
+    },
+};
+
 function handleCanvasSize(canvas: HTMLCanvasElement, io: ImGuiIO): void {
     const setDisplayProperties = (): void => {
         const displayWidth = Math.floor(canvas.clientWidth);
@@ -3178,15 +3255,16 @@ function setupIO(canvas: HTMLCanvasElement): void {
 
 /** Web implementation of Jsimgui. */
 export const ImGuiImplWeb = {
-    /** Initialize Dear ImGui on the given canvas. Only WebGL2 is supported. */
-    async Init(canvas: HTMLCanvasElement): Promise<void> {
-        const canvasContext = canvas.getContext("webgl2");
-        if (!(canvasContext && canvasContext instanceof WebGL2RenderingContext)) {
-            throw new Error("Failed to get WebGL2 context.");
-        }
-
+    /** Initialize Dear ImGui with WebGL2 Backend on the given canvas. */
+    async InitWebGL(canvas: HTMLCanvasElement): Promise<void> {
         await Mod.init();
         Mod.export.FS.mount(Mod.export.MEMFS, { root: "." }, ".");
+
+        const canvasContext = canvas.getContext("webgl2");
+
+        if (!canvasContext) {
+            throw new Error("Failed to create WebGL2 context.");
+        }
 
         ImGui.CreateContext();
         setupIO(canvas);
@@ -3194,31 +3272,56 @@ export const ImGuiImplWeb = {
         const handle = Mod.export.GL.registerContext(
             canvasContext,
             canvasContext.getContextAttributes(),
-        );
+        ) as number;
         Mod.export.GL.makeContextCurrent(handle);
 
         ImGuiImplOpenGL3.Init();
     },
 
-    /** Begin a new frame. Call this at the beginning of your render loop. */
-    BeginRender(): void {
+    /** Initialize Dear ImGui with WebGPU Backend on the given canvas. */
+    async InitWebGPU(canvas: HTMLCanvasElement, device: GPUDevice) {
+        await Mod.init();
+        Mod.export.FS.mount(Mod.export.MEMFS, { root: "." }, ".");
+
+        ImGui.CreateContext();
+        setupIO(canvas);
+
+        Mod.export.preinitializedWebGPUDevice = device;
+
+        ImGuiImplWGPU.Init();
+    },
+
+    /** Begin a new ImGui WebGL frame. Call this at the beginning of your render loop. */
+    BeginRenderWebGL(): void {
         ImGuiImplOpenGL3.NewFrame();
         ImGui.NewFrame();
     },
 
-    /** End the current frame. Call this at the end of your render loop. */
-    EndRender(): void {
+    /** Begin a new ImGui WebGPU frame. Call this at the beginning of your render loop. */
+    BeginRenderWebGPU(): void {
+        ImGuiImplWGPU.NewFrame();
+        ImGui.NewFrame();
+    },
+
+    /** End the current ImGui WebGL frame. Call this at the end of your render loop. */
+    EndRenderWebGL(): void {
         ImGui.Render();
         ImGuiImplOpenGL3.RenderDrawData(ImGui.GetDrawData());
     },
 
-    /** Load an image to the WebGL2 context and return the texture id. */
-    LoadImage(canvas: HTMLCanvasElement, image: HTMLImageElement): Promise<ImTextureID> {
+    /** End the current ImGui WebGPU frame. Call this before passEncoder.end(). */
+    EndRenderWebGPU(passEncoder: GPURenderPassEncoder): void {
+        ImGui.Render();
+        ImGuiImplWGPU.RenderDrawData(ImGui.GetDrawData(), passEncoder);
+    },
+
+    /** Load an image to be used on a WebGL canvas. Returns the texture id. */
+    LoadImageWebGL(canvas: HTMLCanvasElement, image: HTMLImageElement): Promise<ImTextureID> {
         return new Promise((resolve, reject) => {
             image.onload = () => {
                 const gl = canvas.getContext("webgl2");
                 if (!gl) {
-                    return;
+                    throw new Error("Failed to create WebGL2 context.");
                 }
 
                 const texture = gl.createTexture();
@@ -3230,6 +3333,65 @@ export const ImGuiImplWeb = {
 
                 const id = Mod.export.GL.getNewId(Mod.export.GL.textures);
                 Mod.export.GL.textures[id] = texture;
+
+                resolve(id);
+            };
+
+            image.onerror = (error) => {
+                reject(error);
+            };
+        });
+    },
+
+    /** Load an image to be used on a WebGPU canvas. Returns the texture id. */
+    LoadImageWebGPU(device: GPUDevice, image: HTMLImageElement): Promise<ImTextureID> {
+        return new Promise((resolve, reject) => {
+            image.onload = () => {
+                const textureDescriptor: GPUTextureDescriptor = {
+                    usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
+                    dimension: "2d",
+                    size: {
+                        width: image.width,
+                        height: image.height,
+                        depthOrArrayLayers: 1,
+                    },
+                    format: "rgba8unorm",
+                    mipLevelCount: 1,
+                    sampleCount: 1,
+                };
+                const texture = device.createTexture(textureDescriptor);
+
+                const textureDestination: GPUImageCopyTexture = {
+                    texture: texture,
+                    mipLevel: 0,
+                    origin: {
+                        x: 0,
+                        y: 0,
+                        z: 0,
+                    },
+                    aspect: "all",
+                };
+                const copySize: GPUExtent3D = {
+                    width: image.width,
+                    height: image.height,
+                    depthOrArrayLayers: 1,
+                };
+
+                device.queue.copyExternalImageToTexture({ source: image }, textureDestination, copySize);
+
+                const textureViewDescriptor: GPUTextureViewDescriptor = {
+                    format: "rgba8unorm",
+                    dimension: "2d",
+                    baseMipLevel: 0,
+                    mipLevelCount: 1,
+                    baseArrayLayer: 0,
+                    arrayLayerCount: 1,
+                    aspect: "all",
+                };
+                const textureView = texture.createView(textureViewDescriptor);
+
+                Mod.export.WebGPU.mgrTexture.create(texture);
+                const id = Mod.export.WebGPU.mgrTextureView.create(textureView);
 
                 resolve(id);
             };

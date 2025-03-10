@@ -1,22 +1,21 @@
 {
     "name": "@mori2003/jsimgui",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "license": "MIT",
     "author": "mori2003",
     "description": "JavaScript bindings for Dear ImGui.",
-    "keywords": ["imgui", "wasm", "webgl2"],
+    "keywords": ["imgui", "wasm", "webgl2", "webgpu"],
     "repository": "github:mori2003/jsimgui",
     "bugs": "https://github.com/mori2003/jsimgui/issues",
     "homepage": "https://github.com/mori2003/jsimgui#readme",
-
     "type": "module",
     "exports": "./build/mod.js",
     "types": "./build/mod.d.ts",
     "files": ["build/", "LICENSE", "package.json", "README.md"],
-
     "devDependencies": {
         "@biomejs/biome": "1.9.4",
-        "@types/node": "latest"
+        "@types/node": "latest",
+        "@webgpu/types": "latest"
     },
     "peerDependencies": {
         "typescript": "^5.0.0"

@@ -1,6 +1,6 @@
 # jsimgui: JavaScript bindings for Dear ImGui
 
-JavaScript bindings for the [Dear ImGui](https://github.com/ocornut/imgui) library. Currently only compatible with WebGL2.
+JavaScript bindings for the [Dear ImGui](https://github.com/ocornut/imgui) library. Compatible with WebGL2 and WebGPU.
 
 ![showcase](./docs/showcase.png)
 
@@ -16,33 +16,37 @@ if (ImGui.Button("Click me")) {
 ```
 
 
-
-## Features
+## ✨ Features
 
 - Simple API which tries to feel familiar to the original
 - Original comments preserved from Dear ImGui
 - Good IDE support thanks to TypeScript
 - Docking branch features
-- WebGL2 backend, easily usable with Three.js
+- WebGL2 and WebGPU backends, easily usable with Three.js
 
-## Examples
+## 💡 Examples
+
+**Demo:**
 
 - **WebGL2**: Basic example using a WebGL2 clear canvas - [View Example](https://mori2003.github.io/jsimgui/docs/examples/webgl/)
+
+- **WebGPU (WIP)**: Basic example using a WebGPU clear canvas - [View Example](https://mori2003.github.io/jsimgui/docs/examples/webgpu/)
+
 - **Three.js**: Integration with Three.js WebGL2 renderer - [View Example](https://mori2003.github.io/jsimgui/docs/examples/threegl/)
 
-## Todo
+## 📌 Todo
 The library is currently in a very early stage but core functionality is there. Expect bugs and missing features!
 
-Currently missing but planned:
+Planned features and improvements:
 
-- Better font support: custom fonts, icon/emoji fonts...
-- Clipboard support
-- Saving ImGui settings
-- WebGPU backend
+- Increase API coverage
+- Additional examples and documentation
+- Better font support (custom fonts, icon fonts, emoji fonts)
+- Clipboard integration
+- Support for saving/loading ImGui settings
 
 
-
-## Getting Started
+## 🚀 Getting Started
 
 The package is available both on [JSR](https://jsr.io/@mori2003/jsimgui/) and [npm](https://www.npmjs.com/package/@mori2003/jsimgui). Use it with your favorite package manager or with a CDN like [ESM](https://esm.sh/).
 
@@ -60,10 +64,10 @@ import { ImGui, ImGuiImplWeb } from "@mori2003/jsimgui";
 // import { ImGui, ImGuiImplWeb } from "https://esm.sh/@mori2003/jsimgui";
 
 const canvas = document.querySelector("#your-canvas");
-await ImGuiImplWeb.Init(canvas);
+await ImGuiImplWeb.InitWebGL(canvas);
 
 function frame() {
-    ImGuiImplWeb.BeginRender();
+    ImGuiImplWeb.BeginRenderWebGL();
 
     ImGui.Begin("New Window");
     ImGui.Text("Hello from JS!");
@@ -71,13 +75,13 @@ function frame() {
 
     // Render your scene...
 
-    ImGuiImplWeb.EndRender();
+    ImGuiImplWeb.EndRenderWebGL();
     requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
 ```
 
-## API Notes
+## 🗒️ API Notes
 
 ### Arrays
 
@@ -98,7 +102,7 @@ Enums names have been shortened. E.g. `ImGuiWindowFlags_None` as `ImGui.WindowFl
 ImGui.SetNextWindowPos(new ImVec2(10, 10), ImGui.Cond.Once);
 ```
 
-## Building
+## 📦 Building
 
 **Prerequisites:**
 
@@ -126,12 +130,12 @@ deno run build.ts
 bun run build.ts
 ```
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 bindgen/      # Generated C++ and TypeScript bindings
 build/        # Distribution files
 docs/         # Usage examples
-src/          # Bindingsgenerator source code
+src/          # Bindings generator source code
 third_party/  # Dependencies (imgui, dear_bindings)
 ```

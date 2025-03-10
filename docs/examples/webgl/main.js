@@ -9,7 +9,7 @@ const devicePixelRatio = globalThis.devicePixelRatio;
 canvas.width = canvas.clientWidth * devicePixelRatio;
 canvas.height = canvas.clientHeight * devicePixelRatio;
 
-await ImGuiImplWeb.Init(canvas);
+await ImGuiImplWeb.InitWebGL(canvas);
 
 const color = [0.0, 0.5, 0.5];
 const showDemo = [true];
@@ -17,7 +17,7 @@ const docking = [false];
 
 const imgJsLogo = new Image();
 imgJsLogo.src = "javascript.png";
-const jsLogo = await ImGuiImplWeb.LoadImage(canvas, imgJsLogo);
+const jsLogo = await ImGuiImplWeb.LoadImageWebGL(canvas, imgJsLogo);
 
 let code = [
     `ImGui.SetNextWindowPos(new ImVec2(450, 200), ImGui.Cond.Once);
