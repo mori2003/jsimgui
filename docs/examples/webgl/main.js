@@ -29,7 +29,7 @@ ImGui.End();`,
 let evalCode = "";
 
 function frame() {
-    ImGuiImplWeb.BeginRender();
+    ImGuiImplWeb.BeginRenderWebGL();
 
     ImGui.SetNextWindowPos(new ImVec2(10, 10), ImGui.Cond.Once);
     ImGui.SetNextWindowSize(new ImVec2(330, 400), ImGui.Cond.Once);
@@ -110,7 +110,7 @@ function frame() {
     context.clearColor(color[0], color[1], color[2], 1.0);
     context.clear(context.COLOR_BUFFER_BIT);
 
-    ImGuiImplWeb.EndRender();
+    ImGuiImplWeb.EndRenderWebGL();
 
     requestAnimationFrame(frame);
 }
