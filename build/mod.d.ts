@@ -1,69 +1,129 @@
+/** The main WASM module. */
 export declare const Mod: {
+    /** The WASM module exports. */
     _export: null;
     /** Initialize the WASM module. */
     init(): Promise<void>;
+    /** Access to the WASM exports. */
     readonly export: any;
 };
 /** A class that wraps a reference to an ImGui struct. */
 declare class StructBinding {
+    /** The reference to the underlying C++ struct. */
     _ptr: any;
     constructor(name: string);
+    /** Wrap a new C++ struct into a JS wrapper */
     static wrap(ptr: any): any;
 }
+/** TODO: Add comment */
 export type ImGuiID = number;
+/** TODO: Add comment */
 export type ImS8 = number;
+/** TODO: Add comment */
 export type ImU8 = number;
+/** TODO: Add comment */
 export type ImS16 = number;
+/** TODO: Add comment */
 export type ImU16 = number;
+/** TODO: Add comment */
 export type ImS32 = number;
+/** TODO: Add comment */
 export type ImU32 = number;
+/** TODO: Add comment */
 export type ImS64 = BigInt;
+/** TODO: Add comment */
 export type ImU64 = BigInt;
+/** TODO: Add comment */
 export type ImGuiDir = number;
+/** TODO: Add comment */
 export type ImGuiKey = number;
+/** TODO: Add comment */
 export type ImGuiMouseSource = number;
+/** TODO: Add comment */
 export type ImGuiSortDirection = number;
+/** TODO: Add comment */
 export type ImGuiCol = number;
+/** TODO: Add comment */
 export type ImGuiCond = number;
+/** TODO: Add comment */
 export type ImGuiDataType = number;
+/** TODO: Add comment */
 export type ImGuiMouseButton = number;
+/** TODO: Add comment */
 export type ImGuiMouseCursor = number;
+/** TODO: Add comment */
 export type ImGuiStyleVar = number;
+/** TODO: Add comment */
 export type ImGuiTableBgTarget = number;
+/** TODO: Add comment */
 export type ImDrawFlags = number;
+/** TODO: Add comment */
 export type ImDrawListFlags = number;
+/** TODO: Add comment */
 export type ImFontAtlasFlags = number;
+/** TODO: Add comment */
 export type ImGuiBackendFlags = number;
+/** TODO: Add comment */
 export type ImGuiButtonFlags = number;
+/** TODO: Add comment */
 export type ImGuiChildFlags = number;
+/** TODO: Add comment */
 export type ImGuiColorEditFlags = number;
+/** TODO: Add comment */
 export type ImGuiConfigFlags = number;
+/** TODO: Add comment */
 export type ImGuiComboFlags = number;
+/** TODO: Add comment */
 export type ImGuiDockNodeFlags = number;
+/** TODO: Add comment */
 export type ImGuiDragDropFlags = number;
+/** TODO: Add comment */
 export type ImGuiFocusedFlags = number;
+/** TODO: Add comment */
 export type ImGuiHoveredFlags = number;
+/** TODO: Add comment */
 export type ImGuiInputFlags = number;
+/** TODO: Add comment */
 export type ImGuiInputTextFlags = number;
+/** TODO: Add comment */
 export type ImGuiItemFlags = number;
+/** TODO: Add comment */
 export type ImGuiKeyChord = number;
+/** TODO: Add comment */
 export type ImGuiPopupFlags = number;
+/** TODO: Add comment */
 export type ImGuiMultiSelectFlags = number;
+/** TODO: Add comment */
 export type ImGuiSelectableFlags = number;
+/** TODO: Add comment */
 export type ImGuiSliderFlags = number;
+/** TODO: Add comment */
 export type ImGuiTabBarFlags = number;
+/** TODO: Add comment */
 export type ImGuiTabItemFlags = number;
+/** TODO: Add comment */
 export type ImGuiTableFlags = number;
+/** TODO: Add comment */
 export type ImGuiTableColumnFlags = number;
+/** TODO: Add comment */
 export type ImGuiTableRowFlags = number;
+/** TODO: Add comment */
 export type ImGuiTreeNodeFlags = number;
+/** TODO: Add comment */
 export type ImGuiViewportFlags = number;
+/** TODO: Add comment */
 export type ImGuiWindowFlags = number;
+/** TODO: Add comment */
 export type ImTextureID = BigInt;
+/** TODO: Add comment */
 export type ImDrawIdx = number;
+/** TODO: Add comment */
 export type ImWchar32 = number;
+/** TODO: Add comment */
 export type ImWchar16 = number;
+/** TODO: Add comment */
 export type ImWchar = number;
+/** TODO: Add comment */
 export type ImGuiSelectionUserData = BigInt;
 /** Data shared among multiple draw lists (typically owned by parent ImGui context, but you may create one yourself) */
 export declare class ImDrawListSharedData extends StructBinding {
@@ -2359,15 +2419,33 @@ export declare const ImGuiImplOpenGL3: {
     /** Renders the OpenGL3 frame. */
     RenderDrawData(draw_data: ImDrawData): void;
 };
+export declare const ImGuiImplWGPU: {
+    /** Initializes the WebGPU backend. */
+    Init(): boolean;
+    /** Shuts down the WebGPU backend. */
+    Shutdown(): void;
+    /** Starts a new WebGPU frame. */
+    NewFrame(): void;
+    /** Renders the WebGPU frame. */
+    RenderDrawData(draw_data: ImDrawData, pass_encoder: GPURenderPassEncoder): void;
+};
 /** Web implementation of Jsimgui. */
 export declare const ImGuiImplWeb: {
-    /** Initialize Dear ImGui on the given canvas. Only WebGL2 is supported. */
-    Init(canvas: HTMLCanvasElement): Promise<void>;
-    /** Begin a new frame. Call this at the beginning of your render loop. */
-    BeginRender(): void;
-    /** End the current frame. Call this at the end of your render loop. */
-    EndRender(): void;
-    /** Load an image to the WebGL2 context and return the texture id. */
-    LoadImage(canvas: HTMLCanvasElement, image: HTMLImageElement): Promise<ImTextureID>;
+    /** Initialize Dear ImGui with WebGL2 Backend on the given canvas. */
+    InitWebGL(canvas: HTMLCanvasElement): Promise<void>;
+    /** Initialize Dear ImGui with WebGPU Backend on the given canvas. */
+    InitWebGPU(canvas: HTMLCanvasElement, device: GPUDevice): Promise<void>;
+    /** Begin a new ImGui WebGL frame. Call this at the beginning of your render loop. */
+    BeginRenderWebGL(): void;
+    /** Begin a new ImGui WebGPU frame. Call this at the beginning of your render loop. */
+    BeginRenderWebGPU(): void;
+    /** End the current ImGui WebGL frame. Call this at the end of your render loop. */
+    EndRenderWebGL(): void;
+    /** End the current ImGui WebGPU frame. Call this before passEncoder.end(). */
+    EndRenderWebGPU(passEncoder: GPURenderPassEncoder): void;
+    /** Load an image to be used on a WebGL canvas. Returns the texture id. */
+    LoadImageWebGL(canvas: HTMLCanvasElement, image: HTMLImageElement): Promise<ImTextureID>;
+    /** Load an image to be used on a WebGPU canvas. Returns the texture id. */
+    LoadImageWebGPU(device: GPUDevice, image: HTMLImageElement): Promise<ImTextureID>;
 };
 export {};

@@ -51,7 +51,7 @@ function runCommand(cmd: string): void {
     });
 
     if (result.error) {
-        stdout.write(styleText("red", result.error.message));
+        stdout.write(styleText("red", result.stderr || result.stdout));
         exit(1);
     }
 }
@@ -96,6 +96,8 @@ function checkMetadata(): void {
         "dcimgui_internal.cpp",
         "dcimgui_impl_opengl3.h",
         "dcimgui_impl_opengl3.cpp",
+        "dcimgui_impl_wgpu.h",
+        "dcimgui_impl_wgpu.cpp",
     ];
 
     let regenerate = false;
@@ -143,6 +145,17 @@ function checkMetadata(): void {
                 "./third_party/imgui/backends/imgui_impl_opengl3.h",
             ].join(" "),
         );
+
+        runCommand(
+            [
+                "python",
+                "./third_party/dear_bindings/dear_bindings.py",
+                "-o",
+                "./third_party/dear_bindings/dcimgui_impl_wgpu",
+                "--backend",
+                "./third_party/imgui/backends/imgui_impl_wgpu.h",
+            ].join(" "),
+        );
     }
 }
 
@@ -166,6 +179,7 @@ function compileWasm(): void {
             "./third_party/dear_bindings/dcimgui.cpp",
             "./third_party/dear_bindings/dcimgui_internal.cpp",
             "./third_party/dear_bindings/dcimgui_impl_opengl3.cpp",
+            "./third_party/dear_bindings/dcimgui_impl_wgpu.cpp",
             "-I./third_party/imgui/",
             "-I./third_party/imgui/backends",
             "-I./third_party/dear_bindings",
@@ -180,9 +194,10 @@ function compileWasm(): void {
             "-sEXPORT_NAME=MainExport",
 
             "-lembind",
-            "-sEXPORTED_RUNTIME_METHODS=GL,FS,MEMFS",
+            "-sEXPORTED_RUNTIME_METHODS=GL,FS,MEMFS,WebGPU,JsValStore",
             "-sMIN_WEBGL_VERSION=2", // Target only WebGL2
             "-sMAX_WEBGL_VERSION=2",
+            "-sUSE_WEBGPU=1",
 
             "-Oz",
             "-flto",

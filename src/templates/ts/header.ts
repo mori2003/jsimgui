@@ -7,16 +7,10 @@
  *
  * Index:
  * 1. Core Module
- * 2. Enums
- * 3. Typedefs
- * 4. Structs
- * 5. Functions
- * 6. Web Implementation
- *
- * Most of the API is auto-generated, but some implementations are manually overwritten.
- * The bindings are tagged:
- * [Manual] - Manually overwritten bindings.
- * [Auto] - Automatically generated bindings.
+ * 2. Typedefs
+ * 3. Structs
+ * 4. ImGui Object - Enums/Flags & Functions
+ * 5. Web Implementation
  *
  * For source code and more information:
  * @see {@link https://github.com/mori2003/jsimgui|jsimgui}
@@ -29,7 +23,9 @@ import MainExport from "./jsimgui-em.js";
 /* 1. Core Module */
 /* -------------------------------------------------------------------------- */
 
+/** The main WASM module. */
 export const Mod = {
+    /** The WASM module exports. */
     _export: null,
 
     /** Initialize the WASM module. */
@@ -44,6 +40,7 @@ export const Mod = {
         });
     },
 
+    /** Access to the WASM exports. */
     get export(): any {
         if (!Mod._export) {
             throw new Error("WASM module not initialized. Did you call ImGuiImplWeb.Init()?");
@@ -55,12 +52,14 @@ export const Mod = {
 
 /** A class that wraps a reference to an ImGui struct. */
 class StructBinding {
+    /** The reference to the underlying C++ struct. */
     _ptr: any;
 
     constructor(name: string) {
         this._ptr = new Mod.export[name]();
     }
 
+    /** Wrap a new C++ struct into a JS wrapper */
     static wrap(ptr: any): any {
         // biome-ignore lint/complexity/noThisInStatic: <explanation>
         const wrap = Reflect.construct(this, []);

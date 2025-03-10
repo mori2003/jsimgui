@@ -1,7 +1,7 @@
 var MainExport = (() => {
     var _scriptName = import.meta.url;
 
-    return function (moduleArg = {}) {
+    return async function (moduleArg = {}) {
         var moduleRtn;
 
         var Module = moduleArg;
@@ -38,19 +38,19 @@ var MainExport = (() => {
             if (scriptDirectory.startsWith("blob:")) {
                 scriptDirectory = "";
             } else {
-                scriptDirectory = scriptDirectory.substr(
+                scriptDirectory = scriptDirectory.slice(
                     0,
                     scriptDirectory.replace(/[?#].*/, "").lastIndexOf("/") + 1,
                 );
             }
             {
-                readAsync = (url) =>
-                    fetch(url, { credentials: "same-origin" }).then((response) => {
-                        if (response.ok) {
-                            return response.arrayBuffer();
-                        }
-                        return Promise.reject(new Error(response.status + " : " + response.url));
-                    });
+                readAsync = async (url) => {
+                    var response = await fetch(url, { credentials: "same-origin" });
+                    if (response.ok) {
+                        return response.arrayBuffer();
+                    }
+                    throw new Error(response.status + " : " + response.url);
+                };
             }
         } else {
         }
@@ -65,6 +65,7 @@ var MainExport = (() => {
         var ABORT = false;
         var EXITSTATUS;
         var HEAP8, HEAPU8, HEAP16, HEAPU16, HEAP32, HEAPU32, HEAPF32, HEAP64, HEAPU64, HEAPF64;
+        var runtimeInitialized = false;
         function updateMemoryViews() {
             var b = wasmMemory.buffer;
             Module["HEAP8"] = HEAP8 = new Int8Array(b);
@@ -78,10 +79,6 @@ var MainExport = (() => {
             Module["HEAP64"] = HEAP64 = new BigInt64Array(b);
             Module["HEAPU64"] = HEAPU64 = new BigUint64Array(b);
         }
-        var __ATPRERUN__ = [];
-        var __ATINIT__ = [];
-        var __ATPOSTRUN__ = [];
-        var runtimeInitialized = false;
         function preRun() {
             if (Module["preRun"]) {
                 if (typeof Module["preRun"] == "function") Module["preRun"] = [Module["preRun"]];
@@ -89,14 +86,14 @@ var MainExport = (() => {
                     addOnPreRun(Module["preRun"].shift());
                 }
             }
-            callRuntimeCallbacks(__ATPRERUN__);
+            callRuntimeCallbacks(onPreRuns);
         }
         function initRuntime() {
             runtimeInitialized = true;
             if (!Module["noFSInit"] && !FS.initialized) FS.init();
-            FS.ignorePermissions = false;
             TTY.init();
-            callRuntimeCallbacks(__ATINIT__);
+            wasmExports["mb"]();
+            FS.ignorePermissions = false;
         }
         function postRun() {
             if (Module["postRun"]) {
@@ -105,19 +102,9 @@ var MainExport = (() => {
                     addOnPostRun(Module["postRun"].shift());
                 }
             }
-            callRuntimeCallbacks(__ATPOSTRUN__);
-        }
-        function addOnPreRun(cb) {
-            __ATPRERUN__.unshift(cb);
-        }
-        function addOnInit(cb) {
-            __ATINIT__.unshift(cb);
-        }
-        function addOnPostRun(cb) {
-            __ATPOSTRUN__.unshift(cb);
+            callRuntimeCallbacks(onPostRuns);
         }
         var runDependencies = 0;
-        var runDependencyWatcher = null;
         var dependenciesFulfilled = null;
         function getUniqueRunDependency(id) {
             return id;
@@ -130,10 +117,6 @@ var MainExport = (() => {
             runDependencies--;
             Module["monitorRunDependencies"]?.(runDependencies);
             if (runDependencies == 0) {
-                if (runDependencyWatcher !== null) {
-                    clearInterval(runDependencyWatcher);
-                    runDependencyWatcher = null;
-                }
                 if (dependenciesFulfilled) {
                     var callback = dependenciesFulfilled;
                     dependenciesFulfilled = null;
@@ -151,19 +134,13 @@ var MainExport = (() => {
             readyPromiseReject(e);
             throw e;
         }
-        var dataURIPrefix = "data:application/octet-stream;base64,";
-        var isDataURI = (filename) => filename.startsWith(dataURIPrefix);
+        var wasmBinaryFile;
         function findWasmBinary() {
             if (Module["locateFile"]) {
-                var f = "jsimgui-em.wasm";
-                if (!isDataURI(f)) {
-                    return locateFile(f);
-                }
-                return f;
+                return locateFile("jsimgui-em.wasm");
             }
             return new URL("jsimgui-em.wasm", import.meta.url).href;
         }
-        var wasmBinaryFile;
         function getBinarySync(file) {
             if (file == wasmBinaryFile && wasmBinary) {
                 return new Uint8Array(wasmBinary);
@@ -173,72 +150,75 @@ var MainExport = (() => {
             }
             throw "both async and sync fetching of the wasm failed";
         }
-        function getBinaryPromise(binaryFile) {
+        async function getWasmBinary(binaryFile) {
             if (!wasmBinary) {
-                return readAsync(binaryFile).then(
-                    (response) => new Uint8Array(response),
-                    () => getBinarySync(binaryFile),
-                );
+                try {
+                    var response = await readAsync(binaryFile);
+                    return new Uint8Array(response);
+                } catch {}
             }
-            return Promise.resolve().then(() => getBinarySync(binaryFile));
+            return getBinarySync(binaryFile);
         }
-        function instantiateArrayBuffer(binaryFile, imports, receiver) {
-            return getBinaryPromise(binaryFile)
-                .then((binary) => WebAssembly.instantiate(binary, imports))
-                .then(receiver, (reason) => {
-                    err(`failed to asynchronously prepare wasm: ${reason}`);
-                    abort(reason);
-                });
-        }
-        function instantiateAsync(binary, binaryFile, imports, callback) {
-            if (
-                !binary &&
-                typeof WebAssembly.instantiateStreaming == "function" &&
-                !isDataURI(binaryFile) &&
-                typeof fetch == "function"
-            ) {
-                return fetch(binaryFile, { credentials: "same-origin" }).then((response) => {
-                    var result = WebAssembly.instantiateStreaming(response, imports);
-                    return result.then(callback, function (reason) {
-                        err(`wasm streaming compile failed: ${reason}`);
-                        err("falling back to ArrayBuffer instantiation");
-                        return instantiateArrayBuffer(binaryFile, imports, callback);
-                    });
-                });
+        async function instantiateArrayBuffer(binaryFile, imports) {
+            try {
+                var binary = await getWasmBinary(binaryFile);
+                var instance = await WebAssembly.instantiate(binary, imports);
+                return instance;
+            } catch (reason) {
+                err(`failed to asynchronously prepare wasm: ${reason}`);
+                abort(reason);
             }
-            return instantiateArrayBuffer(binaryFile, imports, callback);
+        }
+        async function instantiateAsync(binary, binaryFile, imports) {
+            if (!binary && typeof WebAssembly.instantiateStreaming == "function") {
+                try {
+                    var response = fetch(binaryFile, { credentials: "same-origin" });
+                    var instantiationResult = await WebAssembly.instantiateStreaming(
+                        response,
+                        imports,
+                    );
+                    return instantiationResult;
+                } catch (reason) {
+                    err(`wasm streaming compile failed: ${reason}`);
+                    err("falling back to ArrayBuffer instantiation");
+                }
+            }
+            return instantiateArrayBuffer(binaryFile, imports);
         }
         function getWasmImports() {
             return { a: wasmImports };
         }
-        function createWasm() {
+        async function createWasm() {
             function receiveInstance(instance, module) {
                 wasmExports = instance.exports;
-                wasmMemory = wasmExports["Ga"];
+                wasmMemory = wasmExports["lb"];
                 updateMemoryViews();
-                wasmTable = wasmExports["La"];
-                addOnInit(wasmExports["Ha"]);
+                wasmTable = wasmExports["qb"];
                 removeRunDependency("wasm-instantiate");
                 return wasmExports;
             }
             addRunDependency("wasm-instantiate");
             function receiveInstantiationResult(result) {
-                receiveInstance(result["instance"]);
+                return receiveInstance(result["instance"]);
             }
             var info = getWasmImports();
             if (Module["instantiateWasm"]) {
-                try {
-                    return Module["instantiateWasm"](info, receiveInstance);
-                } catch (e) {
-                    err(`Module.instantiateWasm callback failed with error: ${e}`);
-                    readyPromiseReject(e);
-                }
+                return new Promise((resolve, reject) => {
+                    Module["instantiateWasm"](info, (mod, inst) => {
+                        receiveInstance(mod, inst);
+                        resolve(mod.exports);
+                    });
+                });
             }
             wasmBinaryFile ??= findWasmBinary();
-            instantiateAsync(wasmBinary, wasmBinaryFile, info, receiveInstantiationResult).catch(
-                readyPromiseReject,
-            );
-            return {};
+            try {
+                var result = await instantiateAsync(wasmBinary, wasmBinaryFile, info);
+                var exports = receiveInstantiationResult(result);
+                return exports;
+            } catch (e) {
+                readyPromiseReject(e);
+                return Promise.reject(e);
+            }
         }
         class ExitStatus {
             name = "ExitStatus";
@@ -252,7 +232,13 @@ var MainExport = (() => {
                 callbacks.shift()(Module);
             }
         };
+        var onPostRuns = [];
+        var addOnPostRun = (cb) => onPostRuns.unshift(cb);
+        var onPreRuns = [];
+        var addOnPreRun = (cb) => onPreRuns.unshift(cb);
         var noExitRuntime = Module["noExitRuntime"] || true;
+        var stackRestore = (val) => __emscripten_stack_restore(val);
+        var stackSave = () => _emscripten_stack_get_current();
         var UTF8Decoder = typeof TextDecoder != "undefined" ? new TextDecoder() : undefined;
         var UTF8ArrayToString = (heapOrArray, idx = 0, maxBytesToRead = NaN) => {
             var endIdx = idx + maxBytesToRead;
@@ -290,7 +276,7 @@ var MainExport = (() => {
         };
         var UTF8ToString = (ptr, maxBytesToRead) =>
             ptr ? UTF8ArrayToString(HEAPU8, ptr, maxBytesToRead) : "";
-        var ___assert_fail = (condition, filename, line, func) => {
+        var ___assert_fail = (condition, filename, line, func) =>
             abort(
                 `Assertion failed: ${UTF8ToString(condition)}, at: ` +
                     [
@@ -299,7 +285,6 @@ var MainExport = (() => {
                         func ? UTF8ToString(func) : "unknown function",
                     ],
             );
-        };
         class ExceptionInfo {
             constructor(excPtr) {
                 this.excPtr = excPtr;
@@ -387,7 +372,7 @@ var MainExport = (() => {
             },
             normalize: (path) => {
                 var isAbsolute = PATH.isAbs(path),
-                    trailingSlash = path.substr(-1) === "/";
+                    trailingSlash = path.slice(-1) === "/";
                 path = PATH.normalizeArray(
                     path.split("/").filter((p) => !!p),
                     !isAbsolute,
@@ -408,27 +393,18 @@ var MainExport = (() => {
                     return ".";
                 }
                 if (dir) {
-                    dir = dir.substr(0, dir.length - 1);
+                    dir = dir.slice(0, -1);
                 }
                 return root + dir;
             },
-            basename: (path) => {
-                if (path === "/") return "/";
-                path = PATH.normalize(path);
-                path = path.replace(/\/$/, "");
-                var lastSlash = path.lastIndexOf("/");
-                if (lastSlash === -1) return path;
-                return path.substr(lastSlash + 1);
-            },
+            basename: (path) => path && path.match(/([^\/]+|\/)\/*$/)[1],
             join: (...paths) => PATH.normalize(paths.join("/")),
             join2: (l, r) => PATH.normalize(l + "/" + r),
         };
-        var initRandomFill = () => {
-            if (typeof crypto == "object" && typeof crypto["getRandomValues"] == "function") {
-                return (view) => crypto.getRandomValues(view);
-            } else abort("initRandomDevice");
+        var initRandomFill = () => (view) => crypto.getRandomValues(view);
+        var randomFill = (view) => {
+            (randomFill = initRandomFill())(view);
         };
-        var randomFill = (view) => (randomFill = initRandomFill())(view);
         var PATH_FS = {
             resolve: (...args) => {
                 var resolvedPath = "",
@@ -450,8 +426,8 @@ var MainExport = (() => {
                 return (resolvedAbsolute ? "/" : "") + resolvedPath || ".";
             },
             relative: (from, to) => {
-                from = PATH_FS.resolve(from).substr(1);
-                to = PATH_FS.resolve(to).substr(1);
+                from = PATH_FS.resolve(from).slice(1);
+                to = PATH_FS.resolve(to).slice(1);
                 function trim(arr) {
                     var start = 0;
                     for (; start < arr.length; start++) {
@@ -533,13 +509,13 @@ var MainExport = (() => {
             heap[outIdx] = 0;
             return outIdx - startIdx;
         };
-        function intArrayFromString(stringy, dontAddNull, length) {
+        var intArrayFromString = (stringy, dontAddNull, length) => {
             var len = length > 0 ? length : lengthBytesUTF8(stringy) + 1;
             var u8array = new Array(len);
             var numBytesWritten = stringToUTF8Array(stringy, u8array, 0, u8array.length);
             if (dontAddNull) u8array.length = numBytesWritten;
             return u8array;
-        }
+        };
         var FS_stdin_getChar = () => {
             if (!FS_stdin_getChar_buffer.length) {
                 var result = null;
@@ -600,7 +576,7 @@ var MainExport = (() => {
                         buffer[offset + i] = result;
                     }
                     if (bytesRead) {
-                        stream.node.timestamp = Date.now();
+                        stream.node.atime = Date.now();
                     }
                     return bytesRead;
                 },
@@ -616,7 +592,7 @@ var MainExport = (() => {
                         throw new FS.ErrnoError(29);
                     }
                     if (length) {
-                        stream.node.timestamp = Date.now();
+                        stream.node.mtime = stream.node.ctime = Date.now();
                     }
                     return i;
                 },
@@ -634,7 +610,7 @@ var MainExport = (() => {
                     }
                 },
                 fsync(tty) {
-                    if (tty.output && tty.output.length > 0) {
+                    if (tty.output?.length > 0) {
                         out(UTF8ArrayToString(tty.output));
                         tty.output = [];
                     }
@@ -668,7 +644,7 @@ var MainExport = (() => {
                     }
                 },
                 fsync(tty) {
-                    if (tty.output && tty.output.length > 0) {
+                    if (tty.output?.length > 0) {
                         err(UTF8ArrayToString(tty.output));
                         tty.output = [];
                     }
@@ -681,7 +657,7 @@ var MainExport = (() => {
         var MEMFS = {
             ops_table: null,
             mount(mount) {
-                return MEMFS.createNode(null, "/", 16384 | 511, 0);
+                return MEMFS.createNode(null, "/", 16895, 0);
             },
             createNode(parent, name, mode, dev) {
                 if (FS.isBlkdev(mode) || FS.isFIFO(mode)) {
@@ -743,10 +719,10 @@ var MainExport = (() => {
                     node.node_ops = MEMFS.ops_table.chrdev.node;
                     node.stream_ops = MEMFS.ops_table.chrdev.stream;
                 }
-                node.timestamp = Date.now();
+                node.atime = node.mtime = node.ctime = Date.now();
                 if (parent) {
                     parent.contents[name] = node;
-                    parent.timestamp = node.timestamp;
+                    parent.atime = parent.mtime = parent.ctime = node.atime;
                 }
                 return node;
             },
@@ -804,19 +780,18 @@ var MainExport = (() => {
                     } else {
                         attr.size = 0;
                     }
-                    attr.atime = new Date(node.timestamp);
-                    attr.mtime = new Date(node.timestamp);
-                    attr.ctime = new Date(node.timestamp);
+                    attr.atime = new Date(node.atime);
+                    attr.mtime = new Date(node.mtime);
+                    attr.ctime = new Date(node.ctime);
                     attr.blksize = 4096;
                     attr.blocks = Math.ceil(attr.size / attr.blksize);
                     return attr;
                 },
                 setattr(node, attr) {
-                    if (attr.mode !== undefined) {
-                        node.mode = attr.mode;
-                    }
-                    if (attr.timestamp !== undefined) {
-                        node.timestamp = attr.timestamp;
+                    for (const key of ["mode", "atime", "mtime", "ctime"]) {
+                        if (attr[key] != null) {
+                            node[key] = attr[key];
+                        }
                     }
                     if (attr.size !== undefined) {
                         MEMFS.resizeFileStorage(node, attr.size);
@@ -829,26 +804,30 @@ var MainExport = (() => {
                     return MEMFS.createNode(parent, name, mode, dev);
                 },
                 rename(old_node, new_dir, new_name) {
-                    if (FS.isDir(old_node.mode)) {
-                        var new_node;
-                        try {
-                            new_node = FS.lookupNode(new_dir, new_name);
-                        } catch (e) {}
-                        if (new_node) {
+                    var new_node;
+                    try {
+                        new_node = FS.lookupNode(new_dir, new_name);
+                    } catch (e) {}
+                    if (new_node) {
+                        if (FS.isDir(old_node.mode)) {
                             for (var i in new_node.contents) {
                                 throw new FS.ErrnoError(55);
                             }
                         }
+                        FS.hashRemoveNode(new_node);
                     }
                     delete old_node.parent.contents[old_node.name];
-                    old_node.parent.timestamp = Date.now();
-                    old_node.name = new_name;
                     new_dir.contents[new_name] = old_node;
-                    new_dir.timestamp = old_node.parent.timestamp;
+                    old_node.name = new_name;
+                    new_dir.ctime =
+                        new_dir.mtime =
+                        old_node.parent.ctime =
+                        old_node.parent.mtime =
+                            Date.now();
                 },
                 unlink(parent, name) {
                     delete parent.contents[name];
-                    parent.timestamp = Date.now();
+                    parent.ctime = parent.mtime = Date.now();
                 },
                 rmdir(parent, name) {
                     var node = FS.lookupNode(parent, name);
@@ -856,14 +835,10 @@ var MainExport = (() => {
                         throw new FS.ErrnoError(55);
                     }
                     delete parent.contents[name];
-                    parent.timestamp = Date.now();
+                    parent.ctime = parent.mtime = Date.now();
                 },
                 readdir(node) {
-                    var entries = [".", ".."];
-                    for (var key of Object.keys(node.contents)) {
-                        entries.push(key);
-                    }
-                    return entries;
+                    return [".", "..", ...Object.keys(node.contents)];
                 },
                 symlink(parent, newname, oldpath) {
                     var node = MEMFS.createNode(parent, newname, 511 | 40960, 0);
@@ -892,7 +867,7 @@ var MainExport = (() => {
                 write(stream, buffer, offset, length, position, canOwn) {
                     if (!length) return 0;
                     var node = stream.node;
-                    node.timestamp = Date.now();
+                    node.mtime = node.ctime = Date.now();
                     if (buffer.subarray && (!node.contents || node.contents.subarray)) {
                         if (canOwn) {
                             node.contents = buffer.subarray(offset, offset + length);
@@ -975,22 +950,9 @@ var MainExport = (() => {
                 },
             },
         };
-        var asyncLoad = (url, onload, onerror, noRunDep) => {
-            var dep = !noRunDep ? getUniqueRunDependency(`al ${url}`) : "";
-            readAsync(url).then(
-                (arrayBuffer) => {
-                    onload(new Uint8Array(arrayBuffer));
-                    if (dep) removeRunDependency(dep);
-                },
-                (err) => {
-                    if (onerror) {
-                        onerror();
-                    } else {
-                        throw `Loading data file "${url}" failed.`;
-                    }
-                },
-            );
-            if (dep) addRunDependency(dep);
+        var asyncLoad = async (url) => {
+            var arrayBuffer = await readAsync(url);
+            return new Uint8Array(arrayBuffer);
         };
         var FS_createDataFile = (parent, name, fileData, canRead, canWrite, canOwn) => {
             FS.createDataFile(parent, name, fileData, canRead, canWrite, canOwn);
@@ -1043,7 +1005,7 @@ var MainExport = (() => {
             }
             addRunDependency(dep);
             if (typeof url == "string") {
-                asyncLoad(url, processData, onerror);
+                asyncLoad(url).then(processData, onerror);
             } else {
                 processData(url);
             }
@@ -1079,15 +1041,15 @@ var MainExport = (() => {
             currentPath: "/",
             initialized: false,
             ignorePermissions: true,
+            filesystems: null,
+            syncFSRequests: 0,
+            readFiles: {},
             ErrnoError: class {
                 name = "ErrnoError";
                 constructor(errno) {
                     this.errno = errno;
                 }
             },
-            filesystems: null,
-            syncFSRequests: 0,
-            readFiles: {},
             FSStream: class {
                 shared = {};
                 get object() {
@@ -1134,6 +1096,7 @@ var MainExport = (() => {
                     this.name = name;
                     this.mode = mode;
                     this.rdev = rdev;
+                    this.atime = this.mtime = this.ctime = Date.now();
                 }
                 get read() {
                     return (this.mode & this.readMode) === this.readMode;
@@ -1155,44 +1118,57 @@ var MainExport = (() => {
                 }
             },
             lookupPath(path, opts = {}) {
-                path = PATH_FS.resolve(path);
-                if (!path) return { path: "", node: null };
-                var defaults = { follow_mount: true, recurse_count: 0 };
-                opts = Object.assign(defaults, opts);
-                if (opts.recurse_count > 8) {
-                    throw new FS.ErrnoError(32);
+                if (!path) {
+                    throw new FS.ErrnoError(44);
                 }
-                var parts = path.split("/").filter((p) => !!p);
-                var current = FS.root;
-                var current_path = "/";
-                for (var i = 0; i < parts.length; i++) {
-                    var islast = i === parts.length - 1;
-                    if (islast && opts.parent) {
-                        break;
-                    }
-                    current = FS.lookupNode(current, parts[i]);
-                    current_path = PATH.join2(current_path, parts[i]);
-                    if (FS.isMountpoint(current)) {
-                        if (!islast || (islast && opts.follow_mount)) {
+                opts.follow_mount ??= true;
+                if (!PATH.isAbs(path)) {
+                    path = FS.cwd() + "/" + path;
+                }
+                linkloop: for (var nlinks = 0; nlinks < 40; nlinks++) {
+                    var parts = path.split("/").filter((p) => !!p);
+                    var current = FS.root;
+                    var current_path = "/";
+                    for (var i = 0; i < parts.length; i++) {
+                        var islast = i === parts.length - 1;
+                        if (islast && opts.parent) {
+                            break;
+                        }
+                        if (parts[i] === ".") {
+                            continue;
+                        }
+                        if (parts[i] === "..") {
+                            current_path = PATH.dirname(current_path);
+                            current = current.parent;
+                            continue;
+                        }
+                        current_path = PATH.join2(current_path, parts[i]);
+                        try {
+                            current = FS.lookupNode(current, parts[i]);
+                        } catch (e) {
+                            if (e?.errno === 44 && islast && opts.noent_okay) {
+                                return { path: current_path };
+                            }
+                            throw e;
+                        }
+                        if (FS.isMountpoint(current) && (!islast || opts.follow_mount)) {
                             current = current.mounted.root;
                         }
-                    }
-                    if (!islast || opts.follow) {
-                        var count = 0;
-                        while (FS.isLink(current.mode)) {
-                            var link = FS.readlink(current_path);
-                            current_path = PATH_FS.resolve(PATH.dirname(current_path), link);
-                            var lookup = FS.lookupPath(current_path, {
-                                recurse_count: opts.recurse_count + 1,
-                            });
-                            current = lookup.node;
-                            if (count++ > 40) {
-                                throw new FS.ErrnoError(32);
+                        if (FS.isLink(current.mode) && (!islast || opts.follow)) {
+                            if (!current.node_ops.readlink) {
+                                throw new FS.ErrnoError(52);
                             }
+                            var link = current.node_ops.readlink(current);
+                            if (!PATH.isAbs(link)) {
+                                link = PATH.dirname(current_path) + "/" + link;
+                            }
+                            path = link + "/" + parts.slice(i + 1).join("/");
+                            continue linkloop;
                         }
                     }
+                    return { path: current_path, node: current };
                 }
-                return { path: current_path, node: current };
+                throw new FS.ErrnoError(32);
             },
             getPath(node) {
                 var path;
@@ -1310,6 +1286,9 @@ var MainExport = (() => {
                 return 0;
             },
             mayCreate(dir, name) {
+                if (!FS.isDir(dir.mode)) {
+                    return 54;
+                }
                 try {
                     var node = FS.lookupNode(dir, name);
                     return 20;
@@ -1348,11 +1327,17 @@ var MainExport = (() => {
                 if (FS.isLink(node.mode)) {
                     return 32;
                 } else if (FS.isDir(node.mode)) {
-                    if (FS.flagsToPermissionString(flags) !== "r" || flags & 512) {
+                    if (FS.flagsToPermissionString(flags) !== "r" || flags & (512 | 64)) {
                         return 31;
                     }
                 }
                 return FS.nodePermissions(node, FS.flagsToPermissionString(flags));
+            },
+            checkOpExists(op, err) {
+                if (!op) {
+                    throw new FS.ErrnoError(err);
+                }
+                return op;
             },
             MAX_OPEN_FDS: 4096,
             nextfd() {
@@ -1387,6 +1372,13 @@ var MainExport = (() => {
                 var stream = FS.createStream(origStream, fd);
                 stream.stream_ops?.dup?.(stream);
                 return stream;
+            },
+            doSetAttr(stream, node, attr) {
+                var setattr = stream?.stream_ops.setattr;
+                var arg = setattr ? stream : node;
+                setattr ??= node.node_ops.setattr;
+                FS.checkOpExists(setattr, 63);
+                setattr(arg, attr);
             },
             chrdev_stream_ops: {
                 open(stream) {
@@ -1511,8 +1503,11 @@ var MainExport = (() => {
                 var lookup = FS.lookupPath(path, { parent: true });
                 var parent = lookup.node;
                 var name = PATH.basename(path);
-                if (!name || name === "." || name === "..") {
+                if (!name) {
                     throw new FS.ErrnoError(28);
+                }
+                if (name === "." || name === "..") {
+                    throw new FS.ErrnoError(20);
                 }
                 var errCode = FS.mayCreate(parent, name);
                 if (errCode) {
@@ -1523,14 +1518,36 @@ var MainExport = (() => {
                 }
                 return parent.node_ops.mknod(parent, name, mode, dev);
             },
-            create(path, mode) {
-                mode = mode !== undefined ? mode : 438;
+            statfs(path) {
+                return FS.statfsNode(FS.lookupPath(path, { follow: true }).node);
+            },
+            statfsStream(stream) {
+                return FS.statfsNode(stream.node);
+            },
+            statfsNode(node) {
+                var rtn = {
+                    bsize: 4096,
+                    frsize: 4096,
+                    blocks: 1e6,
+                    bfree: 5e5,
+                    bavail: 5e5,
+                    files: FS.nextInode,
+                    ffree: FS.nextInode - 1,
+                    fsid: 42,
+                    flags: 2,
+                    namelen: 255,
+                };
+                if (node.node_ops.statfs) {
+                    Object.assign(rtn, node.node_ops.statfs(node.mount.opts.root));
+                }
+                return rtn;
+            },
+            create(path, mode = 438) {
                 mode &= 4095;
                 mode |= 32768;
                 return FS.mknod(path, mode, 0);
             },
-            mkdir(path, mode) {
-                mode = mode !== undefined ? mode : 511;
+            mkdir(path, mode = 511) {
                 mode &= 511 | 512;
                 mode |= 16384;
                 return FS.mknod(path, mode, 0);
@@ -1659,10 +1676,8 @@ var MainExport = (() => {
             readdir(path) {
                 var lookup = FS.lookupPath(path, { follow: true });
                 var node = lookup.node;
-                if (!node.node_ops.readdir) {
-                    throw new FS.ErrnoError(54);
-                }
-                return node.node_ops.readdir(node);
+                var readdir = FS.checkOpExists(node.node_ops.readdir, 54);
+                return readdir(node);
             },
             unlink(path) {
                 var lookup = FS.lookupPath(path, { parent: true });
@@ -1694,21 +1709,32 @@ var MainExport = (() => {
                 if (!link.node_ops.readlink) {
                     throw new FS.ErrnoError(28);
                 }
-                return PATH_FS.resolve(FS.getPath(link.parent), link.node_ops.readlink(link));
+                return link.node_ops.readlink(link);
             },
             stat(path, dontFollow) {
                 var lookup = FS.lookupPath(path, { follow: !dontFollow });
                 var node = lookup.node;
-                if (!node) {
-                    throw new FS.ErrnoError(44);
-                }
-                if (!node.node_ops.getattr) {
-                    throw new FS.ErrnoError(63);
-                }
-                return node.node_ops.getattr(node);
+                var getattr = FS.checkOpExists(node.node_ops.getattr, 63);
+                return getattr(node);
+            },
+            fstat(fd) {
+                var stream = FS.getStreamChecked(fd);
+                var node = stream.node;
+                var getattr = stream.stream_ops.getattr;
+                var arg = getattr ? stream : node;
+                getattr ??= node.node_ops.getattr;
+                FS.checkOpExists(getattr, 63);
+                return getattr(arg);
             },
             lstat(path) {
                 return FS.stat(path, true);
+            },
+            doChmod(stream, node, mode, dontFollow) {
+                FS.doSetAttr(stream, node, {
+                    mode: (mode & 4095) | (node.mode & ~4095),
+                    ctime: Date.now(),
+                    dontFollow,
+                });
             },
             chmod(path, mode, dontFollow) {
                 var node;
@@ -1718,20 +1744,17 @@ var MainExport = (() => {
                 } else {
                     node = path;
                 }
-                if (!node.node_ops.setattr) {
-                    throw new FS.ErrnoError(63);
-                }
-                node.node_ops.setattr(node, {
-                    mode: (mode & 4095) | (node.mode & ~4095),
-                    timestamp: Date.now(),
-                });
+                FS.doChmod(null, node, mode, dontFollow);
             },
             lchmod(path, mode) {
                 FS.chmod(path, mode, true);
             },
             fchmod(fd, mode) {
                 var stream = FS.getStreamChecked(fd);
-                FS.chmod(stream.node, mode);
+                FS.doChmod(stream, stream.node, mode, false);
+            },
+            doChown(stream, node, dontFollow) {
+                FS.doSetAttr(stream, node, { timestamp: Date.now(), dontFollow });
             },
             chown(path, uid, gid, dontFollow) {
                 var node;
@@ -1741,17 +1764,27 @@ var MainExport = (() => {
                 } else {
                     node = path;
                 }
-                if (!node.node_ops.setattr) {
-                    throw new FS.ErrnoError(63);
-                }
-                node.node_ops.setattr(node, { timestamp: Date.now() });
+                FS.doChown(null, node, dontFollow);
             },
             lchown(path, uid, gid) {
                 FS.chown(path, uid, gid, true);
             },
             fchown(fd, uid, gid) {
                 var stream = FS.getStreamChecked(fd);
-                FS.chown(stream.node, uid, gid);
+                FS.doChown(stream, stream.node, false);
+            },
+            doTruncate(stream, node, len) {
+                if (FS.isDir(node.mode)) {
+                    throw new FS.ErrnoError(31);
+                }
+                if (!FS.isFile(node.mode)) {
+                    throw new FS.ErrnoError(28);
+                }
+                var errCode = FS.nodePermissions(node, "w");
+                if (errCode) {
+                    throw new FS.ErrnoError(errCode);
+                }
+                FS.doSetAttr(stream, node, { size: len, timestamp: Date.now() });
             },
             truncate(path, len) {
                 if (len < 0) {
@@ -1764,53 +1797,43 @@ var MainExport = (() => {
                 } else {
                     node = path;
                 }
-                if (!node.node_ops.setattr) {
-                    throw new FS.ErrnoError(63);
-                }
-                if (FS.isDir(node.mode)) {
-                    throw new FS.ErrnoError(31);
-                }
-                if (!FS.isFile(node.mode)) {
-                    throw new FS.ErrnoError(28);
-                }
-                var errCode = FS.nodePermissions(node, "w");
-                if (errCode) {
-                    throw new FS.ErrnoError(errCode);
-                }
-                node.node_ops.setattr(node, { size: len, timestamp: Date.now() });
+                FS.doTruncate(null, node, len);
             },
             ftruncate(fd, len) {
                 var stream = FS.getStreamChecked(fd);
-                if ((stream.flags & 2097155) === 0) {
+                if (len < 0 || (stream.flags & 2097155) === 0) {
                     throw new FS.ErrnoError(28);
                 }
-                FS.truncate(stream.node, len);
+                FS.doTruncate(stream, stream.node, len);
             },
             utime(path, atime, mtime) {
                 var lookup = FS.lookupPath(path, { follow: true });
                 var node = lookup.node;
-                node.node_ops.setattr(node, { timestamp: Math.max(atime, mtime) });
+                var setattr = FS.checkOpExists(node.node_ops.setattr, 63);
+                setattr(node, { atime, mtime });
             },
-            open(path, flags, mode) {
+            open(path, flags, mode = 438) {
                 if (path === "") {
                     throw new FS.ErrnoError(44);
                 }
                 flags = typeof flags == "string" ? FS_modeStringToFlags(flags) : flags;
                 if (flags & 64) {
-                    mode = typeof mode == "undefined" ? 438 : mode;
                     mode = (mode & 4095) | 32768;
                 } else {
                     mode = 0;
                 }
                 var node;
+                var isDirPath;
                 if (typeof path == "object") {
                     node = path;
                 } else {
-                    path = PATH.normalize(path);
-                    try {
-                        var lookup = FS.lookupPath(path, { follow: !(flags & 131072) });
-                        node = lookup.node;
-                    } catch (e) {}
+                    isDirPath = path.endsWith("/");
+                    var lookup = FS.lookupPath(path, {
+                        follow: !(flags & 131072),
+                        noent_okay: true,
+                    });
+                    node = lookup.node;
+                    path = lookup.path;
                 }
                 var created = false;
                 if (flags & 64) {
@@ -1818,8 +1841,10 @@ var MainExport = (() => {
                         if (flags & 128) {
                             throw new FS.ErrnoError(20);
                         }
+                    } else if (isDirPath) {
+                        throw new FS.ErrnoError(31);
                     } else {
-                        node = FS.mknod(path, mode, 0);
+                        node = FS.mknod(path, mode | 511, 0);
                         created = true;
                     }
                 }
@@ -1854,6 +1879,9 @@ var MainExport = (() => {
                 });
                 if (stream.stream_ops.open) {
                     stream.stream_ops.open(stream);
+                }
+                if (created) {
+                    FS.chmod(node, mode & 511);
                 }
                 if (Module["logReadFiles"] && !(flags & 1)) {
                     if (!(path in FS.readFiles)) {
@@ -2072,7 +2100,8 @@ var MainExport = (() => {
                     randomLeft = 0;
                 var randomByte = () => {
                     if (randomLeft === 0) {
-                        randomLeft = randomFill(randomBuffer).byteLength;
+                        randomFill(randomBuffer);
+                        randomLeft = randomBuffer.byteLength;
                     }
                     return randomBuffer[--randomLeft];
                 };
@@ -2088,7 +2117,8 @@ var MainExport = (() => {
                 FS.mount(
                     {
                         mount() {
-                            var node = FS.createNode(proc_self, "fd", 16384 | 511, 73);
+                            var node = FS.createNode(proc_self, "fd", 16895, 73);
+                            node.stream_ops = { llseek: MEMFS.stream_ops.llseek };
                             node.node_ops = {
                                 lookup(parent, name) {
                                     var fd = +name;
@@ -2097,9 +2127,15 @@ var MainExport = (() => {
                                         parent: null,
                                         mount: { mountpoint: "fake" },
                                         node_ops: { readlink: () => stream.path },
+                                        id: fd + 1,
                                     };
                                     ret.parent = ret;
                                     return ret;
+                                },
+                                readdir() {
+                                    return Array.from(FS.streams.entries())
+                                        .filter(([k, v]) => v)
+                                        .map(([k, v]) => k.toString());
                                 },
                             };
                             return node;
@@ -2203,7 +2239,9 @@ var MainExport = (() => {
                     var current = PATH.join2(parent, part);
                     try {
                         FS.mkdir(current);
-                    } catch (e) {}
+                    } catch (e) {
+                        if (e.errno != 20) throw e;
+                    }
                     parent = current;
                 }
                 return current;
@@ -2272,7 +2310,7 @@ var MainExport = (() => {
                             buffer[offset + i] = result;
                         }
                         if (bytesRead) {
-                            stream.node.timestamp = Date.now();
+                            stream.node.atime = Date.now();
                         }
                         return bytesRead;
                     },
@@ -2285,7 +2323,7 @@ var MainExport = (() => {
                             }
                         }
                         if (length) {
-                            stream.node.timestamp = Date.now();
+                            stream.node.mtime = stream.node.ctime = Date.now();
                         }
                         return i;
                     },
@@ -2485,10 +2523,9 @@ var MainExport = (() => {
                     }
                     return dir;
                 }
-                return PATH.join2(dir, path);
+                return dir + "/" + path;
             },
-            doStat(func, path, buf) {
-                var stat = func(path);
+            writeStat(buf, stat) {
                 HEAP32[buf >> 2] = stat.dev;
                 HEAP32[(buf + 4) >> 2] = stat.mode;
                 HEAPU32[(buf + 8) >> 2] = stat.nlink;
@@ -2509,6 +2546,18 @@ var MainExport = (() => {
                 HEAPU32[(buf + 80) >> 2] = (ctime % 1e3) * 1e3 * 1e3;
                 HEAP64[(buf + 88) >> 3] = BigInt(stat.ino);
                 return 0;
+            },
+            writeStatFs(buf, stats) {
+                HEAP32[(buf + 4) >> 2] = stats.bsize;
+                HEAP32[(buf + 40) >> 2] = stats.bsize;
+                HEAP32[(buf + 8) >> 2] = stats.blocks;
+                HEAP32[(buf + 12) >> 2] = stats.bfree;
+                HEAP32[(buf + 16) >> 2] = stats.bavail;
+                HEAP32[(buf + 20) >> 2] = stats.files;
+                HEAP32[(buf + 24) >> 2] = stats.ffree;
+                HEAP32[(buf + 28) >> 2] = stats.fsid;
+                HEAP32[(buf + 44) >> 2] = stats.flags;
+                HEAP32[(buf + 36) >> 2] = stats.namelen;
             },
             doMsync(addr, stream, len, flags, offset) {
                 if (!FS.isFile(stream.node.mode)) {
@@ -2680,9 +2729,7 @@ var MainExport = (() => {
                 return -e.errno;
             }
         }
-        var __abort_js = () => {
-            abort("");
-        };
+        var __abort_js = () => abort("");
         var embindRepr = (v) => {
             if (v === null) {
                 return "null";
@@ -3083,8 +3130,8 @@ var MainExport = (() => {
             });
         };
         function ClassHandle() {}
-        var createNamedFunction = (name, body) =>
-            Object.defineProperty(body, "name", { value: name });
+        var createNamedFunction = (name, func) =>
+            Object.defineProperty(func, "name", { value: name });
         var ensureOverloadTable = (proto, methodName, humanName) => {
             if (undefined === proto[methodName].overloadTable) {
                 var prevFunc = proto[methodName];
@@ -3680,11 +3727,8 @@ var MainExport = (() => {
         var getFunctionName = (signature) => {
             signature = signature.trim();
             const argsIndex = signature.indexOf("(");
-            if (argsIndex !== -1) {
-                return signature.substr(0, argsIndex);
-            } else {
-                return signature;
-            }
+            if (argsIndex === -1) return signature;
+            return signature.slice(0, argsIndex);
         };
         var __embind_register_class_function = (
             rawClassType,
@@ -3928,7 +3972,7 @@ var MainExport = (() => {
             stringToUTF8Array(str, HEAPU8, outPtr, maxBytesToWrite);
         var __embind_register_std_string = (rawType, name) => {
             name = readLatin1String(name);
-            var stdStringIsUTF8 = name === "std::string";
+            var stdStringIsUTF8 = true;
             registerType(rawType, {
                 name,
                 fromWireType(value) {
@@ -3992,7 +4036,7 @@ var MainExport = (() => {
                             for (var i = 0; i < length; ++i) {
                                 var charCode = value.charCodeAt(i);
                                 if (charCode > 255) {
-                                    _free(ptr);
+                                    _free(base);
                                     throwBindingError(
                                         "String has UTF-16 code units that do not fit in 8 bits",
                                     );
@@ -4300,6 +4344,449 @@ var MainExport = (() => {
             requestedSize >>>= 0;
             abortOnCannotGrowMemory(requestedSize);
         };
+        var stackAlloc = (sz) => __emscripten_stack_alloc(sz);
+        var stringToUTF8OnStack = (str) => {
+            var size = lengthBytesUTF8(str) + 1;
+            var ret = stackAlloc(size);
+            stringToUTF8(str, ret, size);
+            return ret;
+        };
+        var WebGPU = {
+            errorCallback: (callback, type, message, userdata) => {
+                var sp = stackSave();
+                var messagePtr = stringToUTF8OnStack(message);
+                getWasmTableEntry(callback)(type, messagePtr, userdata);
+                stackRestore(sp);
+            },
+            initManagers: () => {
+                function Manager() {
+                    this.objects = {};
+                    this.nextId = 1;
+                    this.create = function (object, wrapper = {}) {
+                        var id = this.nextId++;
+                        wrapper.refcount = 1;
+                        wrapper.object = object;
+                        this.objects[id] = wrapper;
+                        return id;
+                    };
+                    this.get = function (id) {
+                        if (!id) return undefined;
+                        var o = this.objects[id];
+                        return o.object;
+                    };
+                    this.reference = function (id) {
+                        var o = this.objects[id];
+                        o.refcount++;
+                    };
+                    this.release = function (id) {
+                        var o = this.objects[id];
+                        o.refcount--;
+                        if (o.refcount <= 0) {
+                            delete this.objects[id];
+                        }
+                    };
+                }
+                WebGPU.mgrSurface = new Manager();
+                WebGPU.mgrSwapChain = new Manager();
+                WebGPU.mgrAdapter = new Manager();
+                WebGPU.mgrDevice = new Manager();
+                WebGPU.mgrQueue = new Manager();
+                WebGPU.mgrCommandBuffer = new Manager();
+                WebGPU.mgrCommandEncoder = new Manager();
+                WebGPU.mgrRenderPassEncoder = new Manager();
+                WebGPU.mgrComputePassEncoder = new Manager();
+                WebGPU.mgrBindGroup = new Manager();
+                WebGPU.mgrBuffer = new Manager();
+                WebGPU.mgrSampler = new Manager();
+                WebGPU.mgrTexture = new Manager();
+                WebGPU.mgrTextureView = new Manager();
+                WebGPU.mgrQuerySet = new Manager();
+                WebGPU.mgrBindGroupLayout = new Manager();
+                WebGPU.mgrPipelineLayout = new Manager();
+                WebGPU.mgrRenderPipeline = new Manager();
+                WebGPU.mgrComputePipeline = new Manager();
+                WebGPU.mgrShaderModule = new Manager();
+                WebGPU.mgrRenderBundleEncoder = new Manager();
+                WebGPU.mgrRenderBundle = new Manager();
+            },
+            makeColor: (ptr) => ({
+                r: HEAPF64[ptr >> 3],
+                g: HEAPF64[(ptr + 8) >> 3],
+                b: HEAPF64[(ptr + 16) >> 3],
+                a: HEAPF64[(ptr + 24) >> 3],
+            }),
+            makeExtent3D: (ptr) => ({
+                width: HEAPU32[ptr >> 2],
+                height: HEAPU32[(ptr + 4) >> 2],
+                depthOrArrayLayers: HEAPU32[(ptr + 8) >> 2],
+            }),
+            makeOrigin3D: (ptr) => ({
+                x: HEAPU32[ptr >> 2],
+                y: HEAPU32[(ptr + 4) >> 2],
+                z: HEAPU32[(ptr + 8) >> 2],
+            }),
+            makeImageCopyTexture: (ptr) => ({
+                texture: WebGPU.mgrTexture.get(HEAPU32[(ptr + 4) >> 2]),
+                mipLevel: HEAPU32[(ptr + 8) >> 2],
+                origin: WebGPU.makeOrigin3D(ptr + 12),
+                aspect: WebGPU.TextureAspect[HEAPU32[(ptr + 24) >> 2]],
+            }),
+            makeTextureDataLayout: (ptr) => {
+                var bytesPerRow = HEAPU32[(ptr + 16) >> 2];
+                var rowsPerImage = HEAPU32[(ptr + 20) >> 2];
+                return {
+                    offset: HEAPU32[(ptr + 4 + 8) >> 2] * 4294967296 + HEAPU32[(ptr + 8) >> 2],
+                    bytesPerRow: bytesPerRow === 4294967295 ? undefined : bytesPerRow,
+                    rowsPerImage: rowsPerImage === 4294967295 ? undefined : rowsPerImage,
+                };
+            },
+            makeImageCopyBuffer: (ptr) => {
+                var layoutPtr = ptr + 8;
+                var bufferCopyView = WebGPU.makeTextureDataLayout(layoutPtr);
+                bufferCopyView["buffer"] = WebGPU.mgrBuffer.get(HEAPU32[(ptr + 32) >> 2]);
+                return bufferCopyView;
+            },
+            makePipelineConstants: (constantCount, constantsPtr) => {
+                if (!constantCount) return;
+                var constants = {};
+                for (var i = 0; i < constantCount; ++i) {
+                    var entryPtr = constantsPtr + 16 * i;
+                    var key = UTF8ToString(HEAPU32[(entryPtr + 4) >> 2]);
+                    constants[key] = HEAPF64[(entryPtr + 8) >> 3];
+                }
+                return constants;
+            },
+            makePipelineLayout: (layoutPtr) => {
+                if (!layoutPtr) return "auto";
+                return WebGPU.mgrPipelineLayout.get(layoutPtr);
+            },
+            makeProgrammableStageDescriptor: (ptr) => {
+                if (!ptr) return undefined;
+                var desc = {
+                    module: WebGPU.mgrShaderModule.get(HEAPU32[(ptr + 4) >> 2]),
+                    constants: WebGPU.makePipelineConstants(
+                        HEAPU32[(ptr + 12) >> 2],
+                        HEAPU32[(ptr + 16) >> 2],
+                    ),
+                };
+                var entryPointPtr = HEAPU32[(ptr + 8) >> 2];
+                if (entryPointPtr) desc["entryPoint"] = UTF8ToString(entryPointPtr);
+                return desc;
+            },
+            fillLimitStruct: (limits, supportedLimitsOutPtr) => {
+                var limitsOutPtr = supportedLimitsOutPtr + 8;
+                function setLimitValueU32(name, limitOffset) {
+                    var limitValue = limits[name];
+                    HEAP32[(limitsOutPtr + limitOffset) >> 2] = limitValue;
+                }
+                function setLimitValueU64(name, limitOffset) {
+                    var limitValue = limits[name];
+                    HEAP64[(limitsOutPtr + limitOffset) >> 3] = BigInt(limitValue);
+                }
+                setLimitValueU32("maxTextureDimension1D", 0);
+                setLimitValueU32("maxTextureDimension2D", 4);
+                setLimitValueU32("maxTextureDimension3D", 8);
+                setLimitValueU32("maxTextureArrayLayers", 12);
+                setLimitValueU32("maxBindGroups", 16);
+                setLimitValueU32("maxBindGroupsPlusVertexBuffers", 20);
+                setLimitValueU32("maxBindingsPerBindGroup", 24);
+                setLimitValueU32("maxDynamicUniformBuffersPerPipelineLayout", 28);
+                setLimitValueU32("maxDynamicStorageBuffersPerPipelineLayout", 32);
+                setLimitValueU32("maxSampledTexturesPerShaderStage", 36);
+                setLimitValueU32("maxSamplersPerShaderStage", 40);
+                setLimitValueU32("maxStorageBuffersPerShaderStage", 44);
+                setLimitValueU32("maxStorageTexturesPerShaderStage", 48);
+                setLimitValueU32("maxUniformBuffersPerShaderStage", 52);
+                setLimitValueU32("minUniformBufferOffsetAlignment", 72);
+                setLimitValueU32("minStorageBufferOffsetAlignment", 76);
+                setLimitValueU64("maxUniformBufferBindingSize", 56);
+                setLimitValueU64("maxStorageBufferBindingSize", 64);
+                setLimitValueU32("maxVertexBuffers", 80);
+                setLimitValueU64("maxBufferSize", 88);
+                setLimitValueU32("maxVertexAttributes", 96);
+                setLimitValueU32("maxVertexBufferArrayStride", 100);
+                setLimitValueU32("maxInterStageShaderComponents", 104);
+                setLimitValueU32("maxInterStageShaderVariables", 108);
+                setLimitValueU32("maxColorAttachments", 112);
+                setLimitValueU32("maxColorAttachmentBytesPerSample", 116);
+                setLimitValueU32("maxComputeWorkgroupStorageSize", 120);
+                setLimitValueU32("maxComputeInvocationsPerWorkgroup", 124);
+                setLimitValueU32("maxComputeWorkgroupSizeX", 128);
+                setLimitValueU32("maxComputeWorkgroupSizeY", 132);
+                setLimitValueU32("maxComputeWorkgroupSizeZ", 136);
+                setLimitValueU32("maxComputeWorkgroupsPerDimension", 140);
+            },
+            Int_BufferMapState: { unmapped: 1, pending: 2, mapped: 3 },
+            Int_CompilationMessageType: { error: 1, warning: 2, info: 3 },
+            Int_DeviceLostReason: { undefined: 1, unknown: 1, destroyed: 2 },
+            Int_PreferredFormat: { rgba8unorm: 18, bgra8unorm: 23 },
+            WGSLFeatureName: [
+                ,
+                "readonly_and_readwrite_storage_textures",
+                "packed_4x8_integer_dot_product",
+                "unrestricted_pointer_parameters",
+                "pointer_composite_access",
+            ],
+            AddressMode: [, "clamp-to-edge", "repeat", "mirror-repeat"],
+            AlphaMode: [, "opaque", "premultiplied"],
+            BlendFactor: [
+                ,
+                "zero",
+                "one",
+                "src",
+                "one-minus-src",
+                "src-alpha",
+                "one-minus-src-alpha",
+                "dst",
+                "one-minus-dst",
+                "dst-alpha",
+                "one-minus-dst-alpha",
+                "src-alpha-saturated",
+                "constant",
+                "one-minus-constant",
+            ],
+            BlendOperation: [, "add", "subtract", "reverse-subtract", "min", "max"],
+            BufferBindingType: [, "uniform", "storage", "read-only-storage"],
+            BufferMapState: { 1: "unmapped", 2: "pending", 3: "mapped" },
+            CompareFunction: [
+                ,
+                "never",
+                "less",
+                "equal",
+                "less-equal",
+                "greater",
+                "not-equal",
+                "greater-equal",
+                "always",
+            ],
+            CompilationInfoRequestStatus: ["success", "error", "device-lost", "unknown"],
+            CullMode: [, "none", "front", "back"],
+            ErrorFilter: { 1: "validation", 2: "out-of-memory", 3: "internal" },
+            FeatureName: [
+                ,
+                "depth-clip-control",
+                "depth32float-stencil8",
+                "timestamp-query",
+                "texture-compression-bc",
+                "texture-compression-etc2",
+                "texture-compression-astc",
+                "indirect-first-instance",
+                "shader-f16",
+                "rg11b10ufloat-renderable",
+                "bgra8unorm-storage",
+                "float32-filterable",
+            ],
+            FilterMode: [, "nearest", "linear"],
+            FrontFace: [, "ccw", "cw"],
+            IndexFormat: [, "uint16", "uint32"],
+            LoadOp: [, "clear", "load"],
+            MipmapFilterMode: [, "nearest", "linear"],
+            PowerPreference: [, "low-power", "high-performance"],
+            PrimitiveTopology: [
+                ,
+                "point-list",
+                "line-list",
+                "line-strip",
+                "triangle-list",
+                "triangle-strip",
+            ],
+            QueryType: { 1: "occlusion", 2: "timestamp" },
+            SamplerBindingType: [, "filtering", "non-filtering", "comparison"],
+            StencilOperation: [
+                ,
+                "keep",
+                "zero",
+                "replace",
+                "invert",
+                "increment-clamp",
+                "decrement-clamp",
+                "increment-wrap",
+                "decrement-wrap",
+            ],
+            StorageTextureAccess: [, "write-only", "read-only", "read-write"],
+            StoreOp: [, "store", "discard"],
+            TextureAspect: [, "all", "stencil-only", "depth-only"],
+            TextureDimension: [, "1d", "2d", "3d"],
+            TextureFormat: [
+                ,
+                "r8unorm",
+                "r8snorm",
+                "r8uint",
+                "r8sint",
+                "r16uint",
+                "r16sint",
+                "r16float",
+                "rg8unorm",
+                "rg8snorm",
+                "rg8uint",
+                "rg8sint",
+                "r32float",
+                "r32uint",
+                "r32sint",
+                "rg16uint",
+                "rg16sint",
+                "rg16float",
+                "rgba8unorm",
+                "rgba8unorm-srgb",
+                "rgba8snorm",
+                "rgba8uint",
+                "rgba8sint",
+                "bgra8unorm",
+                "bgra8unorm-srgb",
+                "rgb10a2uint",
+                "rgb10a2unorm",
+                "rg11b10ufloat",
+                "rgb9e5ufloat",
+                "rg32float",
+                "rg32uint",
+                "rg32sint",
+                "rgba16uint",
+                "rgba16sint",
+                "rgba16float",
+                "rgba32float",
+                "rgba32uint",
+                "rgba32sint",
+                "stencil8",
+                "depth16unorm",
+                "depth24plus",
+                "depth24plus-stencil8",
+                "depth32float",
+                "depth32float-stencil8",
+                "bc1-rgba-unorm",
+                "bc1-rgba-unorm-srgb",
+                "bc2-rgba-unorm",
+                "bc2-rgba-unorm-srgb",
+                "bc3-rgba-unorm",
+                "bc3-rgba-unorm-srgb",
+                "bc4-r-unorm",
+                "bc4-r-snorm",
+                "bc5-rg-unorm",
+                "bc5-rg-snorm",
+                "bc6h-rgb-ufloat",
+                "bc6h-rgb-float",
+                "bc7-rgba-unorm",
+                "bc7-rgba-unorm-srgb",
+                "etc2-rgb8unorm",
+                "etc2-rgb8unorm-srgb",
+                "etc2-rgb8a1unorm",
+                "etc2-rgb8a1unorm-srgb",
+                "etc2-rgba8unorm",
+                "etc2-rgba8unorm-srgb",
+                "eac-r11unorm",
+                "eac-r11snorm",
+                "eac-rg11unorm",
+                "eac-rg11snorm",
+                "astc-4x4-unorm",
+                "astc-4x4-unorm-srgb",
+                "astc-5x4-unorm",
+                "astc-5x4-unorm-srgb",
+                "astc-5x5-unorm",
+                "astc-5x5-unorm-srgb",
+                "astc-6x5-unorm",
+                "astc-6x5-unorm-srgb",
+                "astc-6x6-unorm",
+                "astc-6x6-unorm-srgb",
+                "astc-8x5-unorm",
+                "astc-8x5-unorm-srgb",
+                "astc-8x6-unorm",
+                "astc-8x6-unorm-srgb",
+                "astc-8x8-unorm",
+                "astc-8x8-unorm-srgb",
+                "astc-10x5-unorm",
+                "astc-10x5-unorm-srgb",
+                "astc-10x6-unorm",
+                "astc-10x6-unorm-srgb",
+                "astc-10x8-unorm",
+                "astc-10x8-unorm-srgb",
+                "astc-10x10-unorm",
+                "astc-10x10-unorm-srgb",
+                "astc-12x10-unorm",
+                "astc-12x10-unorm-srgb",
+                "astc-12x12-unorm",
+                "astc-12x12-unorm-srgb",
+            ],
+            TextureSampleType: [, "float", "unfilterable-float", "depth", "sint", "uint"],
+            TextureViewDimension: [, "1d", "2d", "2d-array", "cube", "cube-array", "3d"],
+            VertexFormat: [
+                ,
+                "uint8x2",
+                "uint8x4",
+                "sint8x2",
+                "sint8x4",
+                "unorm8x2",
+                "unorm8x4",
+                "snorm8x2",
+                "snorm8x4",
+                "uint16x2",
+                "uint16x4",
+                "sint16x2",
+                "sint16x4",
+                "unorm16x2",
+                "unorm16x4",
+                "snorm16x2",
+                "snorm16x4",
+                "float16x2",
+                "float16x4",
+                "float32",
+                "float32x2",
+                "float32x3",
+                "float32x4",
+                "uint32",
+                "uint32x2",
+                "uint32x3",
+                "uint32x4",
+                "sint32",
+                "sint32x2",
+                "sint32x3",
+                "sint32x4",
+                "unorm10-10-10-2",
+            ],
+            VertexStepMode: [, "vertex-buffer-not-used", "vertex", "instance"],
+            FeatureNameString2Enum: {
+                undefined: "0",
+                "depth-clip-control": "1",
+                "depth32float-stencil8": "2",
+                "timestamp-query": "3",
+                "texture-compression-bc": "4",
+                "texture-compression-etc2": "5",
+                "texture-compression-astc": "6",
+                "indirect-first-instance": "7",
+                "shader-f16": "8",
+                "rg11b10ufloat-renderable": "9",
+                "bgra8unorm-storage": "10",
+                "float32-filterable": "11",
+            },
+        };
+        var _emscripten_webgpu_get_device = () => {
+            if (WebGPU.preinitializedDeviceId === undefined) {
+                var device = Module["preinitializedWebGPUDevice"];
+                var deviceWrapper = { queueId: WebGPU.mgrQueue.create(device["queue"]) };
+                WebGPU.preinitializedDeviceId = WebGPU.mgrDevice.create(device, deviceWrapper);
+            }
+            WebGPU.mgrDevice.reference(WebGPU.preinitializedDeviceId);
+            return WebGPU.preinitializedDeviceId;
+        };
+        var JsValStore = {
+            values: {},
+            next_id: 1,
+            add(js_val) {
+                var id;
+                do {
+                    id = JsValStore.next_id++;
+                    if (JsValStore.next_id > 2147483647) JsValStore.next_id = 1;
+                } while (id in JsValStore.values);
+                JsValStore.values[id] = js_val;
+                return id;
+            },
+            remove(id) {
+                delete JsValStore.values[id];
+            },
+            get(id) {
+                return JsValStore.values[id];
+            },
+        };
+        var _emscripten_webgpu_import_render_pass_encoder = (handle) =>
+            WebGPU.mgrRenderPassEncoder.create(JsValStore.get(handle));
         var ENV = {};
         var getExecutableName = () => thisProgram || "./this.program";
         var getEnvStrings = () => {
@@ -4574,7 +5061,7 @@ var MainExport = (() => {
             },
             makeContextCurrent: (contextHandle) => {
                 GL.currentContext = GL.contexts[contextHandle];
-                Module.ctx = GLctx = GL.currentContext?.GLctx;
+                Module["ctx"] = GLctx = GL.currentContext?.GLctx;
                 return !(contextHandle && !GLctx);
             },
             getContext: (contextHandle) => GL.contexts[contextHandle],
@@ -4585,7 +5072,7 @@ var MainExport = (() => {
                 if (typeof JSEvents == "object") {
                     JSEvents.removeAllHandlersOnTarget(GL.contexts[contextHandle].GLctx.canvas);
                 }
-                if (GL.contexts[contextHandle] && GL.contexts[contextHandle].GLctx.canvas) {
+                if (GL.contexts[contextHandle]?.GLctx.canvas) {
                     GL.contexts[contextHandle].GLctx.canvas.GLctxObject = undefined;
                 }
                 GL.contexts[contextHandle] = null;
@@ -4757,7 +5244,7 @@ var MainExport = (() => {
             var lower = HEAPU32[ptr >> 2];
             HEAPU32[(ptr + 4) >> 2] = (num - lower) / 4294967296;
         };
-        var webglGetExtensions = function $webglGetExtensions() {
+        var webglGetExtensions = () => {
             var exts = getEmscriptenSupportedExtensions(GLctx);
             exts = exts.concat(exts.map((e) => "GL_" + e));
             return exts;
@@ -5254,6 +5741,516 @@ var MainExport = (() => {
             GLctx.vertexAttribPointer(index, size, type, !!normalized, stride, ptr);
         };
         var _glViewport = (x0, x1, x2, x3) => GLctx.viewport(x0, x1, x2, x3);
+        var _wgpuBindGroupLayoutRelease = (id) => WebGPU.mgrBindGroupLayout.release(id);
+        var _wgpuBindGroupRelease = (id) => WebGPU.mgrBindGroup.release(id);
+        var _wgpuBufferDestroy = (bufferId) => {
+            var bufferWrapper = WebGPU.mgrBuffer.objects[bufferId];
+            if (bufferWrapper.onUnmap) {
+                for (var i = 0; i < bufferWrapper.onUnmap.length; ++i) {
+                    bufferWrapper.onUnmap[i]();
+                }
+                bufferWrapper.onUnmap = undefined;
+            }
+            WebGPU.mgrBuffer.get(bufferId).destroy();
+        };
+        var _wgpuBufferRelease = (id) => WebGPU.mgrBuffer.release(id);
+        var readI53FromI64 = (ptr) => HEAPU32[ptr >> 2] + HEAP32[(ptr + 4) >> 2] * 4294967296;
+        var _wgpuDeviceCreateBindGroup = (deviceId, descriptor) => {
+            function makeEntry(entryPtr) {
+                var bufferId = HEAPU32[(entryPtr + 8) >> 2];
+                var samplerId = HEAPU32[(entryPtr + 32) >> 2];
+                var textureViewId = HEAPU32[(entryPtr + 36) >> 2];
+                var binding = HEAPU32[(entryPtr + 4) >> 2];
+                if (bufferId) {
+                    var size = readI53FromI64(entryPtr + 24);
+                    if (size == -1) size = undefined;
+                    return {
+                        binding,
+                        resource: {
+                            buffer: WebGPU.mgrBuffer.get(bufferId),
+                            offset:
+                                HEAPU32[(entryPtr + 4 + 16) >> 2] * 4294967296 +
+                                HEAPU32[(entryPtr + 16) >> 2],
+                            size,
+                        },
+                    };
+                } else if (samplerId) {
+                    return { binding, resource: WebGPU.mgrSampler.get(samplerId) };
+                } else {
+                    return { binding, resource: WebGPU.mgrTextureView.get(textureViewId) };
+                }
+            }
+            function makeEntries(count, entriesPtrs) {
+                var entries = [];
+                for (var i = 0; i < count; ++i) {
+                    entries.push(makeEntry(entriesPtrs + 40 * i));
+                }
+                return entries;
+            }
+            var desc = {
+                label: undefined,
+                layout: WebGPU.mgrBindGroupLayout.get(HEAPU32[(descriptor + 8) >> 2]),
+                entries: makeEntries(
+                    HEAPU32[(descriptor + 12) >> 2],
+                    HEAPU32[(descriptor + 16) >> 2],
+                ),
+            };
+            var labelPtr = HEAPU32[(descriptor + 4) >> 2];
+            if (labelPtr) desc["label"] = UTF8ToString(labelPtr);
+            var device = WebGPU.mgrDevice.get(deviceId);
+            return WebGPU.mgrBindGroup.create(device.createBindGroup(desc));
+        };
+        var _wgpuDeviceCreateBindGroupLayout = (deviceId, descriptor) => {
+            function makeBufferEntry(entryPtr) {
+                var typeInt = HEAPU32[(entryPtr + 4) >> 2];
+                if (!typeInt) return undefined;
+                return {
+                    type: WebGPU.BufferBindingType[typeInt],
+                    hasDynamicOffset: !!HEAPU32[(entryPtr + 8) >> 2],
+                    minBindingSize:
+                        HEAPU32[(entryPtr + 4 + 16) >> 2] * 4294967296 +
+                        HEAPU32[(entryPtr + 16) >> 2],
+                };
+            }
+            function makeSamplerEntry(entryPtr) {
+                var typeInt = HEAPU32[(entryPtr + 4) >> 2];
+                if (!typeInt) return undefined;
+                return { type: WebGPU.SamplerBindingType[typeInt] };
+            }
+            function makeTextureEntry(entryPtr) {
+                var sampleTypeInt = HEAPU32[(entryPtr + 4) >> 2];
+                if (!sampleTypeInt) return undefined;
+                return {
+                    sampleType: WebGPU.TextureSampleType[sampleTypeInt],
+                    viewDimension: WebGPU.TextureViewDimension[HEAPU32[(entryPtr + 8) >> 2]],
+                    multisampled: !!HEAPU32[(entryPtr + 12) >> 2],
+                };
+            }
+            function makeStorageTextureEntry(entryPtr) {
+                var accessInt = HEAPU32[(entryPtr + 4) >> 2];
+                if (!accessInt) return undefined;
+                return {
+                    access: WebGPU.StorageTextureAccess[accessInt],
+                    format: WebGPU.TextureFormat[HEAPU32[(entryPtr + 8) >> 2]],
+                    viewDimension: WebGPU.TextureViewDimension[HEAPU32[(entryPtr + 12) >> 2]],
+                };
+            }
+            function makeEntry(entryPtr) {
+                return {
+                    binding: HEAPU32[(entryPtr + 4) >> 2],
+                    visibility: HEAPU32[(entryPtr + 8) >> 2],
+                    buffer: makeBufferEntry(entryPtr + 16),
+                    sampler: makeSamplerEntry(entryPtr + 40),
+                    texture: makeTextureEntry(entryPtr + 48),
+                    storageTexture: makeStorageTextureEntry(entryPtr + 64),
+                };
+            }
+            function makeEntries(count, entriesPtrs) {
+                var entries = [];
+                for (var i = 0; i < count; ++i) {
+                    entries.push(makeEntry(entriesPtrs + 80 * i));
+                }
+                return entries;
+            }
+            var desc = {
+                entries: makeEntries(
+                    HEAPU32[(descriptor + 8) >> 2],
+                    HEAPU32[(descriptor + 12) >> 2],
+                ),
+            };
+            var labelPtr = HEAPU32[(descriptor + 4) >> 2];
+            if (labelPtr) desc["label"] = UTF8ToString(labelPtr);
+            var device = WebGPU.mgrDevice.get(deviceId);
+            return WebGPU.mgrBindGroupLayout.create(device.createBindGroupLayout(desc));
+        };
+        var _wgpuDeviceCreateBuffer = (deviceId, descriptor) => {
+            var mappedAtCreation = !!HEAPU32[(descriptor + 24) >> 2];
+            var desc = {
+                label: undefined,
+                usage: HEAPU32[(descriptor + 8) >> 2],
+                size:
+                    HEAPU32[(descriptor + 4 + 16) >> 2] * 4294967296 +
+                    HEAPU32[(descriptor + 16) >> 2],
+                mappedAtCreation,
+            };
+            var labelPtr = HEAPU32[(descriptor + 4) >> 2];
+            if (labelPtr) desc["label"] = UTF8ToString(labelPtr);
+            var device = WebGPU.mgrDevice.get(deviceId);
+            var bufferWrapper = {};
+            var id = WebGPU.mgrBuffer.create(device.createBuffer(desc), bufferWrapper);
+            if (mappedAtCreation) {
+                bufferWrapper.mapMode = 2;
+                bufferWrapper.onUnmap = [];
+            }
+            return id;
+        };
+        var _wgpuDeviceCreatePipelineLayout = (deviceId, descriptor) => {
+            var bglCount = HEAPU32[(descriptor + 8) >> 2];
+            var bglPtr = HEAPU32[(descriptor + 12) >> 2];
+            var bgls = [];
+            for (var i = 0; i < bglCount; ++i) {
+                bgls.push(WebGPU.mgrBindGroupLayout.get(HEAPU32[(bglPtr + 4 * i) >> 2]));
+            }
+            var desc = { label: undefined, bindGroupLayouts: bgls };
+            var labelPtr = HEAPU32[(descriptor + 4) >> 2];
+            if (labelPtr) desc["label"] = UTF8ToString(labelPtr);
+            var device = WebGPU.mgrDevice.get(deviceId);
+            return WebGPU.mgrPipelineLayout.create(device.createPipelineLayout(desc));
+        };
+        var generateRenderPipelineDesc = (descriptor) => {
+            function makePrimitiveState(rsPtr) {
+                if (!rsPtr) return undefined;
+                var nextInChainPtr = HEAPU32[rsPtr >> 2];
+                var sType = nextInChainPtr ? HEAPU32[(nextInChainPtr + 4) >> 2] : 0;
+                return {
+                    topology: WebGPU.PrimitiveTopology[HEAPU32[(rsPtr + 4) >> 2]],
+                    stripIndexFormat: WebGPU.IndexFormat[HEAPU32[(rsPtr + 8) >> 2]],
+                    frontFace: WebGPU.FrontFace[HEAPU32[(rsPtr + 12) >> 2]],
+                    cullMode: WebGPU.CullMode[HEAPU32[(rsPtr + 16) >> 2]],
+                    unclippedDepth: sType === 7 && !!HEAPU32[(nextInChainPtr + 8) >> 2],
+                };
+            }
+            function makeBlendComponent(bdPtr) {
+                if (!bdPtr) return undefined;
+                return {
+                    operation: WebGPU.BlendOperation[HEAPU32[bdPtr >> 2]],
+                    srcFactor: WebGPU.BlendFactor[HEAPU32[(bdPtr + 4) >> 2]],
+                    dstFactor: WebGPU.BlendFactor[HEAPU32[(bdPtr + 8) >> 2]],
+                };
+            }
+            function makeBlendState(bsPtr) {
+                if (!bsPtr) return undefined;
+                return {
+                    alpha: makeBlendComponent(bsPtr + 12),
+                    color: makeBlendComponent(bsPtr + 0),
+                };
+            }
+            function makeColorState(csPtr) {
+                var formatInt = HEAPU32[(csPtr + 4) >> 2];
+                return formatInt === 0
+                    ? undefined
+                    : {
+                          format: WebGPU.TextureFormat[formatInt],
+                          blend: makeBlendState(HEAPU32[(csPtr + 8) >> 2]),
+                          writeMask: HEAPU32[(csPtr + 12) >> 2],
+                      };
+            }
+            function makeColorStates(count, csArrayPtr) {
+                var states = [];
+                for (var i = 0; i < count; ++i) {
+                    states.push(makeColorState(csArrayPtr + 16 * i));
+                }
+                return states;
+            }
+            function makeStencilStateFace(ssfPtr) {
+                return {
+                    compare: WebGPU.CompareFunction[HEAPU32[ssfPtr >> 2]],
+                    failOp: WebGPU.StencilOperation[HEAPU32[(ssfPtr + 4) >> 2]],
+                    depthFailOp: WebGPU.StencilOperation[HEAPU32[(ssfPtr + 8) >> 2]],
+                    passOp: WebGPU.StencilOperation[HEAPU32[(ssfPtr + 12) >> 2]],
+                };
+            }
+            function makeDepthStencilState(dssPtr) {
+                if (!dssPtr) return undefined;
+                return {
+                    format: WebGPU.TextureFormat[HEAPU32[(dssPtr + 4) >> 2]],
+                    depthWriteEnabled: !!HEAPU32[(dssPtr + 8) >> 2],
+                    depthCompare: WebGPU.CompareFunction[HEAPU32[(dssPtr + 12) >> 2]],
+                    stencilFront: makeStencilStateFace(dssPtr + 16),
+                    stencilBack: makeStencilStateFace(dssPtr + 32),
+                    stencilReadMask: HEAPU32[(dssPtr + 48) >> 2],
+                    stencilWriteMask: HEAPU32[(dssPtr + 52) >> 2],
+                    depthBias: HEAP32[(dssPtr + 56) >> 2],
+                    depthBiasSlopeScale: HEAPF32[(dssPtr + 60) >> 2],
+                    depthBiasClamp: HEAPF32[(dssPtr + 64) >> 2],
+                };
+            }
+            function makeVertexAttribute(vaPtr) {
+                return {
+                    format: WebGPU.VertexFormat[HEAPU32[vaPtr >> 2]],
+                    offset: HEAPU32[(vaPtr + 4 + 8) >> 2] * 4294967296 + HEAPU32[(vaPtr + 8) >> 2],
+                    shaderLocation: HEAPU32[(vaPtr + 16) >> 2],
+                };
+            }
+            function makeVertexAttributes(count, vaArrayPtr) {
+                var vas = [];
+                for (var i = 0; i < count; ++i) {
+                    vas.push(makeVertexAttribute(vaArrayPtr + i * 24));
+                }
+                return vas;
+            }
+            function makeVertexBuffer(vbPtr) {
+                if (!vbPtr) return undefined;
+                var stepModeInt = HEAPU32[(vbPtr + 8) >> 2];
+                return stepModeInt === 1
+                    ? null
+                    : {
+                          arrayStride: HEAPU32[(vbPtr + 4) >> 2] * 4294967296 + HEAPU32[vbPtr >> 2],
+                          stepMode: WebGPU.VertexStepMode[stepModeInt],
+                          attributes: makeVertexAttributes(
+                              HEAPU32[(vbPtr + 12) >> 2],
+                              HEAPU32[(vbPtr + 16) >> 2],
+                          ),
+                      };
+            }
+            function makeVertexBuffers(count, vbArrayPtr) {
+                if (!count) return undefined;
+                var vbs = [];
+                for (var i = 0; i < count; ++i) {
+                    vbs.push(makeVertexBuffer(vbArrayPtr + i * 24));
+                }
+                return vbs;
+            }
+            function makeVertexState(viPtr) {
+                if (!viPtr) return undefined;
+                var desc = {
+                    module: WebGPU.mgrShaderModule.get(HEAPU32[(viPtr + 4) >> 2]),
+                    constants: WebGPU.makePipelineConstants(
+                        HEAPU32[(viPtr + 12) >> 2],
+                        HEAPU32[(viPtr + 16) >> 2],
+                    ),
+                    buffers: makeVertexBuffers(
+                        HEAPU32[(viPtr + 20) >> 2],
+                        HEAPU32[(viPtr + 24) >> 2],
+                    ),
+                };
+                var entryPointPtr = HEAPU32[(viPtr + 8) >> 2];
+                if (entryPointPtr) desc["entryPoint"] = UTF8ToString(entryPointPtr);
+                return desc;
+            }
+            function makeMultisampleState(msPtr) {
+                if (!msPtr) return undefined;
+                return {
+                    count: HEAPU32[(msPtr + 4) >> 2],
+                    mask: HEAPU32[(msPtr + 8) >> 2],
+                    alphaToCoverageEnabled: !!HEAPU32[(msPtr + 12) >> 2],
+                };
+            }
+            function makeFragmentState(fsPtr) {
+                if (!fsPtr) return undefined;
+                var desc = {
+                    module: WebGPU.mgrShaderModule.get(HEAPU32[(fsPtr + 4) >> 2]),
+                    constants: WebGPU.makePipelineConstants(
+                        HEAPU32[(fsPtr + 12) >> 2],
+                        HEAPU32[(fsPtr + 16) >> 2],
+                    ),
+                    targets: makeColorStates(
+                        HEAPU32[(fsPtr + 20) >> 2],
+                        HEAPU32[(fsPtr + 24) >> 2],
+                    ),
+                };
+                var entryPointPtr = HEAPU32[(fsPtr + 8) >> 2];
+                if (entryPointPtr) desc["entryPoint"] = UTF8ToString(entryPointPtr);
+                return desc;
+            }
+            var desc = {
+                label: undefined,
+                layout: WebGPU.makePipelineLayout(HEAPU32[(descriptor + 8) >> 2]),
+                vertex: makeVertexState(descriptor + 12),
+                primitive: makePrimitiveState(descriptor + 40),
+                depthStencil: makeDepthStencilState(HEAPU32[(descriptor + 60) >> 2]),
+                multisample: makeMultisampleState(descriptor + 64),
+                fragment: makeFragmentState(HEAPU32[(descriptor + 80) >> 2]),
+            };
+            var labelPtr = HEAPU32[(descriptor + 4) >> 2];
+            if (labelPtr) desc["label"] = UTF8ToString(labelPtr);
+            return desc;
+        };
+        var _wgpuDeviceCreateRenderPipeline = (deviceId, descriptor) => {
+            var desc = generateRenderPipelineDesc(descriptor);
+            var device = WebGPU.mgrDevice.get(deviceId);
+            return WebGPU.mgrRenderPipeline.create(device.createRenderPipeline(desc));
+        };
+        var _wgpuDeviceCreateSampler = (deviceId, descriptor) => {
+            var desc;
+            if (descriptor) {
+                desc = {
+                    label: undefined,
+                    addressModeU: WebGPU.AddressMode[HEAPU32[(descriptor + 8) >> 2]],
+                    addressModeV: WebGPU.AddressMode[HEAPU32[(descriptor + 12) >> 2]],
+                    addressModeW: WebGPU.AddressMode[HEAPU32[(descriptor + 16) >> 2]],
+                    magFilter: WebGPU.FilterMode[HEAPU32[(descriptor + 20) >> 2]],
+                    minFilter: WebGPU.FilterMode[HEAPU32[(descriptor + 24) >> 2]],
+                    mipmapFilter: WebGPU.MipmapFilterMode[HEAPU32[(descriptor + 28) >> 2]],
+                    lodMinClamp: HEAPF32[(descriptor + 32) >> 2],
+                    lodMaxClamp: HEAPF32[(descriptor + 36) >> 2],
+                    compare: WebGPU.CompareFunction[HEAPU32[(descriptor + 40) >> 2]],
+                };
+                var labelPtr = HEAPU32[(descriptor + 4) >> 2];
+                if (labelPtr) desc["label"] = UTF8ToString(labelPtr);
+            }
+            var device = WebGPU.mgrDevice.get(deviceId);
+            return WebGPU.mgrSampler.create(device.createSampler(desc));
+        };
+        var _wgpuDeviceCreateShaderModule = (deviceId, descriptor) => {
+            var nextInChainPtr = HEAPU32[descriptor >> 2];
+            var sType = HEAPU32[(nextInChainPtr + 4) >> 2];
+            var desc = { label: undefined, code: "" };
+            var labelPtr = HEAPU32[(descriptor + 4) >> 2];
+            if (labelPtr) desc["label"] = UTF8ToString(labelPtr);
+            switch (sType) {
+                case 5: {
+                    var count = HEAPU32[(nextInChainPtr + 8) >> 2];
+                    var start = HEAPU32[(nextInChainPtr + 12) >> 2];
+                    var offset = start >> 2;
+                    desc["code"] = HEAPU32.subarray(offset, offset + count);
+                    break;
+                }
+                case 6: {
+                    var sourcePtr = HEAPU32[(nextInChainPtr + 8) >> 2];
+                    if (sourcePtr) {
+                        desc["code"] = UTF8ToString(sourcePtr);
+                    }
+                    break;
+                }
+            }
+            var device = WebGPU.mgrDevice.get(deviceId);
+            return WebGPU.mgrShaderModule.create(device.createShaderModule(desc));
+        };
+        var _wgpuDeviceCreateTexture = (deviceId, descriptor) => {
+            var desc = {
+                label: undefined,
+                size: WebGPU.makeExtent3D(descriptor + 16),
+                mipLevelCount: HEAPU32[(descriptor + 32) >> 2],
+                sampleCount: HEAPU32[(descriptor + 36) >> 2],
+                dimension: WebGPU.TextureDimension[HEAPU32[(descriptor + 12) >> 2]],
+                format: WebGPU.TextureFormat[HEAPU32[(descriptor + 28) >> 2]],
+                usage: HEAPU32[(descriptor + 8) >> 2],
+            };
+            var labelPtr = HEAPU32[(descriptor + 4) >> 2];
+            if (labelPtr) desc["label"] = UTF8ToString(labelPtr);
+            var viewFormatCount = HEAPU32[(descriptor + 40) >> 2];
+            if (viewFormatCount) {
+                var viewFormatsPtr = HEAPU32[(descriptor + 44) >> 2];
+                desc["viewFormats"] = Array.from(
+                    HEAP32.subarray(
+                        viewFormatsPtr >> 2,
+                        (viewFormatsPtr + viewFormatCount * 4) >> 2,
+                    ),
+                    (format) => WebGPU.TextureFormat[format],
+                );
+            }
+            var device = WebGPU.mgrDevice.get(deviceId);
+            return WebGPU.mgrTexture.create(device.createTexture(desc));
+        };
+        var _wgpuDeviceGetQueue = (deviceId) => {
+            var queueId = WebGPU.mgrDevice.objects[deviceId].queueId;
+            WebGPU.mgrQueue.reference(queueId);
+            return queueId;
+        };
+        var _wgpuPipelineLayoutRelease = (id) => WebGPU.mgrPipelineLayout.release(id);
+        var _wgpuQueueRelease = (id) => WebGPU.mgrQueue.release(id);
+        function _wgpuQueueWriteBuffer(queueId, bufferId, bufferOffset, data, size) {
+            bufferOffset = bigintToI53Checked(bufferOffset);
+            var queue = WebGPU.mgrQueue.get(queueId);
+            var buffer = WebGPU.mgrBuffer.get(bufferId);
+            var subarray = HEAPU8.subarray(data, data + size);
+            queue.writeBuffer(buffer, bufferOffset, subarray, 0, size);
+        }
+        var _wgpuQueueWriteTexture = (
+            queueId,
+            destinationPtr,
+            data,
+            dataSize,
+            dataLayoutPtr,
+            writeSizePtr,
+        ) => {
+            var queue = WebGPU.mgrQueue.get(queueId);
+            var destination = WebGPU.makeImageCopyTexture(destinationPtr);
+            var dataLayout = WebGPU.makeTextureDataLayout(dataLayoutPtr);
+            var writeSize = WebGPU.makeExtent3D(writeSizePtr);
+            var subarray = HEAPU8.subarray(data, data + dataSize);
+            queue.writeTexture(destination, subarray, dataLayout, writeSize);
+        };
+        var _wgpuRenderPassEncoderDrawIndexed = (
+            passId,
+            indexCount,
+            instanceCount,
+            firstIndex,
+            baseVertex,
+            firstInstance,
+        ) => {
+            var pass = WebGPU.mgrRenderPassEncoder.get(passId);
+            pass.drawIndexed(indexCount, instanceCount, firstIndex, baseVertex, firstInstance);
+        };
+        var _wgpuRenderPassEncoderSetBindGroup = (
+            passId,
+            groupIndex,
+            groupId,
+            dynamicOffsetCount,
+            dynamicOffsetsPtr,
+        ) => {
+            var pass = WebGPU.mgrRenderPassEncoder.get(passId);
+            var group = WebGPU.mgrBindGroup.get(groupId);
+            if (dynamicOffsetCount == 0) {
+                pass.setBindGroup(groupIndex, group);
+            } else {
+                var offsets = [];
+                for (var i = 0; i < dynamicOffsetCount; i++, dynamicOffsetsPtr += 4) {
+                    offsets.push(HEAPU32[dynamicOffsetsPtr >> 2]);
+                }
+                pass.setBindGroup(groupIndex, group, offsets);
+            }
+        };
+        var _wgpuRenderPassEncoderSetBlendConstant = (passId, colorPtr) => {
+            var pass = WebGPU.mgrRenderPassEncoder.get(passId);
+            var color = WebGPU.makeColor(colorPtr);
+            pass.setBlendConstant(color);
+        };
+        function _wgpuRenderPassEncoderSetIndexBuffer(passId, bufferId, format, offset, size) {
+            offset = bigintToI53Checked(offset);
+            size = bigintToI53Checked(size);
+            var pass = WebGPU.mgrRenderPassEncoder.get(passId);
+            var buffer = WebGPU.mgrBuffer.get(bufferId);
+            if (size == -1) size = undefined;
+            pass.setIndexBuffer(buffer, WebGPU.IndexFormat[format], offset, size);
+        }
+        var _wgpuRenderPassEncoderSetPipeline = (passId, pipelineId) => {
+            var pass = WebGPU.mgrRenderPassEncoder.get(passId);
+            var pipeline = WebGPU.mgrRenderPipeline.get(pipelineId);
+            pass.setPipeline(pipeline);
+        };
+        var _wgpuRenderPassEncoderSetScissorRect = (passId, x, y, w, h) => {
+            var pass = WebGPU.mgrRenderPassEncoder.get(passId);
+            pass.setScissorRect(x, y, w, h);
+        };
+        function _wgpuRenderPassEncoderSetVertexBuffer(passId, slot, bufferId, offset, size) {
+            offset = bigintToI53Checked(offset);
+            size = bigintToI53Checked(size);
+            var pass = WebGPU.mgrRenderPassEncoder.get(passId);
+            var buffer = WebGPU.mgrBuffer.get(bufferId);
+            if (size == -1) size = undefined;
+            pass.setVertexBuffer(slot, buffer, offset, size);
+        }
+        var _wgpuRenderPassEncoderSetViewport = (passId, x, y, w, h, minDepth, maxDepth) => {
+            var pass = WebGPU.mgrRenderPassEncoder.get(passId);
+            pass.setViewport(x, y, w, h, minDepth, maxDepth);
+        };
+        var _wgpuRenderPipelineRelease = (id) => WebGPU.mgrRenderPipeline.release(id);
+        var _wgpuSamplerRelease = (id) => WebGPU.mgrSampler.release(id);
+        var _wgpuShaderModuleRelease = (id) => WebGPU.mgrShaderModule.release(id);
+        var _wgpuTextureCreateView = (textureId, descriptor) => {
+            var desc;
+            if (descriptor) {
+                var mipLevelCount = HEAPU32[(descriptor + 20) >> 2];
+                var arrayLayerCount = HEAPU32[(descriptor + 28) >> 2];
+                desc = {
+                    format: WebGPU.TextureFormat[HEAPU32[(descriptor + 8) >> 2]],
+                    dimension: WebGPU.TextureViewDimension[HEAPU32[(descriptor + 12) >> 2]],
+                    baseMipLevel: HEAPU32[(descriptor + 16) >> 2],
+                    mipLevelCount: mipLevelCount === 4294967295 ? undefined : mipLevelCount,
+                    baseArrayLayer: HEAPU32[(descriptor + 24) >> 2],
+                    arrayLayerCount: arrayLayerCount === 4294967295 ? undefined : arrayLayerCount,
+                    aspect: WebGPU.TextureAspect[HEAPU32[(descriptor + 32) >> 2]],
+                };
+                var labelPtr = HEAPU32[(descriptor + 4) >> 2];
+                if (labelPtr) desc["label"] = UTF8ToString(labelPtr);
+            }
+            var texture = WebGPU.mgrTexture.get(textureId);
+            return WebGPU.mgrTextureView.create(texture.createView(desc));
+        };
+        var _wgpuTextureRelease = (id) => WebGPU.mgrTexture.release(id);
+        var _wgpuTextureViewRelease = (id) => WebGPU.mgrTextureView.release(id);
         FS.createPreloadedFile = FS_createPreloadedFile;
         FS.staticInit();
         MEMFS.doesNotExistError = new FS.ErrnoError(44);
@@ -5275,119 +6272,153 @@ var MainExport = (() => {
         init_RegisteredPointer();
         UnboundTypeError = Module["UnboundTypeError"] = extendError(Error, "UnboundTypeError");
         init_emval();
+        WebGPU.initManagers();
         var wasmImports = {
             a: ___assert_fail,
-            U: ___cxa_throw,
-            z: ___syscall_fcntl64,
-            ba: ___syscall_ioctl,
-            ca: ___syscall_openat,
-            Y: __abort_js,
-            B: __embind_register_bigint,
-            ha: __embind_register_bool,
+            _: ___cxa_throw,
+            W: ___syscall_fcntl64,
+            gb: ___syscall_ioctl,
+            hb: ___syscall_openat,
+            bb: __abort_js,
+            Y: __embind_register_bigint,
+            aa: __embind_register_bool,
             g: __embind_register_class,
             f: __embind_register_class_constructor,
             c: __embind_register_class_function,
-            ga: __embind_register_emval,
-            A: __embind_register_float,
+            kb: __embind_register_emval,
+            X: __embind_register_float,
             b: __embind_register_function,
             h: __embind_register_integer,
             d: __embind_register_memory_view,
-            C: __embind_register_std_string,
-            s: __embind_register_std_wstring,
-            ia: __embind_register_void,
-            W: __emscripten_runtime_keepalive_clear,
+            $: __embind_register_std_string,
+            t: __embind_register_std_wstring,
+            ba: __embind_register_void,
+            $a: __emscripten_runtime_keepalive_clear,
             r: __emval_as,
-            sa: __emval_decref,
-            fa: __emval_get_global,
-            x: __emval_get_property,
-            ma: __emval_instanceof,
-            Ea: __emval_new_cstring,
-            Fa: __emval_run_destructors,
+            Ca: __emval_decref,
+            ia: __emval_get_global,
+            Z: __emval_get_property,
+            ta: __emval_instanceof,
+            Ya: __emval_new_cstring,
+            Za: __emval_run_destructors,
             q: __emval_set_property,
-            m: __emval_take_value,
-            X: __setitimer_js,
-            Z: _emscripten_resize_heap,
-            da: _environ_get,
-            ea: _environ_sizes_get,
-            y: _fd_close,
-            aa: _fd_read,
-            _: _fd_seek,
-            $: _fd_write,
-            T: _glActiveTexture,
-            K: _glAttachShader,
+            s: __emval_take_value,
+            ab: __setitimer_js,
+            cb: _emscripten_resize_heap,
+            Wa: _emscripten_webgpu_get_device,
+            Ra: _emscripten_webgpu_import_render_pass_encoder,
+            ib: _environ_get,
+            jb: _environ_sizes_get,
+            V: _fd_close,
+            fb: _fd_read,
+            db: _fd_seek,
+            eb: _fd_write,
+            U: _glActiveTexture,
+            L: _glAttachShader,
             o: _glBindBuffer,
             k: _glBindTexture,
-            w: _glBindVertexArrayOES,
-            qa: _glBlendEquation,
-            ya: _glBlendEquationSeparate,
-            P: _glBlendFuncSeparate,
+            z: _glBindVertexArrayOES,
+            Ja: _glBlendEquation,
+            Qa: _glBlendEquationSeparate,
+            Q: _glBlendFuncSeparate,
             p: _glBufferData,
-            S: _glBufferSubData,
-            ja: _glClear,
-            ka: _glClearColor,
-            L: _glCompileShader,
-            ua: _glCreateProgram,
-            N: _glCreateShader,
-            F: _glDeleteBuffers,
-            ra: _glDeleteProgram,
-            I: _glDeleteShader,
-            va: _glDeleteTextures,
-            Aa: _glDeleteVertexArraysOES,
-            J: _glDetachShader,
+            T: _glBufferSubData,
+            Da: _glClear,
+            Ea: _glClearColor,
+            M: _glCompileShader,
+            Ma: _glCreateProgram,
+            O: _glCreateShader,
+            G: _glDeleteBuffers,
+            Ka: _glDeleteProgram,
+            J: _glDeleteShader,
+            Na: _glDeleteTextures,
+            Ta: _glDeleteVertexArraysOES,
+            K: _glDetachShader,
             i: _glDisable,
-            Ba: _glDrawElements,
+            Ua: _glDrawElements,
             j: _glEnable,
-            u: _glEnableVertexAttribArray,
-            G: _glGenBuffers,
-            xa: _glGenTextures,
-            Ca: _glGenVertexArraysOES,
-            v: _glGetAttribLocation,
+            x: _glEnableVertexAttribArray,
+            H: _glGenBuffers,
+            Pa: _glGenTextures,
+            Va: _glGenVertexArraysOES,
+            y: _glGetAttribLocation,
             e: _glGetIntegerv,
-            la: _glGetProgramInfoLog,
-            D: _glGetProgramiv,
-            na: _glGetShaderInfoLog,
-            E: _glGetShaderiv,
-            Da: _glGetString,
-            H: _glGetUniformLocation,
+            Fa: _glGetProgramInfoLog,
+            E: _glGetProgramiv,
+            Ga: _glGetShaderInfoLog,
+            F: _glGetShaderiv,
+            Xa: _glGetString,
+            I: _glGetUniformLocation,
             l: _glIsEnabled,
-            za: _glIsProgram,
-            ta: _glLinkProgram,
-            R: _glScissor,
-            M: _glShaderSource,
-            wa: _glTexImage2D,
+            Sa: _glIsProgram,
+            La: _glLinkProgram,
+            S: _glScissor,
+            N: _glShaderSource,
+            Oa: _glTexImage2D,
             n: _glTexParameteri,
-            pa: _glUniform1i,
-            oa: _glUniformMatrix4fv,
-            Q: _glUseProgram,
-            t: _glVertexAttribPointer,
-            O: _glViewport,
-            V: _proc_exit,
+            Ia: _glUniform1i,
+            Ha: _glUniformMatrix4fv,
+            R: _glUseProgram,
+            w: _glVertexAttribPointer,
+            P: _glViewport,
+            _a: _proc_exit,
+            ha: _wgpuBindGroupLayoutRelease,
+            ca: _wgpuBindGroupRelease,
+            D: _wgpuBufferDestroy,
+            v: _wgpuBufferRelease,
+            A: _wgpuDeviceCreateBindGroup,
+            B: _wgpuDeviceCreateBindGroupLayout,
+            u: _wgpuDeviceCreateBuffer,
+            za: _wgpuDeviceCreatePipelineLayout,
+            ya: _wgpuDeviceCreateRenderPipeline,
+            la: _wgpuDeviceCreateSampler,
+            pa: _wgpuDeviceCreateShaderModule,
+            oa: _wgpuDeviceCreateTexture,
+            xa: _wgpuDeviceGetQueue,
+            ja: _wgpuPipelineLayoutRelease,
+            wa: _wgpuQueueRelease,
+            m: _wgpuQueueWriteBuffer,
+            ma: _wgpuQueueWriteTexture,
+            Aa: _wgpuRenderPassEncoderDrawIndexed,
+            C: _wgpuRenderPassEncoderSetBindGroup,
+            qa: _wgpuRenderPassEncoderSetBlendConstant,
+            sa: _wgpuRenderPassEncoderSetIndexBuffer,
+            ra: _wgpuRenderPassEncoderSetPipeline,
+            Ba: _wgpuRenderPassEncoderSetScissorRect,
+            ua: _wgpuRenderPassEncoderSetVertexBuffer,
+            va: _wgpuRenderPassEncoderSetViewport,
+            ga: _wgpuRenderPipelineRelease,
+            da: _wgpuSamplerRelease,
+            ka: _wgpuShaderModuleRelease,
+            na: _wgpuTextureCreateView,
+            fa: _wgpuTextureRelease,
+            ea: _wgpuTextureViewRelease,
         };
-        var wasmExports = createWasm();
-        var ___wasm_call_ctors = () => (___wasm_call_ctors = wasmExports["Ha"])();
-        var _malloc = (a0) => (_malloc = wasmExports["Ia"])(a0);
-        var _free = (a0) => (_free = wasmExports["Ja"])(a0);
-        var ___getTypeName = (a0) => (___getTypeName = wasmExports["Ka"])(a0);
-        var __emscripten_timeout = (a0, a1) => (__emscripten_timeout = wasmExports["Ma"])(a0, a1);
+        var wasmExports = await createWasm();
+        var ___wasm_call_ctors = wasmExports["mb"];
+        var _malloc = wasmExports["nb"];
+        var _free = wasmExports["ob"];
+        var ___getTypeName = wasmExports["pb"];
+        var __emscripten_timeout = wasmExports["rb"];
+        var __emscripten_stack_restore = wasmExports["sb"];
+        var __emscripten_stack_alloc = wasmExports["tb"];
+        var _emscripten_stack_get_current = wasmExports["ub"];
         Module["FS"] = FS;
         Module["MEMFS"] = MEMFS;
         Module["GL"] = GL;
-        var calledRun;
-        dependenciesFulfilled = function runCaller() {
-            if (!calledRun) run();
-            if (!calledRun) dependenciesFulfilled = runCaller;
-        };
+        Module["WebGPU"] = WebGPU;
+        Module["JsValStore"] = JsValStore;
         function run() {
             if (runDependencies > 0) {
+                dependenciesFulfilled = run;
                 return;
             }
             preRun();
             if (runDependencies > 0) {
+                dependenciesFulfilled = run;
                 return;
             }
             function doRun() {
-                if (calledRun) return;
-                calledRun = true;
                 Module["calledRun"] = true;
                 if (ABORT) return;
                 initRuntime();
