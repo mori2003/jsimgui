@@ -21,7 +21,7 @@
     },
 
     "compilerOptions": {
-        "lib": ["DOM", "ESNext"],
+        "lib": ["DOM", "ESNext", "deno.webgpu"],
         "types": ["@webgpu/types"],
         "strict": true
     }

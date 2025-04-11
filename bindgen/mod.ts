@@ -73,6 +73,8 @@ class StructBinding {
 /* -------------------------------------------------------------------------- */
 
 /** TODO: Add comment */
+export type ImDrawIdx = number;
+/** TODO: Add comment */
 export type ImGuiID = number;
 /** TODO: Add comment */
 export type ImS8 = number;
@@ -171,10 +173,6 @@ export type ImGuiViewportFlags = number;
 /** TODO: Add comment */
 export type ImGuiWindowFlags = number;
 /** TODO: Add comment */
-export type ImTextureID = BigInt;
-/** TODO: Add comment */
-export type ImDrawIdx = number;
-/** TODO: Add comment */
 export type ImWchar32 = number;
 /** TODO: Add comment */
 export type ImWchar16 = number;
@@ -182,6 +180,8 @@ export type ImWchar16 = number;
 export type ImWchar = number;
 /** TODO: Add comment */
 export type ImGuiSelectionUserData = BigInt;
+/** TODO: Add comment */
+export type ImTextureID = BigInt;
 
 /* -------------------------------------------------------------------------- */
 /* 3. Structs */
@@ -268,6 +268,10 @@ export class ImGuiStyle extends StructBinding {
     get WindowBorderSize(): number { return this._ptr.get_WindowBorderSize(); }
     set WindowBorderSize(v: number) { this._ptr.set_WindowBorderSize(v); }
 
+    /** Hit-testing extent outside\/inside resizing border. Also extend determination of hovered window. Generally meaningfully larger than WindowBorderSize to make it easy to reach borders. */
+    get WindowBorderHoverPadding(): number { return this._ptr.get_WindowBorderHoverPadding(); }
+    set WindowBorderHoverPadding(v: number) { this._ptr.set_WindowBorderHoverPadding(v); }
+
     /** Minimum window size. This is a global setting. If you want to constrain individual windows, use SetNextWindowSizeConstraints(). */
     get WindowMinSize(): ImVec2 { return ImVec2.wrap(this._ptr.get_WindowMinSize()); }
     set WindowMinSize(v: ImVec2) { this._ptr.set_WindowMinSize(v._ptr); }
@@ -352,6 +356,10 @@ export class ImGuiStyle extends StructBinding {
     get LogSliderDeadzone(): number { return this._ptr.get_LogSliderDeadzone(); }
     set LogSliderDeadzone(v: number) { this._ptr.set_LogSliderDeadzone(v); }
 
+    /** Thickness of border around Image() calls. */
+    get ImageBorderSize(): number { return this._ptr.get_ImageBorderSize(); }
+    set ImageBorderSize(v: number) { this._ptr.set_ImageBorderSize(v); }
+
     /** Radius of upper corners of a tab. Set to 0.0f to have rectangular tabs. */
     get TabRounding(): number { return this._ptr.get_TabRounding(); }
     set TabRounding(v: number) { this._ptr.set_TabRounding(v); }
@@ -360,9 +368,13 @@ export class ImGuiStyle extends StructBinding {
     get TabBorderSize(): number { return this._ptr.get_TabBorderSize(); }
     set TabBorderSize(v: number) { this._ptr.set_TabBorderSize(v); }
 
-    /** Minimum width for close button to appear on an unselected tab when hovered. Set to 0.0f to always show when hovering, set to FLT_MAX to never show close button unless selected. */
-    get TabMinWidthForCloseButton(): number { return this._ptr.get_TabMinWidthForCloseButton(); }
-    set TabMinWidthForCloseButton(v: number) { this._ptr.set_TabMinWidthForCloseButton(v); }
+    /** -1: always visible. 0.0f: visible when hovered. >0.0f: visible when hovered if minimum width. */
+    get TabCloseButtonMinWidthSelected(): number { return this._ptr.get_TabCloseButtonMinWidthSelected(); }
+    set TabCloseButtonMinWidthSelected(v: number) { this._ptr.set_TabCloseButtonMinWidthSelected(v); }
+
+    /** -1: always visible. 0.0f: visible when hovered. >0.0f: visible when hovered if minimum width. FLT_MAX: never show close button when unselected. */
+    get TabCloseButtonMinWidthUnselected(): number { return this._ptr.get_TabCloseButtonMinWidthUnselected(); }
+    set TabCloseButtonMinWidthUnselected(v: number) { this._ptr.set_TabCloseButtonMinWidthUnselected(v); }
 
     /** Thickness of tab-bar separator, which takes on the tab active color to denote focus. */
     get TabBarBorderSize(): number { return this._ptr.get_TabBarBorderSize(); }
@@ -651,9 +663,13 @@ export class ImGuiIO extends StructBinding {
     get ConfigDebugIsDebuggerPresent(): boolean { return this._ptr.get_ConfigDebugIsDebuggerPresent(); }
     set ConfigDebugIsDebuggerPresent(v: boolean) { this._ptr.set_ConfigDebugIsDebuggerPresent(v); }
 
-    /** = true           \/\/ Highlight and show an error message when multiple items have conflicting identifiers. */
+    /** = true           \/\/ Highlight and show an error message popup when multiple items have conflicting identifiers. */
     get ConfigDebugHighlightIdConflicts(): boolean { return this._ptr.get_ConfigDebugHighlightIdConflicts(); }
     set ConfigDebugHighlightIdConflicts(v: boolean) { this._ptr.set_ConfigDebugHighlightIdConflicts(v); }
+
+    /** true \/\/ Show "Item Picker" button in aforementioned popup. */
+    get ConfigDebugHighlightIdConflictsShowItemPicker(): boolean { return this._ptr.get_ConfigDebugHighlightIdConflictsShowItemPicker(); }
+    set ConfigDebugHighlightIdConflictsShowItemPicker(v: boolean) { this._ptr.set_ConfigDebugHighlightIdConflictsShowItemPicker(v); }
 
     /** = false          \/\/ First-time calls to Begin()\/BeginChild() will return false. NEEDS TO BE SET AT APPLICATION BOOT TIME if you don't want to miss windows. */
     get ConfigDebugBeginReturnValueOnce(): boolean { return this._ptr.get_ConfigDebugBeginReturnValueOnce(); }
@@ -1439,61 +1455,63 @@ export const ImGui = Object.freeze({
         /** Available on some keyboard\/mouses. Often referred as "Browser Back" */
         _AppBack: 629,
         _AppForward: 630,
+        /** Non-US backslash. */
+        _Oem102: 631,
         /** Menu (Xbox)      + (Switch)   Start\/Options (PS) */
-        _GamepadStart: 631,
+        _GamepadStart: 632,
         /** View (Xbox)      - (Switch)   Share (PS) */
-        _GamepadBack: 632,
+        _GamepadBack: 633,
         /** X (Xbox)         Y (Switch)   Square (PS)        \/\/ Tap: Toggle Menu. Hold: Windowing mode (Focus\/Move\/Resize windows) */
-        _GamepadFaceLeft: 633,
+        _GamepadFaceLeft: 634,
         /** B (Xbox)         A (Switch)   Circle (PS)        \/\/ Cancel \/ Close \/ Exit */
-        _GamepadFaceRight: 634,
+        _GamepadFaceRight: 635,
         /** Y (Xbox)         X (Switch)   Triangle (PS)      \/\/ Text Input \/ On-screen Keyboard */
-        _GamepadFaceUp: 635,
+        _GamepadFaceUp: 636,
         /** A (Xbox)         B (Switch)   Cross (PS)         \/\/ Activate \/ Open \/ Toggle \/ Tweak */
-        _GamepadFaceDown: 636,
+        _GamepadFaceDown: 637,
         /** D-pad Left                                       \/\/ Move \/ Tweak \/ Resize Window (in Windowing mode) */
-        _GamepadDpadLeft: 637,
+        _GamepadDpadLeft: 638,
         /** D-pad Right                                      \/\/ Move \/ Tweak \/ Resize Window (in Windowing mode) */
-        _GamepadDpadRight: 638,
+        _GamepadDpadRight: 639,
         /** D-pad Up                                         \/\/ Move \/ Tweak \/ Resize Window (in Windowing mode) */
-        _GamepadDpadUp: 639,
+        _GamepadDpadUp: 640,
         /** D-pad Down                                       \/\/ Move \/ Tweak \/ Resize Window (in Windowing mode) */
-        _GamepadDpadDown: 640,
+        _GamepadDpadDown: 641,
         /** L Bumper (Xbox)  L (Switch)   L1 (PS)            \/\/ Tweak Slower \/ Focus Previous (in Windowing mode) */
-        _GamepadL1: 641,
+        _GamepadL1: 642,
         /** R Bumper (Xbox)  R (Switch)   R1 (PS)            \/\/ Tweak Faster \/ Focus Next (in Windowing mode) */
-        _GamepadR1: 642,
+        _GamepadR1: 643,
         /** L Trig. (Xbox)   ZL (Switch)  L2 (PS) [Analog] */
-        _GamepadL2: 643,
+        _GamepadL2: 644,
         /** R Trig. (Xbox)   ZR (Switch)  R2 (PS) [Analog] */
-        _GamepadR2: 644,
+        _GamepadR2: 645,
         /** L Stick (Xbox)   L3 (Switch)  L3 (PS) */
-        _GamepadL3: 645,
+        _GamepadL3: 646,
         /** R Stick (Xbox)   R3 (Switch)  R3 (PS) */
-        _GamepadR3: 646,
+        _GamepadR3: 647,
         /** [Analog]                                         \/\/ Move Window (in Windowing mode) */
-        _GamepadLStickLeft: 647,
+        _GamepadLStickLeft: 648,
         /** [Analog]                                         \/\/ Move Window (in Windowing mode) */
-        _GamepadLStickRight: 648,
+        _GamepadLStickRight: 649,
         /** [Analog]                                         \/\/ Move Window (in Windowing mode) */
-        _GamepadLStickUp: 649,
+        _GamepadLStickUp: 650,
         /** [Analog]                                         \/\/ Move Window (in Windowing mode) */
-        _GamepadLStickDown: 650,
+        _GamepadLStickDown: 651,
         /** [Analog] */
-        _GamepadRStickLeft: 651,
+        _GamepadRStickLeft: 652,
         /** [Analog] */
-        _GamepadRStickRight: 652,
+        _GamepadRStickRight: 653,
         /** [Analog] */
-        _GamepadRStickUp: 653,
+        _GamepadRStickUp: 654,
         /** [Analog] */
-        _GamepadRStickDown: 654,
-        _MouseLeft: 655,
-        _MouseRight: 656,
-        _MouseMiddle: 657,
-        _MouseX1: 658,
-        _MouseX2: 659,
-        _MouseWheelX: 660,
-        _MouseWheelY: 661,
+        _GamepadRStickDown: 655,
+        _MouseLeft: 656,
+        _MouseRight: 657,
+        _MouseMiddle: 658,
+        _MouseX1: 659,
+        _MouseX2: 660,
+        _MouseWheelX: 661,
+        _MouseWheelY: 662,
         ImGuiMod_None: 0,
         /** Ctrl (non-macOS), Cmd (macOS) */
         ImGuiMod_Ctrl: 4096,
@@ -1715,31 +1733,33 @@ export const ImGui = Object.freeze({
         GrabMinSize: 20,
         /** float     GrabRounding */
         GrabRounding: 21,
+        /** float     ImageBorderSize */
+        ImageBorderSize: 22,
         /** float     TabRounding */
-        TabRounding: 22,
+        TabRounding: 23,
         /** float     TabBorderSize */
-        TabBorderSize: 23,
+        TabBorderSize: 24,
         /** float     TabBarBorderSize */
-        TabBarBorderSize: 24,
+        TabBarBorderSize: 25,
         /** float     TabBarOverlineSize */
-        TabBarOverlineSize: 25,
+        TabBarOverlineSize: 26,
         /** float     TableAngledHeadersAngle */
-        TableAngledHeadersAngle: 26,
+        TableAngledHeadersAngle: 27,
         /** ImVec2  TableAngledHeadersTextAlign */
-        TableAngledHeadersTextAlign: 27,
+        TableAngledHeadersTextAlign: 28,
         /** ImVec2    ButtonTextAlign */
-        ButtonTextAlign: 28,
+        ButtonTextAlign: 29,
         /** ImVec2    SelectableTextAlign */
-        SelectableTextAlign: 29,
+        SelectableTextAlign: 30,
         /** float     SeparatorTextBorderSize */
-        SeparatorTextBorderSize: 30,
+        SeparatorTextBorderSize: 31,
         /** ImVec2    SeparatorTextAlign */
-        SeparatorTextAlign: 31,
+        SeparatorTextAlign: 32,
         /** ImVec2    SeparatorTextPadding */
-        SeparatorTextPadding: 32,
+        SeparatorTextPadding: 33,
         /** float     DockingSeparatorSize */
-        DockingSeparatorSize: 33,
-        COUNT: 34,
+        DockingSeparatorSize: 34,
+        COUNT: 35,
     },
 
     /** Flags for InvisibleButton() [extended in imgui_internal.h] */
@@ -1854,9 +1874,13 @@ export const ImGui = Object.freeze({
         ResizeNWSE: 6,
         /** (Unused by Dear ImGui functions. Use for e.g. hyperlinks) */
         Hand: 7,
+        /** When waiting for something to process\/load. */
+        Wait: 8,
+        /** When waiting for something to process\/load, but application is still interactive. */
+        Progress: 9,
         /** When hovering something with disallowed interaction. Usually a crossed circle. */
-        NotAllowed: 8,
-        COUNT: 9,
+        NotAllowed: 10,
+        COUNT: 11,
     },
 
     /** Enumeration for AddMouseSourceEvent() actual source of Mouse Input data. */
@@ -2473,7 +2497,7 @@ export const ImGui = Object.freeze({
     LabelText(label: string, fmt: string): void { return Mod.export.ImGui_LabelText(label, fmt); },
     /** shortcut for Bullet()+Text() */
     BulletText(fmt: string): void { return Mod.export.ImGui_BulletText(fmt); },
-    /** currently: formatted text with an horizontal line */
+    /** currently: formatted text with a horizontal line */
     SeparatorText(label: string): void { return Mod.export.ImGui_SeparatorText(label); },
 
     /** button */
@@ -2505,7 +2529,9 @@ export const ImGui = Object.freeze({
     TextLinkOpenURL(label: string, url?: string): void { return Mod.export.ImGui_TextLinkOpenURL(label, url); },
 
     /** Widgets: Images */
-    Image(user_texture_id: ImTextureID, image_size: ImVec2, uv0: ImVec2 = new ImVec2(0, 0), uv1: ImVec2 = new ImVec2(1, 1), tint_col: ImVec4 = new ImVec4(1, 1, 1, 1), border_col: ImVec4 = new ImVec4(0, 0, 0, 0)): void { return Mod.export.ImGui_Image(user_texture_id, image_size?._ptr || null, uv0?._ptr || null, uv1?._ptr || null, tint_col?._ptr || null, border_col?._ptr || null); },
+    Image(user_texture_id: ImTextureID, image_size: ImVec2, uv0: ImVec2 = new ImVec2(0, 0), uv1: ImVec2 = new ImVec2(1, 1)): void { return Mod.export.ImGui_Image(user_texture_id, image_size?._ptr || null, uv0?._ptr || null, uv1?._ptr || null); },
+
+    ImageWithBg(user_texture_id: ImTextureID, image_size: ImVec2, uv0: ImVec2 = new ImVec2(0, 0), uv1: ImVec2 = new ImVec2(1, 1), bg_col: ImVec4 = new ImVec4(0, 0, 0, 0), tint_col: ImVec4 = new ImVec4(1, 1, 1, 1)): void { return Mod.export.ImGui_ImageWithBg(user_texture_id, image_size?._ptr || null, uv0?._ptr || null, uv1?._ptr || null, bg_col?._ptr || null, tint_col?._ptr || null); },
 
     ImageButton(str_id: string, user_texture_id: ImTextureID, image_size: ImVec2, uv0: ImVec2 = new ImVec2(0, 0), uv1: ImVec2 = new ImVec2(1, 1), bg_col: ImVec4 = new ImVec4(0, 0, 0, 0), tint_col: ImVec4 = new ImVec4(1, 1, 1, 1)): boolean { return Mod.export.ImGui_ImageButton(str_id, user_texture_id, image_size?._ptr || null, uv0?._ptr || null, uv1?._ptr || null, bg_col?._ptr || null, tint_col?._ptr || null); },
 
@@ -2817,7 +2843,7 @@ export const ImGui = Object.freeze({
 
     PopClipRect(): void { return Mod.export.ImGui_PopClipRect(); },
 
-    /** make last item the default focused item of of a newly appearing window. */
+    /** make last item the default focused item of a newly appearing window. */
     SetItemDefaultFocus(): void { return Mod.export.ImGui_SetItemDefaultFocus(); },
 
     /** focus keyboard on the next widget. Use positive 'offset' to access sub components of a multiple component widget. Use -1 to access previous widget. */
@@ -2913,7 +2939,7 @@ export const ImGui = Object.freeze({
     /** uses provided repeat rate\/delay. return a count, most often 0 or 1 but might be >1 if RepeatRate is small enough that DeltaTime > RepeatRate */
     GetKeyPressedAmount(key: ImGuiKey, repeat_delay: number, rate: number): number { return Mod.export.ImGui_GetKeyPressedAmount(key, repeat_delay, rate); },
 
-    /** [DEBUG] returns English name of the key. Those names a provided for debugging purpose and are not meant to be saved persistently not compared. */
+    /** [DEBUG] returns English name of the key. Those names are provided for debugging purpose and are not meant to be saved persistently nor compared. */
     GetKeyName(key: ImGuiKey): string { return Mod.export.ImGui_GetKeyName(key); },
 
     /** Override io.WantCaptureKeyboard flag next frame (said flag is left for your application to handle, typically when true it instructs your app to ignore inputs). e.g. force capture keyboard when your widget is being hovered. This is equivalent to setting "io.WantCaptureKeyboard = want_capture_keyboard"; after the next NewFrame() call. */

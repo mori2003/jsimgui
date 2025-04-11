@@ -179,7 +179,7 @@ function compileWasm(): void {
             "./third_party/dear_bindings/dcimgui.cpp",
             "./third_party/dear_bindings/dcimgui_internal.cpp",
             "./third_party/dear_bindings/dcimgui_impl_opengl3.cpp",
-            "./third_party/dear_bindings/dcimgui_impl_wgpu.cpp",
+            "./src/fixes/dcimgui_impl_wgpu.cpp", // Small compilation fix for the wgpu backend.
             "-I./third_party/imgui/",
             "-I./third_party/imgui/backends",
             "-I./third_party/dear_bindings",
