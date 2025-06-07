@@ -3790,7 +3790,184 @@ export const ImGuiImplWGPU = {
         return Mod.export.cImGui_ImplWGPU_RenderDrawData(draw_data._ptr, handle);
     },
 };
-function handleCanvasSize(canvas, io) {
+const MOUSE_BUTTON_MAP = {
+    0: ImGui.MouseButton.Left,
+    1: ImGui.MouseButton.Middle,
+    2: ImGui.MouseButton.Right,
+};
+const MOUSE_CURSOR_MAP = {
+    [ImGui.MouseCursor.None]: "none",
+    [ImGui.MouseCursor.Arrow]: "default",
+    [ImGui.MouseCursor.TextInput]: "text",
+    [ImGui.MouseCursor.Hand]: "pointer",
+    [ImGui.MouseCursor.ResizeAll]: "all-scroll",
+    [ImGui.MouseCursor.ResizeNS]: "ns-resize",
+    [ImGui.MouseCursor.ResizeEW]: "ew-resize",
+    [ImGui.MouseCursor.ResizeNESW]: "nesw-resize",
+    [ImGui.MouseCursor.ResizeNWSE]: "nwse-resize",
+    [ImGui.MouseCursor.NotAllowed]: "not-allowed",
+};
+const KEYBOARD_MAP = {
+    0: ImGui.Key._0,
+    1: ImGui.Key._1,
+    2: ImGui.Key._2,
+    3: ImGui.Key._3,
+    4: ImGui.Key._4,
+    5: ImGui.Key._5,
+    6: ImGui.Key._6,
+    7: ImGui.Key._7,
+    8: ImGui.Key._8,
+    9: ImGui.Key._9,
+    Numpad0: ImGui.Key._Keypad0,
+    Numpad1: ImGui.Key._Keypad1,
+    Numpad2: ImGui.Key._Keypad2,
+    Numpad3: ImGui.Key._Keypad3,
+    Numpad4: ImGui.Key._Keypad4,
+    Numpad5: ImGui.Key._Keypad5,
+    Numpad6: ImGui.Key._Keypad6,
+    Numpad7: ImGui.Key._Keypad7,
+    Numpad8: ImGui.Key._Keypad8,
+    Numpad9: ImGui.Key._Keypad9,
+    NumpadDecimal: ImGui.Key._KeypadDecimal,
+    NumpadDivide: ImGui.Key._KeypadDivide,
+    NumpadMultiply: ImGui.Key._KeypadMultiply,
+    NumpadSubtract: ImGui.Key._KeypadSubtract,
+    NumpadAdd: ImGui.Key._KeypadAdd,
+    NumpadEnter: ImGui.Key._KeypadEnter,
+    NumpadEqual: ImGui.Key._KeypadEqual,
+    F1: ImGui.Key._F1,
+    F2: ImGui.Key._F2,
+    F3: ImGui.Key._F3,
+    F4: ImGui.Key._F4,
+    F5: ImGui.Key._F5,
+    F6: ImGui.Key._F6,
+    F7: ImGui.Key._F7,
+    F8: ImGui.Key._F8,
+    F9: ImGui.Key._F9,
+    F10: ImGui.Key._F10,
+    F11: ImGui.Key._F11,
+    F12: ImGui.Key._F12,
+    F13: ImGui.Key._F13,
+    F14: ImGui.Key._F14,
+    F15: ImGui.Key._F15,
+    F16: ImGui.Key._F16,
+    F17: ImGui.Key._F17,
+    F18: ImGui.Key._F18,
+    F19: ImGui.Key._F19,
+    F20: ImGui.Key._F20,
+    F21: ImGui.Key._F21,
+    F22: ImGui.Key._F22,
+    F23: ImGui.Key._F23,
+    F24: ImGui.Key._F24,
+    a: ImGui.Key._A,
+    b: ImGui.Key._B,
+    c: ImGui.Key._C,
+    d: ImGui.Key._D,
+    e: ImGui.Key._E,
+    f: ImGui.Key._F,
+    g: ImGui.Key._G,
+    h: ImGui.Key._H,
+    i: ImGui.Key._I,
+    j: ImGui.Key._J,
+    k: ImGui.Key._K,
+    l: ImGui.Key._L,
+    m: ImGui.Key._M,
+    n: ImGui.Key._N,
+    o: ImGui.Key._O,
+    p: ImGui.Key._P,
+    q: ImGui.Key._Q,
+    r: ImGui.Key._R,
+    s: ImGui.Key._S,
+    t: ImGui.Key._T,
+    u: ImGui.Key._U,
+    v: ImGui.Key._V,
+    w: ImGui.Key._W,
+    x: ImGui.Key._X,
+    y: ImGui.Key._Y,
+    z: ImGui.Key._Z,
+    A: ImGui.Key._A,
+    B: ImGui.Key._B,
+    C: ImGui.Key._C,
+    D: ImGui.Key._D,
+    E: ImGui.Key._E,
+    F: ImGui.Key._F,
+    G: ImGui.Key._G,
+    H: ImGui.Key._H,
+    I: ImGui.Key._I,
+    J: ImGui.Key._J,
+    K: ImGui.Key._K,
+    L: ImGui.Key._L,
+    M: ImGui.Key._M,
+    N: ImGui.Key._N,
+    O: ImGui.Key._O,
+    P: ImGui.Key._P,
+    Q: ImGui.Key._Q,
+    R: ImGui.Key._R,
+    S: ImGui.Key._S,
+    T: ImGui.Key._T,
+    U: ImGui.Key._U,
+    V: ImGui.Key._V,
+    W: ImGui.Key._W,
+    X: ImGui.Key._X,
+    Y: ImGui.Key._Y,
+    Z: ImGui.Key._Z,
+    "'": ImGui.Key._Apostrophe,
+    ",": ImGui.Key._Comma,
+    "-": ImGui.Key._Minus,
+    ".": ImGui.Key._Period,
+    "/": ImGui.Key._Slash,
+    ";": ImGui.Key._Semicolon,
+    "=": ImGui.Key._Equal,
+    "[": ImGui.Key._LeftBracket,
+    "\\": ImGui.Key._Backslash,
+    "]": ImGui.Key._RightBracket,
+    "`": ImGui.Key._GraveAccent,
+    CapsLock: ImGui.Key._CapsLock,
+    ScrollLock: ImGui.Key._ScrollLock,
+    NumLock: ImGui.Key._NumLock,
+    PrintScreen: ImGui.Key._PrintScreen,
+    Pause: ImGui.Key._Pause,
+    Tab: ImGui.Key._Tab,
+    ArrowLeft: ImGui.Key._LeftArrow,
+    ArrowRight: ImGui.Key._RightArrow,
+    ArrowUp: ImGui.Key._UpArrow,
+    ArrowDown: ImGui.Key._DownArrow,
+    PageUp: ImGui.Key._PageUp,
+    PageDown: ImGui.Key._PageDown,
+    Home: ImGui.Key._Home,
+    End: ImGui.Key._End,
+    Insert: ImGui.Key._Insert,
+    Delete: ImGui.Key._Delete,
+    Backspace: ImGui.Key._Backspace,
+    " ": ImGui.Key._Space,
+    Enter: ImGui.Key._Enter,
+    Escape: ImGui.Key._Escape,
+    Control: ImGui.Key._LeftCtrl,
+    Shift: ImGui.Key._LeftShift,
+    Alt: ImGui.Key._LeftAlt,
+    Super: ImGui.Key._LeftSuper,
+};
+const KEYBOARD_MODIFIER_MAP = {
+    Control: ImGui.Key.ImGuiMod_Ctrl,
+    Shift: ImGui.Key.ImGuiMod_Shift,
+    Alt: ImGui.Key.ImGuiMod_Alt,
+    Super: ImGui.Key.ImGuiMod_Super,
+};
+const handleKeyboardEvent = (event, keyDown, io) => {
+    io.AddKeyEvent(KEYBOARD_MAP[event.key], keyDown);
+    const modifier = KEYBOARD_MODIFIER_MAP[event.key];
+    if (modifier) {
+        io.AddKeyEvent(modifier, keyDown);
+    }
+    if (event.key.length === 1 && keyDown) {
+        io.AddInputCharactersUTF8(event.key);
+    }
+};
+/**
+ * Sets up canvas size and resize handling.
+ */
+function setupCanvasIO(canvas) {
+    const io = ImGui.GetIO();
     const setDisplayProperties = () => {
         const displayWidth = Math.floor(canvas.clientWidth);
         const displayHeight = Math.floor(canvas.clientHeight);
@@ -3799,177 +3976,135 @@ function handleCanvasSize(canvas, io) {
         const bufferHeight = Math.max(1, Math.round(displayHeight * dpr));
         canvas.width = bufferWidth;
         canvas.height = bufferHeight;
-        const gl = canvas.getContext("webgl2");
-        if (gl) {
-            gl.viewport(0, 0, bufferWidth, bufferHeight);
-        }
         io.DisplaySize = new ImVec2(displayWidth, displayHeight);
         io.DisplayFramebufferScale = new ImVec2(dpr, dpr);
     };
     setDisplayProperties();
     globalThis.addEventListener("resize", setDisplayProperties);
 }
-function handleMouseEvents(canvas, io) {
-    canvas.addEventListener("mousemove", (event) => {
+/**
+ * Sets up mouse input, movement and cursor handling.
+ */
+function setupMouseIO(canvas) {
+    const io = ImGui.GetIO();
+    const scrollSpeed = 0.01;
+    canvas.addEventListener("mousemove", (e) => {
         const rect = canvas.getBoundingClientRect();
-        io.AddMousePosEvent(event.clientX - rect.left, event.clientY - rect.top);
+        io.AddMousePosEvent(e.clientX - rect.left, e.clientY - rect.top);
+        canvas.style.cursor = MOUSE_CURSOR_MAP[ImGui.GetMouseCursor()];
     });
-    canvas.addEventListener("mousemove", (event) => {
-        const rect = canvas.getBoundingClientRect();
-        io.AddMousePosEvent(event.clientX - rect.left, event.clientY - rect.top);
-        const cursorStyle = ImGui.GetMouseCursor();
-        switch (cursorStyle) {
-            case ImGui.MouseCursor.None:
-                canvas.style.cursor = "none";
-                break;
-            case ImGui.MouseCursor.Arrow:
-                canvas.style.cursor = "default";
-                break;
-            case ImGui.MouseCursor.TextInput:
-                canvas.style.cursor = "text";
-                break;
-            case ImGui.MouseCursor.Hand:
-                canvas.style.cursor = "pointer";
-                break;
-            case ImGui.MouseCursor.ResizeAll:
-                canvas.style.cursor = "all-scroll";
-                break;
-            case ImGui.MouseCursor.ResizeNS:
-                canvas.style.cursor = "ns-resize";
-                break;
-            case ImGui.MouseCursor.ResizeEW:
-                canvas.style.cursor = "ew-resize";
-                break;
-            case ImGui.MouseCursor.ResizeNESW:
-                canvas.style.cursor = "nesw-resize";
-                break;
-            case ImGui.MouseCursor.ResizeNWSE:
-                canvas.style.cursor = "nwse-resize";
-                break;
-            case ImGui.MouseCursor.NotAllowed:
-                canvas.style.cursor = "not-allowed";
-                break;
-            default:
-                canvas.style.cursor = "default";
-                break;
-        }
+    canvas.addEventListener("mousedown", (e) => {
+        io.AddMouseButtonEvent(MOUSE_BUTTON_MAP[e.button], true);
     });
-    const mouseMap = {
-        0: ImGui.MouseButton.Left,
-        1: ImGui.MouseButton.Middle,
-        2: ImGui.MouseButton.Right,
-    };
-    canvas.addEventListener("mousedown", (event) => {
-        io.AddMouseButtonEvent(mouseMap[event.button], true);
+    canvas.addEventListener("mouseup", (e) => {
+        io.AddMouseButtonEvent(MOUSE_BUTTON_MAP[e.button], false);
     });
-    canvas.addEventListener("mouseup", (event) => {
-        io.AddMouseButtonEvent(mouseMap[event.button], false);
-    });
-    canvas.addEventListener("wheel", (event) => {
-        io.AddMouseWheelEvent(-event.deltaX * 0.01, -event.deltaY * 0.01);
+    canvas.addEventListener("wheel", (e) => {
+        io.AddMouseWheelEvent(-e.deltaX * scrollSpeed, -e.deltaY * scrollSpeed);
     });
 }
-function handleKeyboardEvents(canvas, io) {
-    const keyboardMap = new Map();
-    const bindKey = (keys, value) => {
-        const keyArray = Array.isArray(keys) ? keys : [keys];
-        const valueArray = Array.isArray(value) ? value : [value];
-        for (const key of keyArray) {
-            const existing = keyboardMap.get(key) || [];
-            keyboardMap.set(key, [...existing, ...valueArray]);
-        }
-    };
-    for (let i = 0; i <= 9; i++) {
-        bindKey(`${i}`, ImGui.Key[`_${i}`]);
-        bindKey(`Numpad${i}`, ImGui.Key[`_Keypad${i}`]);
-    }
-    for (let i = 1; i <= 24; i++) {
-        bindKey(`F${i}`, ImGui.Key[`_F${i}`]);
-    }
-    for (const letter of "ABCDEFGHIJKLMNOPQRSTUVWXYZ") {
-        bindKey([letter, letter.toLowerCase()], ImGui.Key[`_${letter}`]);
-    }
-    bindKey("'", ImGui.Key._Apostrophe);
-    bindKey(",", ImGui.Key._Comma);
-    bindKey("-", ImGui.Key._Minus);
-    bindKey(".", ImGui.Key._Period);
-    bindKey("/", ImGui.Key._Slash);
-    bindKey(";", ImGui.Key._Semicolon);
-    bindKey("=", ImGui.Key._Equal);
-    bindKey("[", ImGui.Key._LeftBracket);
-    bindKey("\\", ImGui.Key._Backslash);
-    bindKey("]", ImGui.Key._RightBracket);
-    bindKey("`", ImGui.Key._GraveAccent);
-    bindKey("CapsLock", ImGui.Key._CapsLock);
-    bindKey("ScrollLock", ImGui.Key._ScrollLock);
-    bindKey("NumLock", ImGui.Key._NumLock);
-    bindKey("PrintScreen", ImGui.Key._PrintScreen);
-    bindKey("Pause", ImGui.Key._Pause);
-    bindKey("NumpadDecimal", ImGui.Key._KeypadDecimal);
-    bindKey("NumpadDivide", ImGui.Key._KeypadDivide);
-    bindKey("NumpadMultiply", ImGui.Key._KeypadMultiply);
-    bindKey("NumpadSubtract", ImGui.Key._KeypadSubtract);
-    bindKey("NumpadAdd", ImGui.Key._KeypadAdd);
-    bindKey("NumpadEnter", ImGui.Key._KeypadEnter);
-    bindKey("NumpadEqual", ImGui.Key._KeypadEqual);
-    bindKey("Tab", [ImGui.Key._Tab]);
-    bindKey("ArrowLeft", [ImGui.Key._LeftArrow]);
-    bindKey("ArrowRight", [ImGui.Key._RightArrow]);
-    bindKey("ArrowUp", [ImGui.Key._UpArrow]);
-    bindKey("ArrowDown", [ImGui.Key._DownArrow]);
-    bindKey("PageUp", [ImGui.Key._PageUp]);
-    bindKey("PageDown", [ImGui.Key._PageDown]);
-    bindKey("Home", [ImGui.Key._Home]);
-    bindKey("End", [ImGui.Key._End]);
-    bindKey("Insert", [ImGui.Key._Insert]);
-    bindKey("Delete", [ImGui.Key._Delete]);
-    bindKey("Backspace", ImGui.Key._Backspace);
-    bindKey(" ", [ImGui.Key._Space]);
-    bindKey("Enter", [ImGui.Key._Enter]);
-    bindKey("Escape", [ImGui.Key._Escape]);
-    bindKey("Control", [ImGui.Key._LeftCtrl, ImGui.Key.ImGuiMod_Ctrl]);
-    bindKey("Shift", [ImGui.Key._LeftShift, ImGui.Key.ImGuiMod_Shift]);
-    bindKey("Alt", [ImGui.Key._LeftAlt, ImGui.Key.ImGuiMod_Alt]);
-    bindKey("Super", [ImGui.Key._LeftSuper, ImGui.Key.ImGuiMod_Super]);
+/**
+ * Sets up keyboard input handling.
+ */
+function setupKeyboardIO(canvas) {
+    const io = ImGui.GetIO();
     // TODO: Fix too fast repeated inputs (Backspace, Delete...).
-    canvas.addEventListener("keydown", (event) => {
-        const keys = keyboardMap.get(event.key);
-        if (keys) {
-            for (const key of keys) {
-                io.AddKeyEvent(key, true);
+    canvas.addEventListener("keydown", (e) => handleKeyboardEvent(e, true, io));
+    canvas.addEventListener("keyup", (e) => handleKeyboardEvent(e, false, io));
+}
+/**
+ * Sets up touch input handling.
+ * Single-finger touches are treated as mouse left clicks.
+ * Two-finger touches are treated as mouse scrolls.
+ */
+function setupTouchIO(canvas) {
+    const io = ImGui.GetIO();
+    const scrollSpeed = 0.02;
+    let lastPos = { x: 0, y: 0 };
+    const handleTouchEvent = (event, isButtonDown) => {
+        event.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        if (event.touches.length === 2) {
+            const touch1 = event.touches[0];
+            const touch2 = event.touches[1];
+            const currentPos = {
+                x: (touch1.clientX + touch2.clientX) / 2,
+                y: (touch1.clientY + touch2.clientY) / 2,
+            };
+            if (lastPos.x > 0 && lastPos.y > 0) {
+                const deltaX = (lastPos.x - currentPos.x) * scrollSpeed;
+                const deltaY = (lastPos.y - currentPos.y) * scrollSpeed;
+                io.AddMouseWheelEvent(-deltaX, -deltaY);
             }
+            lastPos = currentPos;
+            return;
         }
-        if (event.key.length === 1) {
-            io.AddInputCharactersUTF8(event.key);
+        lastPos = { x: 0, y: 0 };
+        const touch = event.touches[0];
+        if (touch) {
+            io.AddMousePosEvent(touch.clientX - rect.left, touch.clientY - rect.top);
         }
+        if (typeof isButtonDown === "boolean") {
+            io.AddMouseButtonEvent(ImGui.MouseButton.Left, isButtonDown);
+        }
+    };
+    // Since the Virtual Keyboard API isn't widely supported yet, we use an invisible
+    // <input> element to show the on-screen keyboard and handle the text input.
+    // See: https://developer.mozilla.org/en-US/docs/Web/API/VirtualKeyboard_API
+    const input = document.createElement("input");
+    input.style.position = "absolute";
+    input.style.opacity = "0";
+    input.style.pointerEvents = "none";
+    const keyDownHandler = (e) => handleKeyboardEvent(e, true, io);
+    const keyUpHandler = (e) => handleKeyboardEvent(e, false, io);
+    const blurHandler = () => {
+        input.removeEventListener("keydown", keyDownHandler);
+        input.removeEventListener("keyup", keyUpHandler);
+        input.remove();
+    };
+    const handleTextInput = () => {
+        if (io.WantTextInput) {
+            document.body.appendChild(input);
+            input.focus();
+            input.addEventListener("blur", blurHandler);
+            input.addEventListener("keydown", keyDownHandler);
+            input.addEventListener("keyup", (e) => {
+                keyUpHandler(e);
+                // Exits single-line input fields when pressing Enter.
+                if (!io.WantTextInput) {
+                    blurHandler();
+                }
+            });
+        } else {
+            blurHandler();
+        }
+    };
+    canvas.addEventListener("touchstart", (e) => handleTouchEvent(e, true));
+    canvas.addEventListener("touchmove", (e) => handleTouchEvent(e));
+    canvas.addEventListener("touchend", (e) => {
+        lastPos = { x: 0, y: 0 };
+        handleTouchEvent(e, false);
+        handleTextInput();
     });
-    canvas.addEventListener("keyup", (event) => {
-        const keys = keyboardMap.get(event.key);
-        if (keys) {
-            for (const key of keys) {
-                io.AddKeyEvent(key, false);
-            }
-        }
+    canvas.addEventListener("touchcancel", (e) => {
+        lastPos = { x: 0, y: 0 };
+        handleTouchEvent(e, false);
     });
 }
-/** Setup IO for the browser. */
-function setupIO(canvas) {
-    canvas.tabIndex = 1;
-    // Prevent right click context menu.
-    canvas.addEventListener("contextmenu", (event) => {
-        event.preventDefault();
-    });
+/**
+ * Setup Browser inputs (mouse, keyboard, and touch).
+ */
+function setupBrowserIO(canvas) {
     const io = ImGui.GetIO();
     io.BackendFlags = ImGui.BackendFlags.HasMouseCursors;
-    handleCanvasSize(canvas, io);
-    handleMouseEvents(canvas, io);
-    handleKeyboardEvents(canvas, io);
-    canvas.addEventListener("focus", () => {
-        io.AddFocusEvent(true);
-    });
-    canvas.addEventListener("blur", () => {
-        io.AddFocusEvent(false);
-    });
+    canvas.tabIndex = 1;
+    canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+    canvas.addEventListener("focus", () => io.AddFocusEvent(true));
+    canvas.addEventListener("blur", () => io.AddFocusEvent(false));
+    setupCanvasIO(canvas);
+    setupMouseIO(canvas);
+    setupKeyboardIO(canvas);
+    setupTouchIO(canvas);
 }
 /** Web implementation of Jsimgui. */
 export const ImGuiImplWeb = {
@@ -3982,7 +4117,7 @@ export const ImGuiImplWeb = {
             throw new Error("Failed to create WebGL2 context.");
         }
         ImGui.CreateContext();
-        setupIO(canvas);
+        setupBrowserIO(canvas);
         const handle = Mod.export.GL.registerContext(
             canvasContext,
             canvasContext.getContextAttributes(),
@@ -3995,7 +4130,7 @@ export const ImGuiImplWeb = {
         await Mod.init();
         Mod.export.FS.mount(Mod.export.MEMFS, { root: "." }, ".");
         ImGui.CreateContext();
-        setupIO(canvas);
+        setupBrowserIO(canvas);
         Mod.export.preinitializedWebGPUDevice = device;
         ImGuiImplWGPU.Init();
     },
