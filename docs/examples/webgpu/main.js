@@ -1,4 +1,4 @@
-import { Mod, ImGui, ImGuiImplWeb, ImGuiImplWGPU, ImVec2, ImVec4 } from "@mori2003/jsimgui";
+import {  ImGui, ImGuiImplWeb, ImVec2, ImTextureRef } from "@mori2003/jsimgui";
 
 const canvas = document.querySelector("#render-canvas");
 
@@ -29,7 +29,7 @@ function frame() {
 
     ImGui.Begin("WebGPU");
     ImGui.Text("Lorem ipsum dolor sit amet");
-    ImGui.Image(wgpuLogo, new ImVec2(120, 100));
+    ImGui.Image(new ImTextureRef(wgpuLogo), new ImVec2(120, 100));
     ImGui.End();
 
     ImGui.ShowDemoWindow();

@@ -1,4 +1,4 @@
-import { ImGui, ImGuiImplWeb, ImVec2, ImVec4 } from "@mori2003/jsimgui";
+import { ImGui, ImGuiImplWeb, ImVec2, ImVec4, ImTextureRef } from "@mori2003/jsimgui";
 
 const canvas = document.querySelector("#render-canvas");
 const context = canvas.getContext("webgl2");
@@ -83,7 +83,7 @@ function frame() {
         ImGui.TextColored(new ImVec4(1, 1, 0, 1), "Colored Text");
         ImGui.TextDisabled("Disabled Text");
 
-        ImGui.Image(jsLogo, new ImVec2(50, 50));
+        ImGui.Image(new ImTextureRef(jsLogo), new ImVec2(50, 50));
 
         const values = [0, 1, 2, 3, 4];
         ImGui.ColorEdit3("clearColor", color);
