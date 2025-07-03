@@ -34,6 +34,8 @@ export const structBindings: Record<string, StructBinding> = {
     ImFontConfig: { opaque: true },
     ImFontAtlas: { opaque: true },
     ImFont: { opaque: true },
+    ImTextureRef: ImTextureRef(),
+    ImFontBaked: { opaque: true },
 };
 
 export const functionBindings: Record<string, FunctionBinding> = {
@@ -146,6 +148,23 @@ function ImVec4() {
                 "        this.w = w;\n",
                 "    }\n",
             ].join(""),
+        },
+    };
+}
+
+function ImTextureRef() {
+    return {
+        override: {
+            comment: "ImTextureRef = higher-level identifier for a texture.",
+            ctor: [
+                "    constructor(id: ImTextureID) {\n",
+                "        super('ImTextureRef');\n",
+                "        this._TexID = id;\n",
+                "    }\n",
+            ].join(""),
+        },
+        exclude: {
+            fields: ["_TexData"],
         },
     };
 }

@@ -209,6 +209,13 @@ bind_struct<ImVec4>("ImVec4")
 .function("set_w", override([](ImVec4& self, float value){ self.w = value; }), allow_ptr())
 ;
 
+bind_struct<ImTextureRef>("ImTextureRef")
+.constructor<>()
+.function("get__TexID", override([](const ImTextureRef& self){ return self._TexID; }), rvp_ref(), allow_ptr())
+.function("set__TexID", override([](ImTextureRef& self, ImTextureID value){ self._TexID = value; }), allow_ptr())
+.function("ImTextureRef_GetTexID", override([](const ImTextureRef* self){ return ImTextureRef_GetTexID(self); }), allow_ptr())
+;
+
 bind_struct<ImGuiTableSortSpecs>("ImGuiTableSortSpecs")
 .constructor<>()
 ;
@@ -219,6 +226,12 @@ bind_struct<ImGuiTableColumnSortSpecs>("ImGuiTableColumnSortSpecs")
 
 bind_struct<ImGuiStyle>("ImGuiStyle")
 .constructor<>()
+.function("get_FontSizeBase", override([](const ImGuiStyle& self){ return self.FontSizeBase; }), rvp_ref(), allow_ptr())
+.function("set_FontSizeBase", override([](ImGuiStyle& self, float value){ self.FontSizeBase = value; }), allow_ptr())
+.function("get_FontScaleMain", override([](const ImGuiStyle& self){ return self.FontScaleMain; }), rvp_ref(), allow_ptr())
+.function("set_FontScaleMain", override([](ImGuiStyle& self, float value){ self.FontScaleMain = value; }), allow_ptr())
+.function("get_FontScaleDpi", override([](const ImGuiStyle& self){ return self.FontScaleDpi; }), rvp_ref(), allow_ptr())
+.function("set_FontScaleDpi", override([](ImGuiStyle& self, float value){ self.FontScaleDpi = value; }), allow_ptr())
 .function("get_Alpha", override([](const ImGuiStyle& self){ return self.Alpha; }), rvp_ref(), allow_ptr())
 .function("set_Alpha", override([](ImGuiStyle& self, float value){ self.Alpha = value; }), allow_ptr())
 .function("get_DisabledAlpha", override([](const ImGuiStyle& self){ return self.DisabledAlpha; }), rvp_ref(), allow_ptr())
@@ -291,6 +304,12 @@ bind_struct<ImGuiStyle>("ImGuiStyle")
 .function("set_TableAngledHeadersAngle", override([](ImGuiStyle& self, float value){ self.TableAngledHeadersAngle = value; }), allow_ptr())
 .function("get_TableAngledHeadersTextAlign", override([](const ImGuiStyle& self){ return self.TableAngledHeadersTextAlign; }), rvp_ref(), allow_ptr())
 .function("set_TableAngledHeadersTextAlign", override([](ImGuiStyle& self, ImVec2 value){ self.TableAngledHeadersTextAlign = value; }), allow_ptr())
+.function("get_TreeLinesFlags", override([](const ImGuiStyle& self){ return self.TreeLinesFlags; }), rvp_ref(), allow_ptr())
+.function("set_TreeLinesFlags", override([](ImGuiStyle& self, ImGuiTreeNodeFlags value){ self.TreeLinesFlags = value; }), allow_ptr())
+.function("get_TreeLinesSize", override([](const ImGuiStyle& self){ return self.TreeLinesSize; }), rvp_ref(), allow_ptr())
+.function("set_TreeLinesSize", override([](ImGuiStyle& self, float value){ self.TreeLinesSize = value; }), allow_ptr())
+.function("get_TreeLinesRounding", override([](const ImGuiStyle& self){ return self.TreeLinesRounding; }), rvp_ref(), allow_ptr())
+.function("set_TreeLinesRounding", override([](ImGuiStyle& self, float value){ self.TreeLinesRounding = value; }), allow_ptr())
 .function("get_ColorButtonPosition", override([](const ImGuiStyle& self){ return self.ColorButtonPosition; }), rvp_ref(), allow_ptr())
 .function("set_ColorButtonPosition", override([](ImGuiStyle& self, ImGuiDir value){ self.ColorButtonPosition = value; }), allow_ptr())
 .function("get_ButtonTextAlign", override([](const ImGuiStyle& self){ return self.ButtonTextAlign; }), rvp_ref(), allow_ptr())
@@ -342,20 +361,18 @@ bind_struct<ImGuiIO>("ImGuiIO")
 .function("set_BackendFlags", override([](ImGuiIO& self, ImGuiBackendFlags value){ self.BackendFlags = value; }), allow_ptr())
 .function("get_DisplaySize", override([](const ImGuiIO& self){ return self.DisplaySize; }), rvp_ref(), allow_ptr())
 .function("set_DisplaySize", override([](ImGuiIO& self, ImVec2 value){ self.DisplaySize = value; }), allow_ptr())
+.function("get_DisplayFramebufferScale", override([](const ImGuiIO& self){ return self.DisplayFramebufferScale; }), rvp_ref(), allow_ptr())
+.function("set_DisplayFramebufferScale", override([](ImGuiIO& self, ImVec2 value){ self.DisplayFramebufferScale = value; }), allow_ptr())
 .function("get_DeltaTime", override([](const ImGuiIO& self){ return self.DeltaTime; }), rvp_ref(), allow_ptr())
 .function("set_DeltaTime", override([](ImGuiIO& self, float value){ self.DeltaTime = value; }), allow_ptr())
 .function("get_IniSavingRate", override([](const ImGuiIO& self){ return self.IniSavingRate; }), rvp_ref(), allow_ptr())
 .function("set_IniSavingRate", override([](ImGuiIO& self, float value){ self.IniSavingRate = value; }), allow_ptr())
 .function("get_Fonts", override([](const ImGuiIO& self){ return self.Fonts; }), rvp_ref(), allow_ptr())
 .function("set_Fonts", override([](ImGuiIO& self, ImFontAtlas* value){ self.Fonts = value; }), allow_ptr())
-.function("get_FontGlobalScale", override([](const ImGuiIO& self){ return self.FontGlobalScale; }), rvp_ref(), allow_ptr())
-.function("set_FontGlobalScale", override([](ImGuiIO& self, float value){ self.FontGlobalScale = value; }), allow_ptr())
-.function("get_FontAllowUserScaling", override([](const ImGuiIO& self){ return self.FontAllowUserScaling; }), rvp_ref(), allow_ptr())
-.function("set_FontAllowUserScaling", override([](ImGuiIO& self, bool value){ self.FontAllowUserScaling = value; }), allow_ptr())
 .function("get_FontDefault", override([](const ImGuiIO& self){ return self.FontDefault; }), rvp_ref(), allow_ptr())
 .function("set_FontDefault", override([](ImGuiIO& self, ImFont* value){ self.FontDefault = value; }), allow_ptr())
-.function("get_DisplayFramebufferScale", override([](const ImGuiIO& self){ return self.DisplayFramebufferScale; }), rvp_ref(), allow_ptr())
-.function("set_DisplayFramebufferScale", override([](ImGuiIO& self, ImVec2 value){ self.DisplayFramebufferScale = value; }), allow_ptr())
+.function("get_FontAllowUserScaling", override([](const ImGuiIO& self){ return self.FontAllowUserScaling; }), rvp_ref(), allow_ptr())
+.function("set_FontAllowUserScaling", override([](ImGuiIO& self, bool value){ self.FontAllowUserScaling = value; }), allow_ptr())
 .function("get_ConfigNavSwapGamepadButtons", override([](const ImGuiIO& self){ return self.ConfigNavSwapGamepadButtons; }), rvp_ref(), allow_ptr())
 .function("set_ConfigNavSwapGamepadButtons", override([](ImGuiIO& self, bool value){ self.ConfigNavSwapGamepadButtons = value; }), allow_ptr())
 .function("get_ConfigNavMoveSetMousePos", override([](const ImGuiIO& self){ return self.ConfigNavMoveSetMousePos; }), rvp_ref(), allow_ptr())
@@ -386,6 +403,10 @@ bind_struct<ImGuiIO>("ImGuiIO")
 .function("set_ConfigViewportsNoDecoration", override([](ImGuiIO& self, bool value){ self.ConfigViewportsNoDecoration = value; }), allow_ptr())
 .function("get_ConfigViewportsNoDefaultParent", override([](const ImGuiIO& self){ return self.ConfigViewportsNoDefaultParent; }), rvp_ref(), allow_ptr())
 .function("set_ConfigViewportsNoDefaultParent", override([](ImGuiIO& self, bool value){ self.ConfigViewportsNoDefaultParent = value; }), allow_ptr())
+.function("get_ConfigDpiScaleFonts", override([](const ImGuiIO& self){ return self.ConfigDpiScaleFonts; }), rvp_ref(), allow_ptr())
+.function("set_ConfigDpiScaleFonts", override([](ImGuiIO& self, bool value){ self.ConfigDpiScaleFonts = value; }), allow_ptr())
+.function("get_ConfigDpiScaleViewports", override([](const ImGuiIO& self){ return self.ConfigDpiScaleViewports; }), rvp_ref(), allow_ptr())
+.function("set_ConfigDpiScaleViewports", override([](ImGuiIO& self, bool value){ self.ConfigDpiScaleViewports = value; }), allow_ptr())
 .function("get_MouseDrawCursor", override([](const ImGuiIO& self){ return self.MouseDrawCursor; }), rvp_ref(), allow_ptr())
 .function("set_MouseDrawCursor", override([](ImGuiIO& self, bool value){ self.MouseDrawCursor = value; }), allow_ptr())
 .function("get_ConfigMacOSXBehaviors", override([](const ImGuiIO& self){ return self.ConfigMacOSXBehaviors; }), rvp_ref(), allow_ptr())
@@ -526,6 +547,10 @@ bind_struct<ImFontConfig>("ImFontConfig")
 ;
 
 bind_struct<ImFontAtlas>("ImFontAtlas")
+.constructor<>()
+;
+
+bind_struct<ImFontBaked>("ImFontBaked")
 .constructor<>()
 ;
 
@@ -744,10 +769,6 @@ bind_func("ImGui_SetWindowFocus", [](){
     return ImGui_SetWindowFocus();
 });
 
-bind_func("ImGui_SetWindowFontScale", [](float scale){
-    return ImGui_SetWindowFontScale(scale);
-});
-
 bind_func("ImGui_GetScrollX", [](){
     return ImGui_GetScrollX();
 });
@@ -788,13 +809,25 @@ bind_func("ImGui_SetScrollFromPosY", [](float local_y, float center_y_ratio){
     return ImGui_SetScrollFromPosY(local_y, center_y_ratio);
 });
 
-bind_func("ImGui_PushFont", [](ImFont* font){
-    return ImGui_PushFont(font);
+bind_func("ImGui_PushFontFloat", [](ImFont* font, float font_size_base_unscaled){
+    return ImGui_PushFontFloat(font, font_size_base_unscaled);
 }, allow_ptr());
 
 bind_func("ImGui_PopFont", [](){
     return ImGui_PopFont();
 });
+
+bind_func("ImGui_GetFont", [](){
+    return ImGui_GetFont();
+}, rvp_ref(), allow_ptr());
+
+bind_func("ImGui_GetFontSize", [](){
+    return ImGui_GetFontSize();
+});
+
+bind_func("ImGui_GetFontBaked", [](){
+    return ImGui_GetFontBaked();
+}, rvp_ref(), allow_ptr());
 
 bind_func("ImGui_PushStyleColor", [](ImGuiCol idx, ImU32 col){
     return ImGui_PushStyleColor(idx, col);
@@ -850,14 +883,6 @@ bind_func("ImGui_PushTextWrapPos", [](float wrap_local_pos_x){
 
 bind_func("ImGui_PopTextWrapPos", [](){
     return ImGui_PopTextWrapPos();
-});
-
-bind_func("ImGui_GetFont", [](){
-    return ImGui_GetFont();
-}, rvp_ref(), allow_ptr());
-
-bind_func("ImGui_GetFontSize", [](){
-    return ImGui_GetFontSize();
 });
 
 bind_func("ImGui_GetFontTexUvWhitePixel", [](){
@@ -1042,16 +1067,16 @@ bind_func("ImGui_TextLinkOpenURL", [](std::string label, std::string url){
     return ImGui_TextLinkOpenURL(label.c_str(), url.c_str());
 }, allow_ptr());
 
-bind_func("ImGui_Image", [](ImTextureID user_texture_id, ImVec2 image_size, ImVec2 uv0, ImVec2 uv1){
-    return ImGui_Image(user_texture_id, image_size, uv0, uv1);
+bind_func("ImGui_Image", [](ImTextureRef tex_ref, ImVec2 image_size, ImVec2 uv0, ImVec2 uv1){
+    return ImGui_Image(tex_ref, image_size, uv0, uv1);
 });
 
-bind_func("ImGui_ImageWithBg", [](ImTextureID user_texture_id, ImVec2 image_size, ImVec2 uv0, ImVec2 uv1, ImVec4 bg_col, ImVec4 tint_col){
-    return ImGui_ImageWithBg(user_texture_id, image_size, uv0, uv1, bg_col, tint_col);
+bind_func("ImGui_ImageWithBg", [](ImTextureRef tex_ref, ImVec2 image_size, ImVec2 uv0, ImVec2 uv1, ImVec4 bg_col, ImVec4 tint_col){
+    return ImGui_ImageWithBg(tex_ref, image_size, uv0, uv1, bg_col, tint_col);
 });
 
-bind_func("ImGui_ImageButton", [](std::string str_id, ImTextureID user_texture_id, ImVec2 image_size, ImVec2 uv0, ImVec2 uv1, ImVec4 bg_col, ImVec4 tint_col){
-    return ImGui_ImageButton(str_id.c_str(), user_texture_id, image_size, uv0, uv1, bg_col, tint_col);
+bind_func("ImGui_ImageButton", [](std::string str_id, ImTextureRef tex_ref, ImVec2 image_size, ImVec2 uv0, ImVec2 uv1, ImVec4 bg_col, ImVec4 tint_col){
+    return ImGui_ImageButton(str_id.c_str(), tex_ref, image_size, uv0, uv1, bg_col, tint_col);
 }, allow_ptr());
 
 bind_func("ImGui_BeginCombo", [](std::string label, std::string preview_value, ImGuiComboFlags flags){

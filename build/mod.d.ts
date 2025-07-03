@@ -62,6 +62,8 @@ export type ImDrawFlags = number;
 /** TODO: Add comment */
 export type ImDrawListFlags = number;
 /** TODO: Add comment */
+export type ImFontFlags = number;
+/** TODO: Add comment */
 export type ImFontAtlasFlags = number;
 /** TODO: Add comment */
 export type ImGuiBackendFlags = number;
@@ -125,6 +127,8 @@ export type ImWchar = number;
 export type ImGuiSelectionUserData = BigInt;
 /** TODO: Add comment */
 export type ImTextureID = BigInt;
+/** TODO: Add comment */
+export type ImFontAtlasRectId = number;
 /** Data shared among multiple draw lists (typically owned by parent ImGui context, but you may create one yourself) */
 export declare class ImDrawListSharedData extends StructBinding {
     constructor();
@@ -153,6 +157,15 @@ export declare class ImVec4 extends StructBinding {
     get w(): number;
     set w(v: number);
 }
+/** ImTextureRef = higher-level identifier for a texture. */
+export declare class ImTextureRef extends StructBinding {
+    constructor(id: ImTextureID);
+    /** _OR_ Low-level backend texture identifier, if already uploaded or created by user\/app. Generally provided to e.g. ImGui::Image() calls. */
+    get _TexID(): ImTextureID;
+    set _TexID(v: ImTextureID);
+    /** == (_TexData ? _TexData->TexID : _TexID) \/\/ Implemented below in the file. */
+    GetTexID(): ImTextureID;
+}
 /** Sorting specifications for a table (often handling sort specs for a single column, occasionally more) */
 export declare class ImGuiTableSortSpecs extends StructBinding {
     constructor();
@@ -164,6 +177,15 @@ export declare class ImGuiTableColumnSortSpecs extends StructBinding {
 /** Runtime data for styling/colors. */
 export declare class ImGuiStyle extends StructBinding {
     constructor();
+    /** Current base font size before external global factors are applied. Use PushFont(NULL, size) to modify. Use ImGui::GetFontSize() to obtain scaled value. */
+    get FontSizeBase(): number;
+    set FontSizeBase(v: number);
+    /** Main global scale factor. May be set by application once, or exposed to end-user. */
+    get FontScaleMain(): number;
+    set FontScaleMain(v: number);
+    /** Additional global scale factor from viewport\/monitor contents scale. When io.ConfigDpiScaleFonts is enabled, this is automatically overwritten when changing monitor DPI. */
+    get FontScaleDpi(): number;
+    set FontScaleDpi(v: number);
     /** Global alpha applies to everything in Dear ImGui. */
     get Alpha(): number;
     set Alpha(v: number);
@@ -272,6 +294,15 @@ export declare class ImGuiStyle extends StructBinding {
     /** Alignment of angled headers within the cell */
     get TableAngledHeadersTextAlign(): ImVec2;
     set TableAngledHeadersTextAlign(v: ImVec2);
+    /** Default way to draw lines connecting TreeNode hierarchy. ImGuiTreeNodeFlags_DrawLinesNone or ImGuiTreeNodeFlags_DrawLinesFull or ImGuiTreeNodeFlags_DrawLinesToNodes. */
+    get TreeLinesFlags(): ImGuiTreeNodeFlags;
+    set TreeLinesFlags(v: ImGuiTreeNodeFlags);
+    /** Thickness of outlines when using ImGuiTreeNodeFlags_DrawLines. */
+    get TreeLinesSize(): number;
+    set TreeLinesSize(v: number);
+    /** Radius of lines connecting child nodes to the vertical line. */
+    get TreeLinesRounding(): number;
+    set TreeLinesRounding(v: number);
     /** Side of the color button in the ColorEdit4 widget (left\/right). Defaults to ImGuiDir_Right. */
     get ColorButtonPosition(): ImGuiDir;
     set ColorButtonPosition(v: ImGuiDir);
@@ -332,6 +363,7 @@ export declare class ImGuiStyle extends StructBinding {
     /** Default flags when using IsItemHovered(ImGuiHoveredFlags_ForTooltip) or BeginItemTooltip()\/SetItemTooltip() while using keyboard\/gamepad. */
     get HoverFlagsForTooltipNav(): ImGuiHoveredFlags;
     set HoverFlagsForTooltipNav(v: ImGuiHoveredFlags);
+    /** Scale all spacing\/padding\/thickness values. Do not scale fonts. */
     ScaleAllSizes(scale_factor: number): void;
 }
 /** Main configuration and I/O between your application and ImGui. */
@@ -343,9 +375,12 @@ export declare class ImGuiIO extends StructBinding {
     /** = 0              \/\/ See ImGuiBackendFlags_ enum. Set by backend (imgui_impl_xxx files or custom backend) to communicate features supported by the backend. */
     get BackendFlags(): ImGuiBackendFlags;
     set BackendFlags(v: ImGuiBackendFlags);
-    /** <unset>          \/\/ Main display size, in pixels (generally == GetMainViewport()->Size). May change every frame. */
+    /** <unset>          \/\/ Main display size, in pixels (== GetMainViewport()->Size). May change every frame. */
     get DisplaySize(): ImVec2;
     set DisplaySize(v: ImVec2);
+    /** = (1, 1)         \/\/ Main display density. For retina display where window coordinates are different from framebuffer coordinates. This will affect font density + will end up in ImDrawData::FramebufferScale. */
+    get DisplayFramebufferScale(): ImVec2;
+    set DisplayFramebufferScale(v: ImVec2);
     /** = 1.0f\/60.0f     \/\/ Time elapsed since last frame, in seconds. May change every frame. */
     get DeltaTime(): number;
     set DeltaTime(v: number);
@@ -355,18 +390,12 @@ export declare class ImGuiIO extends StructBinding {
     /** <auto>           \/\/ Font atlas: load, rasterize and pack one or more fonts into a single texture. */
     get Fonts(): ImFontAtlas;
     set Fonts(v: ImFontAtlas);
-    /** = 1.0f           \/\/ Global scale all fonts */
-    get FontGlobalScale(): number;
-    set FontGlobalScale(v: number);
-    /** = false          \/\/ [OBSOLETE] Allow user scaling text of individual window with CTRL+Wheel. */
-    get FontAllowUserScaling(): boolean;
-    set FontAllowUserScaling(v: boolean);
     /** = NULL           \/\/ Font to use on NewFrame(). Use NULL to uses Fonts->Fonts[0]. */
     get FontDefault(): ImFont;
     set FontDefault(v: ImFont);
-    /** = (1, 1)         \/\/ For retina display or other situations where window coordinates are different from framebuffer coordinates. This generally ends up in ImDrawData::FramebufferScale. */
-    get DisplayFramebufferScale(): ImVec2;
-    set DisplayFramebufferScale(v: ImVec2);
+    /** = false          \/\/ [OBSOLETE] Allow user scaling text of individual window with CTRL+Wheel. */
+    get FontAllowUserScaling(): boolean;
+    set FontAllowUserScaling(v: boolean);
     /** = false          \/\/ Swap Activate<>Cancel (A<>B) buttons, matching typical "Nintendo\/Japanese style" gamepad layout. */
     get ConfigNavSwapGamepadButtons(): boolean;
     set ConfigNavSwapGamepadButtons(v: boolean);
@@ -412,6 +441,12 @@ export declare class ImGuiIO extends StructBinding {
     /** = false          \/\/ Disable default OS parenting to main viewport for secondary viewports. By default, viewports are marked with ParentViewportId = <main_viewport>, expecting the platform backend to setup a parent\/child relationship between the OS windows (some backend may ignore this). Set to true if you want the default to be 0, then all viewports will be top-level OS windows. */
     get ConfigViewportsNoDefaultParent(): boolean;
     set ConfigViewportsNoDefaultParent(v: boolean);
+    /** = false          \/\/ [EXPERIMENTAL] Automatically overwrite style.FontScaleDpi when Monitor DPI changes. This will scale fonts but _NOT_ scale sizes\/padding for now. */
+    get ConfigDpiScaleFonts(): boolean;
+    set ConfigDpiScaleFonts(v: boolean);
+    /** = false          \/\/ [EXPERIMENTAL] Scale Dear ImGui and Platform Windows when Monitor DPI changes. */
+    get ConfigDpiScaleViewports(): boolean;
+    set ConfigDpiScaleViewports(v: boolean);
     /** = false          \/\/ Request ImGui to draw a mouse cursor for you (if you are on a platform without a mouse cursor). Cannot be easily renamed to 'io.ConfigXXX' because this is frequently used by backend implementations. */
     get MouseDrawCursor(): boolean;
     set MouseDrawCursor(v: boolean);
@@ -622,6 +657,10 @@ export declare class ImFontConfig extends StructBinding {
 export declare class ImFontAtlas extends StructBinding {
     constructor();
 }
+/** Font runtime data for a given size */
+export declare class ImFontBaked extends StructBinding {
+    constructor();
+}
 /** Font runtime data and rendering */
 export declare class ImFont extends StructBinding {
     constructor();
@@ -800,9 +839,15 @@ export declare const ImGui: Readonly<{
         SpanAllColumns: number;
         /** Label will span all columns of its container table */
         LabelSpanAllColumns: number;
-        /** (WIP) Nav: left direction may move to this TreeNode() from any of its child (items submitted between TreeNode and TreePop) */
-        NavLeftJumpsBackHere: number;
+        /** Nav: left arrow moves back to parent. This is processed in TreePop() when there's an unfullfilled Left nav request remaining. */
+        NavLeftJumpsToParent: number;
         CollapsingHeader: number;
+        /** No lines drawn */
+        DrawLinesNone: number;
+        /** Horizontal lines to child nodes. Vertical line drawn down to TreePop() position: cover full contents. Faster (for large trees). */
+        DrawLinesFull: number;
+        /** Horizontal lines to child nodes. Vertical line drawn down to bottom-most child node. Slower (for large trees). */
+        DrawLinesToNodes: number;
     };
     /** Flags for OpenPopup*(), BeginPopupContext*(), IsPopupOpen() functions. */
     PopupFlags: {
@@ -1077,6 +1122,7 @@ export declare const ImGui: Readonly<{
         _LeftCtrl: number;
         _LeftShift: number;
         _LeftAlt: number;
+        /** Also see ImGuiMod_Ctrl, ImGuiMod_Shift, ImGuiMod_Alt, ImGuiMod_Super below! */
         _LeftSuper: number;
         _RightCtrl: number;
         _RightShift: number;
@@ -1192,53 +1238,53 @@ export declare const ImGui: Readonly<{
         _AppForward: number;
         /** Non-US backslash. */
         _Oem102: number;
-        /** Menu (Xbox)      + (Switch)   Start\/Options (PS) */
+        /** Menu        | +       | Options  | */
         _GamepadStart: number;
-        /** View (Xbox)      - (Switch)   Share (PS) */
+        /** View        | -       | Share    | */
         _GamepadBack: number;
-        /** X (Xbox)         Y (Switch)   Square (PS)        \/\/ Tap: Toggle Menu. Hold: Windowing mode (Focus\/Move\/Resize windows) */
+        /** X           | Y       | Square   | Tap: Toggle Menu. Hold: Windowing mode (Focus\/Move\/Resize windows) */
         _GamepadFaceLeft: number;
-        /** B (Xbox)         A (Switch)   Circle (PS)        \/\/ Cancel \/ Close \/ Exit */
+        /** B           | A       | Circle   | Cancel \/ Close \/ Exit */
         _GamepadFaceRight: number;
-        /** Y (Xbox)         X (Switch)   Triangle (PS)      \/\/ Text Input \/ On-screen Keyboard */
+        /** Y           | X       | Triangle | Text Input \/ On-screen Keyboard */
         _GamepadFaceUp: number;
-        /** A (Xbox)         B (Switch)   Cross (PS)         \/\/ Activate \/ Open \/ Toggle \/ Tweak */
+        /** A           | B       | Cross    | Activate \/ Open \/ Toggle \/ Tweak */
         _GamepadFaceDown: number;
-        /** D-pad Left                                       \/\/ Move \/ Tweak \/ Resize Window (in Windowing mode) */
+        /** D-pad Left  | "       | "        | Move \/ Tweak \/ Resize Window (in Windowing mode) */
         _GamepadDpadLeft: number;
-        /** D-pad Right                                      \/\/ Move \/ Tweak \/ Resize Window (in Windowing mode) */
+        /** D-pad Right | "       | "        | Move \/ Tweak \/ Resize Window (in Windowing mode) */
         _GamepadDpadRight: number;
-        /** D-pad Up                                         \/\/ Move \/ Tweak \/ Resize Window (in Windowing mode) */
+        /** D-pad Up    | "       | "        | Move \/ Tweak \/ Resize Window (in Windowing mode) */
         _GamepadDpadUp: number;
-        /** D-pad Down                                       \/\/ Move \/ Tweak \/ Resize Window (in Windowing mode) */
+        /** D-pad Down  | "       | "        | Move \/ Tweak \/ Resize Window (in Windowing mode) */
         _GamepadDpadDown: number;
-        /** L Bumper (Xbox)  L (Switch)   L1 (PS)            \/\/ Tweak Slower \/ Focus Previous (in Windowing mode) */
+        /** L Bumper    | L       | L1       | Tweak Slower \/ Focus Previous (in Windowing mode) */
         _GamepadL1: number;
-        /** R Bumper (Xbox)  R (Switch)   R1 (PS)            \/\/ Tweak Faster \/ Focus Next (in Windowing mode) */
+        /** R Bumper    | R       | R1       | Tweak Faster \/ Focus Next (in Windowing mode) */
         _GamepadR1: number;
-        /** L Trig. (Xbox)   ZL (Switch)  L2 (PS) [Analog] */
+        /** L Trigger   | ZL      | L2       | [Analog] */
         _GamepadL2: number;
-        /** R Trig. (Xbox)   ZR (Switch)  R2 (PS) [Analog] */
+        /** R Trigger   | ZR      | R2       | [Analog] */
         _GamepadR2: number;
-        /** L Stick (Xbox)   L3 (Switch)  L3 (PS) */
+        /** L Stick     | L3      | L3       | */
         _GamepadL3: number;
-        /** R Stick (Xbox)   R3 (Switch)  R3 (PS) */
+        /** R Stick     | R3      | R3       | */
         _GamepadR3: number;
-        /** [Analog]                                         \/\/ Move Window (in Windowing mode) */
+        /**             |         |          | [Analog] Move Window (in Windowing mode) */
         _GamepadLStickLeft: number;
-        /** [Analog]                                         \/\/ Move Window (in Windowing mode) */
+        /**             |         |          | [Analog] Move Window (in Windowing mode) */
         _GamepadLStickRight: number;
-        /** [Analog]                                         \/\/ Move Window (in Windowing mode) */
+        /**             |         |          | [Analog] Move Window (in Windowing mode) */
         _GamepadLStickUp: number;
-        /** [Analog]                                         \/\/ Move Window (in Windowing mode) */
+        /**             |         |          | [Analog] Move Window (in Windowing mode) */
         _GamepadLStickDown: number;
-        /** [Analog] */
+        /**             |         |          | [Analog] */
         _GamepadRStickLeft: number;
-        /** [Analog] */
+        /**             |         |          | [Analog] */
         _GamepadRStickRight: number;
-        /** [Analog] */
+        /**             |         |          | [Analog] */
         _GamepadRStickUp: number;
-        /** [Analog] */
+        /**             |         |          | [Analog] */
         _GamepadRStickDown: number;
         _MouseLeft: number;
         _MouseRight: number;
@@ -1298,10 +1344,6 @@ export declare const ImGui: Readonly<{
         DockingEnable: number;
         /** Viewport enable flags (require both ImGuiBackendFlags_PlatformHasViewports + ImGuiBackendFlags_RendererHasViewports set by the respective backends) */
         ViewportsEnable: number;
-        /** [BETA: Don't use] FIXME-DPI: Reposition and resize imgui windows when the DpiScale of a viewport changed (mostly useful for the main viewport hosting other window). Note that resizing the main window itself is up to your application. */
-        DpiEnableScaleViewports: number;
-        /** [BETA: Don't use] FIXME-DPI: Request bitmap-scaled fonts to match DpiScale. This is a very low-quality workaround. The correct way to handle DPI is _currently_ to replace the atlas and\/or fonts in the Platform_OnChangedViewport callback, but this is all early work in progress. */
-        DpiEnableScaleFonts: number;
         /** Application is SRGB-aware. */
         IsSRGB: number;
         /** Application is using a touch screen instead of a mouse. */
@@ -1318,6 +1360,8 @@ export declare const ImGui: Readonly<{
         HasSetMousePos: number;
         /** Backend Renderer supports ImDrawCmd::VtxOffset. This enables output of large meshes (64K+ vertices) while still using 16-bit indices. */
         RendererHasVtxOffset: number;
+        /** Backend Renderer supports ImTextureData requests to create\/update\/destroy textures. This enables incremental texture updates and texture reloads. */
+        RendererHasTextures: number;
         /** Backend Platform supports multiple viewports. */
         PlatformHasViewports: number;
         /** Backend Platform supports calling io.AddMouseViewportEvent() with the viewport under the mouse. IF POSSIBLE, ignore viewports with the ImGuiViewportFlags_NoInputs flag (Win32 backend, GLFW 3.30+ backend can do this, SDL backend cannot). If this cannot be done, Dear ImGui needs to use a flawed heuristic to find the viewport under. */
@@ -1370,6 +1414,8 @@ export declare const ImGui: Readonly<{
         ResizeGrip: number;
         ResizeGripHovered: number;
         ResizeGripActive: number;
+        /** InputText cursor\/caret */
+        InputTextCursor: number;
         /** Tab background, when hovered */
         TabHovered: number;
         /** Tab background, when tab-bar is focused & tab is unselected */
@@ -1404,7 +1450,10 @@ export declare const ImGui: Readonly<{
         TableRowBgAlt: number;
         /** Hyperlink color */
         TextLink: number;
+        /** Selected text inside an InputText */
         TextSelectedBg: number;
+        /** Tree node hierarchy outlines when using ImGuiTreeNodeFlags_DrawLines */
+        TreeLines: number;
         /** Rectangle highlighting a drop target */
         DragDropTarget: number;
         /** Color of keyboard\/gamepad navigation cursor\/rectangle, when visible */
@@ -1477,6 +1526,10 @@ export declare const ImGui: Readonly<{
         TableAngledHeadersAngle: number;
         /** ImVec2  TableAngledHeadersTextAlign */
         TableAngledHeadersTextAlign: number;
+        /** float     TreeLinesSize */
+        TreeLinesSize: number;
+        /** float     TreeLinesRounding */
+        TreeLinesRounding: number;
         /** ImVec2    ButtonTextAlign */
         ButtonTextAlign: number;
         /** ImVec2    SelectableTextAlign */
@@ -1847,6 +1900,25 @@ export declare const ImGui: Readonly<{
         /** Can emit 'VtxOffset > 0' to allow large meshes. Set when 'ImGuiBackendFlags_RendererHasVtxOffset' is enabled. */
         AllowVtxOffset: number;
     };
+    /** We intentionally support a limited amount of texture formats to limit burden on CPU-side code and extension. */
+    ImTextureFormat: {
+        /** 4 components per pixel, each is unsigned 8-bit. Total size = TexWidth * TexHeight * 4 */
+        _RGBA32: number;
+        /** 1 component per pixel, each is unsigned 8-bit. Total size = TexWidth * TexHeight */
+        _Alpha8: number;
+    };
+    /** Status of a texture to communicate with Renderer Backend. */
+    ImTextureStatus: {
+        _OK: number;
+        /** Backend destroyed the texture. */
+        _Destroyed: number;
+        /** Requesting backend to create the texture. Set status OK when done. */
+        _WantCreate: number;
+        /** Requesting backend to update specific blocks of pixels (write to texture portions which have never been used before). Set status OK when done. */
+        _WantUpdates: number;
+        /** Requesting backend to destroy the texture. Set status to Destroyed when done. */
+        _WantDestroy: number;
+    };
     /** Flags for ImFontAtlas build */
     ImFontAtlasFlags: {
         None: number;
@@ -1856,6 +1928,16 @@ export declare const ImGui: Readonly<{
         NoMouseCursors: number;
         /** Don't build thick line textures into the atlas (save a little texture memory, allow support for point\/nearest filtering). The AntiAliasedLinesUseTex features uses them, otherwise they will be rendered using polygons (more expensive for CPU\/GPU). */
         NoBakedLines: number;
+    };
+    /** Font flags */
+    ImFontFlags: {
+        None: number;
+        /** Disable throwing an error\/assert when calling AddFontXXX() with missing file\/data. Calling code is expected to check AddFontXXX() return value. */
+        NoLoadError: number;
+        /** [Internal] Disable loading new glyphs. */
+        NoLoadGlyphs: number;
+        /** [Internal] Disable loading new baked sizes, disable garbage collecting current ones. e.g. if you want to lock a font to a single size. Important: if you use this to preload given sizes, consider the possibility of multiple font density used on Retina display. */
+        LockBakedSizes: number;
     };
     /** Flags stored in ImGuiViewport::Flags, giving indications to the platform backends. */
     ViewportFlags: {
@@ -1905,7 +1987,7 @@ export declare const ImGui: Readonly<{
     EndFrame(): void;
     /** ends the Dear ImGui frame, finalize the draw data. You can then get call GetDrawData(). */
     Render(): void;
-    /** valid after Render() and until the next call to NewFrame(). this is what you have to render. */
+    /** valid after Render() and until the next call to NewFrame(). Call ImGui_ImplXXXX_RenderDrawData() function in your Renderer Backend to render. */
     GetDrawData(): ImDrawData;
     /** create Demo window. demonstrate most ImGui features. call this to learn about the library! try to make it always available in your application! */
     ShowDemoWindow(p_open?: boolean[]): void;
@@ -1982,8 +2064,6 @@ export declare const ImGui: Readonly<{
     SetWindowCollapsed(collapsed: boolean, cond?: ImGuiCond): void;
     /** (not recommended) set current window to be focused \/ top-most. prefer using SetNextWindowFocus(). */
     SetWindowFocus(): void;
-    /** [OBSOLETE] set font scale. Adjust IO.FontGlobalScale if you want to scale all windows. This is an old API! For correct scaling, prefer to reload font + rebuild ImFontAtlas + call style.ScaleAllSizes(). */
-    SetWindowFontScale(scale: number): void;
     /** get scrolling amount [0 .. GetScrollMaxX()] */
     GetScrollX(): number;
     /** get scrolling amount [0 .. GetScrollMaxY()] */
@@ -2004,9 +2084,15 @@ export declare const ImGui: Readonly<{
     SetScrollFromPosX(local_x: number, center_x_ratio?: number): void;
     /** adjust scrolling amount to make given position visible. Generally GetCursorStartPos() + offset to compute a valid position. */
     SetScrollFromPosY(local_y: number, center_y_ratio?: number): void;
-    /** use NULL as a shortcut to push default font */
-    PushFont(font: ImFont): void;
+    /** Use NULL as a shortcut to keep current font. Use 0.0f to keep current size. */
+    PushFontFloat(font: ImFont, font_size_base_unscaled: number): void;
     PopFont(): void;
+    /** get current font */
+    GetFont(): ImFont;
+    /** get current scaled font size (= height in pixels). AFTER global scale factors applied. *IMPORTANT* DO NOT PASS THIS VALUE TO PushFont()! Use ImGui::GetStyle().FontSizeBase to get value before global scale factors. */
+    GetFontSize(): number;
+    /** get current font bound at current size \/\/ == GetFont()->GetFontBaked(GetFontSize()) */
+    GetFontBaked(): ImFontBaked;
     /** modify a style color. always use this if you modify the style after NewFrame(). */
     PushStyleColor(idx: ImGuiCol, col: ImU32): void;
     PopStyleColor(count?: number): void;
@@ -2030,10 +2116,6 @@ export declare const ImGui: Readonly<{
     /** push word-wrapping position for Text*() commands. < 0.0f: no wrapping; 0.0f: wrap to end of window (or column); > 0.0f: wrap at 'wrap_pos_x' position in window local space */
     PushTextWrapPos(wrap_local_pos_x?: number): void;
     PopTextWrapPos(): void;
-    /** get current font */
-    GetFont(): ImFont;
-    /** get current font size (= height in pixels) of current font with current scale applied */
-    GetFontSize(): number;
     /** get UV coordinate for a white pixel, useful to draw custom shapes via the ImDrawList API */
     GetFontTexUvWhitePixel(): ImVec2;
     /** retrieve style color as stored in ImGuiStyle structure. use to feed back into PushStyleColor(), otherwise use GetColorU32() to get style color with style alpha baked in. */
@@ -2120,11 +2202,11 @@ export declare const ImGui: Readonly<{
     /** hyperlink text button, return true when clicked */
     TextLink(label: string): boolean;
     /** hyperlink text button, automatically open file\/url when clicked */
-    TextLinkOpenURL(label: string, url?: string): void;
+    TextLinkOpenURL(label: string, url?: string): boolean;
     /** Widgets: Images */
-    Image(user_texture_id: ImTextureID, image_size: ImVec2, uv0?: ImVec2, uv1?: ImVec2): void;
-    ImageWithBg(user_texture_id: ImTextureID, image_size: ImVec2, uv0?: ImVec2, uv1?: ImVec2, bg_col?: ImVec4, tint_col?: ImVec4): void;
-    ImageButton(str_id: string, user_texture_id: ImTextureID, image_size: ImVec2, uv0?: ImVec2, uv1?: ImVec2, bg_col?: ImVec4, tint_col?: ImVec4): boolean;
+    Image(tex_ref: ImTextureRef, image_size: ImVec2, uv0?: ImVec2, uv1?: ImVec2): void;
+    ImageWithBg(tex_ref: ImTextureRef, image_size: ImVec2, uv0?: ImVec2, uv1?: ImVec2, bg_col?: ImVec4, tint_col?: ImVec4): void;
+    ImageButton(str_id: string, tex_ref: ImTextureRef, image_size: ImVec2, uv0?: ImVec2, uv1?: ImVec2, bg_col?: ImVec4, tint_col?: ImVec4): boolean;
     /** Widgets: Combo Box (Dropdown) */
     BeginCombo(label: string, preview_value: string, flags?: ImGuiComboFlags): boolean;
     /** only call EndCombo() if BeginCombo() returns true! */
@@ -2422,7 +2504,7 @@ export declare const ImGui: Readonly<{
     GetMouseCursor(): ImGuiMouseCursor;
     /** set desired mouse cursor shape */
     SetMouseCursor(cursor_type: ImGuiMouseCursor): void;
-    /** Override io.WantCaptureMouse flag next frame (said flag is left for your application to handle, typical when true it instucts your app to ignore inputs). This is equivalent to setting "io.WantCaptureMouse = want_capture_mouse;" after the next NewFrame() call. */
+    /** Override io.WantCaptureMouse flag next frame (said flag is left for your application to handle, typical when true it instructs your app to ignore inputs). This is equivalent to setting "io.WantCaptureMouse = want_capture_mouse;" after the next NewFrame() call. */
     SetNextFrameWantCaptureMouse(want_capture_mouse: boolean): void;
     /** Clipboard Utilities */
     GetClipboardText(): string;
