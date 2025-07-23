@@ -1,18 +1,22 @@
-#include <emscripten.h>
-#include <emscripten/bind.h>
-#include <emscripten/html5_webgl.h>
-#include <emscripten/html5_webgpu.h>
+#include <string>
+#include <vector>
 
 #include <dcimgui.h>
 #include <dcimgui_impl_opengl3.h>
 #include <dcimgui_impl_wgpu.h>
 #include <dcimgui_internal.h>
 
-#include <vector>
-#include <string>
-//#include <webgpu/webgpu.h>
+#include <emscripten.h>
+#include <emscripten/bind.h>
+#include <emscripten/html5_webgl.h>
+#include <emscripten/html5_webgpu.h>
 #include <webgpu/webgpu.h>
 #include <webgpu/webgpu_cpp.h>
+
+
+
+
+
 
 constexpr auto allow_ptr() {
     return emscripten::allow_raw_pointers();
@@ -116,6 +120,7 @@ EMSCRIPTEN_BINDINGS(impl) {
 /* -------------------------------------------------------------------------- */
 /* WebGL */
 /* -------------------------------------------------------------------------- */
+#ifdef JSIMGUI_BACKEND_WEBGL
 
 bind_func("cImGui_ImplOpenGL3_Init", [](){
     return cImGui_ImplOpenGL3_Init();
@@ -133,9 +138,11 @@ bind_func("cImGui_ImplOpenGL3_RenderDrawData", [](ImDrawData* draw_data){
     return cImGui_ImplOpenGL3_RenderDrawData(draw_data);
 }, allow_ptr());
 
+#endif
 /* -------------------------------------------------------------------------- */
 /* WebGPU */
 /* -------------------------------------------------------------------------- */
+#ifdef JSIMGUI_BACKEND_WEBGPU
 
 bind_func("cImGui_ImplWGPU_Init", [](){
     wgpu::Device device = wgpu::Device::Acquire(emscripten_webgpu_get_device());
@@ -170,6 +177,7 @@ bind_func("cImGui_ImplWGPU_RenderDrawData", [](ImDrawData* draw_data, int pass_e
 
     return cImGui_ImplWGPU_RenderDrawData(draw_data, pass_encoder.MoveToCHandle());
 }, allow_ptr());
+#endif
 
 }
 /* -------------------------------------------------------------------------- */
