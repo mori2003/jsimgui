@@ -16,9 +16,6 @@
  * @see {@link https://github.com/mori2003/jsimgui|jsimgui}
  */
 
-// @ts-ignore: MainExport will be imported when compiled in the build directory.
-import MainExport from "./jsimgui-em.js";
-
 /* -------------------------------------------------------------------------- */
 /* 1. Core Module */
 /* -------------------------------------------------------------------------- */
@@ -29,15 +26,14 @@ export const Mod = {
     _export: null,
 
     /** Initialize the WASM module. */
-    async init(): Promise<void> {
+    async init(loaderPath: string): Promise<void> {
         if (Mod._export) {
             throw new Error("WASM module already initialized.");
         }
 
-        // @ts-ignore
-        await MainExport().then((module): void => {
-            Mod._export = module;
-        });
+        const MainExport = await import(loaderPath);
+        const module = await MainExport.default();
+        Mod._export = module;
     },
 
     /** Access to the WASM exports. */
@@ -50,6 +46,10 @@ export const Mod = {
     },
 };
 
+const finalizer = new FinalizationRegistry((ptr: any) => {
+    ptr?.delete();
+});
+
 /** A class that wraps a reference to an ImGui struct. */
 class StructBinding {
     /** The reference to the underlying C++ struct. */
@@ -57,6 +57,7 @@ class StructBinding {
 
     constructor(name: string) {
         this._ptr = new Mod.export[name]();
+        finalizer.register(this, this._ptr);
     }
 
     /** Wrap a new C++ struct into a JS wrapper */
@@ -64,6 +65,7 @@ class StructBinding {
         // biome-ignore lint/complexity/noThisInStatic: <explanation>
         const wrap = Reflect.construct(this, []);
         wrap._ptr = ptr;
+
         return wrap;
     }
 }

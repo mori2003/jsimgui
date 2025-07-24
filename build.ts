@@ -160,7 +160,6 @@ const buildBindgen = () => {
 
 /**
  * Step 3: Uses emscripten to compile the .cpp file to a .wasm and a .js loader file.
- * also generates a compile_commands.json file for c++ tooling.
  */
 const buildWasm = (cfg: BuildConfig) => {
     const backendConfigs = {
@@ -177,7 +176,7 @@ const buildWasm = (cfg: BuildConfig) => {
                 "./third_party/imgui/backends/imgui_impl_opengl3.cpp",
                 "./src/fixes/dcimgui_impl_opengl3.cpp",
             ],
-            flags: ["-sMIN_WEBGL_VERSION=2", "-sMAX_WEBGL_VERSION=2", "-DJSIMGUI_BACKEND_WEBGL2"],
+            flags: ["-sMIN_WEBGL_VERSION=2", "-sMAX_WEBGL_VERSION=2", "-DJSIMGUI_BACKEND_WEBGL"],
             exports: ["GL"],
         },
         webgpu: {
@@ -272,7 +271,7 @@ const buildWasm = (cfg: BuildConfig) => {
 };
 
 /**
- * Step 4: Transpiles the .ts files to .js files.
+ * Step 4: Compiles the .ts file to the mod.js and mod.d.ts files.
  */
 const buildTs = () => {
     const cmd = "./node_modules/.bin/tsc";
@@ -501,7 +500,7 @@ const main = () => {
         },
         {
             name: "ts",
-            msg: "Transpiling .ts files...",
+            msg: "Compiling .ts files...",
             fn: buildTs,
         },
         {
