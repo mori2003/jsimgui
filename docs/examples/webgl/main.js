@@ -1,7 +1,7 @@
 import { ImGui, ImGuiImplWeb, ImVec2, ImVec4, ImTextureRef, Mod } from "@mori2003/jsimgui";
 
 const canvas = document.querySelector("#render-canvas");
-const context = canvas.getContext("webgl");
+const context = canvas.getContext("webgl2");
 
 if (!context) throw new Error("Your browser does not support WebGL2.");
 
