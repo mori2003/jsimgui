@@ -3,7 +3,7 @@
  * using the dear_bindings json data files.
  */
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { filterSkippables } from "./filter.ts";
 import { generateEnumsTs } from "./enum.ts";
 import { generateFunctionsCpp, generateFunctionsTs } from "./function.ts";
@@ -80,6 +80,7 @@ function generateBindings(fileData: string): void {
         ].join("");
     })();
 
+    mkdirSync("./bindgen", { recursive: true });
     writeFileSync("./bindgen/mod.ts", tsCode);
     writeFileSync("./bindgen/jsimgui.cpp", cppCode);
 }

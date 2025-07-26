@@ -1,6 +1,6 @@
-import { formatComment } from "./comment.js";
-import type { ImGuiArgument, ImGuiData, ImGuiFunction } from "./interface.js";
-import { toTsType } from "./types.js";
+import { formatComment } from "./comment.ts";
+import type { ImGuiArgument, ImGuiData, ImGuiFunction } from "./interface.ts";
+import { toTsType } from "./types.ts";
 import { isStructBound } from "./struct.ts";
 import { functionBindings } from "./bindings.ts";
 

@@ -1,0 +1,56 @@
+name: Build
+
+on:
+  push:
+    branches: [ build-script ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        backend: [webgl, webgl2, webgpu]
+        font-loader: [truetype, freetype]
+        demos: [false, true]
+
+    name: Build ${{ matrix.backend }}-${{ matrix.font-loader }}${{ matrix.demos && '-demos' || '' }}
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: 'true'
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 'latest'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Setup Emscripten
+      uses: pyodide/setup-emsdk@v15
+      with:
+        version: '4.0.11'
+        actions-cache-folder: 'emsdk-cache'
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Install ply
+      run: python -m pip install ply
+
+    - name: Build library (${{ matrix.backend }}-${{ matrix.font-loader }}${{ matrix.demos && '-demos' || '' }})
+      run: node build.ts --backend=${{ matrix.backend }} --font-loader=${{ matrix.font-loader }}${{ matrix.demos && ' --demos' || '' }}
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: jsimgui-${{ matrix.backend }}-${{ matrix.font-loader }}${{ matrix.demos && '-demos' || '' }}
+        path: |
+          build/${{ matrix.backend }}/
+          build/mod.js
+          build/mod.d.ts
