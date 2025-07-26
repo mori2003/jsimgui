@@ -508,9 +508,9 @@ export const ImGuiImplWeb = {
     LoadImageWebGL(canvas: HTMLCanvasElement, image: HTMLImageElement): Promise<ImTextureID> {
         return new Promise((resolve, reject) => {
             image.onload = () => {
-                const gl = canvas.getContext("webgl2");
+                const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
                 if (!gl) {
-                    throw new Error("Failed to create WebGL2 context.");
+                    throw new Error("Failed to create WebGL/WebGL2 context.");
                 }
 
                 const texture = gl.createTexture();

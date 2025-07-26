@@ -59,7 +59,10 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-await ImGuiImplWeb.InitWebGL(canvas);
+await ImGuiImplWeb.Init({
+    canvas,
+    useDemos: true,
+});
 
 export const showDemo = [false];
 export const docking = [false];
@@ -70,7 +73,7 @@ const cubeRotation = [45, 45, 45];
 const cubePosition = [0, 1, 0];
 
 function frame() {
-    ImGuiImplWeb.BeginRenderWebGL();
+    ImGuiImplWeb.BeginRender();
 
     ImGui.SetNextWindowPos(new ImVec2(10, 10), ImGui.Cond.Once);
     ImGui.SetNextWindowSize(new ImVec2(330, 175), ImGui.Cond.Once);
@@ -145,6 +148,6 @@ function frame() {
     renderer.render(scene, camera);
     renderer.resetState();
 
-    ImGuiImplWeb.EndRenderWebGL();
+    ImGuiImplWeb.EndRender();
 }
 renderer.setAnimationLoop(frame);
