@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <malloc.h>
 
 #include <dcimgui.h>
 #include <dcimgui_impl_opengl3.h>
@@ -8,6 +9,10 @@
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
+
+#include <emscripten/heap.h>
+#include <emscripten/stack.h>
+
 #include <emscripten/html5_webgl.h>
 #include <emscripten/html5_webgpu.h>
 #include <webgpu/webgpu.h>
@@ -116,6 +121,46 @@ class ArrayParam<bool> {
 /* -------------------------------------------------------------------------- */
 
 EMSCRIPTEN_BINDINGS(impl) {
+
+bind_func("get_wasm_heap_info", [](){
+    auto ret{emscripten::val::object()};
+
+    ret.set("size", emscripten::val(emscripten_get_heap_size()));
+    ret.set("max", emscripten::val(emscripten_get_heap_max()));
+    ret.set("sbrk_ptr", emscripten::val(*emscripten_get_sbrk_ptr()));
+
+    return ret;
+});
+
+bind_func("get_wasm_stack_info", [](){
+    auto ret{emscripten::val::object()};
+
+    ret.set("base", emscripten::val(emscripten_stack_get_base()));
+    ret.set("end", emscripten::val(emscripten_stack_get_end()));
+    ret.set("current", emscripten::val(emscripten_stack_get_current()));
+    ret.set("free", emscripten::val(emscripten_stack_get_free()));
+
+    return ret;
+});
+
+bind_func("get_wasm_mall_info", [](){
+    auto const& info{mallinfo()};
+    auto ret{emscripten::val::object()};
+
+    ret.set("arena", emscripten::val(info.arena));
+    ret.set("ordblks", emscripten::val(info.ordblks));
+    ret.set("smblks", emscripten::val(info.smblks));
+    ret.set("hblks", emscripten::val(info.hblks));
+    ret.set("hblkhd", emscripten::val(info.hblkhd));
+    ret.set("usmblks", emscripten::val(info.usmblks));
+    ret.set("fsmblks", emscripten::val(info.fsmblks));
+    ret.set("uordblks", emscripten::val(info.uordblks));
+    ret.set("fordblks", emscripten::val(info.fordblks));
+    ret.set("keepcost", emscripten::val(info.keepcost));
+
+    return ret;
+});
+
 
 /* -------------------------------------------------------------------------- */
 /* WebGL */
