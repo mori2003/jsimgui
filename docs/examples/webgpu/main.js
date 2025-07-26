@@ -18,14 +18,14 @@ context.configure({
     format: presentationFormat,
 });
 
-await ImGuiImplWeb.InitWebGPU(canvas, device);
+await ImGuiImplWeb.Init({canvas, device, useDemos: true});
 
 const imgWGPULogo = new Image();
 imgWGPULogo.src = "webgpu.svg";
 const wgpuLogo = await ImGuiImplWeb.LoadImageWebGPU(device, imgWGPULogo);
 
 function frame() {
-    ImGuiImplWeb.BeginRenderWebGPU();
+    ImGuiImplWeb.BeginRender();
 
     ImGui.Begin("WebGPU");
     ImGui.Text("Lorem ipsum dolor sit amet");
@@ -49,7 +49,7 @@ function frame() {
 
     const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
 
-    ImGuiImplWeb.EndRenderWebGPU(passEncoder);
+    ImGuiImplWeb.EndRender(passEncoder);
 
     passEncoder.end();
 

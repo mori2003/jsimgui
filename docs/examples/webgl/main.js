@@ -1,7 +1,7 @@
-import { ImGui, ImGuiImplWeb, ImVec2, ImVec4, ImTextureRef } from "@mori2003/jsimgui";
+import { ImGui, ImGuiImplWeb, ImVec2, ImVec4, ImTextureRef, Mod } from "@mori2003/jsimgui";
 
 const canvas = document.querySelector("#render-canvas");
-const context = canvas.getContext("webgl2");
+const context = canvas.getContext("webgl");
 
 if (!context) throw new Error("Your browser does not support WebGL2.");
 
@@ -9,7 +9,10 @@ const devicePixelRatio = globalThis.devicePixelRatio;
 canvas.width = canvas.clientWidth * devicePixelRatio;
 canvas.height = canvas.clientHeight * devicePixelRatio;
 
-await ImGuiImplWeb.InitWebGL(canvas);
+await ImGuiImplWeb.Init({
+    canvas,
+    useDemos: true,
+});
 
 const color = [0.0, 0.5, 0.5];
 const showDemo = [true];
@@ -29,7 +32,7 @@ ImGui.End();`,
 let evalCode = "";
 
 function frame() {
-    ImGuiImplWeb.BeginRenderWebGL();
+    ImGuiImplWeb.BeginRender();
 
     ImGui.SetNextWindowPos(new ImVec2(10, 10), ImGui.Cond.Once);
     ImGui.SetNextWindowSize(new ImVec2(330, 400), ImGui.Cond.Once);
@@ -110,7 +113,7 @@ function frame() {
     context.clearColor(color[0], color[1], color[2], 1.0);
     context.clear(context.COLOR_BUFFER_BIT);
 
-    ImGuiImplWeb.EndRenderWebGL();
+    ImGuiImplWeb.EndRender();
 
     requestAnimationFrame(frame);
 }

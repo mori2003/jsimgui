@@ -1,5 +1,5 @@
 import { formatComment } from "./comment.ts";
-import type { ImGuiData, ImGuiEnum } from "./interface.js";
+import type { ImGuiData, ImGuiEnum } from "./interface.ts";
 
 /** Trims the field name to remove the enum name prefix. */
 function trimFieldName(fieldName: string, enumName: string): string {
