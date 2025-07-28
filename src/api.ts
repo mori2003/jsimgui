@@ -622,7 +622,7 @@ const setupBrowserIO = (canvas: HTMLCanvasElement) => {
 };
 
 /**
- * Initialization options for jsimgui.
+ * Initialization options for jsimgui used in {@linkcode ImGuiImplWeb.Init}.
  */
 export interface InitOptions {
     /**
@@ -636,23 +636,33 @@ export interface InitOptions {
     device?: GPUDevice;
 
     /**
-     * Specify the rendering backend to use. If not specified, will be inferred from the canvas or device.
+     * Specify the rendering backend to use. If not specified, will be inferred from the canvas or
+     * from {@linkcode device}.
      */
     backend?: "webgl" | "webgl2" | "webgpu";
 
     /**
-     * The font loader to use for loading fonts.
+     * The font loader and rasterizer to use for loading fonts. Can be one of the following:
+     *
+     * - `truetype` (stb_truetype) is the default option.
+     * - `freetype` (FreeType) is an alternative option which supports more features than `truetype`
+     * but this also loads an increased WASM file (+500kb).
+     *
+     * Default is `truetype`.
      */
     fontLoader?: "truetype" | "freetype";
 
     /**
-     * Whether to include the Dear ImGui demo windows and functionality.
-     * @default false
+     * Whether to include the Dear ImGui demo windows: `ImGui.ShowDemoWindow()`. Note that this
+     * will load an increased WASM file (+200kb).
+     *
+     * Default is `false`.
      */
     enableDemos?: boolean;
 
     /**
      * Custom path to the jsimgui loader script. If not provided, will be constructed automatically.
+     * If you use jsimgui via a package manager or CDN, you will most likely not need to set this.
      */
     loaderPath?: string;
 }
