@@ -18,7 +18,11 @@ context.configure({
     format: presentationFormat,
 });
 
-await ImGuiImplWeb.Init({canvas, device, useDemos: true});
+await ImGuiImplWeb.Init({
+    canvas,
+    device,
+    enableDemos: true,
+});
 
 const imgWGPULogo = new Image();
 imgWGPULogo.src = "webgpu.svg";
