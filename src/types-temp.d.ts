@@ -6,7 +6,13 @@ declare type ImGuiKey = number;
 declare type ImGuiMouseButton = number;
 declare type ImGuiMouseCursor = number;
 
-declare class ImDrawData {}
+declare class StructBinding {
+	_ptr: number;
+}
+
+declare class ImDrawData {
+    _ptr: number;
+}
 
 declare class ImVec2 {
 	constructor(x: number, y: number);
@@ -59,4 +65,18 @@ declare interface CppStruct {
 
 declare interface EmscriptenExports {
 	foo: number;
+    JsValStore: {
+		add: (value: any) => number;
+	};
+
+
+	cImGui_ImplOpenGL3_Init: () => boolean;
+	cImGui_ImplOpenGL3_Shutdown: () => void;
+	cImGui_ImplOpenGL3_NewFrame: () => void;
+	cImGui_ImplOpenGL3_RenderDrawData: (draw_data: number) => void;
+
+	cImGui_ImplWGPU_Init: () => boolean;
+	cImGui_ImplWGPU_Shutdown: () => void;
+	cImGui_ImplWGPU_NewFrame: () => void;
+	cImGui_ImplWGPU_RenderDrawData: (draw_data: number, pass_encoder: number) => void;
 }
