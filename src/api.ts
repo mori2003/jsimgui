@@ -661,8 +661,9 @@ export interface InitOptions {
     enableDemos?: boolean;
 
     /**
-     * Custom path to the jsimgui loader script. If not provided, will be constructed automatically.
-     * If you use jsimgui via a package manager or CDN, you will most likely not need to set this.
+     * Custom path to the emscripten loader script. If not provided, will be constructed
+     * automatically. If you use jsimgui via a package manager or CDN, you will most likely not
+     * need to worry about this.
      */
     loaderPath?: string;
 }
