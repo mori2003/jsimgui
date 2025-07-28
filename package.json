@@ -13,7 +13,7 @@
     "types": "./build/mod.d.ts",
     "files": ["build/", "LICENSE", "package.json", "README.md"],
     "devDependencies": {
-        "@biomejs/biome": "1.9.4",
+        "@biomejs/biome": "2.1.2",
         "@types/node": "latest",
         "@webgpu/types": "latest"
     },
