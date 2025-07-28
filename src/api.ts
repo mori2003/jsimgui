@@ -215,12 +215,20 @@ export const ImGuiImplWGPU = {
 // [6.] Web Implementation
 // -------------------------------------------------------------------------------------------------
 
+/**
+ * Map of browser mouse button values to ImGui mouse button enums.
+ * For reference, see {@link https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button}.
+ */
 const MOUSE_BUTTON_MAP = {
     0: ImGui.MouseButton.Left,
     1: ImGui.MouseButton.Middle,
     2: ImGui.MouseButton.Right,
 } as const;
 
+/**
+ * Map of ImGui mouse cursor enums to CSS cursor styles.
+ * For reference, see {@link https://developer.mozilla.org/en-US/docs/Web/CSS/cursor}.
+ */
 const MOUSE_CURSOR_MAP = {
     [ImGui.MouseCursor.None]: "none",
     [ImGui.MouseCursor.Arrow]: "default",
@@ -234,6 +242,10 @@ const MOUSE_CURSOR_MAP = {
     [ImGui.MouseCursor.NotAllowed]: "not-allowed",
 } as const;
 
+/**
+ * Map of browser keyboard key values to ImGui key enums.
+ * For reference, see {@link https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key}.
+ */
 const KEYBOARD_MAP = {
     "0": ImGui.Key._0,
     "1": ImGui.Key._1,
@@ -381,6 +393,10 @@ const KEYBOARD_MAP = {
     Super: ImGui.Key._LeftSuper,
 } as const;
 
+/**
+ * Map of browser keyboard modifier key values to ImGui key modifier enums.
+ * For reference, see {@link https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key}.
+ */
 const KEYBOARD_MODIFIER_MAP = {
     Control: ImGui.Key.ImGuiMod_Ctrl,
     Shift: ImGui.Key.ImGuiMod_Shift,
@@ -388,6 +404,14 @@ const KEYBOARD_MODIFIER_MAP = {
     Super: ImGui.Key.ImGuiMod_Super,
 } as const;
 
+/**
+ * Forwards keyboard events to Dear ImGui. This is both used for normal keyboard events as well as
+ * for the virtual keyboard, see {@linkcode setupKeyboardIO} and {@linkcode setupTouchIO}.
+ *
+ * @param event The keyboard event to handle.
+ * @param keyDown Whether the key is being pressed or released.
+ * @param io The {@linkcode ImGuiIO} object to forward the event to.
+ */
 const handleKeyboardEvent = (event: KeyboardEvent, keyDown: boolean, io: ImGuiIO) => {
     io.AddKeyEvent(KEYBOARD_MAP[event.key as keyof typeof KEYBOARD_MAP], keyDown);
 
