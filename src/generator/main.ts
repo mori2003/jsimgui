@@ -28,9 +28,9 @@ function generateBindings(fileData: string): void {
         const enums = generateEnumsTs(data);
         const functions = generateFunctionsTs(data);
 
-        return [
-            readFileSync("./src/templates/ts/header.ts", "utf-8"),
-            "\n",
+        const headerTemplate = readFileSync("./src/api.ts", "utf-8");
+
+        const generatedCode = [
             "/* -------------------------------------------------------------------------- */\n",
             "/* 2. Typedefs */\n",
             "/* -------------------------------------------------------------------------- */\n",
@@ -43,15 +43,30 @@ function generateBindings(fileData: string): void {
             "\n",
             structs,
             "/* -------------------------------------------------------------------------- */\n",
-            "/* 4. ImGui Object - Enums/Flags & Functions */\n",
+            "/* 4. ImGui Object - Enums/Flags and Functions */\n",
             "/* -------------------------------------------------------------------------- */\n",
             "export const ImGui = Object.freeze({\n",
             "\n",
             enums,
             functions,
             "});\n",
+        ].join("");
+
+        const beginMarker = "[BEGIN GENERATED CODE]";
+        const endMarker = "[END GENERATED CODE]";
+
+        const beginIndex = headerTemplate.indexOf(beginMarker);
+        const endIndex = headerTemplate.indexOf(endMarker);
+
+        const beforeGenerated = headerTemplate.substring(0, beginIndex + beginMarker.length + 102);
+        const afterGenerated = headerTemplate.substring(endIndex - endMarker.length - 84);
+
+        return [
+            beforeGenerated,
             "\n",
-            readFileSync("./src/templates/ts/impl.ts", "utf-8"),
+            generatedCode,
+            "\n",
+            afterGenerated,
         ].join("");
     })();
 
@@ -61,7 +76,7 @@ function generateBindings(fileData: string): void {
         const functions = generateFunctionsCpp(data);
 
         return [
-            readFileSync("./src/templates/cpp/header.cpp", "utf-8"),
+            readFileSync("./src/bindings.cpp", "utf-8"),
             "/* -------------------------------------------------------------------------- */\n",
             "/* AUTO-GENERATED BINDINGS */\n",
             "/* -------------------------------------------------------------------------- */\n",
