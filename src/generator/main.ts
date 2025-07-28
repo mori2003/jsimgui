@@ -58,6 +58,7 @@ function generateBindings(fileData: string): void {
         const beginIndex = headerTemplate.indexOf(beginMarker);
         const endIndex = headerTemplate.indexOf(endMarker);
 
+        // TODO: Remove magic numbers.
         const beforeGenerated = headerTemplate.substring(0, beginIndex + beginMarker.length + 102);
         const afterGenerated = headerTemplate.substring(endIndex - endMarker.length - 84);
 
