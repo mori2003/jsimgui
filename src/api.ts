@@ -1,5 +1,8 @@
 /* @ts-self-types="./mod.d.ts" */
 
+/** biome-ignore-all lint/correctness/noUnusedVariables: . */
+/** biome-ignore-all lint/suspicious/noExplicitAny: . */
+
 /**
  * jsimgui - TypeScript/JavaScript bindings for
  * {@link https://github.com/ocornut/imgui | Dear ImGui}.
@@ -62,7 +65,7 @@ export const Mod = {
      * @throws {Error} Throws error if the module has not been initialized via {@linkcode Mod.init}.
      * @returns Object containing all exported functions, classes and runtime methods.
      */
-    get export(): EmscriptenExports {
+    get export(): any {
         if (!Mod._export) {
             throw new Error(
                 "jsimgui: Emscripten module is not initialized. Did you call ImGuiImplWeb.Init()?",
@@ -89,7 +92,7 @@ class StructBinding {
     /**
      * The underlying C++ struct/class.
      */
-    _ptr: CppStruct;
+    _ptr: any;
 
     /**
      * Create a new instance of an underlying C++ struct/class.
