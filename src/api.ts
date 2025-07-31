@@ -671,6 +671,201 @@ export const State = {
 };
 
 /**
+ * Options for loading a texture.
+ */
+export interface TextureOptions {
+    /**
+     * The id of the old texture to load the new texture into. If not provided, a new texture
+     * will be created.
+     */
+    id?: ImTextureID;
+
+    /**
+     * The width of the texture. This needs to be specified if the texture is loaded
+     * from a `Uint8Array`.
+     */
+    width?: number;
+
+    /**
+     * The height of the texture. This needs to be specified if the texture is loaded
+     * from a `Uint8Array`.
+     */
+    height?: number;
+
+    /**
+     * Custom load function to use for loading the texture/image. You can use this if you require
+     * additional processing. Note that you will need to write backend-specific code for this.
+     *
+     * @param data The image data to load.
+     * @param options The options for loading the texture.
+     * @returns The ImTextureID of the loaded image.
+     */
+    processFn?: (
+        data?: HTMLImageElement | Uint8Array,
+        options?: TextureOptions,
+    ) => WebGLTexture | [GPUTexture, GPUTextureView];
+}
+
+/**
+ * Loads a WebGL/WebGL2 texture.
+ *
+ * @param data The image data to load. If not provided will load a fully transparent texture.
+ * @param options The options for loading the texture.
+ * @returns The ImTextureID of the loaded texture.
+ */
+const loadTextureWebGL = (
+    data?: HTMLImageElement | Uint8Array,
+    options: TextureOptions = {},
+): ImTextureID => {
+    const gl = State.canvas?.getContext(State.backend as "webgl" | "webgl2") as
+        | WebGLRenderingContext
+        | WebGL2RenderingContext;
+
+    const textureId = options.id as unknown as number;
+
+    const processTexture = () => {
+        const texture =
+            textureId !== undefined
+                ? (Mod.export.GL.textures[textureId] as WebGLTexture)
+                : gl.createTexture();
+
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        if (!data) {
+            const data = new Uint8Array([0, 0, 0, 0]);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+        }
+
+        if (data instanceof HTMLImageElement) {
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, data);
+        }
+
+        if (data instanceof Uint8Array) {
+            const width = options.width ?? 1;
+            const height = options.height ?? 1;
+            gl.texImage2D(
+                gl.TEXTURE_2D,
+                0,
+                gl.RGBA,
+                width,
+                height,
+                0,
+                gl.RGBA,
+                gl.UNSIGNED_BYTE,
+                data,
+            );
+        }
+
+        return texture;
+    };
+
+    const texture = options.processFn
+        ? (options.processFn(data, options) as WebGLTexture)
+        : processTexture();
+
+    if (!options.id) {
+        const newID = Mod.export.GL.getNewId(Mod.export.GL.textures);
+        Mod.export.GL.textures[newID] = texture;
+        return newID;
+    }
+
+    return options.id;
+};
+
+/**
+ * Loads a WebGPU texture.
+ *
+ * @param data The image data to load. If not provided will load a fully transparent texture.
+ * @param options The options for loading the texture.
+ * @returns The ImTextureID of the loaded texture.
+ */
+const loadTextureWebGPU = (
+    data?: HTMLImageElement | Uint8Array,
+    options: TextureOptions = {},
+): ImTextureID => {
+    const device = State.device as GPUDevice;
+
+    const width = data instanceof HTMLImageElement ? data.width : (options.width ?? 1);
+    const height = data instanceof HTMLImageElement ? data.height : (options.height ?? 1);
+
+    const processTexture = () => {
+        const texture = device.createTexture({
+            usage:
+                GPUTextureUsage.COPY_DST |
+                GPUTextureUsage.TEXTURE_BINDING |
+                GPUTextureUsage.RENDER_ATTACHMENT,
+            dimension: "2d",
+            size: { width, height, depthOrArrayLayers: 1 },
+            format: "rgba8unorm",
+            mipLevelCount: 1,
+            sampleCount: 1,
+        });
+
+        if (!data) {
+            const data = new Uint8Array([0, 0, 0, 0]);
+            device.queue.writeTexture(
+                { texture, mipLevel: 0, origin: { x: 0, y: 0, z: 0 }, aspect: "all" },
+                data,
+                {},
+                { width, height, depthOrArrayLayers: 1 },
+            );
+        }
+
+        if (data instanceof HTMLImageElement) {
+            device.queue.copyExternalImageToTexture(
+                { source: data },
+                { texture, mipLevel: 0, origin: { x: 0, y: 0, z: 0 }, aspect: "all" },
+                { width: data.width, height: data.height, depthOrArrayLayers: 1 },
+            );
+        }
+
+        if (data instanceof Uint8Array) {
+            device.queue.writeTexture(
+                { texture, mipLevel: 0, origin: { x: 0, y: 0, z: 0 }, aspect: "all" },
+                data,
+                {},
+                { width, height, depthOrArrayLayers: 1 },
+            );
+        }
+
+        const textureView = texture.createView({
+            format: "rgba8unorm",
+            dimension: "2d",
+            baseMipLevel: 0,
+            mipLevelCount: 1,
+            baseArrayLayer: 0,
+            arrayLayerCount: 1,
+            aspect: "all",
+        });
+
+        return [texture, textureView];
+    };
+
+    const [texture, textureView] = options.processFn
+        ? (options.processFn(data, options) as [GPUTexture, GPUTextureView])
+        : processTexture();
+
+    if (!options.id) {
+        Mod.export.WebGPU.mgrTexture.create(texture);
+        const newID = Mod.export.WebGPU.mgrTextureView.create(textureView);
+        return newID;
+    }
+
+    const id = options.id as unknown as number;
+    const textureWrapper = Mod.export.WebGPU.mgrTexture.objects[id];
+    const textureViewWrapper = Mod.export.WebGPU.mgrTextureView.objects[id];
+
+    if (textureWrapper) textureWrapper.object = texture;
+    if (textureViewWrapper) textureViewWrapper.object = textureView;
+
+    return options.id;
+};
+
+/**
  * Object containing memory information of the WASM heap, mallinfo and stack.
  */
 interface MemoryInfo {
@@ -874,6 +1069,8 @@ export const ImGuiImplWeb = {
     GetEmscriptenExports(): any {
         return Mod.export;
     },
+
+    /**
      * Returns memory information of the WASM heap, mallinfo and stack.
      *
      * @returns Object containing the memory information.
@@ -884,6 +1081,19 @@ export const ImGuiImplWeb = {
             mall: Mod.export.get_wasm_mall_info(),
             stack: Mod.export.get_wasm_stack_info(),
         };
+    },
+
+    /**
+     * Load a texture/image for the current backend.
+     *
+     * @param data The image or image data to load.
+     * @param options The options for loading the texture.
+     * @returns The ImTextureID of the loaded texture.
+     */
+    LoadTexture(data?: HTMLImageElement | Uint8Array, options: TextureOptions = {}): ImTextureID {
+        return State.backend === "webgpu"
+            ? loadTextureWebGPU(data, options)
+            : loadTextureWebGL(data, options);
     },
 
     /**
@@ -921,6 +1131,7 @@ export const ImGuiImplWeb = {
             loaderPath,
         } = options;
         const usedBackend = getUsedBackend(canvas, device, backend);
+        State.backend = usedBackend;
 
         const usedLoaderPath = getUsedLoaderPath(usedBackend, fontLoader, enableDemos, loaderPath);
         await Mod.init(usedLoaderPath);
@@ -939,101 +1150,5 @@ export const ImGuiImplWeb = {
             initWebGPU(canvas, device);
             return;
         }
-    },
-
-    /** Load an image to be used on a WebGL canvas. Returns the texture id. */
-    LoadImageWebGL(canvas: HTMLCanvasElement, image: HTMLImageElement): Promise<ImTextureID> {
-        return new Promise((resolve, reject) => {
-            image.onload = () => {
-                const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
-                if (!gl) {
-                    throw new Error("Failed to create WebGL/WebGL2 context.");
-                }
-
-                const texture = gl.createTexture();
-
-                gl.bindTexture(gl.TEXTURE_2D, texture);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-
-                const id = Mod.export.GL.getNewId(Mod.export.GL.textures);
-                Mod.export.GL.textures[id] = texture;
-
-                resolve(id);
-            };
-
-            image.onerror = (error) => {
-                reject(error);
-            };
-        });
-    },
-
-    /** Load an image to be used on a WebGPU canvas. Returns the texture id. */
-    LoadImageWebGPU(device: GPUDevice, image: HTMLImageElement): Promise<ImTextureID> {
-        return new Promise((resolve, reject) => {
-            image.onload = () => {
-                const textureDescriptor: GPUTextureDescriptor = {
-                    usage:
-                        GPUTextureUsage.COPY_DST |
-                        GPUTextureUsage.TEXTURE_BINDING |
-                        GPUTextureUsage.RENDER_ATTACHMENT,
-                    dimension: "2d",
-                    size: {
-                        width: image.width,
-                        height: image.height,
-                        depthOrArrayLayers: 1,
-                    },
-                    format: "rgba8unorm",
-                    mipLevelCount: 1,
-                    sampleCount: 1,
-                };
-                const texture = device.createTexture(textureDescriptor);
-
-                const textureDestination: GPUImageCopyTexture = {
-                    texture: texture,
-                    mipLevel: 0,
-                    origin: {
-                        x: 0,
-                        y: 0,
-                        z: 0,
-                    },
-                    aspect: "all",
-                };
-                const copySize: GPUExtent3D = {
-                    width: image.width,
-                    height: image.height,
-                    depthOrArrayLayers: 1,
-                };
-
-                device.queue.copyExternalImageToTexture(
-                    { source: image },
-                    textureDestination,
-                    copySize,
-                );
-
-                const textureViewDescriptor: GPUTextureViewDescriptor = {
-                    format: "rgba8unorm",
-                    dimension: "2d",
-                    baseMipLevel: 0,
-                    mipLevelCount: 1,
-                    baseArrayLayer: 0,
-                    arrayLayerCount: 1,
-                    aspect: "all",
-                };
-                const textureView = texture.createView(textureViewDescriptor);
-
-                Mod.export.WebGPU.mgrTexture.create(texture);
-                const id = Mod.export.WebGPU.mgrTextureView.create(textureView);
-
-                resolve(id);
-            };
-
-            image.onerror = (error) => {
-                reject(error);
-            };
-        });
     },
 };
