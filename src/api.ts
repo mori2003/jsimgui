@@ -30,7 +30,7 @@
  * Object wrapping the exported Emscripten module. Used to access any of the exported functions
  * or runtime methods.
  */
-export const Mod = {
+const Mod = {
     /**
      * The Emscripten module exports.
      */
@@ -870,6 +870,13 @@ const initWebGPU = (canvas: HTMLCanvasElement, device: GPUDevice | undefined) =>
  */
 export const ImGuiImplWeb = {
     /**
+     * Returns the exports and runtime methods of the emscripten module.
+     *
+     * @returns The emscripten exports object.
+     */
+    GetEmscriptenExports(): any {
+        return Mod.export;
+    },
      * Returns memory information of the WASM heap, mallinfo and stack.
      *
      * @returns Object containing the memory information.
