@@ -1,4 +1,4 @@
-name: Publish JSR, npm
+name: Publish JSR and npm
 
 on:
   workflow_dispatch:
