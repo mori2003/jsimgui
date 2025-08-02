@@ -1,32 +1,18 @@
 # jsimgui: JavaScript bindings for Dear ImGui
 
-JavaScript bindings for the [Dear ImGui](https://github.com/ocornut/imgui) library. Compatible with WebGL2 and WebGPU.
-
 ![showcase](./docs/showcase.png)
 
-```js
-ImGui.Begin("jsimgui");
-ImGui.Text("JavaScript bindings for Dear ImGui");
-ImGui.Image(jsLogo, new ImVec2(50, 50));
-ImGui.SameLine();
-ImGui.Image(wasmLogo, new ImVec2(50, 50));
-if (ImGui.Button("Click me")) {
-    console.log("Button clicked!");
-}
-```
+JavaScript/TypeScript bindings for the [Dear ImGui](https://github.com/ocornut/imgui) library.
 
+## Features
 
-## ✨ Features
-
+- WebGL, WebGL2 and WebGPU supported
+- Using docking branch of Dear ImGui
 - Simple API which tries to feel familiar to the original
 - Original comments preserved from Dear ImGui
 - Good IDE support thanks to TypeScript
-- Docking branch features
-- WebGL2 and WebGPU backends, easily usable with Three.js
 
-## 💡 Examples
-
-**Demo:**
+## Examples
 
 - **WebGL2**: Basic example using a WebGL2 clear canvas - [View Example](https://mori2003.github.io/jsimgui/docs/examples/webgl/)
 
@@ -34,40 +20,28 @@ if (ImGui.Button("Click me")) {
 
 - **Three.js**: Integration with Three.js WebGL2 renderer - [View Example](https://mori2003.github.io/jsimgui/docs/examples/threegl/)
 
-## 📌 Todo
-The library is currently in a very early stage but core functionality is there. Expect bugs and missing features!
+## Todo
+The library should be somewhat usable, but expect bugs and missing features! (Custom font support, INI settings, etc.) Please open an issue if you find something.
 
-Planned features and improvements:
+## Quick Start
 
-- Increase API coverage
-- Additional examples and documentation
-- Better font support (custom fonts, icon fonts, emoji fonts)
-- Clipboard integration
-- Support for saving/loading ImGui settings
-
-
-## 🚀 Getting Started
-
-The package is available both on [JSR](https://jsr.io/@mori2003/jsimgui/) and [npm](https://www.npmjs.com/package/@mori2003/jsimgui). Use it with your favorite package manager or with a CDN like [ESM](https://esm.sh/).
+For more information, see the [wiki](https://github.com/mori2003/jsimgui/wiki).
 
 ```bash
-npm add @mori2003/jsimgui
-deno add @mori2003/jsimgui
-bun add @mori2003/jsimgui
+npm install @mori2003/jsimgui
 ```
-
-Integrate it into your project.
 
 ```js
 import { ImGui, ImGuiImplWeb } from "@mori2003/jsimgui";
-// via CDN
-// import { ImGui, ImGuiImplWeb } from "https://esm.sh/@mori2003/jsimgui";
 
-const canvas = document.querySelector("#your-canvas");
-await ImGuiImplWeb.InitWebGL(canvas);
+const myCanvas = document.querySelector("#imgui-canvas");
+
+await ImGuiImplWeb.Init({
+    canvas: myCanvas,
+});
 
 function frame() {
-    ImGuiImplWeb.BeginRenderWebGL();
+    ImGuiImplWeb.BeginRender();
 
     ImGui.Begin("New Window");
     ImGui.Text("Hello from JS!");
@@ -75,66 +49,54 @@ function frame() {
 
     // Render your scene...
 
-    ImGuiImplWeb.EndRenderWebGL();
+    ImGuiImplWeb.EndRender();
     requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
 ```
 
-## 🗒️ API Notes
 
-### Arrays
 
-Arrays are modified in-place when passed as arguments. Single-sized arrays are also used for references:
+## Building
 
-```js
-const color = [0.2, 0.8, 0.5];
-ImGui.ColorEdit3("BackgroundColor", color); // Modifies the color array.
-const isVisible = [true];
-ImGui.Checkbox("Show Window", isVisible); // Modifies isVisible[0].
-```
-
-### Enums
-
-Enums names have been shortened. E.g. `ImGuiWindowFlags_None` as `ImGui.WindowFlags.None`.
-
-```js
-ImGui.SetNextWindowPos(new ImVec2(10, 10), ImGui.Cond.Once);
-```
-
-## 📦 Building
-
-**Prerequisites:**
+### Prerequisites
 
 - A Node.js compatible runtime (Node.js, Deno, Bun)
 - [Emscripten](https://emscripten.org/)
 - [Python](https://www.python.org/) with [Ply](https://pypi.org/project/ply/) (For dear_bindings)
 
-**Build:**
+### Build
 
-1. Clone the repository with submodules
+#### 1. Clone the repository with submodules
 
 ```bash
 git clone https://github.com/mori2003/jsimgui.git --recurse-submodules
 cd jsimgui
 ```
 
-2. Run the build script
+```bash
+npm install
+```
+
+#### 2. Run the build script
+
+This will build the default library configuration: WebGL2, truetype font loader, no demos.
 
 ```bash
-# Node.js & npm
-npx tsx build.ts
-# Deno
-deno run build.ts
-# Bun
-bun run build.ts
+node build.ts
 ```
 
-## 📁 Project Structure
+You can specify what configuration to build like so:
+
+```bash
+node build.ts --backend=webgpu --font-loader=freetype --demos
+
+node build.ts --help # To see all options
+```
+
+## Project Structure
 
 ```
-bindgen/      # Generated C++ and TypeScript bindings
-build/        # Distribution files
 docs/         # Usage examples
 src/          # Bindings generator source code
 third_party/  # Dependencies (imgui, dear_bindings)
