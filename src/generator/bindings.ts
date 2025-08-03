@@ -101,9 +101,9 @@ export const functionBindings: Record<string, FunctionBinding> = {
     ImGui_LogText: { exclude: true },
     ImGui_LogTextV: { exclude: true },
     ImGui_LoadIniSettingsFromDisk: { exclude: true },
-    ImGui_LoadIniSettingsFromMemory: { exclude: true },
+    ImGui_LoadIniSettingsFromMemory: ImGui_LoadIniSettingsFromMemory(),
     ImGui_SaveIniSettingsToDisk: { exclude: true },
-    ImGui_SaveIniSettingsToMemory: { exclude: true },
+    ImGui_SaveIniSettingsToMemory: ImGui_SaveIniSettingsToMemory(),
     ImGui_DebugTextEncoding: { exclude: true },
     ImGui_DebugFlashStyleColor: { exclude: true },
     ImGui_DebugStartItemPicker: { exclude: true },
@@ -478,6 +478,39 @@ function ImGui_PlotHistogram() {
                 "    auto values_bind = ArrayParam<float>(values);\n",
                 "    return ImGui_PlotHistogram(label.c_str(), &values_bind, values_count, values_offset, overlay_text.c_str(), scale_min, scale_max, graph_size, sizeof(float));\n",
                 "}, allow_ptr());\n",
+                "\n",
+            ].join(""),
+        },
+    };
+}
+
+function ImGui_LoadIniSettingsFromMemory() {
+    return {
+        override: {
+            typescript: [
+                "    LoadIniSettingsFromMemory(ini_data: string, ini_size: number): void { return Mod.export.ImGui_LoadIniSettingsFromMemory(ini_data, ini_size); },\n",
+            ].join(""),
+            cplusplus: [
+                'bind_func("ImGui_LoadIniSettingsFromMemory", [](std::string ini_data, size_t ini_size){\n',
+                "    return ImGui_LoadIniSettingsFromMemory(ini_data.c_str(), ini_size);\n",
+                "});\n",
+                "\n",
+            ].join(""),
+        },
+    };
+}
+
+function ImGui_SaveIniSettingsToMemory() {
+    return {
+        override: {
+            typescript: [
+                "    SaveIniSettingsToMemory(): string { return Mod.export.ImGui_SaveIniSettingsToMemory(); },\n",
+            ].join(""),
+            cplusplus: [
+                'bind_func("ImGui_SaveIniSettingsToMemory", [](){\n',
+                "    auto const ini_data = ImGui_SaveIniSettingsToMemory(nullptr);\n",
+                "    return std::string(ini_data ? ini_data : \"\");\n",
+                "});\n",
                 "\n",
             ].join(""),
         },

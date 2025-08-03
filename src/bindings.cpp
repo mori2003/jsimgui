@@ -136,6 +136,11 @@ auto set_clipboard_text(ImGuiContext*, const char* text) -> void {
 
 EMSCRIPTEN_BINDINGS(impl) {
 
+bind_func("SetupIniSettings", [](){
+    auto const& io{ImGui_GetIO()};
+    io->IniFilename = nullptr;
+});
+
 bind_func("SetupClipboardFunctions", [](emscripten::val get_fn, emscripten::val set_fn){
     auto const& platform_io{ImGui_GetPlatformIO()};
 
