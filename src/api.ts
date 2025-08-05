@@ -15,12 +15,13 @@
  * [2.] ImGui Typedefs - GENERATED
  * [3.] ImGui Structs/Classes - GENERATED
  * [4.] ImGui Functions and Enums - GENERATED
- * [5.] Web Implementation
+ * [5.] ImGui WebGL/WebGL2/WebGPU Backend Functions
+ * [6.] Web Implementation
  */
 
-// ----------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 // [1.] Emscripten Module Interface
-// ----------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 
 /**
  * Object wrapping the exported Emscripten module. Used to access any of the exported functions
@@ -118,62 +119,101 @@ class StructBinding {
     }
 }
 
-// --------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 // BEGIN GENERATED CODE
-// --------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 
-// --------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 // END GENERATED CODE
-// --------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 
-/* -------------------------------------------------------------------------- */
-/* 5. Web Implementation */
-/* -------------------------------------------------------------------------- */
+// -------------------------------------------------------------------------------------------------
+// [5.] ImGui WebGL/WebGL2/WebGPU Backend Functions
+// -------------------------------------------------------------------------------------------------
 
+/**
+ * Object containing functions for initializing and rendering the WebGL/WebGL2 (OpenGL3) backend.
+ * As a user you most likely will not need to use this object directly. {@linkcode ImGuiImplWeb}
+ * will call the appropriate functions for you.
+ */
 export const ImGuiImplOpenGL3 = {
-    /** Initializes the OpenGL3 backend. */
+    /**
+     * Initializes the WebGL/WebGL2 (OpenGL3) backend.
+     *
+     * @returns `true` if the backend initialized successfully, `false` otherwise.
+     */
     Init(): boolean {
         return Mod.export.cImGui_ImplOpenGL3_Init();
     },
 
-    /** Shuts down the OpenGL3 backend. */
-    Shutdown(): void {
-        return Mod.export.cImGui_ImplOpenGL3_Shutdown();
+    /**
+     * Shuts down the WebGL/WebGL2 (OpenGL3) backend.
+     */
+    Shutdown() {
+        Mod.export.cImGui_ImplOpenGL3_Shutdown();
     },
 
-    /** Starts a new OpenGL3 frame. */
-    NewFrame(): void {
-        return Mod.export.cImGui_ImplOpenGL3_NewFrame();
+    /**
+     * Starts a new WebGL/WebGL2 (OpenGL3) frame.
+     */
+    NewFrame() {
+        Mod.export.cImGui_ImplOpenGL3_NewFrame();
     },
 
-    /** Renders the OpenGL3 frame. */
+    /**
+     * Renders the WebGL/WebGL2 (OpenGL3) frame.
+     *
+     * @param draw_data The draw data to render.
+     */
     RenderDrawData(draw_data: ImDrawData): void {
-        return Mod.export.cImGui_ImplOpenGL3_RenderDrawData(draw_data._ptr);
+        Mod.export.cImGui_ImplOpenGL3_RenderDrawData(draw_data._ptr);
     },
 };
 
+/**
+ * Object containing functions for initializing and rendering the WebGPU backend. As a user you
+ * most likely will not need to use this object directly. {@linkcode ImGuiImplWeb} will call the
+ * appropriate functions for you.
+ */
 export const ImGuiImplWGPU = {
-    /** Initializes the WebGPU backend. */
+    /**
+     * Initializes the WebGPU backend.
+     *
+     * @returns `true` if the backend initialized successfully, `false` otherwise.
+     */
     Init(): boolean {
         return Mod.export.cImGui_ImplWGPU_Init();
     },
 
-    /** Shuts down the WebGPU backend. */
-    Shutdown(): void {
-        return Mod.export.cImGui_ImplWGPU_Shutdown();
+    /**
+     * Shuts down the WebGPU backend.
+     */
+    Shutdown() {
+        Mod.export.cImGui_ImplWGPU_Shutdown();
     },
 
-    /** Starts a new WebGPU frame. */
-    NewFrame(): void {
-        return Mod.export.cImGui_ImplWGPU_NewFrame();
+    /**
+     * Starts a new WebGPU frame.
+     */
+    NewFrame() {
+        Mod.export.cImGui_ImplWGPU_NewFrame();
     },
 
-    /** Renders the WebGPU frame. */
-    RenderDrawData(draw_data: ImDrawData, pass_encoder: GPURenderPassEncoder): void {
+    /**
+     * Renders the WebGPU frame.
+     *
+     * @param draw_data The draw data to render.
+     * @param pass_encoder The pass encoder to use for rendering.
+     */
+    RenderDrawData(draw_data: ImDrawData, pass_encoder: GPURenderPassEncoder) {
         const handle = Mod.export.JsValStore.add(pass_encoder);
-        return Mod.export.cImGui_ImplWGPU_RenderDrawData(draw_data._ptr, handle);
+        Mod.export.cImGui_ImplWGPU_RenderDrawData(draw_data._ptr, handle);
     },
 };
+
+// -------------------------------------------------------------------------------------------------
+// [6.] Web Implementation
+// -------------------------------------------------------------------------------------------------
 
 const MOUSE_BUTTON_MAP = {
     0: ImGui.MouseButton.Left,
