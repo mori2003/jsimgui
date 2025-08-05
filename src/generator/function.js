@@ -173,12 +173,14 @@ class Type {
     }
 
     #isStruct(typeData) {
-        return typeData.description.kind === "User" || typeData.description.inner_type?.kind === "User";
+        return typeData.description.kind === "User" ||
+            typeData.description.inner_type?.kind === "User";
         //return typeData.declaration.includes("struct");
     }
 
     #isImVec(typeData) {
-        return typeData.declaration.includes("ImVec") || typeData.inner_type?.declaration.includes("ImVec");
+        return typeData.declaration.includes("ImVec") ||
+            typeData.inner_type?.declaration.includes("ImVec");
     }
 
     #isPrimitivePointer(typeData) {
@@ -216,31 +218,22 @@ class FunctionParam {
         if (!defaultValue) return "";
 
         const fixNumber = (val) => {
-            return val.replace(/(\d+(\.\d+)?)[df]/g, '$1')
+            return val.replace(/(\d+(\.\d+)?)[df]/g, "$1")
                 .replace("FLT_MAX", "Number.MAX_VALUE")
                 .replace("FLT_MIN", "Number.MIN_VALUE");
         };
 
-        // Handle NULL -> null.
         if (defaultValue === "NULL") {
             return ` = null`;
         }
 
         if (type.isString) {
-            return (defaultValue === undefined) ? " = \"\"" : ` = ${defaultValue}`;
-
-            //return ` = "${defaultValue}"`;
+            return (defaultValue === undefined) ? ' = ""' : ` = ${defaultValue}`;
         }
 
-        // Handle ImVecs
         if (defaultValue?.startsWith("ImVec")) {
             return ` = new ${fixNumber(defaultValue)}`;
         }
-
-        // return ` = ${fixNumber(defaultValue)}`;
-        // if (!defaultValue) {
-        //     return "";
-        // }
 
         return ` = ${fixNumber(defaultValue)}`;
     }
@@ -280,10 +273,6 @@ class FunctionBinding {
             if (param.type.isImVec) {
                 call = `${call}.unwrap()`;
             }
-            // If it is a struct, use toNative().
-            // if (param.type.isString) {
-            //     call = `${call}.c_str()`;
-            // }
 
             return call;
         }).join(", ");
@@ -302,19 +291,15 @@ class FunctionBinding {
             }
 
             if (param.type.isArray) {
-                //call = `&ArrayParam<${param.type.decl.slice(0, -3)}>(${call})`;
                 call = `&${call}_bind`;
             }
 
             if (param.type.isPrimitivePointer) {
                 if (param.type.decl === "bool*") {
                     call = `&${call}_bind`;
-                }
-                else {
+                } else {
                     call = `&${call}_bind`;
                 }
-                //call = `&PointerParam<${param.type.decl.replace("*", "")}>(${call})`;
-                //call = `${call}_bind.data()`;
             }
 
             return call;
@@ -326,15 +311,9 @@ class FunctionBinding {
 
         for (const param of this.params) {
             // Gets the type without * or [].
-            let type = param.type.decl.replace(/\*|\[.*\]/g, "");
+            const type = param.type.decl.replace(/\*|\[.*\]/g, "");
 
             if (param.type.isPrimitivePointer || param.type.isArray) {
-                // if (type === "bool") {
-                //     code += `        bool ${param.name}_bind = ${param.name}[0].as<bool>();\n`;
-                // }
-                // else {
-                //     code += `        auto ${param.name}_bind = toNativeArray<${type}>(${param.name});\n`;
-                // }
                 code += `        auto ${param.name}_bind = ArrayParam<${type}>(${param.name});\n`;
             }
         }
@@ -349,8 +328,7 @@ class FunctionBinding {
             if (param.type.isPrimitivePointer || param.type.isArray) {
                 if (param.type.decl === "bool*") {
                     code += `        updateJsBool(${param.name}, &${param.name}_bind);\n`;
-                }
-                else {
+                } else {
                     code += `        updateJsArray(${param.name}, ${param.name}_bind.data());\n`;
                 }
             }
@@ -363,9 +341,6 @@ class FunctionBinding {
 function getJsFunctionCode(functionData, typedefData) {
     const func = new FunctionBinding(functionData);
 
-    //let code =
-        `    ${func.trimmedName}: (${func.getJsParamList()}) => { return Mod.main.${func.name}(${func.getJsCallList()}) },\n`;
-
     let code = [
         "    /** [Auto] */",
         `    ${func.trimmedName}: (${func.getJsParamList()}) => { return Mod.main.${func.name}(${func.getJsCallList()}) },`,
@@ -374,7 +349,7 @@ function getJsFunctionCode(functionData, typedefData) {
 
     if (func.returnType.isStruct) {
         const wrapperType = func.returnType.decl.replace("*", "").replace("const ", "");
-        const typeMap = getTypeMapping(typedefData)
+        const typeMap = getTypeMapping(typedefData);
 
         if (!(typeMap.has(wrapperType))) {
             code = [
@@ -384,12 +359,6 @@ function getJsFunctionCode(functionData, typedefData) {
             ].join("\n");
         }
     }
-
-    // if (func.returnType.isStruct) {
-    //     const wrapperType = "test";
-    //     code =
-    //         `${func.trimmedName}: (${func.getJsParamList()}) => { return toWrap(Mod.get().${func.name}(${func.getJsCallList()}), ${wrapperType}) },\n`;
-    // }
 
     return code;
 }
@@ -409,16 +378,15 @@ function getCppFunctionCode(functionData) {
         policies = `, allow_ptr()`;
     }
 
-    let code =  `    bind_func("${func.name}", [](${func.getCppParamList()}){\n`;
+    let code = `    bind_func("${func.name}", [](${func.getCppParamList()}){\n`;
 
     if (func.returnType.decl === "void") {
         code += func.getCppBindings();
         code += `        ${functionData.name}(${func.getCppCallList()});\n`;
-        //code += func.getCppUpdates();
     } else {
         code += func.getCppBindings();
         code += `        const auto ret = ${functionData.name}(${func.getCppCallList()});\n`;
-        //code += func.getCppUpdates();
+
         code += `        return ret;\n`;
     }
 
@@ -431,7 +399,7 @@ function getCppFunctionCode(functionData) {
 export function generateFunctions(jsonData) {
     const functions = filterFunctions(jsonData.functions);
     let manualBindings = Deno.readTextFileSync("./src/templates/tmpl-imgui-functions.js");
-    manualBindings = manualBindings.split('\n').slice(1, -2).join('\n');
+    manualBindings = manualBindings.split("\n").slice(1, -2).join("\n");
 
     let jsFunctions = "";
 

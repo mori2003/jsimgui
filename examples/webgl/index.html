@@ -1,26 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>WebGL Example</title>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>WebGL Example</title>
+        <style>
+            body {
+                margin: 0;
+            }
 
-    <link rel="stylesheet" href="../style.css" />
-    <script type="importmap">
-      {
-        "imports": {
-          "@mori2003/jsimgui": "../../build/mod.js"
-        }
-      }
-    </script>
-    <script src="main.js" type="module"></script>
-  </head>
+            canvas {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+        <script type="importmap">
+            {
+                "imports": {
+                    "@mori2003/jsimgui": "../../build/mod.js"
+                }
+            }
+        </script>
+        <script src="main.js" type="module"></script>
+    </head>
 
-  <body>
-    <main>
-      <!-- canvas element for rendering ImGui on. -->
-      <!-- tabindex needs to be set for keyboard inputs to work. -->
-      <canvas id="render-canvas"></canvas>
-    </main>
-  </body>
+    <body>
+        <main>
+            <canvas id="render-canvas"></canvas>
+        </main>
+    </body>
 </html>

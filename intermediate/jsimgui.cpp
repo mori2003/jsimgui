@@ -34,10 +34,6 @@ template <typename Func> constexpr auto override(Func &&func) {
     .function("get_"#name , override([](const className& self){ return self.name; }), return_ref(), allow_ptr()) \
     .function("set_"#name , override([](className& self, type value){ self.name = value; }), allow_ptr())
 
-    // bind_prop(ImVec2, x, float)
-    // Should expand to:
-    //  .function("get_x", override([](const ImVec2& self){ return self.x; }))
-    // .function("set_x", override([](ImVec2& self, float value){ self.x = value; }))
 
 #define bind_prop_str(class, name) \
     .function("get_"#name, override([](const class& self){ return std::string(self.name); })) \
@@ -113,68 +109,7 @@ class ArrayParam<bool> {
         }
 };
 
-
-template<typename T>
-std::vector<T> toNativeArray(const emscripten::val& js_value) {
-    if (js_value.isNull() || js_value.isUndefined() || !js_value.isArray()) {
-        return std::vector<T>();
-    }
-
-    size_t length = js_value["length"].as<size_t>();
-    std::vector<T> value;
-    value.reserve(length);
-
-    for (size_t i = 0; i < length; ++i) {
-        value.push_back(js_value[i].as<T>());
-    }
-
-    return value;
-}
-
-template<typename T>
-void updateJsArray(emscripten::val& js_value, T* array) {
-    size_t length = js_value["length"].as<size_t>();
-    for (size_t i = 0; i < length; ++i) {
-        js_value.set(i, array[i]);
-    }
-}
-
-// bool* getJsBool(emscripten::val& js_value) {
-//     bool val = js_value[0].as<bool>();
-//     return &val;
-// }
-
-void updateJsBool(emscripten::val& js_value, bool* b) {
-    js_value.set(0, *b);
-}
-
-
-
-void modify_int_array(int* array) {
-    for (int i = 0; i < 3; i++) {
-        array[i] *= 2;
-    }
-}
-
-void modify_bool_ptr(bool* ptr) {
-    *ptr = false;
-}
-
-void test_func(emscripten::val v) {
-    auto v_bind = toNativeArray<int>(v);
-
-    modify_int_array(v_bind.data());
-
-    updateJsArray(v, v_bind.data());
-
-    //return v_bind;
-};
-
 EMSCRIPTEN_BINDINGS(manual) {
-
-    bind_func("test_func", [](emscripten::val v){
-        return test_func(v);
-    }, allow_ptr());
 
     /* OpenGL3 Backend */
 
@@ -422,16 +357,28 @@ EMSCRIPTEN_BINDINGS(manual) {
     }, allow_ptr());
 
     /* Widgets Input with Keyboard */
-    bind_func("ImGui_InputText", [](std::string label, std::string buf, size_t buf_size, ImGuiInputTextFlags flags){
-        return ImGui_InputText(label.c_str(), buf.data(), buf_size, flags);
+    bind_func("ImGui_InputText", [](std::string label, emscripten::val buf, size_t buf_size, ImGuiInputTextFlags flags){
+        auto buf_bind = buf[0].as<std::string>();
+        auto buf_data = buf_bind.data();
+        const auto ret = ImGui_InputText(label.c_str(), buf_data, buf_size, flags);
+        buf.set(0, std::string(buf_data));
+        return ret;
     }, allow_ptr());
 
-    bind_func("ImGui_InputTextMultilineEx", [](std::string label, std::string buf, size_t buf_size, ImVec2 size, ImGuiInputTextFlags flags){
-        return ImGui_InputTextMultilineEx(label.c_str(), buf.data(), buf_size, size, flags, nullptr, nullptr);
+    bind_func("ImGui_InputTextMultilineEx", [](std::string label, emscripten::val buf, size_t buf_size, ImVec2 size, ImGuiInputTextFlags flags){
+        auto buf_bind = buf[0].as<std::string>();
+        auto buf_data = buf_bind.data();
+        const auto ret = ImGui_InputTextMultilineEx(label.c_str(), buf_data, buf_size, size, flags, nullptr, nullptr);
+        buf.set(0, std::string(buf_data));
+        return ret;
     }, allow_ptr());
 
-    bind_func("ImGui_InputTextWithHintEx", [](std::string label, std::string hint, std::string buf, size_t buf_size, ImGuiInputTextFlags flags){
-        return ImGui_InputTextWithHintEx(label.c_str(), hint.c_str(), buf.data(), buf_size, flags, nullptr, nullptr);
+    bind_func("ImGui_InputTextWithHintEx", [](std::string label, std::string hint, emscripten::val buf, size_t buf_size, ImGuiInputTextFlags flags){
+        auto buf_bind = buf[0].as<std::string>();
+        auto buf_data = buf_bind.data();
+        const auto ret = ImGui_InputTextWithHintEx(label.c_str(), hint.c_str(), buf_data, buf_size, flags, nullptr, nullptr);
+        buf.set(0, std::string(buf_data));
+        return ret;
     }, allow_ptr());
 
     bind_func("ImGui_GetClipboardText", [](){
