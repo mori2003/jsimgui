@@ -64,8 +64,8 @@ await ImGuiImplWeb.Init({
     enableDemos: true,
 });
 
-export const showDemo = [false];
-export const docking = [false];
+const showDemo = [false];
+const docking = [false];
 
 const stopRotation = [false];
 const cubeColor = [0.0, 0.0, 0.5];
