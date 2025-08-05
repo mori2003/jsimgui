@@ -426,9 +426,12 @@ const handleKeyboardEvent = (event: KeyboardEvent, keyDown: boolean, io: ImGuiIO
 };
 
 /**
- * Sets up canvas size and resize handling.
+ * Sets up the correct display size and framebuffer scale for Dear ImGui. Also handles resize
+ * events for the canvas.
+ *
+ * @param canvas The canvas element to set up.
  */
-function setupCanvasIO(canvas: HTMLCanvasElement) {
+const setupCanvasIO = (canvas: HTMLCanvasElement) => {
     const io = ImGui.GetIO();
 
     const setDisplayProperties = () => {
@@ -448,12 +451,14 @@ function setupCanvasIO(canvas: HTMLCanvasElement) {
 
     setDisplayProperties();
     globalThis.addEventListener("resize", setDisplayProperties);
-}
+};
 
 /**
- * Sets up mouse input, movement and cursor handling.
+ * Sets up mouse key, wheel input and movement. Also handles cursor style changes.
+ *
+ * @param canvas The canvas element to set up.
  */
-function setupMouseIO(canvas: HTMLCanvasElement) {
+const setupMouseIO = (canvas: HTMLCanvasElement) => {
     const io = ImGui.GetIO();
     const scrollSpeed = 0.01;
 
@@ -475,25 +480,31 @@ function setupMouseIO(canvas: HTMLCanvasElement) {
     canvas.addEventListener("wheel", (e) => {
         io.AddMouseWheelEvent(-e.deltaX * scrollSpeed, -e.deltaY * scrollSpeed);
     });
-}
+};
 
 /**
- * Sets up keyboard input handling.
+ * Sets up keyboard input handling. Browser keyboard events are handled by
+ * {@linkcode handleKeyboardEvent}.
+ *
+ * @param canvas The canvas element to set up.
  */
-function setupKeyboardIO(canvas: HTMLCanvasElement) {
+const setupKeyboardIO = (canvas: HTMLCanvasElement) => {
     const io = ImGui.GetIO();
 
     // TODO: Fix too fast repeated inputs (Backspace, Delete...).
     canvas.addEventListener("keydown", (e) => handleKeyboardEvent(e, true, io));
     canvas.addEventListener("keyup", (e) => handleKeyboardEvent(e, false, io));
-}
+};
 
 /**
- * Sets up touch input handling.
- * Single-finger touches are treated as mouse left clicks.
- * Two-finger touches are treated as mouse scrolls.
+ * Sets up touch input handling as well as showing the virtual keyboard. Note the following:
+ *
+ * - Single-finger touches are treated as mouse left clicks.
+ * - Two-finger touches are treated as mouse scrolls.
+ *
+ * @param canvas The canvas element to set up.
  */
-function setupTouchIO(canvas: HTMLCanvasElement) {
+const setupTouchIO = (canvas: HTMLCanvasElement) => {
     const io = ImGui.GetIO();
     const scrollSpeed = 0.02;
     let lastPos = { x: 0, y: 0 };
@@ -582,12 +593,20 @@ function setupTouchIO(canvas: HTMLCanvasElement) {
         lastPos = { x: 0, y: 0 };
         handleTouchEvent(e, false);
     });
-}
+};
 
 /**
- * Setup Browser inputs (mouse, keyboard, and touch).
+ * Sets up Dear ImGui for the browser. This includes:
+ * - Setting up the canvas and resize events.
+ * - Setting up mouse input, movement and cursor handling.
+ * - Setting up keyboard input handling.
+ * - Setting up touch input handling.
+ *
+ * This function is called by {@linkcode ImGuiImplWeb.Init}.
+ *
+ * @param canvas The canvas element to set up.
  */
-function setupBrowserIO(canvas: HTMLCanvasElement) {
+const setupBrowserIO = (canvas: HTMLCanvasElement) => {
     const io = ImGui.GetIO();
     io.BackendFlags = ImGui.BackendFlags.HasMouseCursors;
 
@@ -600,7 +619,7 @@ function setupBrowserIO(canvas: HTMLCanvasElement) {
     setupMouseIO(canvas);
     setupKeyboardIO(canvas);
     setupTouchIO(canvas);
-}
+};
 
 /**
  * Initialization options for jsimgui.
