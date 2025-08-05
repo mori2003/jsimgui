@@ -439,22 +439,6 @@ const handleKeyboardEvent = (event: KeyboardEvent, keyDown: boolean, io: ImGuiIO
 };
 
 /**
- * Object containing some state information for jsimgui. Users most likely don't need to worry
- * about this.
- */
-export const State = {
-    canvas: null as HTMLCanvasElement | null,
-    device: null as GPUDevice | null,
-
-    beginRenderFn: null as (() => void) | null,
-    endRenderFn: null as ((passEncoder?: GPURenderPassEncoder) => void) | null,
-
-    clipboardData: "" as string,
-
-    // TODO: store registered Images/Textures here to update them.
-};
-
-/**
  * Sets up the correct display size and framebuffer scale for Dear ImGui. Also handles resize
  * events for the canvas.
  *
@@ -630,12 +614,12 @@ const setupTouchIO = (canvas: HTMLCanvasElement) => {
 const setupClipboardIO = () => {
     const getClipboard = (): string => {
         return State.clipboardData;
-    }
+    };
 
     const setClipboard = (text: string) => {
         navigator.clipboard.writeText(text);
         State.clipboardData = text;
-    }
+    };
 
     Mod.export.SetupClipboardFunctions(getClipboard, setClipboard);
 
@@ -671,7 +655,49 @@ const setupBrowserIO = (canvas: HTMLCanvasElement) => {
     setupClipboardIO();
 };
 
+/**
+ * Object containing some state information for jsimgui. Users most likely don't need to worry
+ * about this.
+ */
+export const State = {
+    canvas: null as HTMLCanvasElement | null,
+    device: null as GPUDevice | null,
+    backend: null as "webgl" | "webgl2" | "webgpu" | null,
 
+    beginRenderFn: null as (() => void) | null,
+    endRenderFn: null as ((passEncoder?: GPURenderPassEncoder) => void) | null,
+
+    clipboardData: "" as string,
+};
+
+/**
+ * Object containing memory information of the WASM heap, mallinfo and stack.
+ */
+interface MemoryInfo {
+    heap: {
+        size: number;
+        max: number;
+        sbrk_ptr: number;
+    };
+    mall: {
+        arena: number;
+        ordblks: number;
+        smblks: number;
+        hblks: number;
+        hblkhd: number;
+        usmblks: number;
+        fsmblks: number;
+        uordblks: number;
+        fordblks: number;
+        keepcost: number;
+    };
+    stack: {
+        base: number;
+        end: number;
+        current: number;
+        free: number;
+    };
+}
 
 /**
  * Initialization options for jsimgui used in {@linkcode ImGuiImplWeb.Init}.
@@ -718,35 +744,6 @@ export interface InitOptions {
      * need to worry about this.
      */
     loaderPath?: string;
-}
-
-/**
- * Object containing memory information of the WASM heap, mallinfo and stack.
- */
-interface MemoryInfo {
-    heap: {
-        size: number;
-        max: number;
-        sbrk_ptr: number;
-    };
-    mall: {
-        arena: number;
-        ordblks: number;
-        smblks: number;
-        hblks: number;
-        hblkhd: number;
-        usmblks: number;
-        fsmblks: number;
-        uordblks: number;
-        fordblks: number;
-        keepcost: number;
-    };
-    stack: {
-        base: number;
-        end: number;
-        current: number;
-        free: number;
-    };
 }
 
 /**
