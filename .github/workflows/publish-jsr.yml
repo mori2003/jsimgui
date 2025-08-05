@@ -1,0 +1,17 @@
+name: Publish JSR
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Build
+        uses: ./.github/workflows/build.yml
+
+      - name: Publish
+        run: npx jsr publish --dry-run
