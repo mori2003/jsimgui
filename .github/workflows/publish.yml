@@ -33,7 +33,7 @@ jobs:
           cache: 'npm'
 
       - name: Publish JSR
-        run: npx jsr publish --dry-run
+        run: npx jsr publish
 
       - name: Publish npm
-        run: npm publish --dry-run
+        run: npm publish
