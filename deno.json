@@ -11,7 +11,12 @@
     },
 
     "publish": {
-        "include": ["build/"]
+        "include": [
+            "build/",
+            "deno.json",
+            "README.md",
+            "LICENSE"
+        ]
     },
 
     "tasks": {
