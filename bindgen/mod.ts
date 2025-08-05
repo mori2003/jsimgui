@@ -1,4 +1,5 @@
 /* @ts-self-types="./mod.d.ts" */
+
 /**
  * The TypeScript/JavaScript API for jsimgui.
  * Gives access to the exported ImGui functions, structs and enums.
@@ -14,1155 +15,850 @@
  * For source code and more information:
  * @see {@link https://github.com/mori2003/jsimgui|jsimgui}
  */
+
 // @ts-ignore: MainExport will be imported when compiled in the build directory.
 import MainExport from "./jsimgui-em.js";
+
 /* -------------------------------------------------------------------------- */
 /* 1. Core Module */
 /* -------------------------------------------------------------------------- */
+
 /** The main WASM module. */
 export const Mod = {
     /** The WASM module exports. */
     _export: null,
+
     /** Initialize the WASM module. */
-    async init() {
+    async init(): Promise<void> {
         if (Mod._export) {
             throw new Error("WASM module already initialized.");
         }
+
         // @ts-ignore
-        await MainExport().then((module) => {
+        await MainExport().then((module): void => {
             Mod._export = module;
         });
     },
+
     /** Access to the WASM exports. */
-    get export() {
+    get export(): any {
         if (!Mod._export) {
             throw new Error("WASM module not initialized. Did you call ImGuiImplWeb.Init()?");
         }
+
         return this._export;
     },
 };
+
 /** A class that wraps a reference to an ImGui struct. */
 class StructBinding {
     /** The reference to the underlying C++ struct. */
-    _ptr;
-    constructor(name) {
+    _ptr: any;
+
+    constructor(name: string) {
         this._ptr = new Mod.export[name]();
     }
+
     /** Wrap a new C++ struct into a JS wrapper */
-    static wrap(ptr) {
+    static wrap(ptr: any): any {
         // biome-ignore lint/complexity/noThisInStatic: <explanation>
         const wrap = Reflect.construct(this, []);
         wrap._ptr = ptr;
         return wrap;
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/* 2. Typedefs */
+/* -------------------------------------------------------------------------- */
+
+/** TODO: Add comment */
+export type ImGuiID = number;
+/** TODO: Add comment */
+export type ImS8 = number;
+/** TODO: Add comment */
+export type ImU8 = number;
+/** TODO: Add comment */
+export type ImS16 = number;
+/** TODO: Add comment */
+export type ImU16 = number;
+/** TODO: Add comment */
+export type ImS32 = number;
+/** TODO: Add comment */
+export type ImU32 = number;
+/** TODO: Add comment */
+export type ImS64 = BigInt;
+/** TODO: Add comment */
+export type ImU64 = BigInt;
+/** TODO: Add comment */
+export type ImGuiDir = number;
+/** TODO: Add comment */
+export type ImGuiKey = number;
+/** TODO: Add comment */
+export type ImGuiMouseSource = number;
+/** TODO: Add comment */
+export type ImGuiSortDirection = number;
+/** TODO: Add comment */
+export type ImGuiCol = number;
+/** TODO: Add comment */
+export type ImGuiCond = number;
+/** TODO: Add comment */
+export type ImGuiDataType = number;
+/** TODO: Add comment */
+export type ImGuiMouseButton = number;
+/** TODO: Add comment */
+export type ImGuiMouseCursor = number;
+/** TODO: Add comment */
+export type ImGuiStyleVar = number;
+/** TODO: Add comment */
+export type ImGuiTableBgTarget = number;
+/** TODO: Add comment */
+export type ImDrawFlags = number;
+/** TODO: Add comment */
+export type ImDrawListFlags = number;
+/** TODO: Add comment */
+export type ImFontAtlasFlags = number;
+/** TODO: Add comment */
+export type ImGuiBackendFlags = number;
+/** TODO: Add comment */
+export type ImGuiButtonFlags = number;
+/** TODO: Add comment */
+export type ImGuiChildFlags = number;
+/** TODO: Add comment */
+export type ImGuiColorEditFlags = number;
+/** TODO: Add comment */
+export type ImGuiConfigFlags = number;
+/** TODO: Add comment */
+export type ImGuiComboFlags = number;
+/** TODO: Add comment */
+export type ImGuiDockNodeFlags = number;
+/** TODO: Add comment */
+export type ImGuiDragDropFlags = number;
+/** TODO: Add comment */
+export type ImGuiFocusedFlags = number;
+/** TODO: Add comment */
+export type ImGuiHoveredFlags = number;
+/** TODO: Add comment */
+export type ImGuiInputFlags = number;
+/** TODO: Add comment */
+export type ImGuiInputTextFlags = number;
+/** TODO: Add comment */
+export type ImGuiItemFlags = number;
+/** TODO: Add comment */
+export type ImGuiKeyChord = number;
+/** TODO: Add comment */
+export type ImGuiPopupFlags = number;
+/** TODO: Add comment */
+export type ImGuiMultiSelectFlags = number;
+/** TODO: Add comment */
+export type ImGuiSelectableFlags = number;
+/** TODO: Add comment */
+export type ImGuiSliderFlags = number;
+/** TODO: Add comment */
+export type ImGuiTabBarFlags = number;
+/** TODO: Add comment */
+export type ImGuiTabItemFlags = number;
+/** TODO: Add comment */
+export type ImGuiTableFlags = number;
+/** TODO: Add comment */
+export type ImGuiTableColumnFlags = number;
+/** TODO: Add comment */
+export type ImGuiTableRowFlags = number;
+/** TODO: Add comment */
+export type ImGuiTreeNodeFlags = number;
+/** TODO: Add comment */
+export type ImGuiViewportFlags = number;
+/** TODO: Add comment */
+export type ImGuiWindowFlags = number;
+/** TODO: Add comment */
+export type ImTextureID = BigInt;
+/** TODO: Add comment */
+export type ImDrawIdx = number;
+/** TODO: Add comment */
+export type ImWchar32 = number;
+/** TODO: Add comment */
+export type ImWchar16 = number;
+/** TODO: Add comment */
+export type ImWchar = number;
+/** TODO: Add comment */
+export type ImGuiSelectionUserData = BigInt;
+
 /* -------------------------------------------------------------------------- */
 /* 3. Structs */
 /* -------------------------------------------------------------------------- */
+
 /** Data shared among multiple draw lists (typically owned by parent ImGui context, but you may create one yourself) */
 export class ImDrawListSharedData extends StructBinding {
-    constructor() {
-        super("ImDrawListSharedData");
-    }
+    constructor() { super("ImDrawListSharedData"); }
 }
+
 /** Dear ImGui context (opaque structure, unless including imgui_internal.h) */
 export class ImGuiContext extends StructBinding {
-    constructor() {
-        super("ImGuiContext");
-    }
+    constructor() { super("ImGuiContext"); }
 }
+
 /** 2D vector used to store positions, sizes etc. */
 export class ImVec2 extends StructBinding {
     constructor(x = 0, y = 0) {
-        super("ImVec2");
+        super('ImVec2');
         this.x = x;
         this.y = y;
     }
-    get x() {
-        return this._ptr.get_x();
-    }
-    set x(v) {
-        this._ptr.set_x(v);
-    }
-    get y() {
-        return this._ptr.get_y();
-    }
-    set y(v) {
-        this._ptr.set_y(v);
-    }
+    get x(): number { return this._ptr.get_x(); }
+    set x(v: number) { this._ptr.set_x(v); }
+
+    get y(): number { return this._ptr.get_y(); }
+    set y(v: number) { this._ptr.set_y(v); }
+
 }
+
 /** 4D vector used to store clipping rectangles, colors etc. */
 export class ImVec4 extends StructBinding {
     constructor(x = 0, y = 0, z = 0, w = 0) {
-        super("ImVec4");
+        super('ImVec4');
         this.x = x;
         this.y = y;
         this.z = z;
         this.w = w;
     }
-    get x() {
-        return this._ptr.get_x();
-    }
-    set x(v) {
-        this._ptr.set_x(v);
-    }
-    get y() {
-        return this._ptr.get_y();
-    }
-    set y(v) {
-        this._ptr.set_y(v);
-    }
-    get z() {
-        return this._ptr.get_z();
-    }
-    set z(v) {
-        this._ptr.set_z(v);
-    }
-    get w() {
-        return this._ptr.get_w();
-    }
-    set w(v) {
-        this._ptr.set_w(v);
-    }
+    get x(): number { return this._ptr.get_x(); }
+    set x(v: number) { this._ptr.set_x(v); }
+
+    get y(): number { return this._ptr.get_y(); }
+    set y(v: number) { this._ptr.set_y(v); }
+
+    get z(): number { return this._ptr.get_z(); }
+    set z(v: number) { this._ptr.set_z(v); }
+
+    get w(): number { return this._ptr.get_w(); }
+    set w(v: number) { this._ptr.set_w(v); }
+
 }
+
 /** Sorting specifications for a table (often handling sort specs for a single column, occasionally more) */
 export class ImGuiTableSortSpecs extends StructBinding {
-    constructor() {
-        super("ImGuiTableSortSpecs");
-    }
+    constructor() { super("ImGuiTableSortSpecs"); }
 }
+
 /** Sorting specification for one column of a table (sizeof == 12 bytes) */
 export class ImGuiTableColumnSortSpecs extends StructBinding {
-    constructor() {
-        super("ImGuiTableColumnSortSpecs");
-    }
+    constructor() { super("ImGuiTableColumnSortSpecs"); }
 }
+
 /** Runtime data for styling/colors. */
 export class ImGuiStyle extends StructBinding {
-    constructor() {
-        super("ImGuiStyle");
-    }
+    constructor() { super("ImGuiStyle"); }
     /** Global alpha applies to everything in Dear ImGui. */
-    get Alpha() {
-        return this._ptr.get_Alpha();
-    }
-    set Alpha(v) {
-        this._ptr.set_Alpha(v);
-    }
+    get Alpha(): number { return this._ptr.get_Alpha(); }
+    set Alpha(v: number) { this._ptr.set_Alpha(v); }
+
     /** Additional alpha multiplier applied by BeginDisabled(). Multiply over current value of Alpha. */
-    get DisabledAlpha() {
-        return this._ptr.get_DisabledAlpha();
-    }
-    set DisabledAlpha(v) {
-        this._ptr.set_DisabledAlpha(v);
-    }
+    get DisabledAlpha(): number { return this._ptr.get_DisabledAlpha(); }
+    set DisabledAlpha(v: number) { this._ptr.set_DisabledAlpha(v); }
+
     /** Padding within a window. */
-    get WindowPadding() {
-        return ImVec2.wrap(this._ptr.get_WindowPadding());
-    }
-    set WindowPadding(v) {
-        this._ptr.set_WindowPadding(v._ptr);
-    }
+    get WindowPadding(): ImVec2 { return ImVec2.wrap(this._ptr.get_WindowPadding()); }
+    set WindowPadding(v: ImVec2) { this._ptr.set_WindowPadding(v._ptr); }
+
     /** Radius of window corners rounding. Set to 0.0f to have rectangular windows. Large values tend to lead to variety of artifacts and are not recommended. */
-    get WindowRounding() {
-        return this._ptr.get_WindowRounding();
-    }
-    set WindowRounding(v) {
-        this._ptr.set_WindowRounding(v);
-    }
+    get WindowRounding(): number { return this._ptr.get_WindowRounding(); }
+    set WindowRounding(v: number) { this._ptr.set_WindowRounding(v); }
+
     /** Thickness of border around windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU\/GPU costly). */
-    get WindowBorderSize() {
-        return this._ptr.get_WindowBorderSize();
-    }
-    set WindowBorderSize(v) {
-        this._ptr.set_WindowBorderSize(v);
-    }
+    get WindowBorderSize(): number { return this._ptr.get_WindowBorderSize(); }
+    set WindowBorderSize(v: number) { this._ptr.set_WindowBorderSize(v); }
+
     /** Minimum window size. This is a global setting. If you want to constrain individual windows, use SetNextWindowSizeConstraints(). */
-    get WindowMinSize() {
-        return ImVec2.wrap(this._ptr.get_WindowMinSize());
-    }
-    set WindowMinSize(v) {
-        this._ptr.set_WindowMinSize(v._ptr);
-    }
+    get WindowMinSize(): ImVec2 { return ImVec2.wrap(this._ptr.get_WindowMinSize()); }
+    set WindowMinSize(v: ImVec2) { this._ptr.set_WindowMinSize(v._ptr); }
+
     /** Alignment for title bar text. Defaults to (0.0f,0.5f) for left-aligned,vertically centered. */
-    get WindowTitleAlign() {
-        return ImVec2.wrap(this._ptr.get_WindowTitleAlign());
-    }
-    set WindowTitleAlign(v) {
-        this._ptr.set_WindowTitleAlign(v._ptr);
-    }
+    get WindowTitleAlign(): ImVec2 { return ImVec2.wrap(this._ptr.get_WindowTitleAlign()); }
+    set WindowTitleAlign(v: ImVec2) { this._ptr.set_WindowTitleAlign(v._ptr); }
+
     /** Side of the collapsing\/docking button in the title bar (None\/Left\/Right). Defaults to ImGuiDir_Left. */
-    get WindowMenuButtonPosition() {
-        return this._ptr.get_WindowMenuButtonPosition();
-    }
-    set WindowMenuButtonPosition(v) {
-        this._ptr.set_WindowMenuButtonPosition(v);
-    }
+    get WindowMenuButtonPosition(): ImGuiDir { return this._ptr.get_WindowMenuButtonPosition(); }
+    set WindowMenuButtonPosition(v: ImGuiDir) { this._ptr.set_WindowMenuButtonPosition(v); }
+
     /** Radius of child window corners rounding. Set to 0.0f to have rectangular windows. */
-    get ChildRounding() {
-        return this._ptr.get_ChildRounding();
-    }
-    set ChildRounding(v) {
-        this._ptr.set_ChildRounding(v);
-    }
+    get ChildRounding(): number { return this._ptr.get_ChildRounding(); }
+    set ChildRounding(v: number) { this._ptr.set_ChildRounding(v); }
+
     /** Thickness of border around child windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU\/GPU costly). */
-    get ChildBorderSize() {
-        return this._ptr.get_ChildBorderSize();
-    }
-    set ChildBorderSize(v) {
-        this._ptr.set_ChildBorderSize(v);
-    }
+    get ChildBorderSize(): number { return this._ptr.get_ChildBorderSize(); }
+    set ChildBorderSize(v: number) { this._ptr.set_ChildBorderSize(v); }
+
     /** Radius of popup window corners rounding. (Note that tooltip windows use WindowRounding) */
-    get PopupRounding() {
-        return this._ptr.get_PopupRounding();
-    }
-    set PopupRounding(v) {
-        this._ptr.set_PopupRounding(v);
-    }
+    get PopupRounding(): number { return this._ptr.get_PopupRounding(); }
+    set PopupRounding(v: number) { this._ptr.set_PopupRounding(v); }
+
     /** Thickness of border around popup\/tooltip windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU\/GPU costly). */
-    get PopupBorderSize() {
-        return this._ptr.get_PopupBorderSize();
-    }
-    set PopupBorderSize(v) {
-        this._ptr.set_PopupBorderSize(v);
-    }
+    get PopupBorderSize(): number { return this._ptr.get_PopupBorderSize(); }
+    set PopupBorderSize(v: number) { this._ptr.set_PopupBorderSize(v); }
+
     /** Padding within a framed rectangle (used by most widgets). */
-    get FramePadding() {
-        return ImVec2.wrap(this._ptr.get_FramePadding());
-    }
-    set FramePadding(v) {
-        this._ptr.set_FramePadding(v._ptr);
-    }
+    get FramePadding(): ImVec2 { return ImVec2.wrap(this._ptr.get_FramePadding()); }
+    set FramePadding(v: ImVec2) { this._ptr.set_FramePadding(v._ptr); }
+
     /** Radius of frame corners rounding. Set to 0.0f to have rectangular frame (used by most widgets). */
-    get FrameRounding() {
-        return this._ptr.get_FrameRounding();
-    }
-    set FrameRounding(v) {
-        this._ptr.set_FrameRounding(v);
-    }
+    get FrameRounding(): number { return this._ptr.get_FrameRounding(); }
+    set FrameRounding(v: number) { this._ptr.set_FrameRounding(v); }
+
     /** Thickness of border around frames. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU\/GPU costly). */
-    get FrameBorderSize() {
-        return this._ptr.get_FrameBorderSize();
-    }
-    set FrameBorderSize(v) {
-        this._ptr.set_FrameBorderSize(v);
-    }
+    get FrameBorderSize(): number { return this._ptr.get_FrameBorderSize(); }
+    set FrameBorderSize(v: number) { this._ptr.set_FrameBorderSize(v); }
+
     /** Horizontal and vertical spacing between widgets\/lines. */
-    get ItemSpacing() {
-        return ImVec2.wrap(this._ptr.get_ItemSpacing());
-    }
-    set ItemSpacing(v) {
-        this._ptr.set_ItemSpacing(v._ptr);
-    }
+    get ItemSpacing(): ImVec2 { return ImVec2.wrap(this._ptr.get_ItemSpacing()); }
+    set ItemSpacing(v: ImVec2) { this._ptr.set_ItemSpacing(v._ptr); }
+
     /** Horizontal and vertical spacing between within elements of a composed widget (e.g. a slider and its label). */
-    get ItemInnerSpacing() {
-        return ImVec2.wrap(this._ptr.get_ItemInnerSpacing());
-    }
-    set ItemInnerSpacing(v) {
-        this._ptr.set_ItemInnerSpacing(v._ptr);
-    }
+    get ItemInnerSpacing(): ImVec2 { return ImVec2.wrap(this._ptr.get_ItemInnerSpacing()); }
+    set ItemInnerSpacing(v: ImVec2) { this._ptr.set_ItemInnerSpacing(v._ptr); }
+
     /** Padding within a table cell. Cellpadding.x is locked for entire table. CellPadding.y may be altered between different rows. */
-    get CellPadding() {
-        return ImVec2.wrap(this._ptr.get_CellPadding());
-    }
-    set CellPadding(v) {
-        this._ptr.set_CellPadding(v._ptr);
-    }
+    get CellPadding(): ImVec2 { return ImVec2.wrap(this._ptr.get_CellPadding()); }
+    set CellPadding(v: ImVec2) { this._ptr.set_CellPadding(v._ptr); }
+
     /** Expand reactive bounding box for touch-based system where touch position is not accurate enough. Unfortunately we don't sort widgets so priority on overlap will always be given to the first widget. So don't grow this too much! */
-    get TouchExtraPadding() {
-        return ImVec2.wrap(this._ptr.get_TouchExtraPadding());
-    }
-    set TouchExtraPadding(v) {
-        this._ptr.set_TouchExtraPadding(v._ptr);
-    }
+    get TouchExtraPadding(): ImVec2 { return ImVec2.wrap(this._ptr.get_TouchExtraPadding()); }
+    set TouchExtraPadding(v: ImVec2) { this._ptr.set_TouchExtraPadding(v._ptr); }
+
     /** Horizontal indentation when e.g. entering a tree node. Generally == (FontSize + FramePadding.x*2). */
-    get IndentSpacing() {
-        return this._ptr.get_IndentSpacing();
-    }
-    set IndentSpacing(v) {
-        this._ptr.set_IndentSpacing(v);
-    }
+    get IndentSpacing(): number { return this._ptr.get_IndentSpacing(); }
+    set IndentSpacing(v: number) { this._ptr.set_IndentSpacing(v); }
+
     /** Minimum horizontal spacing between two columns. Preferably > (FramePadding.x + 1). */
-    get ColumnsMinSpacing() {
-        return this._ptr.get_ColumnsMinSpacing();
-    }
-    set ColumnsMinSpacing(v) {
-        this._ptr.set_ColumnsMinSpacing(v);
-    }
+    get ColumnsMinSpacing(): number { return this._ptr.get_ColumnsMinSpacing(); }
+    set ColumnsMinSpacing(v: number) { this._ptr.set_ColumnsMinSpacing(v); }
+
     /** Width of the vertical scrollbar, Height of the horizontal scrollbar. */
-    get ScrollbarSize() {
-        return this._ptr.get_ScrollbarSize();
-    }
-    set ScrollbarSize(v) {
-        this._ptr.set_ScrollbarSize(v);
-    }
+    get ScrollbarSize(): number { return this._ptr.get_ScrollbarSize(); }
+    set ScrollbarSize(v: number) { this._ptr.set_ScrollbarSize(v); }
+
     /** Radius of grab corners for scrollbar. */
-    get ScrollbarRounding() {
-        return this._ptr.get_ScrollbarRounding();
-    }
-    set ScrollbarRounding(v) {
-        this._ptr.set_ScrollbarRounding(v);
-    }
+    get ScrollbarRounding(): number { return this._ptr.get_ScrollbarRounding(); }
+    set ScrollbarRounding(v: number) { this._ptr.set_ScrollbarRounding(v); }
+
     /** Minimum width\/height of a grab box for slider\/scrollbar. */
-    get GrabMinSize() {
-        return this._ptr.get_GrabMinSize();
-    }
-    set GrabMinSize(v) {
-        this._ptr.set_GrabMinSize(v);
-    }
+    get GrabMinSize(): number { return this._ptr.get_GrabMinSize(); }
+    set GrabMinSize(v: number) { this._ptr.set_GrabMinSize(v); }
+
     /** Radius of grabs corners rounding. Set to 0.0f to have rectangular slider grabs. */
-    get GrabRounding() {
-        return this._ptr.get_GrabRounding();
-    }
-    set GrabRounding(v) {
-        this._ptr.set_GrabRounding(v);
-    }
+    get GrabRounding(): number { return this._ptr.get_GrabRounding(); }
+    set GrabRounding(v: number) { this._ptr.set_GrabRounding(v); }
+
     /** The size in pixels of the dead-zone around zero on logarithmic sliders that cross zero. */
-    get LogSliderDeadzone() {
-        return this._ptr.get_LogSliderDeadzone();
-    }
-    set LogSliderDeadzone(v) {
-        this._ptr.set_LogSliderDeadzone(v);
-    }
+    get LogSliderDeadzone(): number { return this._ptr.get_LogSliderDeadzone(); }
+    set LogSliderDeadzone(v: number) { this._ptr.set_LogSliderDeadzone(v); }
+
     /** Radius of upper corners of a tab. Set to 0.0f to have rectangular tabs. */
-    get TabRounding() {
-        return this._ptr.get_TabRounding();
-    }
-    set TabRounding(v) {
-        this._ptr.set_TabRounding(v);
-    }
+    get TabRounding(): number { return this._ptr.get_TabRounding(); }
+    set TabRounding(v: number) { this._ptr.set_TabRounding(v); }
+
     /** Thickness of border around tabs. */
-    get TabBorderSize() {
-        return this._ptr.get_TabBorderSize();
-    }
-    set TabBorderSize(v) {
-        this._ptr.set_TabBorderSize(v);
-    }
+    get TabBorderSize(): number { return this._ptr.get_TabBorderSize(); }
+    set TabBorderSize(v: number) { this._ptr.set_TabBorderSize(v); }
+
     /** Minimum width for close button to appear on an unselected tab when hovered. Set to 0.0f to always show when hovering, set to FLT_MAX to never show close button unless selected. */
-    get TabMinWidthForCloseButton() {
-        return this._ptr.get_TabMinWidthForCloseButton();
-    }
-    set TabMinWidthForCloseButton(v) {
-        this._ptr.set_TabMinWidthForCloseButton(v);
-    }
+    get TabMinWidthForCloseButton(): number { return this._ptr.get_TabMinWidthForCloseButton(); }
+    set TabMinWidthForCloseButton(v: number) { this._ptr.set_TabMinWidthForCloseButton(v); }
+
     /** Thickness of tab-bar separator, which takes on the tab active color to denote focus. */
-    get TabBarBorderSize() {
-        return this._ptr.get_TabBarBorderSize();
-    }
-    set TabBarBorderSize(v) {
-        this._ptr.set_TabBarBorderSize(v);
-    }
+    get TabBarBorderSize(): number { return this._ptr.get_TabBarBorderSize(); }
+    set TabBarBorderSize(v: number) { this._ptr.set_TabBarBorderSize(v); }
+
     /** Thickness of tab-bar overline, which highlights the selected tab-bar. */
-    get TabBarOverlineSize() {
-        return this._ptr.get_TabBarOverlineSize();
-    }
-    set TabBarOverlineSize(v) {
-        this._ptr.set_TabBarOverlineSize(v);
-    }
+    get TabBarOverlineSize(): number { return this._ptr.get_TabBarOverlineSize(); }
+    set TabBarOverlineSize(v: number) { this._ptr.set_TabBarOverlineSize(v); }
+
     /** Angle of angled headers (supported values range from -50.0f degrees to +50.0f degrees). */
-    get TableAngledHeadersAngle() {
-        return this._ptr.get_TableAngledHeadersAngle();
-    }
-    set TableAngledHeadersAngle(v) {
-        this._ptr.set_TableAngledHeadersAngle(v);
-    }
+    get TableAngledHeadersAngle(): number { return this._ptr.get_TableAngledHeadersAngle(); }
+    set TableAngledHeadersAngle(v: number) { this._ptr.set_TableAngledHeadersAngle(v); }
+
     /** Alignment of angled headers within the cell */
-    get TableAngledHeadersTextAlign() {
-        return ImVec2.wrap(this._ptr.get_TableAngledHeadersTextAlign());
-    }
-    set TableAngledHeadersTextAlign(v) {
-        this._ptr.set_TableAngledHeadersTextAlign(v._ptr);
-    }
+    get TableAngledHeadersTextAlign(): ImVec2 { return ImVec2.wrap(this._ptr.get_TableAngledHeadersTextAlign()); }
+    set TableAngledHeadersTextAlign(v: ImVec2) { this._ptr.set_TableAngledHeadersTextAlign(v._ptr); }
+
     /** Side of the color button in the ColorEdit4 widget (left\/right). Defaults to ImGuiDir_Right. */
-    get ColorButtonPosition() {
-        return this._ptr.get_ColorButtonPosition();
-    }
-    set ColorButtonPosition(v) {
-        this._ptr.set_ColorButtonPosition(v);
-    }
+    get ColorButtonPosition(): ImGuiDir { return this._ptr.get_ColorButtonPosition(); }
+    set ColorButtonPosition(v: ImGuiDir) { this._ptr.set_ColorButtonPosition(v); }
+
     /** Alignment of button text when button is larger than text. Defaults to (0.5f, 0.5f) (centered). */
-    get ButtonTextAlign() {
-        return ImVec2.wrap(this._ptr.get_ButtonTextAlign());
-    }
-    set ButtonTextAlign(v) {
-        this._ptr.set_ButtonTextAlign(v._ptr);
-    }
+    get ButtonTextAlign(): ImVec2 { return ImVec2.wrap(this._ptr.get_ButtonTextAlign()); }
+    set ButtonTextAlign(v: ImVec2) { this._ptr.set_ButtonTextAlign(v._ptr); }
+
     /** Alignment of selectable text. Defaults to (0.0f, 0.0f) (top-left aligned). It's generally important to keep this left-aligned if you want to lay multiple items on a same line. */
-    get SelectableTextAlign() {
-        return ImVec2.wrap(this._ptr.get_SelectableTextAlign());
-    }
-    set SelectableTextAlign(v) {
-        this._ptr.set_SelectableTextAlign(v._ptr);
-    }
+    get SelectableTextAlign(): ImVec2 { return ImVec2.wrap(this._ptr.get_SelectableTextAlign()); }
+    set SelectableTextAlign(v: ImVec2) { this._ptr.set_SelectableTextAlign(v._ptr); }
+
     /** Thickness of border in SeparatorText() */
-    get SeparatorTextBorderSize() {
-        return this._ptr.get_SeparatorTextBorderSize();
-    }
-    set SeparatorTextBorderSize(v) {
-        this._ptr.set_SeparatorTextBorderSize(v);
-    }
+    get SeparatorTextBorderSize(): number { return this._ptr.get_SeparatorTextBorderSize(); }
+    set SeparatorTextBorderSize(v: number) { this._ptr.set_SeparatorTextBorderSize(v); }
+
     /** Alignment of text within the separator. Defaults to (0.0f, 0.5f) (left aligned, center). */
-    get SeparatorTextAlign() {
-        return ImVec2.wrap(this._ptr.get_SeparatorTextAlign());
-    }
-    set SeparatorTextAlign(v) {
-        this._ptr.set_SeparatorTextAlign(v._ptr);
-    }
+    get SeparatorTextAlign(): ImVec2 { return ImVec2.wrap(this._ptr.get_SeparatorTextAlign()); }
+    set SeparatorTextAlign(v: ImVec2) { this._ptr.set_SeparatorTextAlign(v._ptr); }
+
     /** Horizontal offset of text from each edge of the separator + spacing on other axis. Generally small values. .y is recommended to be == FramePadding.y. */
-    get SeparatorTextPadding() {
-        return ImVec2.wrap(this._ptr.get_SeparatorTextPadding());
-    }
-    set SeparatorTextPadding(v) {
-        this._ptr.set_SeparatorTextPadding(v._ptr);
-    }
+    get SeparatorTextPadding(): ImVec2 { return ImVec2.wrap(this._ptr.get_SeparatorTextPadding()); }
+    set SeparatorTextPadding(v: ImVec2) { this._ptr.set_SeparatorTextPadding(v._ptr); }
+
     /** Apply to regular windows: amount which we enforce to keep visible when moving near edges of your screen. */
-    get DisplayWindowPadding() {
-        return ImVec2.wrap(this._ptr.get_DisplayWindowPadding());
-    }
-    set DisplayWindowPadding(v) {
-        this._ptr.set_DisplayWindowPadding(v._ptr);
-    }
+    get DisplayWindowPadding(): ImVec2 { return ImVec2.wrap(this._ptr.get_DisplayWindowPadding()); }
+    set DisplayWindowPadding(v: ImVec2) { this._ptr.set_DisplayWindowPadding(v._ptr); }
+
     /** Apply to every windows, menus, popups, tooltips: amount where we avoid displaying contents. Adjust if you cannot see the edges of your screen (e.g. on a TV where scaling has not been configured). */
-    get DisplaySafeAreaPadding() {
-        return ImVec2.wrap(this._ptr.get_DisplaySafeAreaPadding());
-    }
-    set DisplaySafeAreaPadding(v) {
-        this._ptr.set_DisplaySafeAreaPadding(v._ptr);
-    }
+    get DisplaySafeAreaPadding(): ImVec2 { return ImVec2.wrap(this._ptr.get_DisplaySafeAreaPadding()); }
+    set DisplaySafeAreaPadding(v: ImVec2) { this._ptr.set_DisplaySafeAreaPadding(v._ptr); }
+
     /** Thickness of resizing border between docked windows */
-    get DockingSeparatorSize() {
-        return this._ptr.get_DockingSeparatorSize();
-    }
-    set DockingSeparatorSize(v) {
-        this._ptr.set_DockingSeparatorSize(v);
-    }
+    get DockingSeparatorSize(): number { return this._ptr.get_DockingSeparatorSize(); }
+    set DockingSeparatorSize(v: number) { this._ptr.set_DockingSeparatorSize(v); }
+
     /** Scale software rendered mouse cursor (when io.MouseDrawCursor is enabled). We apply per-monitor DPI scaling over this scale. May be removed later. */
-    get MouseCursorScale() {
-        return this._ptr.get_MouseCursorScale();
-    }
-    set MouseCursorScale(v) {
-        this._ptr.set_MouseCursorScale(v);
-    }
+    get MouseCursorScale(): number { return this._ptr.get_MouseCursorScale(); }
+    set MouseCursorScale(v: number) { this._ptr.set_MouseCursorScale(v); }
+
     /** Enable anti-aliased lines\/borders. Disable if you are really tight on CPU\/GPU. Latched at the beginning of the frame (copied to ImDrawList). */
-    get AntiAliasedLines() {
-        return this._ptr.get_AntiAliasedLines();
-    }
-    set AntiAliasedLines(v) {
-        this._ptr.set_AntiAliasedLines(v);
-    }
+    get AntiAliasedLines(): boolean { return this._ptr.get_AntiAliasedLines(); }
+    set AntiAliasedLines(v: boolean) { this._ptr.set_AntiAliasedLines(v); }
+
     /** Enable anti-aliased lines\/borders using textures where possible. Require backend to render with bilinear filtering (NOT point\/nearest filtering). Latched at the beginning of the frame (copied to ImDrawList). */
-    get AntiAliasedLinesUseTex() {
-        return this._ptr.get_AntiAliasedLinesUseTex();
-    }
-    set AntiAliasedLinesUseTex(v) {
-        this._ptr.set_AntiAliasedLinesUseTex(v);
-    }
+    get AntiAliasedLinesUseTex(): boolean { return this._ptr.get_AntiAliasedLinesUseTex(); }
+    set AntiAliasedLinesUseTex(v: boolean) { this._ptr.set_AntiAliasedLinesUseTex(v); }
+
     /** Enable anti-aliased edges around filled shapes (rounded rectangles, circles, etc.). Disable if you are really tight on CPU\/GPU. Latched at the beginning of the frame (copied to ImDrawList). */
-    get AntiAliasedFill() {
-        return this._ptr.get_AntiAliasedFill();
-    }
-    set AntiAliasedFill(v) {
-        this._ptr.set_AntiAliasedFill(v);
-    }
+    get AntiAliasedFill(): boolean { return this._ptr.get_AntiAliasedFill(); }
+    set AntiAliasedFill(v: boolean) { this._ptr.set_AntiAliasedFill(v); }
+
     /** Tessellation tolerance when using PathBezierCurveTo() without a specific number of segments. Decrease for highly tessellated curves (higher quality, more polygons), increase to reduce quality. */
-    get CurveTessellationTol() {
-        return this._ptr.get_CurveTessellationTol();
-    }
-    set CurveTessellationTol(v) {
-        this._ptr.set_CurveTessellationTol(v);
-    }
+    get CurveTessellationTol(): number { return this._ptr.get_CurveTessellationTol(); }
+    set CurveTessellationTol(v: number) { this._ptr.set_CurveTessellationTol(v); }
+
     /** Maximum error (in pixels) allowed when using AddCircle()\/AddCircleFilled() or drawing rounded corner rectangles with no explicit segment count specified. Decrease for higher quality but more geometry. */
-    get CircleTessellationMaxError() {
-        return this._ptr.get_CircleTessellationMaxError();
-    }
-    set CircleTessellationMaxError(v) {
-        this._ptr.set_CircleTessellationMaxError(v);
-    }
+    get CircleTessellationMaxError(): number { return this._ptr.get_CircleTessellationMaxError(); }
+    set CircleTessellationMaxError(v: number) { this._ptr.set_CircleTessellationMaxError(v); }
+
     /** Delay for IsItemHovered(ImGuiHoveredFlags_Stationary). Time required to consider mouse stationary. */
-    get HoverStationaryDelay() {
-        return this._ptr.get_HoverStationaryDelay();
-    }
-    set HoverStationaryDelay(v) {
-        this._ptr.set_HoverStationaryDelay(v);
-    }
+    get HoverStationaryDelay(): number { return this._ptr.get_HoverStationaryDelay(); }
+    set HoverStationaryDelay(v: number) { this._ptr.set_HoverStationaryDelay(v); }
+
     /** Delay for IsItemHovered(ImGuiHoveredFlags_DelayShort). Usually used along with HoverStationaryDelay. */
-    get HoverDelayShort() {
-        return this._ptr.get_HoverDelayShort();
-    }
-    set HoverDelayShort(v) {
-        this._ptr.set_HoverDelayShort(v);
-    }
+    get HoverDelayShort(): number { return this._ptr.get_HoverDelayShort(); }
+    set HoverDelayShort(v: number) { this._ptr.set_HoverDelayShort(v); }
+
     /** Delay for IsItemHovered(ImGuiHoveredFlags_DelayNormal). " */
-    get HoverDelayNormal() {
-        return this._ptr.get_HoverDelayNormal();
-    }
-    set HoverDelayNormal(v) {
-        this._ptr.set_HoverDelayNormal(v);
-    }
+    get HoverDelayNormal(): number { return this._ptr.get_HoverDelayNormal(); }
+    set HoverDelayNormal(v: number) { this._ptr.set_HoverDelayNormal(v); }
+
     /** Default flags when using IsItemHovered(ImGuiHoveredFlags_ForTooltip) or BeginItemTooltip()\/SetItemTooltip() while using mouse. */
-    get HoverFlagsForTooltipMouse() {
-        return this._ptr.get_HoverFlagsForTooltipMouse();
-    }
-    set HoverFlagsForTooltipMouse(v) {
-        this._ptr.set_HoverFlagsForTooltipMouse(v);
-    }
+    get HoverFlagsForTooltipMouse(): ImGuiHoveredFlags { return this._ptr.get_HoverFlagsForTooltipMouse(); }
+    set HoverFlagsForTooltipMouse(v: ImGuiHoveredFlags) { this._ptr.set_HoverFlagsForTooltipMouse(v); }
+
     /** Default flags when using IsItemHovered(ImGuiHoveredFlags_ForTooltip) or BeginItemTooltip()\/SetItemTooltip() while using keyboard\/gamepad. */
-    get HoverFlagsForTooltipNav() {
-        return this._ptr.get_HoverFlagsForTooltipNav();
-    }
-    set HoverFlagsForTooltipNav(v) {
-        this._ptr.set_HoverFlagsForTooltipNav(v);
-    }
-    ScaleAllSizes(scale_factor) {
-        return this._ptr.ImGuiStyle_ScaleAllSizes(scale_factor);
-    }
+    get HoverFlagsForTooltipNav(): ImGuiHoveredFlags { return this._ptr.get_HoverFlagsForTooltipNav(); }
+    set HoverFlagsForTooltipNav(v: ImGuiHoveredFlags) { this._ptr.set_HoverFlagsForTooltipNav(v); }
+
+    ScaleAllSizes(scale_factor: number): void { return this._ptr.ImGuiStyle_ScaleAllSizes(scale_factor); }
+
 }
+
 /** Main configuration and I/O between your application and ImGui. */
 export class ImGuiIO extends StructBinding {
-    constructor() {
-        super("ImGuiIO");
-    }
+    constructor() { super("ImGuiIO"); }
     /** = 0              \/\/ See ImGuiConfigFlags_ enum. Set by user\/application. Keyboard\/Gamepad navigation options, etc. */
-    get ConfigFlags() {
-        return this._ptr.get_ConfigFlags();
-    }
-    set ConfigFlags(v) {
-        this._ptr.set_ConfigFlags(v);
-    }
+    get ConfigFlags(): ImGuiConfigFlags { return this._ptr.get_ConfigFlags(); }
+    set ConfigFlags(v: ImGuiConfigFlags) { this._ptr.set_ConfigFlags(v); }
+
     /** = 0              \/\/ See ImGuiBackendFlags_ enum. Set by backend (imgui_impl_xxx files or custom backend) to communicate features supported by the backend. */
-    get BackendFlags() {
-        return this._ptr.get_BackendFlags();
-    }
-    set BackendFlags(v) {
-        this._ptr.set_BackendFlags(v);
-    }
+    get BackendFlags(): ImGuiBackendFlags { return this._ptr.get_BackendFlags(); }
+    set BackendFlags(v: ImGuiBackendFlags) { this._ptr.set_BackendFlags(v); }
+
     /** <unset>          \/\/ Main display size, in pixels (generally == GetMainViewport()->Size). May change every frame. */
-    get DisplaySize() {
-        return ImVec2.wrap(this._ptr.get_DisplaySize());
-    }
-    set DisplaySize(v) {
-        this._ptr.set_DisplaySize(v._ptr);
-    }
+    get DisplaySize(): ImVec2 { return ImVec2.wrap(this._ptr.get_DisplaySize()); }
+    set DisplaySize(v: ImVec2) { this._ptr.set_DisplaySize(v._ptr); }
+
     /** = 1.0f\/60.0f     \/\/ Time elapsed since last frame, in seconds. May change every frame. */
-    get DeltaTime() {
-        return this._ptr.get_DeltaTime();
-    }
-    set DeltaTime(v) {
-        this._ptr.set_DeltaTime(v);
-    }
+    get DeltaTime(): number { return this._ptr.get_DeltaTime(); }
+    set DeltaTime(v: number) { this._ptr.set_DeltaTime(v); }
+
     /** = 5.0f           \/\/ Minimum time between saving positions\/sizes to .ini file, in seconds. */
-    get IniSavingRate() {
-        return this._ptr.get_IniSavingRate();
-    }
-    set IniSavingRate(v) {
-        this._ptr.set_IniSavingRate(v);
-    }
+    get IniSavingRate(): number { return this._ptr.get_IniSavingRate(); }
+    set IniSavingRate(v: number) { this._ptr.set_IniSavingRate(v); }
+
     /** <auto>           \/\/ Font atlas: load, rasterize and pack one or more fonts into a single texture. */
-    get Fonts() {
-        return ImFontAtlas.wrap(this._ptr.get_Fonts());
-    }
-    set Fonts(v) {
-        this._ptr.set_Fonts(v._ptr);
-    }
+    get Fonts(): ImFontAtlas { return ImFontAtlas.wrap(this._ptr.get_Fonts()); }
+    set Fonts(v: ImFontAtlas) { this._ptr.set_Fonts(v._ptr); }
+
     /** = 1.0f           \/\/ Global scale all fonts */
-    get FontGlobalScale() {
-        return this._ptr.get_FontGlobalScale();
-    }
-    set FontGlobalScale(v) {
-        this._ptr.set_FontGlobalScale(v);
-    }
+    get FontGlobalScale(): number { return this._ptr.get_FontGlobalScale(); }
+    set FontGlobalScale(v: number) { this._ptr.set_FontGlobalScale(v); }
+
     /** = false          \/\/ [OBSOLETE] Allow user scaling text of individual window with CTRL+Wheel. */
-    get FontAllowUserScaling() {
-        return this._ptr.get_FontAllowUserScaling();
-    }
-    set FontAllowUserScaling(v) {
-        this._ptr.set_FontAllowUserScaling(v);
-    }
+    get FontAllowUserScaling(): boolean { return this._ptr.get_FontAllowUserScaling(); }
+    set FontAllowUserScaling(v: boolean) { this._ptr.set_FontAllowUserScaling(v); }
+
     /** = NULL           \/\/ Font to use on NewFrame(). Use NULL to uses Fonts->Fonts[0]. */
-    get FontDefault() {
-        return ImFont.wrap(this._ptr.get_FontDefault());
-    }
-    set FontDefault(v) {
-        this._ptr.set_FontDefault(v._ptr);
-    }
+    get FontDefault(): ImFont { return ImFont.wrap(this._ptr.get_FontDefault()); }
+    set FontDefault(v: ImFont) { this._ptr.set_FontDefault(v._ptr); }
+
     /** = (1, 1)         \/\/ For retina display or other situations where window coordinates are different from framebuffer coordinates. This generally ends up in ImDrawData::FramebufferScale. */
-    get DisplayFramebufferScale() {
-        return ImVec2.wrap(this._ptr.get_DisplayFramebufferScale());
-    }
-    set DisplayFramebufferScale(v) {
-        this._ptr.set_DisplayFramebufferScale(v._ptr);
-    }
+    get DisplayFramebufferScale(): ImVec2 { return ImVec2.wrap(this._ptr.get_DisplayFramebufferScale()); }
+    set DisplayFramebufferScale(v: ImVec2) { this._ptr.set_DisplayFramebufferScale(v._ptr); }
+
     /** = false          \/\/ Swap Activate<>Cancel (A<>B) buttons, matching typical "Nintendo\/Japanese style" gamepad layout. */
-    get ConfigNavSwapGamepadButtons() {
-        return this._ptr.get_ConfigNavSwapGamepadButtons();
-    }
-    set ConfigNavSwapGamepadButtons(v) {
-        this._ptr.set_ConfigNavSwapGamepadButtons(v);
-    }
+    get ConfigNavSwapGamepadButtons(): boolean { return this._ptr.get_ConfigNavSwapGamepadButtons(); }
+    set ConfigNavSwapGamepadButtons(v: boolean) { this._ptr.set_ConfigNavSwapGamepadButtons(v); }
+
     /** = false          \/\/ Directional\/tabbing navigation teleports the mouse cursor. May be useful on TV\/console systems where moving a virtual mouse is difficult. Will update io.MousePos and set io.WantSetMousePos=true. */
-    get ConfigNavMoveSetMousePos() {
-        return this._ptr.get_ConfigNavMoveSetMousePos();
-    }
-    set ConfigNavMoveSetMousePos(v) {
-        this._ptr.set_ConfigNavMoveSetMousePos(v);
-    }
+    get ConfigNavMoveSetMousePos(): boolean { return this._ptr.get_ConfigNavMoveSetMousePos(); }
+    set ConfigNavMoveSetMousePos(v: boolean) { this._ptr.set_ConfigNavMoveSetMousePos(v); }
+
     /** = true           \/\/ Sets io.WantCaptureKeyboard when io.NavActive is set. */
-    get ConfigNavCaptureKeyboard() {
-        return this._ptr.get_ConfigNavCaptureKeyboard();
-    }
-    set ConfigNavCaptureKeyboard(v) {
-        this._ptr.set_ConfigNavCaptureKeyboard(v);
-    }
+    get ConfigNavCaptureKeyboard(): boolean { return this._ptr.get_ConfigNavCaptureKeyboard(); }
+    set ConfigNavCaptureKeyboard(v: boolean) { this._ptr.set_ConfigNavCaptureKeyboard(v); }
+
     /** = true           \/\/ Pressing Escape can clear focused item + navigation id\/highlight. Set to false if you want to always keep highlight on. */
-    get ConfigNavEscapeClearFocusItem() {
-        return this._ptr.get_ConfigNavEscapeClearFocusItem();
-    }
-    set ConfigNavEscapeClearFocusItem(v) {
-        this._ptr.set_ConfigNavEscapeClearFocusItem(v);
-    }
+    get ConfigNavEscapeClearFocusItem(): boolean { return this._ptr.get_ConfigNavEscapeClearFocusItem(); }
+    set ConfigNavEscapeClearFocusItem(v: boolean) { this._ptr.set_ConfigNavEscapeClearFocusItem(v); }
+
     /** = false          \/\/ Pressing Escape can clear focused window as well (super set of io.ConfigNavEscapeClearFocusItem). */
-    get ConfigNavEscapeClearFocusWindow() {
-        return this._ptr.get_ConfigNavEscapeClearFocusWindow();
-    }
-    set ConfigNavEscapeClearFocusWindow(v) {
-        this._ptr.set_ConfigNavEscapeClearFocusWindow(v);
-    }
+    get ConfigNavEscapeClearFocusWindow(): boolean { return this._ptr.get_ConfigNavEscapeClearFocusWindow(); }
+    set ConfigNavEscapeClearFocusWindow(v: boolean) { this._ptr.set_ConfigNavEscapeClearFocusWindow(v); }
+
     /** = true           \/\/ Using directional navigation key makes the cursor visible. Mouse click hides the cursor. */
-    get ConfigNavCursorVisibleAuto() {
-        return this._ptr.get_ConfigNavCursorVisibleAuto();
-    }
-    set ConfigNavCursorVisibleAuto(v) {
-        this._ptr.set_ConfigNavCursorVisibleAuto(v);
-    }
+    get ConfigNavCursorVisibleAuto(): boolean { return this._ptr.get_ConfigNavCursorVisibleAuto(); }
+    set ConfigNavCursorVisibleAuto(v: boolean) { this._ptr.set_ConfigNavCursorVisibleAuto(v); }
+
     /** = false          \/\/ Navigation cursor is always visible. */
-    get ConfigNavCursorVisibleAlways() {
-        return this._ptr.get_ConfigNavCursorVisibleAlways();
-    }
-    set ConfigNavCursorVisibleAlways(v) {
-        this._ptr.set_ConfigNavCursorVisibleAlways(v);
-    }
+    get ConfigNavCursorVisibleAlways(): boolean { return this._ptr.get_ConfigNavCursorVisibleAlways(); }
+    set ConfigNavCursorVisibleAlways(v: boolean) { this._ptr.set_ConfigNavCursorVisibleAlways(v); }
+
     /** = false          \/\/ Simplified docking mode: disable window splitting, so docking is limited to merging multiple windows together into tab-bars. */
-    get ConfigDockingNoSplit() {
-        return this._ptr.get_ConfigDockingNoSplit();
-    }
-    set ConfigDockingNoSplit(v) {
-        this._ptr.set_ConfigDockingNoSplit(v);
-    }
+    get ConfigDockingNoSplit(): boolean { return this._ptr.get_ConfigDockingNoSplit(); }
+    set ConfigDockingNoSplit(v: boolean) { this._ptr.set_ConfigDockingNoSplit(v); }
+
     /** = false          \/\/ Enable docking with holding Shift key (reduce visual noise, allows dropping in wider space) */
-    get ConfigDockingWithShift() {
-        return this._ptr.get_ConfigDockingWithShift();
-    }
-    set ConfigDockingWithShift(v) {
-        this._ptr.set_ConfigDockingWithShift(v);
-    }
+    get ConfigDockingWithShift(): boolean { return this._ptr.get_ConfigDockingWithShift(); }
+    set ConfigDockingWithShift(v: boolean) { this._ptr.set_ConfigDockingWithShift(v); }
+
     /** = false          \/\/ [BETA] [FIXME: This currently creates regression with auto-sizing and general overhead] Make every single floating window display within a docking node. */
-    get ConfigDockingAlwaysTabBar() {
-        return this._ptr.get_ConfigDockingAlwaysTabBar();
-    }
-    set ConfigDockingAlwaysTabBar(v) {
-        this._ptr.set_ConfigDockingAlwaysTabBar(v);
-    }
+    get ConfigDockingAlwaysTabBar(): boolean { return this._ptr.get_ConfigDockingAlwaysTabBar(); }
+    set ConfigDockingAlwaysTabBar(v: boolean) { this._ptr.set_ConfigDockingAlwaysTabBar(v); }
+
     /** = false          \/\/ [BETA] Make window or viewport transparent when docking and only display docking boxes on the target viewport. Useful if rendering of multiple viewport cannot be synced. Best used with ConfigViewportsNoAutoMerge. */
-    get ConfigDockingTransparentPayload() {
-        return this._ptr.get_ConfigDockingTransparentPayload();
-    }
-    set ConfigDockingTransparentPayload(v) {
-        this._ptr.set_ConfigDockingTransparentPayload(v);
-    }
+    get ConfigDockingTransparentPayload(): boolean { return this._ptr.get_ConfigDockingTransparentPayload(); }
+    set ConfigDockingTransparentPayload(v: boolean) { this._ptr.set_ConfigDockingTransparentPayload(v); }
+
     /** = false;         \/\/ Set to make all floating imgui windows always create their own viewport. Otherwise, they are merged into the main host viewports when overlapping it. May also set ImGuiViewportFlags_NoAutoMerge on individual viewport. */
-    get ConfigViewportsNoAutoMerge() {
-        return this._ptr.get_ConfigViewportsNoAutoMerge();
-    }
-    set ConfigViewportsNoAutoMerge(v) {
-        this._ptr.set_ConfigViewportsNoAutoMerge(v);
-    }
+    get ConfigViewportsNoAutoMerge(): boolean { return this._ptr.get_ConfigViewportsNoAutoMerge(); }
+    set ConfigViewportsNoAutoMerge(v: boolean) { this._ptr.set_ConfigViewportsNoAutoMerge(v); }
+
     /** = false          \/\/ Disable default OS task bar icon flag for secondary viewports. When a viewport doesn't want a task bar icon, ImGuiViewportFlags_NoTaskBarIcon will be set on it. */
-    get ConfigViewportsNoTaskBarIcon() {
-        return this._ptr.get_ConfigViewportsNoTaskBarIcon();
-    }
-    set ConfigViewportsNoTaskBarIcon(v) {
-        this._ptr.set_ConfigViewportsNoTaskBarIcon(v);
-    }
+    get ConfigViewportsNoTaskBarIcon(): boolean { return this._ptr.get_ConfigViewportsNoTaskBarIcon(); }
+    set ConfigViewportsNoTaskBarIcon(v: boolean) { this._ptr.set_ConfigViewportsNoTaskBarIcon(v); }
+
     /** = true           \/\/ Disable default OS window decoration flag for secondary viewports. When a viewport doesn't want window decorations, ImGuiViewportFlags_NoDecoration will be set on it. Enabling decoration can create subsequent issues at OS levels (e.g. minimum window size). */
-    get ConfigViewportsNoDecoration() {
-        return this._ptr.get_ConfigViewportsNoDecoration();
-    }
-    set ConfigViewportsNoDecoration(v) {
-        this._ptr.set_ConfigViewportsNoDecoration(v);
-    }
+    get ConfigViewportsNoDecoration(): boolean { return this._ptr.get_ConfigViewportsNoDecoration(); }
+    set ConfigViewportsNoDecoration(v: boolean) { this._ptr.set_ConfigViewportsNoDecoration(v); }
+
     /** = false          \/\/ Disable default OS parenting to main viewport for secondary viewports. By default, viewports are marked with ParentViewportId = <main_viewport>, expecting the platform backend to setup a parent\/child relationship between the OS windows (some backend may ignore this). Set to true if you want the default to be 0, then all viewports will be top-level OS windows. */
-    get ConfigViewportsNoDefaultParent() {
-        return this._ptr.get_ConfigViewportsNoDefaultParent();
-    }
-    set ConfigViewportsNoDefaultParent(v) {
-        this._ptr.set_ConfigViewportsNoDefaultParent(v);
-    }
+    get ConfigViewportsNoDefaultParent(): boolean { return this._ptr.get_ConfigViewportsNoDefaultParent(); }
+    set ConfigViewportsNoDefaultParent(v: boolean) { this._ptr.set_ConfigViewportsNoDefaultParent(v); }
+
     /** = false          \/\/ Request ImGui to draw a mouse cursor for you (if you are on a platform without a mouse cursor). Cannot be easily renamed to 'io.ConfigXXX' because this is frequently used by backend implementations. */
-    get MouseDrawCursor() {
-        return this._ptr.get_MouseDrawCursor();
-    }
-    set MouseDrawCursor(v) {
-        this._ptr.set_MouseDrawCursor(v);
-    }
+    get MouseDrawCursor(): boolean { return this._ptr.get_MouseDrawCursor(); }
+    set MouseDrawCursor(v: boolean) { this._ptr.set_MouseDrawCursor(v); }
+
     /** = defined(__APPLE__) \/\/ Swap Cmd<>Ctrl keys + OS X style text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd\/Super instead of Ctrl, Line\/Text Start and End using Cmd+Arrows instead of Home\/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd\/Super instead of Ctrl. */
-    get ConfigMacOSXBehaviors() {
-        return this._ptr.get_ConfigMacOSXBehaviors();
-    }
-    set ConfigMacOSXBehaviors(v) {
-        this._ptr.set_ConfigMacOSXBehaviors(v);
-    }
+    get ConfigMacOSXBehaviors(): boolean { return this._ptr.get_ConfigMacOSXBehaviors(); }
+    set ConfigMacOSXBehaviors(v: boolean) { this._ptr.set_ConfigMacOSXBehaviors(v); }
+
     /** = true           \/\/ Enable input queue trickling: some types of events submitted during the same frame (e.g. button down + up) will be spread over multiple frames, improving interactions with low framerates. */
-    get ConfigInputTrickleEventQueue() {
-        return this._ptr.get_ConfigInputTrickleEventQueue();
-    }
-    set ConfigInputTrickleEventQueue(v) {
-        this._ptr.set_ConfigInputTrickleEventQueue(v);
-    }
+    get ConfigInputTrickleEventQueue(): boolean { return this._ptr.get_ConfigInputTrickleEventQueue(); }
+    set ConfigInputTrickleEventQueue(v: boolean) { this._ptr.set_ConfigInputTrickleEventQueue(v); }
+
     /** = true           \/\/ Enable blinking cursor (optional as some users consider it to be distracting). */
-    get ConfigInputTextCursorBlink() {
-        return this._ptr.get_ConfigInputTextCursorBlink();
-    }
-    set ConfigInputTextCursorBlink(v) {
-        this._ptr.set_ConfigInputTextCursorBlink(v);
-    }
+    get ConfigInputTextCursorBlink(): boolean { return this._ptr.get_ConfigInputTextCursorBlink(); }
+    set ConfigInputTextCursorBlink(v: boolean) { this._ptr.set_ConfigInputTextCursorBlink(v); }
+
     /** = false          \/\/ [BETA] Pressing Enter will keep item active and select contents (single-line only). */
-    get ConfigInputTextEnterKeepActive() {
-        return this._ptr.get_ConfigInputTextEnterKeepActive();
-    }
-    set ConfigInputTextEnterKeepActive(v) {
-        this._ptr.set_ConfigInputTextEnterKeepActive(v);
-    }
+    get ConfigInputTextEnterKeepActive(): boolean { return this._ptr.get_ConfigInputTextEnterKeepActive(); }
+    set ConfigInputTextEnterKeepActive(v: boolean) { this._ptr.set_ConfigInputTextEnterKeepActive(v); }
+
     /** = false          \/\/ [BETA] Enable turning DragXXX widgets into text input with a simple mouse click-release (without moving). Not desirable on devices without a keyboard. */
-    get ConfigDragClickToInputText() {
-        return this._ptr.get_ConfigDragClickToInputText();
-    }
-    set ConfigDragClickToInputText(v) {
-        this._ptr.set_ConfigDragClickToInputText(v);
-    }
+    get ConfigDragClickToInputText(): boolean { return this._ptr.get_ConfigDragClickToInputText(); }
+    set ConfigDragClickToInputText(v: boolean) { this._ptr.set_ConfigDragClickToInputText(v); }
+
     /** = true           \/\/ Enable resizing of windows from their edges and from the lower-left corner. This requires ImGuiBackendFlags_HasMouseCursors for better mouse cursor feedback. (This used to be a per-window ImGuiWindowFlags_ResizeFromAnySide flag) */
-    get ConfigWindowsResizeFromEdges() {
-        return this._ptr.get_ConfigWindowsResizeFromEdges();
-    }
-    set ConfigWindowsResizeFromEdges(v) {
-        this._ptr.set_ConfigWindowsResizeFromEdges(v);
-    }
+    get ConfigWindowsResizeFromEdges(): boolean { return this._ptr.get_ConfigWindowsResizeFromEdges(); }
+    set ConfigWindowsResizeFromEdges(v: boolean) { this._ptr.set_ConfigWindowsResizeFromEdges(v); }
+
     /** = false      \/\/ Enable allowing to move windows only when clicking on their title bar. Does not apply to windows without a title bar. */
-    get ConfigWindowsMoveFromTitleBarOnly() {
-        return this._ptr.get_ConfigWindowsMoveFromTitleBarOnly();
-    }
-    set ConfigWindowsMoveFromTitleBarOnly(v) {
-        this._ptr.set_ConfigWindowsMoveFromTitleBarOnly(v);
-    }
+    get ConfigWindowsMoveFromTitleBarOnly(): boolean { return this._ptr.get_ConfigWindowsMoveFromTitleBarOnly(); }
+    set ConfigWindowsMoveFromTitleBarOnly(v: boolean) { this._ptr.set_ConfigWindowsMoveFromTitleBarOnly(v); }
+
     /** = false      \/\/ [EXPERIMENTAL] CTRL+C copy the contents of focused window into the clipboard. Experimental because: (1) has known issues with nested Begin\/End pairs (2) text output quality varies (3) text output is in submission order rather than spatial order. */
-    get ConfigWindowsCopyContentsWithCtrlC() {
-        return this._ptr.get_ConfigWindowsCopyContentsWithCtrlC();
-    }
-    set ConfigWindowsCopyContentsWithCtrlC(v) {
-        this._ptr.set_ConfigWindowsCopyContentsWithCtrlC(v);
-    }
+    get ConfigWindowsCopyContentsWithCtrlC(): boolean { return this._ptr.get_ConfigWindowsCopyContentsWithCtrlC(); }
+    set ConfigWindowsCopyContentsWithCtrlC(v: boolean) { this._ptr.set_ConfigWindowsCopyContentsWithCtrlC(v); }
+
     /** = true           \/\/ Enable scrolling page by page when clicking outside the scrollbar grab. When disabled, always scroll to clicked location. When enabled, Shift+Click scrolls to clicked location. */
-    get ConfigScrollbarScrollByPage() {
-        return this._ptr.get_ConfigScrollbarScrollByPage();
-    }
-    set ConfigScrollbarScrollByPage(v) {
-        this._ptr.set_ConfigScrollbarScrollByPage(v);
-    }
+    get ConfigScrollbarScrollByPage(): boolean { return this._ptr.get_ConfigScrollbarScrollByPage(); }
+    set ConfigScrollbarScrollByPage(v: boolean) { this._ptr.set_ConfigScrollbarScrollByPage(v); }
+
     /** = 60.0f          \/\/ Timer (in seconds) to free transient windows\/tables memory buffers when unused. Set to -1.0f to disable. */
-    get ConfigMemoryCompactTimer() {
-        return this._ptr.get_ConfigMemoryCompactTimer();
-    }
-    set ConfigMemoryCompactTimer(v) {
-        this._ptr.set_ConfigMemoryCompactTimer(v);
-    }
+    get ConfigMemoryCompactTimer(): number { return this._ptr.get_ConfigMemoryCompactTimer(); }
+    set ConfigMemoryCompactTimer(v: number) { this._ptr.set_ConfigMemoryCompactTimer(v); }
+
     /** = 0.30f          \/\/ Time for a double-click, in seconds. */
-    get MouseDoubleClickTime() {
-        return this._ptr.get_MouseDoubleClickTime();
-    }
-    set MouseDoubleClickTime(v) {
-        this._ptr.set_MouseDoubleClickTime(v);
-    }
+    get MouseDoubleClickTime(): number { return this._ptr.get_MouseDoubleClickTime(); }
+    set MouseDoubleClickTime(v: number) { this._ptr.set_MouseDoubleClickTime(v); }
+
     /** = 6.0f           \/\/ Distance threshold to stay in to validate a double-click, in pixels. */
-    get MouseDoubleClickMaxDist() {
-        return this._ptr.get_MouseDoubleClickMaxDist();
-    }
-    set MouseDoubleClickMaxDist(v) {
-        this._ptr.set_MouseDoubleClickMaxDist(v);
-    }
+    get MouseDoubleClickMaxDist(): number { return this._ptr.get_MouseDoubleClickMaxDist(); }
+    set MouseDoubleClickMaxDist(v: number) { this._ptr.set_MouseDoubleClickMaxDist(v); }
+
     /** = 6.0f           \/\/ Distance threshold before considering we are dragging. */
-    get MouseDragThreshold() {
-        return this._ptr.get_MouseDragThreshold();
-    }
-    set MouseDragThreshold(v) {
-        this._ptr.set_MouseDragThreshold(v);
-    }
+    get MouseDragThreshold(): number { return this._ptr.get_MouseDragThreshold(); }
+    set MouseDragThreshold(v: number) { this._ptr.set_MouseDragThreshold(v); }
+
     /** = 0.275f         \/\/ When holding a key\/button, time before it starts repeating, in seconds (for buttons in Repeat mode, etc.). */
-    get KeyRepeatDelay() {
-        return this._ptr.get_KeyRepeatDelay();
-    }
-    set KeyRepeatDelay(v) {
-        this._ptr.set_KeyRepeatDelay(v);
-    }
+    get KeyRepeatDelay(): number { return this._ptr.get_KeyRepeatDelay(); }
+    set KeyRepeatDelay(v: number) { this._ptr.set_KeyRepeatDelay(v); }
+
     /** = 0.050f         \/\/ When holding a key\/button, rate at which it repeats, in seconds. */
-    get KeyRepeatRate() {
-        return this._ptr.get_KeyRepeatRate();
-    }
-    set KeyRepeatRate(v) {
-        this._ptr.set_KeyRepeatRate(v);
-    }
+    get KeyRepeatRate(): number { return this._ptr.get_KeyRepeatRate(); }
+    set KeyRepeatRate(v: number) { this._ptr.set_KeyRepeatRate(v); }
+
     /** = true       \/\/ Enable error recovery support. Some errors won't be detected and lead to direct crashes if recovery is disabled. */
-    get ConfigErrorRecovery() {
-        return this._ptr.get_ConfigErrorRecovery();
-    }
-    set ConfigErrorRecovery(v) {
-        this._ptr.set_ConfigErrorRecovery(v);
-    }
+    get ConfigErrorRecovery(): boolean { return this._ptr.get_ConfigErrorRecovery(); }
+    set ConfigErrorRecovery(v: boolean) { this._ptr.set_ConfigErrorRecovery(v); }
+
     /** = true       \/\/ Enable asserts on recoverable error. By default call IM_ASSERT() when returning from a failing IM_ASSERT_USER_ERROR() */
-    get ConfigErrorRecoveryEnableAssert() {
-        return this._ptr.get_ConfigErrorRecoveryEnableAssert();
-    }
-    set ConfigErrorRecoveryEnableAssert(v) {
-        this._ptr.set_ConfigErrorRecoveryEnableAssert(v);
-    }
+    get ConfigErrorRecoveryEnableAssert(): boolean { return this._ptr.get_ConfigErrorRecoveryEnableAssert(); }
+    set ConfigErrorRecoveryEnableAssert(v: boolean) { this._ptr.set_ConfigErrorRecoveryEnableAssert(v); }
+
     /** = true       \/\/ Enable debug log output on recoverable errors. */
-    get ConfigErrorRecoveryEnableDebugLog() {
-        return this._ptr.get_ConfigErrorRecoveryEnableDebugLog();
-    }
-    set ConfigErrorRecoveryEnableDebugLog(v) {
-        this._ptr.set_ConfigErrorRecoveryEnableDebugLog(v);
-    }
+    get ConfigErrorRecoveryEnableDebugLog(): boolean { return this._ptr.get_ConfigErrorRecoveryEnableDebugLog(); }
+    set ConfigErrorRecoveryEnableDebugLog(v: boolean) { this._ptr.set_ConfigErrorRecoveryEnableDebugLog(v); }
+
     /** = true       \/\/ Enable tooltip on recoverable errors. The tooltip include a way to enable asserts if they were disabled. */
-    get ConfigErrorRecoveryEnableTooltip() {
-        return this._ptr.get_ConfigErrorRecoveryEnableTooltip();
-    }
-    set ConfigErrorRecoveryEnableTooltip(v) {
-        this._ptr.set_ConfigErrorRecoveryEnableTooltip(v);
-    }
+    get ConfigErrorRecoveryEnableTooltip(): boolean { return this._ptr.get_ConfigErrorRecoveryEnableTooltip(); }
+    set ConfigErrorRecoveryEnableTooltip(v: boolean) { this._ptr.set_ConfigErrorRecoveryEnableTooltip(v); }
+
     /** = false          \/\/ Enable various tools calling IM_DEBUG_BREAK(). */
-    get ConfigDebugIsDebuggerPresent() {
-        return this._ptr.get_ConfigDebugIsDebuggerPresent();
-    }
-    set ConfigDebugIsDebuggerPresent(v) {
-        this._ptr.set_ConfigDebugIsDebuggerPresent(v);
-    }
+    get ConfigDebugIsDebuggerPresent(): boolean { return this._ptr.get_ConfigDebugIsDebuggerPresent(); }
+    set ConfigDebugIsDebuggerPresent(v: boolean) { this._ptr.set_ConfigDebugIsDebuggerPresent(v); }
+
     /** = true           \/\/ Highlight and show an error message when multiple items have conflicting identifiers. */
-    get ConfigDebugHighlightIdConflicts() {
-        return this._ptr.get_ConfigDebugHighlightIdConflicts();
-    }
-    set ConfigDebugHighlightIdConflicts(v) {
-        this._ptr.set_ConfigDebugHighlightIdConflicts(v);
-    }
+    get ConfigDebugHighlightIdConflicts(): boolean { return this._ptr.get_ConfigDebugHighlightIdConflicts(); }
+    set ConfigDebugHighlightIdConflicts(v: boolean) { this._ptr.set_ConfigDebugHighlightIdConflicts(v); }
+
     /** = false          \/\/ First-time calls to Begin()\/BeginChild() will return false. NEEDS TO BE SET AT APPLICATION BOOT TIME if you don't want to miss windows. */
-    get ConfigDebugBeginReturnValueOnce() {
-        return this._ptr.get_ConfigDebugBeginReturnValueOnce();
-    }
-    set ConfigDebugBeginReturnValueOnce(v) {
-        this._ptr.set_ConfigDebugBeginReturnValueOnce(v);
-    }
+    get ConfigDebugBeginReturnValueOnce(): boolean { return this._ptr.get_ConfigDebugBeginReturnValueOnce(); }
+    set ConfigDebugBeginReturnValueOnce(v: boolean) { this._ptr.set_ConfigDebugBeginReturnValueOnce(v); }
+
     /** = false          \/\/ Some calls to Begin()\/BeginChild() will return false. Will cycle through window depths then repeat. Suggested use: add "io.ConfigDebugBeginReturnValue = io.KeyShift" in your main loop then occasionally press SHIFT. Windows should be flickering while running. */
-    get ConfigDebugBeginReturnValueLoop() {
-        return this._ptr.get_ConfigDebugBeginReturnValueLoop();
-    }
-    set ConfigDebugBeginReturnValueLoop(v) {
-        this._ptr.set_ConfigDebugBeginReturnValueLoop(v);
-    }
+    get ConfigDebugBeginReturnValueLoop(): boolean { return this._ptr.get_ConfigDebugBeginReturnValueLoop(); }
+    set ConfigDebugBeginReturnValueLoop(v: boolean) { this._ptr.set_ConfigDebugBeginReturnValueLoop(v); }
+
     /** = false          \/\/ Ignore io.AddFocusEvent(false), consequently not calling io.ClearInputKeys()\/io.ClearInputMouse() in input processing. */
-    get ConfigDebugIgnoreFocusLoss() {
-        return this._ptr.get_ConfigDebugIgnoreFocusLoss();
-    }
-    set ConfigDebugIgnoreFocusLoss(v) {
-        this._ptr.set_ConfigDebugIgnoreFocusLoss(v);
-    }
+    get ConfigDebugIgnoreFocusLoss(): boolean { return this._ptr.get_ConfigDebugIgnoreFocusLoss(); }
+    set ConfigDebugIgnoreFocusLoss(v: boolean) { this._ptr.set_ConfigDebugIgnoreFocusLoss(v); }
+
     /** = false          \/\/ Save .ini data with extra comments (particularly helpful for Docking, but makes saving slower) */
-    get ConfigDebugIniSettings() {
-        return this._ptr.get_ConfigDebugIniSettings();
-    }
-    set ConfigDebugIniSettings(v) {
-        this._ptr.set_ConfigDebugIniSettings(v);
-    }
+    get ConfigDebugIniSettings(): boolean { return this._ptr.get_ConfigDebugIniSettings(); }
+    set ConfigDebugIniSettings(v: boolean) { this._ptr.set_ConfigDebugIniSettings(v); }
+
     /** Set when Dear ImGui will use mouse inputs, in this case do not dispatch them to your main game\/application (either way, always pass on mouse inputs to imgui). (e.g. unclicked mouse is hovering over an imgui window, widget is active, mouse was clicked over an imgui window, etc.). */
-    get WantCaptureMouse() {
-        return this._ptr.get_WantCaptureMouse();
-    }
-    set WantCaptureMouse(v) {
-        this._ptr.set_WantCaptureMouse(v);
-    }
+    get WantCaptureMouse(): boolean { return this._ptr.get_WantCaptureMouse(); }
+    set WantCaptureMouse(v: boolean) { this._ptr.set_WantCaptureMouse(v); }
+
     /** Set when Dear ImGui will use keyboard inputs, in this case do not dispatch them to your main game\/application (either way, always pass keyboard inputs to imgui). (e.g. InputText active, or an imgui window is focused and navigation is enabled, etc.). */
-    get WantCaptureKeyboard() {
-        return this._ptr.get_WantCaptureKeyboard();
-    }
-    set WantCaptureKeyboard(v) {
-        this._ptr.set_WantCaptureKeyboard(v);
-    }
+    get WantCaptureKeyboard(): boolean { return this._ptr.get_WantCaptureKeyboard(); }
+    set WantCaptureKeyboard(v: boolean) { this._ptr.set_WantCaptureKeyboard(v); }
+
     /** Mobile\/console: when set, you may display an on-screen keyboard. This is set by Dear ImGui when it wants textual keyboard input to happen (e.g. when a InputText widget is active). */
-    get WantTextInput() {
-        return this._ptr.get_WantTextInput();
-    }
-    set WantTextInput(v) {
-        this._ptr.set_WantTextInput(v);
-    }
+    get WantTextInput(): boolean { return this._ptr.get_WantTextInput(); }
+    set WantTextInput(v: boolean) { this._ptr.set_WantTextInput(v); }
+
     /** MousePos has been altered, backend should reposition mouse on next frame. Rarely used! Set only when io.ConfigNavMoveSetMousePos is enabled. */
-    get WantSetMousePos() {
-        return this._ptr.get_WantSetMousePos();
-    }
-    set WantSetMousePos(v) {
-        this._ptr.set_WantSetMousePos(v);
-    }
+    get WantSetMousePos(): boolean { return this._ptr.get_WantSetMousePos(); }
+    set WantSetMousePos(v: boolean) { this._ptr.set_WantSetMousePos(v); }
+
     /** When manual .ini load\/save is active (io.IniFilename == NULL), this will be set to notify your application that you can call SaveIniSettingsToMemory() and save yourself. Important: clear io.WantSaveIniSettings yourself after saving! */
-    get WantSaveIniSettings() {
-        return this._ptr.get_WantSaveIniSettings();
-    }
-    set WantSaveIniSettings(v) {
-        this._ptr.set_WantSaveIniSettings(v);
-    }
+    get WantSaveIniSettings(): boolean { return this._ptr.get_WantSaveIniSettings(); }
+    set WantSaveIniSettings(v: boolean) { this._ptr.set_WantSaveIniSettings(v); }
+
     /** Keyboard\/Gamepad navigation is currently allowed (will handle ImGuiKey_NavXXX events) = a window is focused and it doesn't use the ImGuiWindowFlags_NoNavInputs flag. */
-    get NavActive() {
-        return this._ptr.get_NavActive();
-    }
-    set NavActive(v) {
-        this._ptr.set_NavActive(v);
-    }
+    get NavActive(): boolean { return this._ptr.get_NavActive(); }
+    set NavActive(v: boolean) { this._ptr.set_NavActive(v); }
+
     /** Keyboard\/Gamepad navigation highlight is visible and allowed (will handle ImGuiKey_NavXXX events). */
-    get NavVisible() {
-        return this._ptr.get_NavVisible();
-    }
-    set NavVisible(v) {
-        this._ptr.set_NavVisible(v);
-    }
+    get NavVisible(): boolean { return this._ptr.get_NavVisible(); }
+    set NavVisible(v: boolean) { this._ptr.set_NavVisible(v); }
+
     /** Estimate of application framerate (rolling average over 60 frames, based on io.DeltaTime), in frame per second. Solely for convenience. Slow applications may not want to use a moving average or may want to reset underlying buffers occasionally. */
-    get Framerate() {
-        return this._ptr.get_Framerate();
-    }
-    set Framerate(v) {
-        this._ptr.set_Framerate(v);
-    }
+    get Framerate(): number { return this._ptr.get_Framerate(); }
+    set Framerate(v: number) { this._ptr.set_Framerate(v); }
+
     /** Vertices output during last call to Render() */
-    get MetricsRenderVertices() {
-        return this._ptr.get_MetricsRenderVertices();
-    }
-    set MetricsRenderVertices(v) {
-        this._ptr.set_MetricsRenderVertices(v);
-    }
+    get MetricsRenderVertices(): number { return this._ptr.get_MetricsRenderVertices(); }
+    set MetricsRenderVertices(v: number) { this._ptr.set_MetricsRenderVertices(v); }
+
     /** Indices output during last call to Render() = number of triangles * 3 */
-    get MetricsRenderIndices() {
-        return this._ptr.get_MetricsRenderIndices();
-    }
-    set MetricsRenderIndices(v) {
-        this._ptr.set_MetricsRenderIndices(v);
-    }
+    get MetricsRenderIndices(): number { return this._ptr.get_MetricsRenderIndices(); }
+    set MetricsRenderIndices(v: number) { this._ptr.set_MetricsRenderIndices(v); }
+
     /** Number of visible windows */
-    get MetricsRenderWindows() {
-        return this._ptr.get_MetricsRenderWindows();
-    }
-    set MetricsRenderWindows(v) {
-        this._ptr.set_MetricsRenderWindows(v);
-    }
+    get MetricsRenderWindows(): number { return this._ptr.get_MetricsRenderWindows(); }
+    set MetricsRenderWindows(v: number) { this._ptr.set_MetricsRenderWindows(v); }
+
     /** Number of active windows */
-    get MetricsActiveWindows() {
-        return this._ptr.get_MetricsActiveWindows();
-    }
-    set MetricsActiveWindows(v) {
-        this._ptr.set_MetricsActiveWindows(v);
-    }
+    get MetricsActiveWindows(): number { return this._ptr.get_MetricsActiveWindows(); }
+    set MetricsActiveWindows(v: number) { this._ptr.set_MetricsActiveWindows(v); }
+
     /** Mouse delta. Note that this is zero if either current or previous position are invalid (-FLT_MAX,-FLT_MAX), so a disappearing\/reappearing mouse won't have a huge delta. */
-    get MouseDelta() {
-        return ImVec2.wrap(this._ptr.get_MouseDelta());
-    }
-    set MouseDelta(v) {
-        this._ptr.set_MouseDelta(v._ptr);
-    }
+    get MouseDelta(): ImVec2 { return ImVec2.wrap(this._ptr.get_MouseDelta()); }
+    set MouseDelta(v: ImVec2) { this._ptr.set_MouseDelta(v._ptr); }
+
     /** Parent UI context (needs to be set explicitly by parent). */
-    get Ctx() {
-        return ImGuiContext.wrap(this._ptr.get_Ctx());
-    }
-    set Ctx(v) {
-        this._ptr.set_Ctx(v._ptr);
-    }
+    get Ctx(): ImGuiContext { return ImGuiContext.wrap(this._ptr.get_Ctx()); }
+    set Ctx(v: ImGuiContext) { this._ptr.set_Ctx(v._ptr); }
+
     /** Mouse position, in pixels. Set to ImVec2(-FLT_MAX, -FLT_MAX) if mouse is unavailable (on another screen, etc.) */
-    get MousePos() {
-        return ImVec2.wrap(this._ptr.get_MousePos());
-    }
-    set MousePos(v) {
-        this._ptr.set_MousePos(v._ptr);
-    }
+    get MousePos(): ImVec2 { return ImVec2.wrap(this._ptr.get_MousePos()); }
+    set MousePos(v: ImVec2) { this._ptr.set_MousePos(v._ptr); }
+
     /** Mouse wheel Vertical: 1 unit scrolls about 5 lines text. >0 scrolls Up, <0 scrolls Down. Hold SHIFT to turn vertical scroll into horizontal scroll. */
-    get MouseWheel() {
-        return this._ptr.get_MouseWheel();
-    }
-    set MouseWheel(v) {
-        this._ptr.set_MouseWheel(v);
-    }
+    get MouseWheel(): number { return this._ptr.get_MouseWheel(); }
+    set MouseWheel(v: number) { this._ptr.set_MouseWheel(v); }
+
     /** Mouse wheel Horizontal. >0 scrolls Left, <0 scrolls Right. Most users don't have a mouse with a horizontal wheel, may not be filled by all backends. */
-    get MouseWheelH() {
-        return this._ptr.get_MouseWheelH();
-    }
-    set MouseWheelH(v) {
-        this._ptr.set_MouseWheelH(v);
-    }
+    get MouseWheelH(): number { return this._ptr.get_MouseWheelH(); }
+    set MouseWheelH(v: number) { this._ptr.set_MouseWheelH(v); }
+
     /** Mouse actual input peripheral (Mouse\/TouchScreen\/Pen). */
-    get MouseSource() {
-        return this._ptr.get_MouseSource();
-    }
-    set MouseSource(v) {
-        this._ptr.set_MouseSource(v);
-    }
+    get MouseSource(): ImGuiMouseSource { return this._ptr.get_MouseSource(); }
+    set MouseSource(v: ImGuiMouseSource) { this._ptr.set_MouseSource(v); }
+
     /** (Optional) Modify using io.AddMouseViewportEvent(). With multi-viewports: viewport the OS mouse is hovering. If possible _IGNORING_ viewports with the ImGuiViewportFlags_NoInputs flag is much better (few backends can handle that). Set io.BackendFlags |= ImGuiBackendFlags_HasMouseHoveredViewport if you can provide this info. If you don't imgui will infer the value using the rectangles and last focused time of the viewports it knows about (ignoring other OS windows). */
-    get MouseHoveredViewport() {
-        return this._ptr.get_MouseHoveredViewport();
-    }
-    set MouseHoveredViewport(v) {
-        this._ptr.set_MouseHoveredViewport(v);
-    }
+    get MouseHoveredViewport(): ImGuiID { return this._ptr.get_MouseHoveredViewport(); }
+    set MouseHoveredViewport(v: ImGuiID) { this._ptr.set_MouseHoveredViewport(v); }
+
     /** Keyboard modifier down: Control */
-    get KeyCtrl() {
-        return this._ptr.get_KeyCtrl();
-    }
-    set KeyCtrl(v) {
-        this._ptr.set_KeyCtrl(v);
-    }
+    get KeyCtrl(): boolean { return this._ptr.get_KeyCtrl(); }
+    set KeyCtrl(v: boolean) { this._ptr.set_KeyCtrl(v); }
+
     /** Keyboard modifier down: Shift */
-    get KeyShift() {
-        return this._ptr.get_KeyShift();
-    }
-    set KeyShift(v) {
-        this._ptr.set_KeyShift(v);
-    }
+    get KeyShift(): boolean { return this._ptr.get_KeyShift(); }
+    set KeyShift(v: boolean) { this._ptr.set_KeyShift(v); }
+
     /** Keyboard modifier down: Alt */
-    get KeyAlt() {
-        return this._ptr.get_KeyAlt();
-    }
-    set KeyAlt(v) {
-        this._ptr.set_KeyAlt(v);
-    }
+    get KeyAlt(): boolean { return this._ptr.get_KeyAlt(); }
+    set KeyAlt(v: boolean) { this._ptr.set_KeyAlt(v); }
+
     /** Keyboard modifier down: Cmd\/Super\/Windows */
-    get KeySuper() {
-        return this._ptr.get_KeySuper();
-    }
-    set KeySuper(v) {
-        this._ptr.set_KeySuper(v);
-    }
+    get KeySuper(): boolean { return this._ptr.get_KeySuper(); }
+    set KeySuper(v: boolean) { this._ptr.set_KeySuper(v); }
+
     /** Key mods flags (any of ImGuiMod_Ctrl\/ImGuiMod_Shift\/ImGuiMod_Alt\/ImGuiMod_Super flags, same as io.KeyCtrl\/KeyShift\/KeyAlt\/KeySuper but merged into flags. Read-only, updated by NewFrame() */
-    get KeyMods() {
-        return this._ptr.get_KeyMods();
-    }
-    set KeyMods(v) {
-        this._ptr.set_KeyMods(v);
-    }
+    get KeyMods(): ImGuiKeyChord { return this._ptr.get_KeyMods(); }
+    set KeyMods(v: ImGuiKeyChord) { this._ptr.set_KeyMods(v); }
+
     /** Alternative to WantCaptureMouse: (WantCaptureMouse == true && WantCaptureMouseUnlessPopupClose == false) when a click over void is expected to close a popup. */
-    get WantCaptureMouseUnlessPopupClose() {
-        return this._ptr.get_WantCaptureMouseUnlessPopupClose();
-    }
-    set WantCaptureMouseUnlessPopupClose(v) {
-        this._ptr.set_WantCaptureMouseUnlessPopupClose(v);
-    }
+    get WantCaptureMouseUnlessPopupClose(): boolean { return this._ptr.get_WantCaptureMouseUnlessPopupClose(); }
+    set WantCaptureMouseUnlessPopupClose(v: boolean) { this._ptr.set_WantCaptureMouseUnlessPopupClose(v); }
+
     /** Previous mouse position (note that MouseDelta is not necessary == MousePos-MousePosPrev, in case either position is invalid) */
-    get MousePosPrev() {
-        return ImVec2.wrap(this._ptr.get_MousePosPrev());
-    }
-    set MousePosPrev(v) {
-        this._ptr.set_MousePosPrev(v._ptr);
-    }
+    get MousePosPrev(): ImVec2 { return ImVec2.wrap(this._ptr.get_MousePosPrev()); }
+    set MousePosPrev(v: ImVec2) { this._ptr.set_MousePosPrev(v._ptr); }
+
     /** Queue a new key down\/up event. Key should be "translated" (as in, generally ImGuiKey_A matches the key end-user would use to emit an 'A' character) */
-    AddKeyEvent(key, down) {
-        return this._ptr.ImGuiIO_AddKeyEvent(key, down);
-    }
+    AddKeyEvent(key: ImGuiKey, down: boolean): void { return this._ptr.ImGuiIO_AddKeyEvent(key, down); }
+
     /** Queue a new key down\/up event for analog values (e.g. ImGuiKey_Gamepad_ values). Dead-zones should be handled by the backend. */
-    AddKeyAnalogEvent(key, down, v) {
-        return this._ptr.ImGuiIO_AddKeyAnalogEvent(key, down, v);
-    }
+    AddKeyAnalogEvent(key: ImGuiKey, down: boolean, v: number): void { return this._ptr.ImGuiIO_AddKeyAnalogEvent(key, down, v); }
+
     /** Queue a mouse position update. Use -FLT_MAX,-FLT_MAX to signify no mouse (e.g. app not focused and not hovered) */
-    AddMousePosEvent(x, y) {
-        return this._ptr.ImGuiIO_AddMousePosEvent(x, y);
-    }
+    AddMousePosEvent(x: number, y: number): void { return this._ptr.ImGuiIO_AddMousePosEvent(x, y); }
+
     /** Queue a mouse button change */
-    AddMouseButtonEvent(button, down) {
-        return this._ptr.ImGuiIO_AddMouseButtonEvent(button, down);
-    }
+    AddMouseButtonEvent(button: number, down: boolean): void { return this._ptr.ImGuiIO_AddMouseButtonEvent(button, down); }
+
     /** Queue a mouse wheel update. wheel_y<0: scroll down, wheel_y>0: scroll up, wheel_x<0: scroll right, wheel_x>0: scroll left. */
-    AddMouseWheelEvent(wheel_x, wheel_y) {
-        return this._ptr.ImGuiIO_AddMouseWheelEvent(wheel_x, wheel_y);
-    }
+    AddMouseWheelEvent(wheel_x: number, wheel_y: number): void { return this._ptr.ImGuiIO_AddMouseWheelEvent(wheel_x, wheel_y); }
+
     /** Queue a mouse source change (Mouse\/TouchScreen\/Pen) */
-    AddMouseSourceEvent(source) {
-        return this._ptr.ImGuiIO_AddMouseSourceEvent(source);
-    }
+    AddMouseSourceEvent(source: ImGuiMouseSource): void { return this._ptr.ImGuiIO_AddMouseSourceEvent(source); }
+
     /** Queue a mouse hovered viewport. Requires backend to set ImGuiBackendFlags_HasMouseHoveredViewport to call this (for multi-viewport support). */
-    AddMouseViewportEvent(id) {
-        return this._ptr.ImGuiIO_AddMouseViewportEvent(id);
-    }
+    AddMouseViewportEvent(id: ImGuiID): void { return this._ptr.ImGuiIO_AddMouseViewportEvent(id); }
+
     /** Queue a gain\/loss of focus for the application (generally based on OS\/platform focus of your window) */
-    AddFocusEvent(focused) {
-        return this._ptr.ImGuiIO_AddFocusEvent(focused);
-    }
+    AddFocusEvent(focused: boolean): void { return this._ptr.ImGuiIO_AddFocusEvent(focused); }
+
     /** Queue a new character input */
-    AddInputCharacter(c) {
-        return this._ptr.ImGuiIO_AddInputCharacter(c);
-    }
+    AddInputCharacter(c: number): void { return this._ptr.ImGuiIO_AddInputCharacter(c); }
+
     /** Queue a new character input from a UTF-16 character, it can be a surrogate */
-    AddInputCharacterUTF16(c) {
-        return this._ptr.ImGuiIO_AddInputCharacterUTF16(c);
-    }
+    AddInputCharacterUTF16(c: ImWchar16): void { return this._ptr.ImGuiIO_AddInputCharacterUTF16(c); }
+
     /** Queue a new characters input from a UTF-8 string */
-    AddInputCharactersUTF8(str) {
-        return this._ptr.ImGuiIO_AddInputCharactersUTF8(str);
-    }
+    AddInputCharactersUTF8(str: string): void { return this._ptr.ImGuiIO_AddInputCharactersUTF8(str); }
+
     /** Set master flag for accepting key\/mouse\/text events (default to true). Useful if you have native dialog boxes that are interrupting your application loop\/refresh, and you want to disable events being queued while your app is frozen. */
-    SetAppAcceptingEvents(accepting_events) {
-        return this._ptr.ImGuiIO_SetAppAcceptingEvents(accepting_events);
-    }
+    SetAppAcceptingEvents(accepting_events: boolean): void { return this._ptr.ImGuiIO_SetAppAcceptingEvents(accepting_events); }
+
     /** Clear all incoming events. */
-    ClearEventsQueue() {
-        return this._ptr.ImGuiIO_ClearEventsQueue();
-    }
+    ClearEventsQueue(): void { return this._ptr.ImGuiIO_ClearEventsQueue(); }
+
     /** Clear current keyboard\/gamepad state + current frame text input buffer. Equivalent to releasing all keys\/buttons. */
-    ClearInputKeys() {
-        return this._ptr.ImGuiIO_ClearInputKeys();
-    }
+    ClearInputKeys(): void { return this._ptr.ImGuiIO_ClearInputKeys(); }
+
     /** Clear current mouse state. */
-    ClearInputMouse() {
-        return this._ptr.ImGuiIO_ClearInputMouse();
-    }
+    ClearInputMouse(): void { return this._ptr.ImGuiIO_ClearInputMouse(); }
+
 }
+
 /** Main IO structure returned by BeginMultiSelect()\/EndMultiSelect(). */
 export class ImGuiMultiSelectIO extends StructBinding {
-    constructor() {
-        super("ImGuiMultiSelectIO");
-    }
+    constructor() { super("ImGuiMultiSelectIO"); }
 }
+
 /** Draw command list */
 export class ImDrawList extends StructBinding {
-    constructor() {
-        super("ImDrawList");
-    }
+    constructor() { super("ImDrawList"); }
 }
+
 /** All draw data to render a Dear ImGui frame */
 export class ImDrawData extends StructBinding {
-    constructor() {
-        super("ImDrawData");
-    }
+    constructor() { super("ImDrawData"); }
 }
+
 /** A font input\/source (we may rename this to ImFontSource in the future) */
 export class ImFontConfig extends StructBinding {
-    constructor() {
-        super("ImFontConfig");
-    }
+    constructor() { super("ImFontConfig"); }
 }
+
 /** Load and rasterize multiple TTF\/OTF fonts into a same texture. The font atlas will build a single texture holding: */
 export class ImFontAtlas extends StructBinding {
-    constructor() {
-        super("ImFontAtlas");
-    }
+    constructor() { super("ImFontAtlas"); }
 }
+
 /** Font runtime data and rendering */
 export class ImFont extends StructBinding {
-    constructor() {
-        super("ImFont");
-    }
+    constructor() { super("ImFont"); }
 }
+
 /* -------------------------------------------------------------------------- */
 /* 4. ImGui Object - Enums/Flags & Functions */
 /* -------------------------------------------------------------------------- */
 export const ImGui = Object.freeze({
+
     /* Enums/Flags */
+
     /** Flags for ImGui::Begin() */
     WindowFlags: {
         None: 0,
@@ -1210,6 +906,7 @@ export const ImGui = Object.freeze({
         NoDecoration: 43,
         NoInputs: 197120,
     },
+
     /** Flags for ImGui::BeginChild() */
     ChildFlags: {
         None: 0,
@@ -1232,6 +929,7 @@ export const ImGui = Object.freeze({
         /** [BETA] Share focus scope, allow keyboard\/gamepad navigation to cross over parent border to this child or between sibling child windows. */
         NavFlattened: 256,
     },
+
     /** Flags for ImGui::PushItemFlag() */
     ItemFlags: {
         /** (Default) */
@@ -1249,6 +947,7 @@ export const ImGui = Object.freeze({
         /** false    \/\/ Allow submitting an item with the same identifier as an item already submitted this frame without triggering a warning tooltip if io.ConfigDebugHighlightIdConflicts is set. */
         AllowDuplicateId: 32,
     },
+
     /** Flags for ImGui::InputText() */
     InputTextFlags: {
         None: 0,
@@ -1301,6 +1000,7 @@ export const ImGui = Object.freeze({
         /** Callback on any edit. Note that InputText() already returns true on edit + you can always use IsItemEdited(). The callback is useful to manipulate the underlying buffer while focus is active. */
         CallbackEdit: 8388608,
     },
+
     /** Flags for ImGui::TreeNodeEx(), ImGui::CollapsingHeader*() */
     TreeNodeFlags: {
         None: 0,
@@ -1340,6 +1040,7 @@ export const ImGui = Object.freeze({
         NavLeftJumpsBackHere: 131072,
         CollapsingHeader: 26,
     },
+
     /** Flags for OpenPopup*(), BeginPopupContext*(), IsPopupOpen() functions. */
     PopupFlags: {
         None: 0,
@@ -1361,6 +1062,7 @@ export const ImGui = Object.freeze({
         AnyPopupLevel: 2048,
         AnyPopup: 3072,
     },
+
     /** Flags for ImGui::Selectable() */
     SelectableFlags: {
         None: 0,
@@ -1377,6 +1079,7 @@ export const ImGui = Object.freeze({
         /** Make the item be displayed as if it is hovered */
         Highlight: 32,
     },
+
     /** Flags for ImGui::BeginCombo() */
     ComboFlags: {
         None: 0,
@@ -1397,6 +1100,7 @@ export const ImGui = Object.freeze({
         /** Width dynamically calculated from preview contents */
         WidthFitPreview: 128,
     },
+
     /** Flags for ImGui::BeginTabBar() */
     TabBarFlags: {
         None: 0,
@@ -1419,6 +1123,7 @@ export const ImGui = Object.freeze({
         /** Add scroll buttons when tabs don't fit */
         FittingPolicyScroll: 256,
     },
+
     /** Flags for ImGui::BeginTabItem() */
     TabItemFlags: {
         None: 0,
@@ -1441,6 +1146,7 @@ export const ImGui = Object.freeze({
         /** Tab is selected when trying to close + closure is not immediately assumed (will wait for user to stop submitting the tab). Otherwise closure is assumed when pressing the X, so if you keep submitting the tab may reappear at end of tab bar. */
         NoAssumedClosure: 256,
     },
+
     /** Flags for ImGui::IsWindowFocused() */
     FocusedFlags: {
         None: 0,
@@ -1456,6 +1162,7 @@ export const ImGui = Object.freeze({
         DockHierarchy: 16,
         RootAndChildWindows: 3,
     },
+
     /** Flags for ImGui::IsItemHovered(), ImGui::IsWindowHovered() */
     HoveredFlags: {
         /** Return true if directly over the item\/window, not obstructed by another window, not obstructed by an active popup or modal blocking inputs under them. */
@@ -1498,6 +1205,7 @@ export const ImGui = Object.freeze({
         /** IsItemHovered() only: Disable shared delay system where moving from one item to the next keeps the previous timer for a short time (standard for tooltips with long delays) */
         NoSharedDelay: 131072,
     },
+
     /** Flags for ImGui::DockSpace(), shared\/inherited by child nodes. */
     DockNodeFlags: {
         None: 0,
@@ -1516,6 +1224,7 @@ export const ImGui = Object.freeze({
         /**       \/\/ Disable undocking this node. */
         NoUndocking: 128,
     },
+
     /** Flags for ImGui::BeginDragDropSource(), ImGui::AcceptDragDropPayload() */
     DragDropFlags: {
         None: 0,
@@ -1544,6 +1253,7 @@ export const ImGui = Object.freeze({
         /** For peeking ahead and inspecting the payload before delivery. */
         AcceptPeekOnly: 3072,
     },
+
     /** A primary data type */
     DataType: {
         /** signed char \/ char (with sensible compilers) */
@@ -1572,6 +1282,7 @@ export const ImGui = Object.freeze({
         String: 11,
         COUNT: 12,
     },
+
     /** A cardinal direction */
     Dir: {
         _None: -1,
@@ -1581,6 +1292,7 @@ export const ImGui = Object.freeze({
         _Down: 3,
         _COUNT: 4,
     },
+
     /** A sorting direction */
     SortDirection: {
         _None: 0,
@@ -1589,6 +1301,7 @@ export const ImGui = Object.freeze({
         /** Descending = 9->0, Z->A etc. */
         _Descending: 2,
     },
+
     /** A key identifier (ImGuiKey_XXX or ImGuiMod_XXX value): can represent Keyboard, Mouse and Gamepad values. */
     Key: {
         _None: 0,
@@ -1791,6 +1504,7 @@ export const ImGui = Object.freeze({
         /** Windows\/Super (non-macOS), Ctrl (macOS) */
         ImGuiMod_Super: 32768,
     },
+
     /** Flags for Shortcut(), SetNextItemShortcut(), */
     InputFlags: {
         None: 0,
@@ -1815,6 +1529,7 @@ export const ImGui = Object.freeze({
         /** Automatically display a tooltip when hovering item [BETA] Unsure of right api (opt-in\/opt-out) */
         Tooltip: 262144,
     },
+
     /** Configuration flags stored in io.ConfigFlags. Set by user\/application. */
     ConfigFlags: {
         None: 0,
@@ -1841,6 +1556,7 @@ export const ImGui = Object.freeze({
         /** Application is using a touch screen instead of a mouse. */
         IsTouchScreen: 2097152,
     },
+
     /** Backend capabilities flags stored in io.BackendFlags. Set by imgui_impl_xxx or custom backend. */
     BackendFlags: {
         None: 0,
@@ -1859,6 +1575,7 @@ export const ImGui = Object.freeze({
         /** Backend Renderer supports multiple viewports. */
         RendererHasViewports: 4096,
     },
+
     /** Enumeration for PushStyleColor() \/ PopStyleColor() */
     Col: {
         Text: 0,
@@ -1951,6 +1668,7 @@ export const ImGui = Object.freeze({
         ModalWindowDimBg: 57,
         COUNT: 58,
     },
+
     /** Enumeration for PushStyleVar() \/ PopStyleVar() to temporarily modify the ImGuiStyle structure. */
     StyleVar: {
         /** float     Alpha */
@@ -2023,6 +1741,7 @@ export const ImGui = Object.freeze({
         DockingSeparatorSize: 33,
         COUNT: 34,
     },
+
     /** Flags for InvisibleButton() [extended in imgui_internal.h] */
     ButtonFlags: {
         None: 0,
@@ -2035,6 +1754,7 @@ export const ImGui = Object.freeze({
         /** InvisibleButton(): do not disable navigation\/tabbing. Otherwise disabled by default. */
         EnableNav: 8,
     },
+
     /** Flags for ColorEdit3() \/ ColorEdit4() \/ ColorPicker3() \/ ColorPicker4() \/ ColorButton() */
     ColorEditFlags: {
         None: 0,
@@ -2087,6 +1807,7 @@ export const ImGui = Object.freeze({
         /** [Input]      \/\/ ColorEdit, ColorPicker: input and output data in HSV format. */
         InputHSV: 268435456,
     },
+
     /** Flags for DragFloat(), DragInt(), SliderFloat(), SliderInt() etc. */
     SliderFlags: {
         None: 0,
@@ -2106,6 +1827,7 @@ export const ImGui = Object.freeze({
         NoSpeedTweaks: 2048,
         AlwaysClamp: 1536,
     },
+
     /** Identify a mouse button. */
     MouseButton: {
         Left: 0,
@@ -2113,6 +1835,7 @@ export const ImGui = Object.freeze({
         Middle: 2,
         COUNT: 5,
     },
+
     /** Enumeration for GetMouseCursor() */
     MouseCursor: {
         None: -1,
@@ -2135,6 +1858,7 @@ export const ImGui = Object.freeze({
         NotAllowed: 8,
         COUNT: 9,
     },
+
     /** Enumeration for AddMouseSourceEvent() actual source of Mouse Input data. */
     MouseSource: {
         /** Input is coming from an actual mouse. */
@@ -2145,6 +1869,7 @@ export const ImGui = Object.freeze({
         _Pen: 2,
         _COUNT: 3,
     },
+
     /** Enumeration for ImGui::SetNextWindow***(), SetWindow***(), SetNextItem***() functions */
     Cond: {
         /** No condition (always set the variable), same as _Always */
@@ -2158,6 +1883,7 @@ export const ImGui = Object.freeze({
         /** Set the variable if the object\/window is appearing after being hidden\/inactive (or the first time) */
         Appearing: 8,
     },
+
     /** Flags for ImGui::BeginTable() */
     TableFlags: {
         None: 0,
@@ -2232,6 +1958,7 @@ export const ImGui = Object.freeze({
         /** Highlight column headers when hovered (may evolve into a fuller highlight) */
         HighlightHoveredColumn: 268435456,
     },
+
     /** Flags for ImGui::TableSetupColumn() */
     TableColumnFlags: {
         None: 0,
@@ -2282,12 +2009,14 @@ export const ImGui = Object.freeze({
         /** Status: is hovered by mouse */
         IsHovered: 134217728,
     },
+
     /** Flags for ImGui::TableNextRow() */
     TableRowFlags: {
         None: 0,
         /** Identify header row (set default background color + width of its contents accounted differently for auto column width) */
         Headers: 1,
     },
+
     /** Enum for ImGui::TableSetBgColor() */
     TableBgTarget: {
         None: 0,
@@ -2298,6 +2027,7 @@ export const ImGui = Object.freeze({
         /** Set cell background color (top-most color) */
         CellBg: 3,
     },
+
     /** Flags for BeginMultiSelect() */
     MultiSelectFlags: {
         None: 0,
@@ -2334,6 +2064,7 @@ export const ImGui = Object.freeze({
         /** [Temporary] Enable navigation wrapping on X axis. Provided as a convenience because we don't have a design for the general Nav API for this yet. When the more general feature be public we may obsolete this flag in favor of new one. */
         NavWrapX: 65536,
     },
+
     /** Selection request type */
     SelectionRequestType: {
         _None: 0,
@@ -2342,6 +2073,7 @@ export const ImGui = Object.freeze({
         /** Request app to select\/unselect [RangeFirstItem..RangeLastItem] items (inclusive) based on value of Selected. Only EndMultiSelect() request this, app code can read after BeginMultiSelect() and it will always be false. */
         _SetRange: 2,
     },
+
     /** Flags for ImDrawList functions */
     ImDrawFlags: {
         None: 0,
@@ -2363,6 +2095,7 @@ export const ImGui = Object.freeze({
         RoundCornersRight: 160,
         RoundCornersAll: 240,
     },
+
     /** Flags for ImDrawList instance. Those are set automatically by ImGui:: functions from ImGuiIO settings, and generally not manipulated directly. */
     ImDrawListFlags: {
         None: 0,
@@ -2375,6 +2108,7 @@ export const ImGui = Object.freeze({
         /** Can emit 'VtxOffset > 0' to allow large meshes. Set when 'ImGuiBackendFlags_RendererHasVtxOffset' is enabled. */
         AllowVtxOffset: 8,
     },
+
     /** Flags for ImFontAtlas build */
     ImFontAtlasFlags: {
         None: 0,
@@ -2385,6 +2119,7 @@ export const ImGui = Object.freeze({
         /** Don't build thick line textures into the atlas (save a little texture memory, allow support for point\/nearest filtering). The AntiAliasedLinesUseTex features uses them, otherwise they will be rendered using polygons (more expensive for CPU\/GPU). */
         NoBakedLines: 4,
     },
+
     /** Flags stored in ImGuiViewport::Flags, giving indications to the platform backends. */
     ViewportFlags: {
         None: 0,
@@ -2417,1362 +2152,926 @@ export const ImGui = Object.freeze({
         /** Platform Window: Window is focused (last call to Platform_GetWindowFocus() returned true) */
         IsFocused: 8192,
     },
+
     /* Functions */
+
     /** Context creation and access */
-    CreateContext(shared_font_atlas) {
-        return ImGuiContext.wrap(Mod.export.ImGui_CreateContext(shared_font_atlas?._ptr || null));
-    },
+    CreateContext(shared_font_atlas?: ImFontAtlas): ImGuiContext { return ImGuiContext.wrap(Mod.export.ImGui_CreateContext(shared_font_atlas?._ptr || null)); },
+
     /** NULL = destroy current context */
-    DestroyContext(ctx) {
-        return Mod.export.ImGui_DestroyContext(ctx?._ptr || null);
-    },
-    GetCurrentContext() {
-        return ImGuiContext.wrap(Mod.export.ImGui_GetCurrentContext());
-    },
-    SetCurrentContext(ctx) {
-        return Mod.export.ImGui_SetCurrentContext(ctx?._ptr || null);
-    },
+    DestroyContext(ctx?: ImGuiContext): void { return Mod.export.ImGui_DestroyContext(ctx?._ptr || null); },
+
+    GetCurrentContext(): ImGuiContext { return ImGuiContext.wrap(Mod.export.ImGui_GetCurrentContext()); },
+
+    SetCurrentContext(ctx: ImGuiContext): void { return Mod.export.ImGui_SetCurrentContext(ctx?._ptr || null); },
+
     /** access the ImGuiIO structure (mouse\/keyboard\/gamepad inputs, time, various configuration options\/flags) */
-    GetIO() {
-        return ImGuiIO.wrap(Mod.export.ImGui_GetIO());
-    },
+    GetIO(): ImGuiIO { return ImGuiIO.wrap(Mod.export.ImGui_GetIO()); },
+
     /** access the Style structure (colors, sizes). Always use PushStyleColor(), PushStyleVar() to modify style mid-frame! */
-    GetStyle() {
-        return ImGuiStyle.wrap(Mod.export.ImGui_GetStyle());
-    },
+    GetStyle(): ImGuiStyle { return ImGuiStyle.wrap(Mod.export.ImGui_GetStyle()); },
+
     /** start a new Dear ImGui frame, you can submit any command from this point until Render()\/EndFrame(). */
-    NewFrame() {
-        return Mod.export.ImGui_NewFrame();
-    },
+    NewFrame(): void { return Mod.export.ImGui_NewFrame(); },
+
     /** ends the Dear ImGui frame. automatically called by Render(). If you don't need to render data (skipping rendering) you may call EndFrame() without Render()... but you'll have wasted CPU already! If you don't need to render, better to not create any windows and not call NewFrame() at all! */
-    EndFrame() {
-        return Mod.export.ImGui_EndFrame();
-    },
+    EndFrame(): void { return Mod.export.ImGui_EndFrame(); },
+
     /** ends the Dear ImGui frame, finalize the draw data. You can then get call GetDrawData(). */
-    Render() {
-        return Mod.export.ImGui_Render();
-    },
+    Render(): void { return Mod.export.ImGui_Render(); },
+
     /** valid after Render() and until the next call to NewFrame(). this is what you have to render. */
-    GetDrawData() {
-        return ImDrawData.wrap(Mod.export.ImGui_GetDrawData());
-    },
+    GetDrawData(): ImDrawData { return ImDrawData.wrap(Mod.export.ImGui_GetDrawData()); },
+
     /** create Demo window. demonstrate most ImGui features. call this to learn about the library! try to make it always available in your application! */
-    ShowDemoWindow(p_open) {
-        return Mod.export.ImGui_ShowDemoWindow(p_open);
-    },
+    ShowDemoWindow(p_open?: boolean[]): void { return Mod.export.ImGui_ShowDemoWindow(p_open); },
+
     /** create Metrics\/Debugger window. display Dear ImGui internals: windows, draw commands, various internal state, etc. */
-    ShowMetricsWindow(p_open) {
-        return Mod.export.ImGui_ShowMetricsWindow(p_open);
-    },
+    ShowMetricsWindow(p_open?: boolean[]): void { return Mod.export.ImGui_ShowMetricsWindow(p_open); },
+
     /** create Debug Log window. display a simplified log of important dear imgui events. */
-    ShowDebugLogWindow(p_open) {
-        return Mod.export.ImGui_ShowDebugLogWindow(p_open);
-    },
+    ShowDebugLogWindow(p_open?: boolean[]): void { return Mod.export.ImGui_ShowDebugLogWindow(p_open); },
+
     /** create Stack Tool window. hover items with mouse to query information about the source of their unique ID. */
-    ShowIDStackToolWindow(p_open) {
-        return Mod.export.ImGui_ShowIDStackToolWindow(p_open);
-    },
+    ShowIDStackToolWindow(p_open?: boolean[]): void { return Mod.export.ImGui_ShowIDStackToolWindow(p_open); },
+
     /** create About window. display Dear ImGui version, credits and build\/system information. */
-    ShowAboutWindow(p_open) {
-        return Mod.export.ImGui_ShowAboutWindow(p_open);
-    },
+    ShowAboutWindow(p_open?: boolean[]): void { return Mod.export.ImGui_ShowAboutWindow(p_open); },
+
     /** add style editor block (not a window). you can pass in a reference ImGuiStyle structure to compare to, revert to and save to (else it uses the default style) */
-    ShowStyleEditor(ref) {
-        return Mod.export.ImGui_ShowStyleEditor(ref?._ptr || null);
-    },
+    ShowStyleEditor(ref?: ImGuiStyle): void { return Mod.export.ImGui_ShowStyleEditor(ref?._ptr || null); },
+
     /** add style selector block (not a window), essentially a combo listing the default styles. */
-    ShowStyleSelector(label) {
-        return Mod.export.ImGui_ShowStyleSelector(label);
-    },
+    ShowStyleSelector(label: string): boolean { return Mod.export.ImGui_ShowStyleSelector(label); },
+
     /** add font selector block (not a window), essentially a combo listing the loaded fonts. */
-    ShowFontSelector(label) {
-        return Mod.export.ImGui_ShowFontSelector(label);
-    },
+    ShowFontSelector(label: string): void { return Mod.export.ImGui_ShowFontSelector(label); },
+
     /** add basic help\/info block (not a window): how to manipulate ImGui as an end-user (mouse\/keyboard controls). */
-    ShowUserGuide() {
-        return Mod.export.ImGui_ShowUserGuide();
-    },
+    ShowUserGuide(): void { return Mod.export.ImGui_ShowUserGuide(); },
+
     /** get the compiled version string e.g. "1.80 WIP" (essentially the value for IMGUI_VERSION from the compiled version of imgui.cpp) */
-    GetVersion() {
-        return Mod.export.ImGui_GetVersion();
-    },
+    GetVersion(): string { return Mod.export.ImGui_GetVersion(); },
+
     /** new, recommended style (default) */
-    StyleColorsDark(dst) {
-        return Mod.export.ImGui_StyleColorsDark(dst?._ptr || null);
-    },
+    StyleColorsDark(dst?: ImGuiStyle): void { return Mod.export.ImGui_StyleColorsDark(dst?._ptr || null); },
+
     /** best used with borders and a custom, thicker font */
-    StyleColorsLight(dst) {
-        return Mod.export.ImGui_StyleColorsLight(dst?._ptr || null);
-    },
+    StyleColorsLight(dst?: ImGuiStyle): void { return Mod.export.ImGui_StyleColorsLight(dst?._ptr || null); },
+
     /** classic imgui style */
-    StyleColorsClassic(dst) {
-        return Mod.export.ImGui_StyleColorsClassic(dst?._ptr || null);
-    },
+    StyleColorsClassic(dst?: ImGuiStyle): void { return Mod.export.ImGui_StyleColorsClassic(dst?._ptr || null); },
+
     /** Windows */
-    Begin(name, p_open, flags = 0) {
-        return Mod.export.ImGui_Begin(name, p_open, flags);
-    },
-    End() {
-        return Mod.export.ImGui_End();
-    },
+    Begin(name: string, p_open?: boolean[], flags: ImGuiWindowFlags = 0): boolean { return Mod.export.ImGui_Begin(name, p_open, flags); },
+
+    End(): void { return Mod.export.ImGui_End(); },
+
     /** Child Windows */
-    BeginChild(str_id, size = new ImVec2(0, 0), child_flags = 0, window_flags = 0) {
-        return Mod.export.ImGui_BeginChild(str_id, size?._ptr || null, child_flags, window_flags);
-    },
-    EndChild() {
-        return Mod.export.ImGui_EndChild();
-    },
+    BeginChild(str_id: string, size: ImVec2 = new ImVec2(0, 0), child_flags: ImGuiChildFlags = 0, window_flags: ImGuiWindowFlags = 0): boolean { return Mod.export.ImGui_BeginChild(str_id, size?._ptr || null, child_flags, window_flags); },
+
+    EndChild(): void { return Mod.export.ImGui_EndChild(); },
+
     /** Windows Utilities */
-    IsWindowAppearing() {
-        return Mod.export.ImGui_IsWindowAppearing();
-    },
-    IsWindowCollapsed() {
-        return Mod.export.ImGui_IsWindowCollapsed();
-    },
+    IsWindowAppearing(): boolean { return Mod.export.ImGui_IsWindowAppearing(); },
+
+    IsWindowCollapsed(): boolean { return Mod.export.ImGui_IsWindowCollapsed(); },
+
     /** is current window focused? or its root\/child, depending on flags. see flags for options. */
-    IsWindowFocused(flags = 0) {
-        return Mod.export.ImGui_IsWindowFocused(flags);
-    },
+    IsWindowFocused(flags: ImGuiFocusedFlags = 0): boolean { return Mod.export.ImGui_IsWindowFocused(flags); },
+
     /** is current window hovered and hoverable (e.g. not blocked by a popup\/modal)? See ImGuiHoveredFlags_ for options. IMPORTANT: If you are trying to check whether your mouse should be dispatched to Dear ImGui or to your underlying app, you should not use this function! Use the 'io.WantCaptureMouse' boolean for that! Refer to FAQ entry "How can I tell whether to dispatch mouse\/keyboard to Dear ImGui or my application?" for details. */
-    IsWindowHovered(flags = 0) {
-        return Mod.export.ImGui_IsWindowHovered(flags);
-    },
+    IsWindowHovered(flags: ImGuiHoveredFlags = 0): boolean { return Mod.export.ImGui_IsWindowHovered(flags); },
+
     /** get draw list associated to the current window, to append your own drawing primitives */
-    GetWindowDrawList() {
-        return ImDrawList.wrap(Mod.export.ImGui_GetWindowDrawList());
-    },
+    GetWindowDrawList(): ImDrawList { return ImDrawList.wrap(Mod.export.ImGui_GetWindowDrawList()); },
+
     /** get DPI scale currently associated to the current window's viewport. */
-    GetWindowDpiScale() {
-        return Mod.export.ImGui_GetWindowDpiScale();
-    },
+    GetWindowDpiScale(): number { return Mod.export.ImGui_GetWindowDpiScale(); },
+
     /** get current window position in screen space (IT IS UNLIKELY YOU EVER NEED TO USE THIS. Consider always using GetCursorScreenPos() and GetContentRegionAvail() instead) */
-    GetWindowPos() {
-        return ImVec2.wrap(Mod.export.ImGui_GetWindowPos());
-    },
+    GetWindowPos(): ImVec2 { return ImVec2.wrap(Mod.export.ImGui_GetWindowPos()); },
+
     /** get current window size (IT IS UNLIKELY YOU EVER NEED TO USE THIS. Consider always using GetCursorScreenPos() and GetContentRegionAvail() instead) */
-    GetWindowSize() {
-        return ImVec2.wrap(Mod.export.ImGui_GetWindowSize());
-    },
+    GetWindowSize(): ImVec2 { return ImVec2.wrap(Mod.export.ImGui_GetWindowSize()); },
+
     /** get current window width (IT IS UNLIKELY YOU EVER NEED TO USE THIS). Shortcut for GetWindowSize().x. */
-    GetWindowWidth() {
-        return Mod.export.ImGui_GetWindowWidth();
-    },
+    GetWindowWidth(): number { return Mod.export.ImGui_GetWindowWidth(); },
+
     /** get current window height (IT IS UNLIKELY YOU EVER NEED TO USE THIS). Shortcut for GetWindowSize().y. */
-    GetWindowHeight() {
-        return Mod.export.ImGui_GetWindowHeight();
-    },
+    GetWindowHeight(): number { return Mod.export.ImGui_GetWindowHeight(); },
+
     /** set next window position. call before Begin(). use pivot=(0.5f,0.5f) to center on given point, etc. */
-    SetNextWindowPos(pos, cond = 0, pivot = new ImVec2(0, 0)) {
-        return Mod.export.ImGui_SetNextWindowPos(pos?._ptr || null, cond, pivot?._ptr || null);
-    },
+    SetNextWindowPos(pos: ImVec2, cond: ImGuiCond = 0, pivot: ImVec2 = new ImVec2(0, 0)): void { return Mod.export.ImGui_SetNextWindowPos(pos?._ptr || null, cond, pivot?._ptr || null); },
+
     /** set next window size. set axis to 0.0f to force an auto-fit on this axis. call before Begin() */
-    SetNextWindowSize(size, cond = 0) {
-        return Mod.export.ImGui_SetNextWindowSize(size?._ptr || null, cond);
-    },
+    SetNextWindowSize(size: ImVec2, cond: ImGuiCond = 0): void { return Mod.export.ImGui_SetNextWindowSize(size?._ptr || null, cond); },
+
     /** set next window content size (~ scrollable client area, which enforce the range of scrollbars). Not including window decorations (title bar, menu bar, etc.) nor WindowPadding. set an axis to 0.0f to leave it automatic. call before Begin() */
-    SetNextWindowContentSize(size) {
-        return Mod.export.ImGui_SetNextWindowContentSize(size?._ptr || null);
-    },
+    SetNextWindowContentSize(size: ImVec2): void { return Mod.export.ImGui_SetNextWindowContentSize(size?._ptr || null); },
+
     /** set next window collapsed state. call before Begin() */
-    SetNextWindowCollapsed(collapsed, cond = 0) {
-        return Mod.export.ImGui_SetNextWindowCollapsed(collapsed, cond);
-    },
+    SetNextWindowCollapsed(collapsed: boolean, cond: ImGuiCond = 0): void { return Mod.export.ImGui_SetNextWindowCollapsed(collapsed, cond); },
+
     /** set next window to be focused \/ top-most. call before Begin() */
-    SetNextWindowFocus() {
-        return Mod.export.ImGui_SetNextWindowFocus();
-    },
+    SetNextWindowFocus(): void { return Mod.export.ImGui_SetNextWindowFocus(); },
+
     /** set next window scrolling value (use < 0.0f to not affect a given axis). */
-    SetNextWindowScroll(scroll) {
-        return Mod.export.ImGui_SetNextWindowScroll(scroll?._ptr || null);
-    },
+    SetNextWindowScroll(scroll: ImVec2): void { return Mod.export.ImGui_SetNextWindowScroll(scroll?._ptr || null); },
+
     /** set next window background color alpha. helper to easily override the Alpha component of ImGuiCol_WindowBg\/ChildBg\/PopupBg. you may also use ImGuiWindowFlags_NoBackground. */
-    SetNextWindowBgAlpha(alpha) {
-        return Mod.export.ImGui_SetNextWindowBgAlpha(alpha);
-    },
+    SetNextWindowBgAlpha(alpha: number): void { return Mod.export.ImGui_SetNextWindowBgAlpha(alpha); },
+
     /** set next window viewport */
-    SetNextWindowViewport(viewport_id) {
-        return Mod.export.ImGui_SetNextWindowViewport(viewport_id);
-    },
+    SetNextWindowViewport(viewport_id: ImGuiID): void { return Mod.export.ImGui_SetNextWindowViewport(viewport_id); },
+
     /** (not recommended) set current window position - call within Begin()\/End(). prefer using SetNextWindowPos(), as this may incur tearing and side-effects. */
-    SetWindowPos(pos, cond = 0) {
-        return Mod.export.ImGui_SetWindowPos(pos?._ptr || null, cond);
-    },
+    SetWindowPos(pos: ImVec2, cond: ImGuiCond = 0): void { return Mod.export.ImGui_SetWindowPos(pos?._ptr || null, cond); },
+
     /** (not recommended) set current window size - call within Begin()\/End(). set to ImVec2(0, 0) to force an auto-fit. prefer using SetNextWindowSize(), as this may incur tearing and minor side-effects. */
-    SetWindowSize(size, cond = 0) {
-        return Mod.export.ImGui_SetWindowSize(size?._ptr || null, cond);
-    },
+    SetWindowSize(size: ImVec2, cond: ImGuiCond = 0): void { return Mod.export.ImGui_SetWindowSize(size?._ptr || null, cond); },
+
     /** (not recommended) set current window collapsed state. prefer using SetNextWindowCollapsed(). */
-    SetWindowCollapsed(collapsed, cond = 0) {
-        return Mod.export.ImGui_SetWindowCollapsed(collapsed, cond);
-    },
+    SetWindowCollapsed(collapsed: boolean, cond: ImGuiCond = 0): void { return Mod.export.ImGui_SetWindowCollapsed(collapsed, cond); },
+
     /** (not recommended) set current window to be focused \/ top-most. prefer using SetNextWindowFocus(). */
-    SetWindowFocus() {
-        return Mod.export.ImGui_SetWindowFocus();
-    },
+    SetWindowFocus(): void { return Mod.export.ImGui_SetWindowFocus(); },
+
     /** [OBSOLETE] set font scale. Adjust IO.FontGlobalScale if you want to scale all windows. This is an old API! For correct scaling, prefer to reload font + rebuild ImFontAtlas + call style.ScaleAllSizes(). */
-    SetWindowFontScale(scale) {
-        return Mod.export.ImGui_SetWindowFontScale(scale);
-    },
+    SetWindowFontScale(scale: number): void { return Mod.export.ImGui_SetWindowFontScale(scale); },
+
     /** get scrolling amount [0 .. GetScrollMaxX()] */
-    GetScrollX() {
-        return Mod.export.ImGui_GetScrollX();
-    },
+    GetScrollX(): number { return Mod.export.ImGui_GetScrollX(); },
+
     /** get scrolling amount [0 .. GetScrollMaxY()] */
-    GetScrollY() {
-        return Mod.export.ImGui_GetScrollY();
-    },
+    GetScrollY(): number { return Mod.export.ImGui_GetScrollY(); },
+
     /** set scrolling amount [0 .. GetScrollMaxX()] */
-    SetScrollX(scroll_x) {
-        return Mod.export.ImGui_SetScrollX(scroll_x);
-    },
+    SetScrollX(scroll_x: number): void { return Mod.export.ImGui_SetScrollX(scroll_x); },
+
     /** set scrolling amount [0 .. GetScrollMaxY()] */
-    SetScrollY(scroll_y) {
-        return Mod.export.ImGui_SetScrollY(scroll_y);
-    },
+    SetScrollY(scroll_y: number): void { return Mod.export.ImGui_SetScrollY(scroll_y); },
+
     /** get maximum scrolling amount ~~ ContentSize.x - WindowSize.x - DecorationsSize.x */
-    GetScrollMaxX() {
-        return Mod.export.ImGui_GetScrollMaxX();
-    },
+    GetScrollMaxX(): number { return Mod.export.ImGui_GetScrollMaxX(); },
+
     /** get maximum scrolling amount ~~ ContentSize.y - WindowSize.y - DecorationsSize.y */
-    GetScrollMaxY() {
-        return Mod.export.ImGui_GetScrollMaxY();
-    },
+    GetScrollMaxY(): number { return Mod.export.ImGui_GetScrollMaxY(); },
+
     /** adjust scrolling amount to make current cursor position visible. center_x_ratio=0.0: left, 0.5: center, 1.0: right. When using to make a "default\/current item" visible, consider using SetItemDefaultFocus() instead. */
-    SetScrollHereX(center_x_ratio = 0.5) {
-        return Mod.export.ImGui_SetScrollHereX(center_x_ratio);
-    },
+    SetScrollHereX(center_x_ratio: number = 0.5): void { return Mod.export.ImGui_SetScrollHereX(center_x_ratio); },
+
     /** adjust scrolling amount to make current cursor position visible. center_y_ratio=0.0: top, 0.5: center, 1.0: bottom. When using to make a "default\/current item" visible, consider using SetItemDefaultFocus() instead. */
-    SetScrollHereY(center_y_ratio = 0.5) {
-        return Mod.export.ImGui_SetScrollHereY(center_y_ratio);
-    },
+    SetScrollHereY(center_y_ratio: number = 0.5): void { return Mod.export.ImGui_SetScrollHereY(center_y_ratio); },
+
     /** adjust scrolling amount to make given position visible. Generally GetCursorStartPos() + offset to compute a valid position. */
-    SetScrollFromPosX(local_x, center_x_ratio = 0.5) {
-        return Mod.export.ImGui_SetScrollFromPosX(local_x, center_x_ratio);
-    },
+    SetScrollFromPosX(local_x: number, center_x_ratio: number = 0.5): void { return Mod.export.ImGui_SetScrollFromPosX(local_x, center_x_ratio); },
+
     /** adjust scrolling amount to make given position visible. Generally GetCursorStartPos() + offset to compute a valid position. */
-    SetScrollFromPosY(local_y, center_y_ratio = 0.5) {
-        return Mod.export.ImGui_SetScrollFromPosY(local_y, center_y_ratio);
-    },
+    SetScrollFromPosY(local_y: number, center_y_ratio: number = 0.5): void { return Mod.export.ImGui_SetScrollFromPosY(local_y, center_y_ratio); },
+
     /** use NULL as a shortcut to push default font */
-    PushFont(font) {
-        return Mod.export.ImGui_PushFont(font?._ptr || null);
-    },
-    PopFont() {
-        return Mod.export.ImGui_PopFont();
-    },
+    PushFont(font: ImFont): void { return Mod.export.ImGui_PushFont(font?._ptr || null); },
+
+    PopFont(): void { return Mod.export.ImGui_PopFont(); },
+
     /** modify a style color. always use this if you modify the style after NewFrame(). */
-    PushStyleColor(idx, col) {
-        return Mod.export.ImGui_PushStyleColor(idx, col);
-    },
-    PopStyleColor(count = 1) {
-        return Mod.export.ImGui_PopStyleColor(count);
-    },
+    PushStyleColor(idx: ImGuiCol, col: ImU32): void { return Mod.export.ImGui_PushStyleColor(idx, col); },
+
+    PopStyleColor(count: number = 1): void { return Mod.export.ImGui_PopStyleColor(count); },
+
     /** modify a style float variable. always use this if you modify the style after NewFrame()! */
-    PushStyleVar(idx, val) {
-        return Mod.export.ImGui_PushStyleVar(idx, val);
-    },
+    PushStyleVar(idx: ImGuiStyleVar, val: number): void { return Mod.export.ImGui_PushStyleVar(idx, val); },
+
     /** modify X component of a style ImVec2 variable. " */
-    PushStyleVarX(idx, val_x) {
-        return Mod.export.ImGui_PushStyleVarX(idx, val_x);
-    },
+    PushStyleVarX(idx: ImGuiStyleVar, val_x: number): void { return Mod.export.ImGui_PushStyleVarX(idx, val_x); },
+
     /** modify Y component of a style ImVec2 variable. " */
-    PushStyleVarY(idx, val_y) {
-        return Mod.export.ImGui_PushStyleVarY(idx, val_y);
-    },
-    PopStyleVar(count = 1) {
-        return Mod.export.ImGui_PopStyleVar(count);
-    },
+    PushStyleVarY(idx: ImGuiStyleVar, val_y: number): void { return Mod.export.ImGui_PushStyleVarY(idx, val_y); },
+
+    PopStyleVar(count: number = 1): void { return Mod.export.ImGui_PopStyleVar(count); },
+
     /** modify specified shared item flag, e.g. PushItemFlag(ImGuiItemFlags_NoTabStop, true) */
-    PushItemFlag(option, enabled) {
-        return Mod.export.ImGui_PushItemFlag(option, enabled);
-    },
-    PopItemFlag() {
-        return Mod.export.ImGui_PopItemFlag();
-    },
+    PushItemFlag(option: ImGuiItemFlags, enabled: boolean): void { return Mod.export.ImGui_PushItemFlag(option, enabled); },
+
+    PopItemFlag(): void { return Mod.export.ImGui_PopItemFlag(); },
+
     /** push width of items for common large "item+label" widgets. >0.0f: width in pixels, <0.0f align xx pixels to the right of window (so -FLT_MIN always align width to the right side). */
-    PushItemWidth(item_width) {
-        return Mod.export.ImGui_PushItemWidth(item_width);
-    },
-    PopItemWidth() {
-        return Mod.export.ImGui_PopItemWidth();
-    },
+    PushItemWidth(item_width: number): void { return Mod.export.ImGui_PushItemWidth(item_width); },
+
+    PopItemWidth(): void { return Mod.export.ImGui_PopItemWidth(); },
+
     /** set width of the _next_ common large "item+label" widget. >0.0f: width in pixels, <0.0f align xx pixels to the right of window (so -FLT_MIN always align width to the right side) */
-    SetNextItemWidth(item_width) {
-        return Mod.export.ImGui_SetNextItemWidth(item_width);
-    },
+    SetNextItemWidth(item_width: number): void { return Mod.export.ImGui_SetNextItemWidth(item_width); },
+
     /** width of item given pushed settings and current cursor position. NOT necessarily the width of last item unlike most 'Item' functions. */
-    CalcItemWidth() {
-        return Mod.export.ImGui_CalcItemWidth();
-    },
+    CalcItemWidth(): number { return Mod.export.ImGui_CalcItemWidth(); },
+
     /** push word-wrapping position for Text*() commands. < 0.0f: no wrapping; 0.0f: wrap to end of window (or column); > 0.0f: wrap at 'wrap_pos_x' position in window local space */
-    PushTextWrapPos(wrap_local_pos_x = 0.0) {
-        return Mod.export.ImGui_PushTextWrapPos(wrap_local_pos_x);
-    },
-    PopTextWrapPos() {
-        return Mod.export.ImGui_PopTextWrapPos();
-    },
+    PushTextWrapPos(wrap_local_pos_x: number = 0.0): void { return Mod.export.ImGui_PushTextWrapPos(wrap_local_pos_x); },
+
+    PopTextWrapPos(): void { return Mod.export.ImGui_PopTextWrapPos(); },
+
     /** get current font */
-    GetFont() {
-        return ImFont.wrap(Mod.export.ImGui_GetFont());
-    },
+    GetFont(): ImFont { return ImFont.wrap(Mod.export.ImGui_GetFont()); },
+
     /** get current font size (= height in pixels) of current font with current scale applied */
-    GetFontSize() {
-        return Mod.export.ImGui_GetFontSize();
-    },
+    GetFontSize(): number { return Mod.export.ImGui_GetFontSize(); },
+
     /** get UV coordinate for a white pixel, useful to draw custom shapes via the ImDrawList API */
-    GetFontTexUvWhitePixel() {
-        return ImVec2.wrap(Mod.export.ImGui_GetFontTexUvWhitePixel());
-    },
+    GetFontTexUvWhitePixel(): ImVec2 { return ImVec2.wrap(Mod.export.ImGui_GetFontTexUvWhitePixel()); },
+
     /** retrieve style color as stored in ImGuiStyle structure. use to feed back into PushStyleColor(), otherwise use GetColorU32() to get style color with style alpha baked in. */
-    GetStyleColorVec4(idx) {
-        return ImVec4.wrap(Mod.export.ImGui_GetStyleColorVec4(idx));
-    },
+    GetStyleColorVec4(idx: ImGuiCol): ImVec4 { return ImVec4.wrap(Mod.export.ImGui_GetStyleColorVec4(idx)); },
+
     /** cursor position, absolute coordinates. THIS IS YOUR BEST FRIEND (prefer using this rather than GetCursorPos(), also more useful to work with ImDrawList API). */
-    GetCursorScreenPos() {
-        return ImVec2.wrap(Mod.export.ImGui_GetCursorScreenPos());
-    },
+    GetCursorScreenPos(): ImVec2 { return ImVec2.wrap(Mod.export.ImGui_GetCursorScreenPos()); },
+
     /** cursor position, absolute coordinates. THIS IS YOUR BEST FRIEND. */
-    SetCursorScreenPos(pos) {
-        return Mod.export.ImGui_SetCursorScreenPos(pos?._ptr || null);
-    },
+    SetCursorScreenPos(pos: ImVec2): void { return Mod.export.ImGui_SetCursorScreenPos(pos?._ptr || null); },
+
     /** available space from current position. THIS IS YOUR BEST FRIEND. */
-    GetContentRegionAvail() {
-        return ImVec2.wrap(Mod.export.ImGui_GetContentRegionAvail());
-    },
+    GetContentRegionAvail(): ImVec2 { return ImVec2.wrap(Mod.export.ImGui_GetContentRegionAvail()); },
+
     /** [window-local] cursor position in window-local coordinates. This is not your best friend. */
-    GetCursorPos() {
-        return ImVec2.wrap(Mod.export.ImGui_GetCursorPos());
-    },
+    GetCursorPos(): ImVec2 { return ImVec2.wrap(Mod.export.ImGui_GetCursorPos()); },
+
     /** [window-local] " */
-    GetCursorPosX() {
-        return Mod.export.ImGui_GetCursorPosX();
-    },
+    GetCursorPosX(): number { return Mod.export.ImGui_GetCursorPosX(); },
+
     /** [window-local] " */
-    GetCursorPosY() {
-        return Mod.export.ImGui_GetCursorPosY();
-    },
+    GetCursorPosY(): number { return Mod.export.ImGui_GetCursorPosY(); },
+
     /** [window-local] " */
-    SetCursorPos(local_pos) {
-        return Mod.export.ImGui_SetCursorPos(local_pos?._ptr || null);
-    },
+    SetCursorPos(local_pos: ImVec2): void { return Mod.export.ImGui_SetCursorPos(local_pos?._ptr || null); },
+
     /** [window-local] " */
-    SetCursorPosX(local_x) {
-        return Mod.export.ImGui_SetCursorPosX(local_x);
-    },
+    SetCursorPosX(local_x: number): void { return Mod.export.ImGui_SetCursorPosX(local_x); },
+
     /** [window-local] " */
-    SetCursorPosY(local_y) {
-        return Mod.export.ImGui_SetCursorPosY(local_y);
-    },
+    SetCursorPosY(local_y: number): void { return Mod.export.ImGui_SetCursorPosY(local_y); },
+
     /** [window-local] initial cursor position, in window-local coordinates. Call GetCursorScreenPos() after Begin() to get the absolute coordinates version. */
-    GetCursorStartPos() {
-        return ImVec2.wrap(Mod.export.ImGui_GetCursorStartPos());
-    },
+    GetCursorStartPos(): ImVec2 { return ImVec2.wrap(Mod.export.ImGui_GetCursorStartPos()); },
+
     /** separator, generally horizontal. inside a menu bar or in horizontal layout mode, this becomes a vertical separator. */
-    Separator() {
-        return Mod.export.ImGui_Separator();
-    },
+    Separator(): void { return Mod.export.ImGui_Separator(); },
+
     /** call between widgets or groups to layout them horizontally. X position given in window coordinates. */
-    SameLine(offset_from_start_x = 0.0, spacing = -1.0) {
-        return Mod.export.ImGui_SameLine(offset_from_start_x, spacing);
-    },
+    SameLine(offset_from_start_x: number = 0.0, spacing: number = -1.0): void { return Mod.export.ImGui_SameLine(offset_from_start_x, spacing); },
+
     /** undo a SameLine() or force a new line when in a horizontal-layout context. */
-    NewLine() {
-        return Mod.export.ImGui_NewLine();
-    },
+    NewLine(): void { return Mod.export.ImGui_NewLine(); },
+
     /** add vertical spacing. */
-    Spacing() {
-        return Mod.export.ImGui_Spacing();
-    },
+    Spacing(): void { return Mod.export.ImGui_Spacing(); },
+
     /** add a dummy item of given size. unlike InvisibleButton(), Dummy() won't take the mouse click or be navigable into. */
-    Dummy(size) {
-        return Mod.export.ImGui_Dummy(size?._ptr || null);
-    },
+    Dummy(size: ImVec2): void { return Mod.export.ImGui_Dummy(size?._ptr || null); },
+
     /** move content position toward the right, by indent_w, or style.IndentSpacing if indent_w <= 0 */
-    Indent(indent_w = 0.0) {
-        return Mod.export.ImGui_Indent(indent_w);
-    },
+    Indent(indent_w: number = 0.0): void { return Mod.export.ImGui_Indent(indent_w); },
+
     /** move content position back to the left, by indent_w, or style.IndentSpacing if indent_w <= 0 */
-    Unindent(indent_w = 0.0) {
-        return Mod.export.ImGui_Unindent(indent_w);
-    },
+    Unindent(indent_w: number = 0.0): void { return Mod.export.ImGui_Unindent(indent_w); },
+
     /** lock horizontal starting position */
-    BeginGroup() {
-        return Mod.export.ImGui_BeginGroup();
-    },
+    BeginGroup(): void { return Mod.export.ImGui_BeginGroup(); },
+
     /** unlock horizontal starting position + capture the whole group bounding box into one "item" (so you can use IsItemHovered() or layout primitives such as SameLine() on whole group, etc.) */
-    EndGroup() {
-        return Mod.export.ImGui_EndGroup();
-    },
+    EndGroup(): void { return Mod.export.ImGui_EndGroup(); },
+
     /** vertically align upcoming text baseline to FramePadding.y so that it will align properly to regularly framed items (call if you have text on a line before a framed item) */
-    AlignTextToFramePadding() {
-        return Mod.export.ImGui_AlignTextToFramePadding();
-    },
+    AlignTextToFramePadding(): void { return Mod.export.ImGui_AlignTextToFramePadding(); },
+
     /** ~ FontSize */
-    GetTextLineHeight() {
-        return Mod.export.ImGui_GetTextLineHeight();
-    },
+    GetTextLineHeight(): number { return Mod.export.ImGui_GetTextLineHeight(); },
+
     /** ~ FontSize + style.ItemSpacing.y (distance in pixels between 2 consecutive lines of text) */
-    GetTextLineHeightWithSpacing() {
-        return Mod.export.ImGui_GetTextLineHeightWithSpacing();
-    },
+    GetTextLineHeightWithSpacing(): number { return Mod.export.ImGui_GetTextLineHeightWithSpacing(); },
+
     /** ~ FontSize + style.FramePadding.y * 2 */
-    GetFrameHeight() {
-        return Mod.export.ImGui_GetFrameHeight();
-    },
+    GetFrameHeight(): number { return Mod.export.ImGui_GetFrameHeight(); },
+
     /** ~ FontSize + style.FramePadding.y * 2 + style.ItemSpacing.y (distance in pixels between 2 consecutive lines of framed widgets) */
-    GetFrameHeightWithSpacing() {
-        return Mod.export.ImGui_GetFrameHeightWithSpacing();
-    },
+    GetFrameHeightWithSpacing(): number { return Mod.export.ImGui_GetFrameHeightWithSpacing(); },
+
     /** push integer into the ID stack (will hash integer). */
-    PushIDInt(int_id) {
-        return Mod.export.ImGui_PushIDInt(int_id);
-    },
-    GetIDInt(int_id) {
-        return Mod.export.ImGui_GetIDInt(int_id);
-    },
+    PushIDInt(int_id: number): void { return Mod.export.ImGui_PushIDInt(int_id); },
+
+    GetIDInt(int_id: number): ImGuiID { return Mod.export.ImGui_GetIDInt(int_id); },
+
     /** formatted text */
-    Text(fmt) {
-        return Mod.export.ImGui_Text(fmt);
-    },
+    Text(fmt: string): void { return Mod.export.ImGui_Text(fmt); },
     /** shortcut for PushStyleColor(ImGuiCol_Text, col); Text(fmt, ...); PopStyleColor(); */
-    TextColored(col, fmt) {
-        return Mod.export.ImGui_TextColored(col?._ptr, fmt);
-    },
+    TextColored(col: ImVec4, fmt: string): void { return Mod.export.ImGui_TextColored(col?._ptr, fmt); },
     /** shortcut for PushStyleColor(ImGuiCol_TextDisabled); Text(fmt, ...); PopStyleColor(); */
-    TextDisabled(fmt) {
-        return Mod.export.ImGui_TextDisabled(fmt);
-    },
+    TextDisabled(fmt: string): void { return Mod.export.ImGui_TextDisabled(fmt); },
     /** shortcut for PushTextWrapPos(0.0f); Text(fmt, ...); PopTextWrapPos();. Note that this won't work on an auto-resizing window if there's no other widgets to extend the window width, yoy may need to set a size using SetNextWindowSize(). */
-    TextWrapped(fmt) {
-        return Mod.export.ImGui_TextWrapped(fmt);
-    },
+    TextWrapped(fmt: string): void { return Mod.export.ImGui_TextWrapped(fmt); },
     /** display text+label aligned the same way as value+label widgets */
-    LabelText(label, fmt) {
-        return Mod.export.ImGui_LabelText(label, fmt);
-    },
+    LabelText(label: string, fmt: string): void { return Mod.export.ImGui_LabelText(label, fmt); },
     /** shortcut for Bullet()+Text() */
-    BulletText(fmt) {
-        return Mod.export.ImGui_BulletText(fmt);
-    },
+    BulletText(fmt: string): void { return Mod.export.ImGui_BulletText(fmt); },
     /** currently: formatted text with an horizontal line */
-    SeparatorText(label) {
-        return Mod.export.ImGui_SeparatorText(label);
-    },
+    SeparatorText(label: string): void { return Mod.export.ImGui_SeparatorText(label); },
+
     /** button */
-    Button(label, size = new ImVec2(0, 0)) {
-        return Mod.export.ImGui_Button(label, size?._ptr || null);
-    },
+    Button(label: string, size: ImVec2 = new ImVec2(0, 0)): boolean { return Mod.export.ImGui_Button(label, size?._ptr || null); },
+
     /** button with (FramePadding.y == 0) to easily embed within text */
-    SmallButton(label) {
-        return Mod.export.ImGui_SmallButton(label);
-    },
+    SmallButton(label: string): boolean { return Mod.export.ImGui_SmallButton(label); },
+
     /** flexible button behavior without the visuals, frequently useful to build custom behaviors using the public api (along with IsItemActive, IsItemHovered, etc.) */
-    InvisibleButton(str_id, size, flags = 0) {
-        return Mod.export.ImGui_InvisibleButton(str_id, size?._ptr || null, flags);
-    },
+    InvisibleButton(str_id: string, size: ImVec2, flags: ImGuiButtonFlags = 0): boolean { return Mod.export.ImGui_InvisibleButton(str_id, size?._ptr || null, flags); },
+
     /** square button with an arrow shape */
-    ArrowButton(str_id, dir) {
-        return Mod.export.ImGui_ArrowButton(str_id, dir);
-    },
-    Checkbox(label, v) {
-        return Mod.export.ImGui_Checkbox(label, v);
-    },
+    ArrowButton(str_id: string, dir: ImGuiDir): boolean { return Mod.export.ImGui_ArrowButton(str_id, dir); },
+
+    Checkbox(label: string, v: boolean[]): boolean { return Mod.export.ImGui_Checkbox(label, v); },
+
     /** use with e.g. if (RadioButton("one", my_value==1)) { my_value = 1; } */
-    RadioButton(label, active) {
-        return Mod.export.ImGui_RadioButton(label, active);
-    },
-    ProgressBar(fraction, size_arg = new ImVec2(-Number.MIN_VALUE, 0), overlay) {
-        return Mod.export.ImGui_ProgressBar(fraction, size_arg?._ptr || null, overlay);
-    },
+    RadioButton(label: string, active: boolean): boolean { return Mod.export.ImGui_RadioButton(label, active); },
+
+    ProgressBar(fraction: number, size_arg: ImVec2 = new ImVec2(-Number.MIN_VALUE, 0), overlay?: string): void { return Mod.export.ImGui_ProgressBar(fraction, size_arg?._ptr || null, overlay); },
+
     /** draw a small circle + keep the cursor on the same line. advance cursor x position by GetTreeNodeToLabelSpacing(), same distance that TreeNode() uses */
-    Bullet() {
-        return Mod.export.ImGui_Bullet();
-    },
+    Bullet(): void { return Mod.export.ImGui_Bullet(); },
+
     /** hyperlink text button, return true when clicked */
-    TextLink(label) {
-        return Mod.export.ImGui_TextLink(label);
-    },
+    TextLink(label: string): boolean { return Mod.export.ImGui_TextLink(label); },
+
     /** hyperlink text button, automatically open file\/url when clicked */
-    TextLinkOpenURL(label, url) {
-        return Mod.export.ImGui_TextLinkOpenURL(label, url);
-    },
+    TextLinkOpenURL(label: string, url?: string): void { return Mod.export.ImGui_TextLinkOpenURL(label, url); },
+
     /** Widgets: Images */
-    Image(
-        user_texture_id,
-        image_size,
-        uv0 = new ImVec2(0, 0),
-        uv1 = new ImVec2(1, 1),
-        tint_col = new ImVec4(1, 1, 1, 1),
-        border_col = new ImVec4(0, 0, 0, 0),
-    ) {
-        return Mod.export.ImGui_Image(
-            user_texture_id,
-            image_size?._ptr || null,
-            uv0?._ptr || null,
-            uv1?._ptr || null,
-            tint_col?._ptr || null,
-            border_col?._ptr || null,
-        );
-    },
-    ImageButton(
-        str_id,
-        user_texture_id,
-        image_size,
-        uv0 = new ImVec2(0, 0),
-        uv1 = new ImVec2(1, 1),
-        bg_col = new ImVec4(0, 0, 0, 0),
-        tint_col = new ImVec4(1, 1, 1, 1),
-    ) {
-        return Mod.export.ImGui_ImageButton(
-            str_id,
-            user_texture_id,
-            image_size?._ptr || null,
-            uv0?._ptr || null,
-            uv1?._ptr || null,
-            bg_col?._ptr || null,
-            tint_col?._ptr || null,
-        );
-    },
+    Image(user_texture_id: ImTextureID, image_size: ImVec2, uv0: ImVec2 = new ImVec2(0, 0), uv1: ImVec2 = new ImVec2(1, 1), tint_col: ImVec4 = new ImVec4(1, 1, 1, 1), border_col: ImVec4 = new ImVec4(0, 0, 0, 0)): void { return Mod.export.ImGui_Image(user_texture_id, image_size?._ptr || null, uv0?._ptr || null, uv1?._ptr || null, tint_col?._ptr || null, border_col?._ptr || null); },
+
+    ImageButton(str_id: string, user_texture_id: ImTextureID, image_size: ImVec2, uv0: ImVec2 = new ImVec2(0, 0), uv1: ImVec2 = new ImVec2(1, 1), bg_col: ImVec4 = new ImVec4(0, 0, 0, 0), tint_col: ImVec4 = new ImVec4(1, 1, 1, 1)): boolean { return Mod.export.ImGui_ImageButton(str_id, user_texture_id, image_size?._ptr || null, uv0?._ptr || null, uv1?._ptr || null, bg_col?._ptr || null, tint_col?._ptr || null); },
+
     /** Widgets: Combo Box (Dropdown) */
-    BeginCombo(label, preview_value, flags = 0) {
-        return Mod.export.ImGui_BeginCombo(label, preview_value, flags);
-    },
+    BeginCombo(label: string, preview_value: string, flags: ImGuiComboFlags = 0): boolean { return Mod.export.ImGui_BeginCombo(label, preview_value, flags); },
+
     /** only call EndCombo() if BeginCombo() returns true! */
-    EndCombo() {
-        return Mod.export.ImGui_EndCombo();
-    },
+    EndCombo(): void { return Mod.export.ImGui_EndCombo(); },
+
     /** If v_min >= v_max we have no bound */
-    DragFloat(label, v, v_speed = 1.0, v_min = 0.0, v_max = 0.0, format = "%.3f", flags = 0) {
-        return Mod.export.ImGui_DragFloat(label, v, v_speed, v_min, v_max, format, flags);
-    },
-    DragFloat2(label, v, v_speed = 1.0, v_min = 0.0, v_max = 0.0, format = "%.3f", flags = 0) {
-        return Mod.export.ImGui_DragFloat2(label, v, v_speed, v_min, v_max, format, flags);
-    },
-    DragFloat3(label, v, v_speed = 1.0, v_min = 0.0, v_max = 0.0, format = "%.3f", flags = 0) {
-        return Mod.export.ImGui_DragFloat3(label, v, v_speed, v_min, v_max, format, flags);
-    },
-    DragFloat4(label, v, v_speed = 1.0, v_min = 0.0, v_max = 0.0, format = "%.3f", flags = 0) {
-        return Mod.export.ImGui_DragFloat4(label, v, v_speed, v_min, v_max, format, flags);
-    },
-    DragFloatRange2(
-        label,
-        v_current_min,
-        v_current_max,
-        v_speed = 1.0,
-        v_min = 0.0,
-        v_max = 0.0,
-        format = "%.3f",
-        format_max,
-        flags = 0,
-    ) {
-        return Mod.export.ImGui_DragFloatRange2(
-            label,
-            v_current_min,
-            v_current_max,
-            v_speed,
-            v_min,
-            v_max,
-            format,
-            format_max,
-            flags,
-        );
-    },
+    DragFloat(label: string, v: number[], v_speed: number = 1.0, v_min: number = 0.0, v_max: number = 0.0, format: string = "%.3f", flags: ImGuiSliderFlags = 0): boolean { return Mod.export.ImGui_DragFloat(label, v, v_speed, v_min, v_max, format, flags); },
+
+    DragFloat2(label: string, v: number[], v_speed: number = 1.0, v_min: number = 0.0, v_max: number = 0.0, format: string = "%.3f", flags: ImGuiSliderFlags = 0): boolean { return Mod.export.ImGui_DragFloat2(label, v, v_speed, v_min, v_max, format, flags); },
+
+    DragFloat3(label: string, v: number[], v_speed: number = 1.0, v_min: number = 0.0, v_max: number = 0.0, format: string = "%.3f", flags: ImGuiSliderFlags = 0): boolean { return Mod.export.ImGui_DragFloat3(label, v, v_speed, v_min, v_max, format, flags); },
+
+    DragFloat4(label: string, v: number[], v_speed: number = 1.0, v_min: number = 0.0, v_max: number = 0.0, format: string = "%.3f", flags: ImGuiSliderFlags = 0): boolean { return Mod.export.ImGui_DragFloat4(label, v, v_speed, v_min, v_max, format, flags); },
+
+    DragFloatRange2(label: string, v_current_min: number[], v_current_max: number[], v_speed: number = 1.0, v_min: number = 0.0, v_max: number = 0.0, format: string = "%.3f", format_max?: string, flags: ImGuiSliderFlags = 0): boolean { return Mod.export.ImGui_DragFloatRange2(label, v_current_min, v_current_max, v_speed, v_min, v_max, format, format_max, flags); },
+
     /** If v_min >= v_max we have no bound */
-    DragInt(label, v, v_speed = 1.0, v_min = 0, v_max = 0, format = "%d", flags = 0) {
-        return Mod.export.ImGui_DragInt(label, v, v_speed, v_min, v_max, format, flags);
-    },
-    DragInt2(label, v, v_speed = 1.0, v_min = 0, v_max = 0, format = "%d", flags = 0) {
-        return Mod.export.ImGui_DragInt2(label, v, v_speed, v_min, v_max, format, flags);
-    },
-    DragInt3(label, v, v_speed = 1.0, v_min = 0, v_max = 0, format = "%d", flags = 0) {
-        return Mod.export.ImGui_DragInt3(label, v, v_speed, v_min, v_max, format, flags);
-    },
-    DragInt4(label, v, v_speed = 1.0, v_min = 0, v_max = 0, format = "%d", flags = 0) {
-        return Mod.export.ImGui_DragInt4(label, v, v_speed, v_min, v_max, format, flags);
-    },
-    DragIntRange2(
-        label,
-        v_current_min,
-        v_current_max,
-        v_speed = 1.0,
-        v_min = 0,
-        v_max = 0,
-        format = "%d",
-        format_max,
-        flags = 0,
-    ) {
-        return Mod.export.ImGui_DragIntRange2(
-            label,
-            v_current_min,
-            v_current_max,
-            v_speed,
-            v_min,
-            v_max,
-            format,
-            format_max,
-            flags,
-        );
-    },
+    DragInt(label: string, v: number[], v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, format: string = "%d", flags: ImGuiSliderFlags = 0): boolean { return Mod.export.ImGui_DragInt(label, v, v_speed, v_min, v_max, format, flags); },
+
+    DragInt2(label: string, v: number[], v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, format: string = "%d", flags: ImGuiSliderFlags = 0): boolean { return Mod.export.ImGui_DragInt2(label, v, v_speed, v_min, v_max, format, flags); },
+
+    DragInt3(label: string, v: number[], v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, format: string = "%d", flags: ImGuiSliderFlags = 0): boolean { return Mod.export.ImGui_DragInt3(label, v, v_speed, v_min, v_max, format, flags); },
+
+    DragInt4(label: string, v: number[], v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, format: string = "%d", flags: ImGuiSliderFlags = 0): boolean { return Mod.export.ImGui_DragInt4(label, v, v_speed, v_min, v_max, format, flags); },
+
+    DragIntRange2(label: string, v_current_min: number[], v_current_max: number[], v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, format: string = "%d", format_max?: string, flags: ImGuiSliderFlags = 0): boolean { return Mod.export.ImGui_DragIntRange2(label, v_current_min, v_current_max, v_speed, v_min, v_max, format, format_max, flags); },
+
     /** adjust format to decorate the value with a prefix or a suffix for in-slider labels or unit display. */
-    SliderFloat(label, v, v_min, v_max, format = "%.3f", flags = 0) {
-        return Mod.export.ImGui_SliderFloat(label, v, v_min, v_max, format, flags);
-    },
-    SliderFloat2(label, v, v_min, v_max, format = "%.3f", flags = 0) {
-        return Mod.export.ImGui_SliderFloat2(label, v, v_min, v_max, format, flags);
-    },
-    SliderFloat3(label, v, v_min, v_max, format = "%.3f", flags = 0) {
-        return Mod.export.ImGui_SliderFloat3(label, v, v_min, v_max, format, flags);
-    },
-    SliderFloat4(label, v, v_min, v_max, format = "%.3f", flags = 0) {
-        return Mod.export.ImGui_SliderFloat4(label, v, v_min, v_max, format, flags);
-    },
-    SliderAngle(
-        label,
-        v_rad,
-        v_degrees_min = -360.0,
-        v_degrees_max = +360.0,
-        format = "%.0f deg",
-        flags = 0,
-    ) {
-        return Mod.export.ImGui_SliderAngle(
-            label,
-            v_rad,
-            v_degrees_min,
-            v_degrees_max,
-            format,
-            flags,
-        );
-    },
-    SliderInt(label, v, v_min, v_max, format = "%d", flags = 0) {
-        return Mod.export.ImGui_SliderInt(label, v, v_min, v_max, format, flags);
-    },
-    SliderInt2(label, v, v_min, v_max, format = "%d", flags = 0) {
-        return Mod.export.ImGui_SliderInt2(label, v, v_min, v_max, format, flags);
-    },
-    SliderInt3(label, v, v_min, v_max, format = "%d", flags = 0) {
-        return Mod.export.ImGui_SliderInt3(label, v, v_min, v_max, format, flags);
-    },
-    SliderInt4(label, v, v_min, v_max, format = "%d", flags = 0) {
-        return Mod.export.ImGui_SliderInt4(label, v, v_min, v_max, format, flags);
-    },
-    VSliderFloat(label, size, v, v_min, v_max, format = "%.3f", flags = 0) {
-        return Mod.export.ImGui_VSliderFloat(
-            label,
-            size?._ptr || null,
-            v,
-            v_min,
-            v_max,
-            format,
-            flags,
-        );
-    },
-    VSliderInt(label, size, v, v_min, v_max, format = "%d", flags = 0) {
-        return Mod.export.ImGui_VSliderInt(
-            label,
-            size?._ptr || null,
-            v,
-            v_min,
-            v_max,
-            format,
-            flags,
-        );
-    },
-    InputText(label, buf, buf_size, flags = 0) {
-        return Mod.export.ImGui_InputText(label, buf, buf_size, flags);
-    },
-    InputTextMultiline(label, buf, buf_size, size = new ImVec2(0, 0), flags = 0) {
-        return Mod.export.ImGui_InputTextMultiline(label, buf, buf_size, size?._ptr, flags);
-    },
-    InputTextWithHint(label, hint, buf, buf_size, flags = 0) {
-        return Mod.export.ImGui_InputTextWithHint(label, hint, buf, buf_size, flags);
-    },
-    InputFloat(label, v, step = 0.0, step_fast = 0.0, format = "%.3f", flags = 0) {
-        return Mod.export.ImGui_InputFloat(label, v, step, step_fast, format, flags);
-    },
-    InputFloat2(label, v, format = "%.3f", flags = 0) {
-        return Mod.export.ImGui_InputFloat2(label, v, format, flags);
-    },
-    InputFloat3(label, v, format = "%.3f", flags = 0) {
-        return Mod.export.ImGui_InputFloat3(label, v, format, flags);
-    },
-    InputFloat4(label, v, format = "%.3f", flags = 0) {
-        return Mod.export.ImGui_InputFloat4(label, v, format, flags);
-    },
-    InputInt(label, v, step = 1, step_fast = 100, flags = 0) {
-        return Mod.export.ImGui_InputInt(label, v, step, step_fast, flags);
-    },
-    InputInt2(label, v, flags = 0) {
-        return Mod.export.ImGui_InputInt2(label, v, flags);
-    },
-    InputInt3(label, v, flags = 0) {
-        return Mod.export.ImGui_InputInt3(label, v, flags);
-    },
-    InputInt4(label, v, flags = 0) {
-        return Mod.export.ImGui_InputInt4(label, v, flags);
-    },
-    InputDouble(label, v, step = 0.0, step_fast = 0.0, format = "%.6f", flags = 0) {
-        return Mod.export.ImGui_InputDouble(label, v, step, step_fast, format, flags);
-    },
+    SliderFloat(label: string, v: number[], v_min: number, v_max: number, format: string = "%.3f", flags: ImGuiSliderFlags = 0): boolean { return Mod.export.ImGui_SliderFloat(label, v, v_min, v_max, format, flags); },
+
+    SliderFloat2(label: string, v: number[], v_min: number, v_max: number, format: string = "%.3f", flags: ImGuiSliderFlags = 0): boolean { return Mod.export.ImGui_SliderFloat2(label, v, v_min, v_max, format, flags); },
+
+    SliderFloat3(label: string, v: number[], v_min: number, v_max: number, format: string = "%.3f", flags: ImGuiSliderFlags = 0): boolean { return Mod.export.ImGui_SliderFloat3(label, v, v_min, v_max, format, flags); },
+
+    SliderFloat4(label: string, v: number[], v_min: number, v_max: number, format: string = "%.3f", flags: ImGuiSliderFlags = 0): boolean { return Mod.export.ImGui_SliderFloat4(label, v, v_min, v_max, format, flags); },
+
+    SliderAngle(label: string, v_rad: number[], v_degrees_min: number = -360.0, v_degrees_max: number = +360.0, format: string = "%.0f deg", flags: ImGuiSliderFlags = 0): boolean { return Mod.export.ImGui_SliderAngle(label, v_rad, v_degrees_min, v_degrees_max, format, flags); },
+
+    SliderInt(label: string, v: number[], v_min: number, v_max: number, format: string = "%d", flags: ImGuiSliderFlags = 0): boolean { return Mod.export.ImGui_SliderInt(label, v, v_min, v_max, format, flags); },
+
+    SliderInt2(label: string, v: number[], v_min: number, v_max: number, format: string = "%d", flags: ImGuiSliderFlags = 0): boolean { return Mod.export.ImGui_SliderInt2(label, v, v_min, v_max, format, flags); },
+
+    SliderInt3(label: string, v: number[], v_min: number, v_max: number, format: string = "%d", flags: ImGuiSliderFlags = 0): boolean { return Mod.export.ImGui_SliderInt3(label, v, v_min, v_max, format, flags); },
+
+    SliderInt4(label: string, v: number[], v_min: number, v_max: number, format: string = "%d", flags: ImGuiSliderFlags = 0): boolean { return Mod.export.ImGui_SliderInt4(label, v, v_min, v_max, format, flags); },
+
+    VSliderFloat(label: string, size: ImVec2, v: number[], v_min: number, v_max: number, format: string = "%.3f", flags: ImGuiSliderFlags = 0): boolean { return Mod.export.ImGui_VSliderFloat(label, size?._ptr || null, v, v_min, v_max, format, flags); },
+
+    VSliderInt(label: string, size: ImVec2, v: number[], v_min: number, v_max: number, format: string = "%d", flags: ImGuiSliderFlags = 0): boolean { return Mod.export.ImGui_VSliderInt(label, size?._ptr || null, v, v_min, v_max, format, flags); },
+
+    InputText(label: string, buf: string[], buf_size: number, flags: ImGuiInputTextFlags = 0): boolean { return Mod.export.ImGui_InputText(label, buf, buf_size, flags); },
+
+    InputTextMultiline(label: string, buf: string[], buf_size: number, size: ImVec2 = new ImVec2(0, 0), flags: ImGuiInputTextFlags = 0): boolean { return Mod.export.ImGui_InputTextMultiline(label, buf, buf_size, size?._ptr, flags); },
+
+    InputTextWithHint(label: string, hint: string, buf: string[], buf_size: number, flags: ImGuiInputTextFlags = 0): boolean { return Mod.export.ImGui_InputTextWithHint(label, hint, buf, buf_size, flags); },
+
+    InputFloat(label: string, v: number[], step: number = 0.0, step_fast: number = 0.0, format: string = "%.3f", flags: ImGuiInputTextFlags = 0): boolean { return Mod.export.ImGui_InputFloat(label, v, step, step_fast, format, flags); },
+
+    InputFloat2(label: string, v: number[], format: string = "%.3f", flags: ImGuiInputTextFlags = 0): boolean { return Mod.export.ImGui_InputFloat2(label, v, format, flags); },
+
+    InputFloat3(label: string, v: number[], format: string = "%.3f", flags: ImGuiInputTextFlags = 0): boolean { return Mod.export.ImGui_InputFloat3(label, v, format, flags); },
+
+    InputFloat4(label: string, v: number[], format: string = "%.3f", flags: ImGuiInputTextFlags = 0): boolean { return Mod.export.ImGui_InputFloat4(label, v, format, flags); },
+
+    InputInt(label: string, v: number[], step: number = 1, step_fast: number = 100, flags: ImGuiInputTextFlags = 0): boolean { return Mod.export.ImGui_InputInt(label, v, step, step_fast, flags); },
+
+    InputInt2(label: string, v: number[], flags: ImGuiInputTextFlags = 0): boolean { return Mod.export.ImGui_InputInt2(label, v, flags); },
+
+    InputInt3(label: string, v: number[], flags: ImGuiInputTextFlags = 0): boolean { return Mod.export.ImGui_InputInt3(label, v, flags); },
+
+    InputInt4(label: string, v: number[], flags: ImGuiInputTextFlags = 0): boolean { return Mod.export.ImGui_InputInt4(label, v, flags); },
+
+    InputDouble(label: string, v: number[], step: number = 0.0, step_fast: number = 0.0, format: string = "%.6f", flags: ImGuiInputTextFlags = 0): boolean { return Mod.export.ImGui_InputDouble(label, v, step, step_fast, format, flags); },
+
     /** Widgets: Color Editor\/Picker (tip: the ColorEdit* functions have a little color square that can be left-clicked to open a picker, and right-clicked to open an option menu.) */
-    ColorEdit3(label, col, flags = 0) {
-        return Mod.export.ImGui_ColorEdit3(label, col, flags);
-    },
-    ColorEdit4(label, col, flags = 0) {
-        return Mod.export.ImGui_ColorEdit4(label, col, flags);
-    },
-    ColorPicker3(label, col, flags = 0) {
-        return Mod.export.ImGui_ColorPicker3(label, col, flags);
-    },
-    ColorPicker4(label, col, flags = 0, ref_col) {
-        return Mod.export.ImGui_ColorPicker4(label, col, flags, ref_col);
-    },
+    ColorEdit3(label: string, col: number[], flags: ImGuiColorEditFlags = 0): boolean { return Mod.export.ImGui_ColorEdit3(label, col, flags); },
+
+    ColorEdit4(label: string, col: number[], flags: ImGuiColorEditFlags = 0): boolean { return Mod.export.ImGui_ColorEdit4(label, col, flags); },
+
+    ColorPicker3(label: string, col: number[], flags: ImGuiColorEditFlags = 0): boolean { return Mod.export.ImGui_ColorPicker3(label, col, flags); },
+
+    ColorPicker4(label: string, col: number[], flags: ImGuiColorEditFlags = 0, ref_col?: number[]): boolean { return Mod.export.ImGui_ColorPicker4(label, col, flags, ref_col); },
+
     /** display a color square\/button, hover for details, return true when pressed. */
-    ColorButton(desc_id, col, flags = 0, size = new ImVec2(0, 0)) {
-        return Mod.export.ImGui_ColorButton(desc_id, col?._ptr || null, flags, size?._ptr || null);
-    },
+    ColorButton(desc_id: string, col: ImVec4, flags: ImGuiColorEditFlags = 0, size: ImVec2 = new ImVec2(0, 0)): boolean { return Mod.export.ImGui_ColorButton(desc_id, col?._ptr || null, flags, size?._ptr || null); },
+
     /** initialize current options (generally on application startup) if you want to select a default format, picker type, etc. User will be able to change many settings, unless you pass the _NoOptions flag to your calls. */
-    SetColorEditOptions(flags) {
-        return Mod.export.ImGui_SetColorEditOptions(flags);
-    },
+    SetColorEditOptions(flags: ImGuiColorEditFlags): void { return Mod.export.ImGui_SetColorEditOptions(flags); },
+
     /** Widgets: Trees */
-    TreeNode(label) {
-        return Mod.export.ImGui_TreeNode(label);
-    },
-    TreeNodeEx(label, flags = 0) {
-        return Mod.export.ImGui_TreeNodeEx(label, flags);
-    },
+    TreeNode(label: string): boolean { return Mod.export.ImGui_TreeNode(label); },
+
+    TreeNodeEx(label: string, flags: ImGuiTreeNodeFlags = 0): boolean { return Mod.export.ImGui_TreeNodeEx(label, flags); },
+
     /** ~ Indent()+PushID(). Already called by TreeNode() when returning true, but you can call TreePush\/TreePop yourself if desired. */
-    TreePush(str_id) {
-        return Mod.export.ImGui_TreePush(str_id);
-    },
+    TreePush(str_id: string): void { return Mod.export.ImGui_TreePush(str_id); },
+
     /** ~ Unindent()+PopID() */
-    TreePop() {
-        return Mod.export.ImGui_TreePop();
-    },
+    TreePop(): void { return Mod.export.ImGui_TreePop(); },
+
     /** horizontal distance preceding label when using TreeNode*() or Bullet() == (g.FontSize + style.FramePadding.x*2) for a regular unframed TreeNode */
-    GetTreeNodeToLabelSpacing() {
-        return Mod.export.ImGui_GetTreeNodeToLabelSpacing();
-    },
+    GetTreeNodeToLabelSpacing(): number { return Mod.export.ImGui_GetTreeNodeToLabelSpacing(); },
+
     /** if returning 'true' the header is open. doesn't indent nor push on ID stack. user doesn't have to call TreePop(). */
-    CollapsingHeader(label, flags = 0) {
-        return Mod.export.ImGui_CollapsingHeader(label, flags);
-    },
+    CollapsingHeader(label: string, flags: ImGuiTreeNodeFlags = 0): boolean { return Mod.export.ImGui_CollapsingHeader(label, flags); },
+
     /** set next TreeNode\/CollapsingHeader open state. */
-    SetNextItemOpen(is_open, cond = 0) {
-        return Mod.export.ImGui_SetNextItemOpen(is_open, cond);
-    },
+    SetNextItemOpen(is_open: boolean, cond: ImGuiCond = 0): void { return Mod.export.ImGui_SetNextItemOpen(is_open, cond); },
+
     /** "bool selected" carry the selection state (read-only). Selectable() is clicked is returns true so you can modify your selection state. size.x==0.0: use remaining width, size.x>0.0: specify width. size.y==0.0: use label height, size.y>0.0: specify height */
-    Selectable(label, selected = false, flags = 0, size = new ImVec2(0, 0)) {
-        return Mod.export.ImGui_Selectable(label, selected, flags, size?._ptr || null);
-    },
+    Selectable(label: string, selected: boolean = false, flags: ImGuiSelectableFlags = 0, size: ImVec2 = new ImVec2(0, 0)): boolean { return Mod.export.ImGui_Selectable(label, selected, flags, size?._ptr || null); },
+
     /** Multi-selection system for Selectable(), Checkbox(), TreeNode() functions [BETA] */
-    BeginMultiSelect(flags, selection_size = -1, items_count = -1) {
-        return ImGuiMultiSelectIO.wrap(
-            Mod.export.ImGui_BeginMultiSelect(flags, selection_size, items_count),
-        );
-    },
-    EndMultiSelect() {
-        return ImGuiMultiSelectIO.wrap(Mod.export.ImGui_EndMultiSelect());
-    },
-    SetNextItemSelectionUserData(selection_user_data) {
-        return Mod.export.ImGui_SetNextItemSelectionUserData(selection_user_data);
-    },
+    BeginMultiSelect(flags: ImGuiMultiSelectFlags, selection_size: number = -1, items_count: number = -1): ImGuiMultiSelectIO { return ImGuiMultiSelectIO.wrap(Mod.export.ImGui_BeginMultiSelect(flags, selection_size, items_count)); },
+
+    EndMultiSelect(): ImGuiMultiSelectIO { return ImGuiMultiSelectIO.wrap(Mod.export.ImGui_EndMultiSelect()); },
+
+    SetNextItemSelectionUserData(selection_user_data: ImGuiSelectionUserData): void { return Mod.export.ImGui_SetNextItemSelectionUserData(selection_user_data); },
+
     /** Was the last item selection state toggled? Useful if you need the per-item information _before_ reaching EndMultiSelect(). We only returns toggle _event_ in order to handle clipping correctly. */
-    IsItemToggledSelection() {
-        return Mod.export.ImGui_IsItemToggledSelection();
-    },
+    IsItemToggledSelection(): boolean { return Mod.export.ImGui_IsItemToggledSelection(); },
+
     /** open a framed scrolling region */
-    BeginListBox(label, size = new ImVec2(0, 0)) {
-        return Mod.export.ImGui_BeginListBox(label, size?._ptr || null);
-    },
+    BeginListBox(label: string, size: ImVec2 = new ImVec2(0, 0)): boolean { return Mod.export.ImGui_BeginListBox(label, size?._ptr || null); },
+
     /** only call EndListBox() if BeginListBox() returned true! */
-    EndListBox() {
-        return Mod.export.ImGui_EndListBox();
-    },
-    PlotLines(
-        label,
-        values,
-        values_count,
-        values_offset = 0,
-        overlay_text = "",
-        scale_min = Number.MAX_VALUE,
-        scale_max = Number.MAX_VALUE,
-        graph_size = new ImVec2(0, 0),
-    ) {
-        return Mod.export.ImGui_PlotLines(
-            label,
-            values,
-            values_count,
-            values_offset,
-            overlay_text,
-            scale_min,
-            scale_max,
-            graph_size?._ptr,
-        );
-    },
-    PlotHistogram(
-        label,
-        values,
-        values_count,
-        values_offset = 0,
-        overlay_text = "",
-        scale_min = Number.MAX_VALUE,
-        scale_max = Number.MAX_VALUE,
-        graph_size = new ImVec2(0, 0),
-    ) {
-        return Mod.export.ImGui_PlotHistogram(
-            label,
-            values,
-            values_count,
-            values_offset,
-            overlay_text,
-            scale_min,
-            scale_max,
-            graph_size?._ptr,
-        );
-    },
+    EndListBox(): void { return Mod.export.ImGui_EndListBox(); },
+
+    PlotLines(label: string, values: number[], values_count: number, values_offset: number = 0, overlay_text: string = '', scale_min: number = Number.MAX_VALUE, scale_max: number = Number.MAX_VALUE, graph_size: ImVec2 = new ImVec2(0, 0)): void { return Mod.export.ImGui_PlotLines(label, values, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size?._ptr); },
+
+    PlotHistogram(label: string, values: number[], values_count: number, values_offset: number = 0, overlay_text: string = '', scale_min: number = Number.MAX_VALUE, scale_max: number = Number.MAX_VALUE, graph_size: ImVec2 = new ImVec2(0, 0)): void { return Mod.export.ImGui_PlotHistogram(label, values, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size?._ptr); },
+
     /** append to menu-bar of current window (requires ImGuiWindowFlags_MenuBar flag set on parent window). */
-    BeginMenuBar() {
-        return Mod.export.ImGui_BeginMenuBar();
-    },
+    BeginMenuBar(): boolean { return Mod.export.ImGui_BeginMenuBar(); },
+
     /** only call EndMenuBar() if BeginMenuBar() returns true! */
-    EndMenuBar() {
-        return Mod.export.ImGui_EndMenuBar();
-    },
+    EndMenuBar(): void { return Mod.export.ImGui_EndMenuBar(); },
+
     /** create and append to a full screen menu-bar. */
-    BeginMainMenuBar() {
-        return Mod.export.ImGui_BeginMainMenuBar();
-    },
+    BeginMainMenuBar(): boolean { return Mod.export.ImGui_BeginMainMenuBar(); },
+
     /** only call EndMainMenuBar() if BeginMainMenuBar() returns true! */
-    EndMainMenuBar() {
-        return Mod.export.ImGui_EndMainMenuBar();
-    },
+    EndMainMenuBar(): void { return Mod.export.ImGui_EndMainMenuBar(); },
+
     /** create a sub-menu entry. only call EndMenu() if this returns true! */
-    BeginMenu(label, enabled = true) {
-        return Mod.export.ImGui_BeginMenu(label, enabled);
-    },
+    BeginMenu(label: string, enabled: boolean = true): boolean { return Mod.export.ImGui_BeginMenu(label, enabled); },
+
     /** only call EndMenu() if BeginMenu() returns true! */
-    EndMenu() {
-        return Mod.export.ImGui_EndMenu();
-    },
+    EndMenu(): void { return Mod.export.ImGui_EndMenu(); },
+
     /** return true when activated. */
-    MenuItem(label, shortcut, selected = false, enabled = true) {
-        return Mod.export.ImGui_MenuItem(label, shortcut, selected, enabled);
-    },
+    MenuItem(label: string, shortcut?: string, selected: boolean = false, enabled: boolean = true): boolean { return Mod.export.ImGui_MenuItem(label, shortcut, selected, enabled); },
+
     /** begin\/append a tooltip window. */
-    BeginTooltip() {
-        return Mod.export.ImGui_BeginTooltip();
-    },
+    BeginTooltip(): boolean { return Mod.export.ImGui_BeginTooltip(); },
+
     /** only call EndTooltip() if BeginTooltip()\/BeginItemTooltip() returns true! */
-    EndTooltip() {
-        return Mod.export.ImGui_EndTooltip();
-    },
+    EndTooltip(): void { return Mod.export.ImGui_EndTooltip(); },
+
     /** set a text-only tooltip. Often used after a ImGui::IsItemHovered() check. */
-    SetTooltip(fmt) {
-        return Mod.export.ImGui_SetTooltip(fmt);
-    },
+    SetTooltip(fmt: string): void { return Mod.export.ImGui_SetTooltip(fmt); },
     /** begin\/append a tooltip window if preceding item was hovered. */
-    BeginItemTooltip() {
-        return Mod.export.ImGui_BeginItemTooltip();
-    },
+    BeginItemTooltip(): boolean { return Mod.export.ImGui_BeginItemTooltip(); },
+
     /** set a text-only tooltip if preceding item was hovered. override any previous call to SetTooltip(). */
-    SetItemTooltip(fmt) {
-        return Mod.export.ImGui_SetItemTooltip(fmt);
-    },
+    SetItemTooltip(fmt: string): void { return Mod.export.ImGui_SetItemTooltip(fmt); },
     /** return true if the popup is open, and you can start outputting to it. */
-    BeginPopup(str_id, flags = 0) {
-        return Mod.export.ImGui_BeginPopup(str_id, flags);
-    },
+    BeginPopup(str_id: string, flags: ImGuiWindowFlags = 0): boolean { return Mod.export.ImGui_BeginPopup(str_id, flags); },
+
     /** return true if the modal is open, and you can start outputting to it. */
-    BeginPopupModal(name, p_open, flags = 0) {
-        return Mod.export.ImGui_BeginPopupModal(name, p_open, flags);
-    },
+    BeginPopupModal(name: string, p_open?: boolean[], flags: ImGuiWindowFlags = 0): boolean { return Mod.export.ImGui_BeginPopupModal(name, p_open, flags); },
+
     /** only call EndPopup() if BeginPopupXXX() returns true! */
-    EndPopup() {
-        return Mod.export.ImGui_EndPopup();
-    },
+    EndPopup(): void { return Mod.export.ImGui_EndPopup(); },
+
     /** call to mark popup as open (don't call every frame!). */
-    OpenPopup(str_id, popup_flags = 0) {
-        return Mod.export.ImGui_OpenPopup(str_id, popup_flags);
-    },
+    OpenPopup(str_id: string, popup_flags: ImGuiPopupFlags = 0): void { return Mod.export.ImGui_OpenPopup(str_id, popup_flags); },
+
     /** helper to open popup when clicked on last item. Default to ImGuiPopupFlags_MouseButtonRight == 1. (note: actually triggers on the mouse _released_ event to be consistent with popup behaviors) */
-    OpenPopupOnItemClick(str_id, popup_flags = 1) {
-        return Mod.export.ImGui_OpenPopupOnItemClick(str_id, popup_flags);
-    },
+    OpenPopupOnItemClick(str_id?: string, popup_flags: ImGuiPopupFlags = 1): void { return Mod.export.ImGui_OpenPopupOnItemClick(str_id, popup_flags); },
+
     /** manually close the popup we have begin-ed into. */
-    CloseCurrentPopup() {
-        return Mod.export.ImGui_CloseCurrentPopup();
-    },
+    CloseCurrentPopup(): void { return Mod.export.ImGui_CloseCurrentPopup(); },
+
     /** open+begin popup when clicked on last item. Use str_id==NULL to associate the popup to previous item. If you want to use that on a non-interactive item such as Text() you need to pass in an explicit ID here. read comments in .cpp! */
-    BeginPopupContextItem(str_id, popup_flags = 1) {
-        return Mod.export.ImGui_BeginPopupContextItem(str_id, popup_flags);
-    },
+    BeginPopupContextItem(str_id?: string, popup_flags: ImGuiPopupFlags = 1): boolean { return Mod.export.ImGui_BeginPopupContextItem(str_id, popup_flags); },
+
     /** open+begin popup when clicked on current window. */
-    BeginPopupContextWindow(str_id, popup_flags = 1) {
-        return Mod.export.ImGui_BeginPopupContextWindow(str_id, popup_flags);
-    },
+    BeginPopupContextWindow(str_id?: string, popup_flags: ImGuiPopupFlags = 1): boolean { return Mod.export.ImGui_BeginPopupContextWindow(str_id, popup_flags); },
+
     /** open+begin popup when clicked in void (where there are no windows). */
-    BeginPopupContextVoid(str_id, popup_flags = 1) {
-        return Mod.export.ImGui_BeginPopupContextVoid(str_id, popup_flags);
-    },
+    BeginPopupContextVoid(str_id?: string, popup_flags: ImGuiPopupFlags = 1): boolean { return Mod.export.ImGui_BeginPopupContextVoid(str_id, popup_flags); },
+
     /** return true if the popup is open. */
-    IsPopupOpen(str_id, flags = 0) {
-        return Mod.export.ImGui_IsPopupOpen(str_id, flags);
-    },
+    IsPopupOpen(str_id: string, flags: ImGuiPopupFlags = 0): boolean { return Mod.export.ImGui_IsPopupOpen(str_id, flags); },
+
     /** Tables */
-    BeginTable(str_id, columns, flags = 0, outer_size = new ImVec2(0.0, 0.0), inner_width = 0.0) {
-        return Mod.export.ImGui_BeginTable(
-            str_id,
-            columns,
-            flags,
-            outer_size?._ptr || null,
-            inner_width,
-        );
-    },
+    BeginTable(str_id: string, columns: number, flags: ImGuiTableFlags = 0, outer_size: ImVec2 = new ImVec2(0.0, 0.0), inner_width: number = 0.0): boolean { return Mod.export.ImGui_BeginTable(str_id, columns, flags, outer_size?._ptr || null, inner_width); },
+
     /** only call EndTable() if BeginTable() returns true! */
-    EndTable() {
-        return Mod.export.ImGui_EndTable();
-    },
+    EndTable(): void { return Mod.export.ImGui_EndTable(); },
+
     /** append into the first cell of a new row. */
-    TableNextRow(row_flags = 0, min_row_height = 0.0) {
-        return Mod.export.ImGui_TableNextRow(row_flags, min_row_height);
-    },
+    TableNextRow(row_flags: ImGuiTableRowFlags = 0, min_row_height: number = 0.0): void { return Mod.export.ImGui_TableNextRow(row_flags, min_row_height); },
+
     /** append into the next column (or first column of next row if currently in last column). Return true when column is visible. */
-    TableNextColumn() {
-        return Mod.export.ImGui_TableNextColumn();
-    },
+    TableNextColumn(): boolean { return Mod.export.ImGui_TableNextColumn(); },
+
     /** append into the specified column. Return true when column is visible. */
-    TableSetColumnIndex(column_n) {
-        return Mod.export.ImGui_TableSetColumnIndex(column_n);
-    },
+    TableSetColumnIndex(column_n: number): boolean { return Mod.export.ImGui_TableSetColumnIndex(column_n); },
+
     /** Tables: Headers & Columns declaration */
-    TableSetupColumn(label, flags = 0, init_width_or_weight = 0.0, user_id = 0) {
-        return Mod.export.ImGui_TableSetupColumn(label, flags, init_width_or_weight, user_id);
-    },
+    TableSetupColumn(label: string, flags: ImGuiTableColumnFlags = 0, init_width_or_weight: number = 0.0, user_id: ImGuiID = 0): void { return Mod.export.ImGui_TableSetupColumn(label, flags, init_width_or_weight, user_id); },
+
     /** lock columns\/rows so they stay visible when scrolled. */
-    TableSetupScrollFreeze(cols, rows) {
-        return Mod.export.ImGui_TableSetupScrollFreeze(cols, rows);
-    },
+    TableSetupScrollFreeze(cols: number, rows: number): void { return Mod.export.ImGui_TableSetupScrollFreeze(cols, rows); },
+
     /** submit one header cell manually (rarely used) */
-    TableHeader(label) {
-        return Mod.export.ImGui_TableHeader(label);
-    },
+    TableHeader(label: string): void { return Mod.export.ImGui_TableHeader(label); },
+
     /** submit a row with headers cells based on data provided to TableSetupColumn() + submit context menu */
-    TableHeadersRow() {
-        return Mod.export.ImGui_TableHeadersRow();
-    },
+    TableHeadersRow(): void { return Mod.export.ImGui_TableHeadersRow(); },
+
     /** submit a row with angled headers for every column with the ImGuiTableColumnFlags_AngledHeader flag. MUST BE FIRST ROW. */
-    TableAngledHeadersRow() {
-        return Mod.export.ImGui_TableAngledHeadersRow();
-    },
+    TableAngledHeadersRow(): void { return Mod.export.ImGui_TableAngledHeadersRow(); },
+
     /** get latest sort specs for the table (NULL if not sorting).  Lifetime: don't hold on this pointer over multiple frames or past any subsequent call to BeginTable(). */
-    TableGetSortSpecs() {
-        return ImGuiTableSortSpecs.wrap(Mod.export.ImGui_TableGetSortSpecs());
-    },
+    TableGetSortSpecs(): ImGuiTableSortSpecs { return ImGuiTableSortSpecs.wrap(Mod.export.ImGui_TableGetSortSpecs()); },
+
     /** return number of columns (value passed to BeginTable) */
-    TableGetColumnCount() {
-        return Mod.export.ImGui_TableGetColumnCount();
-    },
+    TableGetColumnCount(): number { return Mod.export.ImGui_TableGetColumnCount(); },
+
     /** return current column index. */
-    TableGetColumnIndex() {
-        return Mod.export.ImGui_TableGetColumnIndex();
-    },
+    TableGetColumnIndex(): number { return Mod.export.ImGui_TableGetColumnIndex(); },
+
     /** return current row index. */
-    TableGetRowIndex() {
-        return Mod.export.ImGui_TableGetRowIndex();
-    },
+    TableGetRowIndex(): number { return Mod.export.ImGui_TableGetRowIndex(); },
+
     /** return "" if column didn't have a name declared by TableSetupColumn(). Pass -1 to use current column. */
-    TableGetColumnName(column_n = -1) {
-        return Mod.export.ImGui_TableGetColumnName(column_n);
-    },
+    TableGetColumnName(column_n: number = -1): string { return Mod.export.ImGui_TableGetColumnName(column_n); },
+
     /** return column flags so you can query their Enabled\/Visible\/Sorted\/Hovered status flags. Pass -1 to use current column. */
-    TableGetColumnFlags(column_n = -1) {
-        return Mod.export.ImGui_TableGetColumnFlags(column_n);
-    },
+    TableGetColumnFlags(column_n: number = -1): ImGuiTableColumnFlags { return Mod.export.ImGui_TableGetColumnFlags(column_n); },
+
     /** change user accessible enabled\/disabled state of a column. Set to false to hide the column. User can use the context menu to change this themselves (right-click in headers, or right-click in columns body with ImGuiTableFlags_ContextMenuInBody) */
-    TableSetColumnEnabled(column_n, v) {
-        return Mod.export.ImGui_TableSetColumnEnabled(column_n, v);
-    },
+    TableSetColumnEnabled(column_n: number, v: boolean): void { return Mod.export.ImGui_TableSetColumnEnabled(column_n, v); },
+
     /** return hovered column. return -1 when table is not hovered. return columns_count if the unused space at the right of visible columns is hovered. Can also use (TableGetColumnFlags() & ImGuiTableColumnFlags_IsHovered) instead. */
-    TableGetHoveredColumn() {
-        return Mod.export.ImGui_TableGetHoveredColumn();
-    },
+    TableGetHoveredColumn(): number { return Mod.export.ImGui_TableGetHoveredColumn(); },
+
     /** change the color of a cell, row, or column. See ImGuiTableBgTarget_ flags for details. */
-    TableSetBgColor(target, color, column_n = -1) {
-        return Mod.export.ImGui_TableSetBgColor(target, color, column_n);
-    },
+    TableSetBgColor(target: ImGuiTableBgTarget, color: ImU32, column_n: number = -1): void { return Mod.export.ImGui_TableSetBgColor(target, color, column_n); },
+
     /** Legacy Columns API (prefer using Tables!) */
-    Columns(count = 1, id, borders = true) {
-        return Mod.export.ImGui_Columns(count, id, borders);
-    },
+    Columns(count: number = 1, id?: string, borders: boolean = true): void { return Mod.export.ImGui_Columns(count, id, borders); },
+
     /** next column, defaults to current row or next row if the current row is finished */
-    NextColumn() {
-        return Mod.export.ImGui_NextColumn();
-    },
+    NextColumn(): void { return Mod.export.ImGui_NextColumn(); },
+
     /** get current column index */
-    GetColumnIndex() {
-        return Mod.export.ImGui_GetColumnIndex();
-    },
+    GetColumnIndex(): number { return Mod.export.ImGui_GetColumnIndex(); },
+
     /** get column width (in pixels). pass -1 to use current column */
-    GetColumnWidth(column_index = -1) {
-        return Mod.export.ImGui_GetColumnWidth(column_index);
-    },
+    GetColumnWidth(column_index: number = -1): number { return Mod.export.ImGui_GetColumnWidth(column_index); },
+
     /** set column width (in pixels). pass -1 to use current column */
-    SetColumnWidth(column_index, width) {
-        return Mod.export.ImGui_SetColumnWidth(column_index, width);
-    },
+    SetColumnWidth(column_index: number, width: number): void { return Mod.export.ImGui_SetColumnWidth(column_index, width); },
+
     /** get position of column line (in pixels, from the left side of the contents region). pass -1 to use current column, otherwise 0..GetColumnsCount() inclusive. column 0 is typically 0.0f */
-    GetColumnOffset(column_index = -1) {
-        return Mod.export.ImGui_GetColumnOffset(column_index);
-    },
+    GetColumnOffset(column_index: number = -1): number { return Mod.export.ImGui_GetColumnOffset(column_index); },
+
     /** set position of column line (in pixels, from the left side of the contents region). pass -1 to use current column */
-    SetColumnOffset(column_index, offset_x) {
-        return Mod.export.ImGui_SetColumnOffset(column_index, offset_x);
-    },
-    GetColumnsCount() {
-        return Mod.export.ImGui_GetColumnsCount();
-    },
+    SetColumnOffset(column_index: number, offset_x: number): void { return Mod.export.ImGui_SetColumnOffset(column_index, offset_x); },
+
+    GetColumnsCount(): number { return Mod.export.ImGui_GetColumnsCount(); },
+
     /** create and append into a TabBar */
-    BeginTabBar(str_id, flags = 0) {
-        return Mod.export.ImGui_BeginTabBar(str_id, flags);
-    },
+    BeginTabBar(str_id: string, flags: ImGuiTabBarFlags = 0): boolean { return Mod.export.ImGui_BeginTabBar(str_id, flags); },
+
     /** only call EndTabBar() if BeginTabBar() returns true! */
-    EndTabBar() {
-        return Mod.export.ImGui_EndTabBar();
-    },
+    EndTabBar(): void { return Mod.export.ImGui_EndTabBar(); },
+
     /** create a Tab. Returns true if the Tab is selected. */
-    BeginTabItem(label, p_open, flags = 0) {
-        return Mod.export.ImGui_BeginTabItem(label, p_open, flags);
-    },
+    BeginTabItem(label: string, p_open?: boolean[], flags: ImGuiTabItemFlags = 0): boolean { return Mod.export.ImGui_BeginTabItem(label, p_open, flags); },
+
     /** only call EndTabItem() if BeginTabItem() returns true! */
-    EndTabItem() {
-        return Mod.export.ImGui_EndTabItem();
-    },
+    EndTabItem(): void { return Mod.export.ImGui_EndTabItem(); },
+
     /** create a Tab behaving like a button. return true when clicked. cannot be selected in the tab bar. */
-    TabItemButton(label, flags = 0) {
-        return Mod.export.ImGui_TabItemButton(label, flags);
-    },
+    TabItemButton(label: string, flags: ImGuiTabItemFlags = 0): boolean { return Mod.export.ImGui_TabItemButton(label, flags); },
+
     /** notify TabBar or Docking system of a closed tab\/window ahead (useful to reduce visual flicker on reorderable tab bars). For tab-bar: call after BeginTabBar() and before Tab submissions. Otherwise call with a window name. */
-    SetTabItemClosed(tab_or_docked_window_label) {
-        return Mod.export.ImGui_SetTabItemClosed(tab_or_docked_window_label);
-    },
+    SetTabItemClosed(tab_or_docked_window_label: string): void { return Mod.export.ImGui_SetTabItemClosed(tab_or_docked_window_label); },
+
     /** is current window docked into another window? */
-    IsWindowDocked() {
-        return Mod.export.ImGui_IsWindowDocked();
-    },
+    IsWindowDocked(): boolean { return Mod.export.ImGui_IsWindowDocked(); },
+
     /** Disabling [BETA API] */
-    BeginDisabled(disabled = true) {
-        return Mod.export.ImGui_BeginDisabled(disabled);
-    },
-    EndDisabled() {
-        return Mod.export.ImGui_EndDisabled();
-    },
+    BeginDisabled(disabled: boolean = true): void { return Mod.export.ImGui_BeginDisabled(disabled); },
+
+    EndDisabled(): void { return Mod.export.ImGui_EndDisabled(); },
+
     /** Clipping */
-    PushClipRect(clip_rect_min, clip_rect_max, intersect_with_current_clip_rect) {
-        return Mod.export.ImGui_PushClipRect(
-            clip_rect_min?._ptr || null,
-            clip_rect_max?._ptr || null,
-            intersect_with_current_clip_rect,
-        );
-    },
-    PopClipRect() {
-        return Mod.export.ImGui_PopClipRect();
-    },
+    PushClipRect(clip_rect_min: ImVec2, clip_rect_max: ImVec2, intersect_with_current_clip_rect: boolean): void { return Mod.export.ImGui_PushClipRect(clip_rect_min?._ptr || null, clip_rect_max?._ptr || null, intersect_with_current_clip_rect); },
+
+    PopClipRect(): void { return Mod.export.ImGui_PopClipRect(); },
+
     /** make last item the default focused item of of a newly appearing window. */
-    SetItemDefaultFocus() {
-        return Mod.export.ImGui_SetItemDefaultFocus();
-    },
+    SetItemDefaultFocus(): void { return Mod.export.ImGui_SetItemDefaultFocus(); },
+
     /** focus keyboard on the next widget. Use positive 'offset' to access sub components of a multiple component widget. Use -1 to access previous widget. */
-    SetKeyboardFocusHere(offset = 0) {
-        return Mod.export.ImGui_SetKeyboardFocusHere(offset);
-    },
+    SetKeyboardFocusHere(offset: number = 0): void { return Mod.export.ImGui_SetKeyboardFocusHere(offset); },
+
     /** alter visibility of keyboard\/gamepad cursor. by default: show when using an arrow key, hide when clicking with mouse. */
-    SetNavCursorVisible(visible) {
-        return Mod.export.ImGui_SetNavCursorVisible(visible);
-    },
+    SetNavCursorVisible(visible: boolean): void { return Mod.export.ImGui_SetNavCursorVisible(visible); },
+
     /** allow next item to be overlapped by a subsequent item. Useful with invisible buttons, selectable, treenode covering an area where subsequent items may need to be added. Note that both Selectable() and TreeNode() have dedicated flags doing this. */
-    SetNextItemAllowOverlap() {
-        return Mod.export.ImGui_SetNextItemAllowOverlap();
-    },
+    SetNextItemAllowOverlap(): void { return Mod.export.ImGui_SetNextItemAllowOverlap(); },
+
     /** is the last item hovered? (and usable, aka not blocked by a popup, etc.). See ImGuiHoveredFlags for more options. */
-    IsItemHovered(flags = 0) {
-        return Mod.export.ImGui_IsItemHovered(flags);
-    },
+    IsItemHovered(flags: ImGuiHoveredFlags = 0): boolean { return Mod.export.ImGui_IsItemHovered(flags); },
+
     /** is the last item active? (e.g. button being held, text field being edited. This will continuously return true while holding mouse button on an item. Items that don't interact will always return false) */
-    IsItemActive() {
-        return Mod.export.ImGui_IsItemActive();
-    },
+    IsItemActive(): boolean { return Mod.export.ImGui_IsItemActive(); },
+
     /** is the last item focused for keyboard\/gamepad navigation? */
-    IsItemFocused() {
-        return Mod.export.ImGui_IsItemFocused();
-    },
+    IsItemFocused(): boolean { return Mod.export.ImGui_IsItemFocused(); },
+
     /** is the last item hovered and mouse clicked on? (**)  == IsMouseClicked(mouse_button) && IsItemHovered()Important. (**) this is NOT equivalent to the behavior of e.g. Button(). Read comments in function definition. */
-    IsItemClicked(mouse_button = 0) {
-        return Mod.export.ImGui_IsItemClicked(mouse_button);
-    },
+    IsItemClicked(mouse_button: ImGuiMouseButton = 0): boolean { return Mod.export.ImGui_IsItemClicked(mouse_button); },
+
     /** is the last item visible? (items may be out of sight because of clipping\/scrolling) */
-    IsItemVisible() {
-        return Mod.export.ImGui_IsItemVisible();
-    },
+    IsItemVisible(): boolean { return Mod.export.ImGui_IsItemVisible(); },
+
     /** did the last item modify its underlying value this frame? or was pressed? This is generally the same as the "bool" return value of many widgets. */
-    IsItemEdited() {
-        return Mod.export.ImGui_IsItemEdited();
-    },
+    IsItemEdited(): boolean { return Mod.export.ImGui_IsItemEdited(); },
+
     /** was the last item just made active (item was previously inactive). */
-    IsItemActivated() {
-        return Mod.export.ImGui_IsItemActivated();
-    },
+    IsItemActivated(): boolean { return Mod.export.ImGui_IsItemActivated(); },
+
     /** was the last item just made inactive (item was previously active). Useful for Undo\/Redo patterns with widgets that require continuous editing. */
-    IsItemDeactivated() {
-        return Mod.export.ImGui_IsItemDeactivated();
-    },
+    IsItemDeactivated(): boolean { return Mod.export.ImGui_IsItemDeactivated(); },
+
     /** was the last item just made inactive and made a value change when it was active? (e.g. Slider\/Drag moved). Useful for Undo\/Redo patterns with widgets that require continuous editing. Note that you may get false positives (some widgets such as Combo()\/ListBox()\/Selectable() will return true even when clicking an already selected item). */
-    IsItemDeactivatedAfterEdit() {
-        return Mod.export.ImGui_IsItemDeactivatedAfterEdit();
-    },
+    IsItemDeactivatedAfterEdit(): boolean { return Mod.export.ImGui_IsItemDeactivatedAfterEdit(); },
+
     /** was the last item open state toggled? set by TreeNode(). */
-    IsItemToggledOpen() {
-        return Mod.export.ImGui_IsItemToggledOpen();
-    },
+    IsItemToggledOpen(): boolean { return Mod.export.ImGui_IsItemToggledOpen(); },
+
     /** is any item hovered? */
-    IsAnyItemHovered() {
-        return Mod.export.ImGui_IsAnyItemHovered();
-    },
+    IsAnyItemHovered(): boolean { return Mod.export.ImGui_IsAnyItemHovered(); },
+
     /** is any item active? */
-    IsAnyItemActive() {
-        return Mod.export.ImGui_IsAnyItemActive();
-    },
+    IsAnyItemActive(): boolean { return Mod.export.ImGui_IsAnyItemActive(); },
+
     /** is any item focused? */
-    IsAnyItemFocused() {
-        return Mod.export.ImGui_IsAnyItemFocused();
-    },
+    IsAnyItemFocused(): boolean { return Mod.export.ImGui_IsAnyItemFocused(); },
+
     /** get upper-left bounding rectangle of the last item (screen space) */
-    GetItemRectMin() {
-        return ImVec2.wrap(Mod.export.ImGui_GetItemRectMin());
-    },
+    GetItemRectMin(): ImVec2 { return ImVec2.wrap(Mod.export.ImGui_GetItemRectMin()); },
+
     /** get lower-right bounding rectangle of the last item (screen space) */
-    GetItemRectMax() {
-        return ImVec2.wrap(Mod.export.ImGui_GetItemRectMax());
-    },
+    GetItemRectMax(): ImVec2 { return ImVec2.wrap(Mod.export.ImGui_GetItemRectMax()); },
+
     /** get size of last item */
-    GetItemRectSize() {
-        return ImVec2.wrap(Mod.export.ImGui_GetItemRectSize());
-    },
+    GetItemRectSize(): ImVec2 { return ImVec2.wrap(Mod.export.ImGui_GetItemRectSize()); },
+
     /** test if rectangle (of given size, starting from cursor position) is visible \/ not clipped. */
-    IsRectVisibleBySize(size) {
-        return Mod.export.ImGui_IsRectVisibleBySize(size?._ptr || null);
-    },
+    IsRectVisibleBySize(size: ImVec2): boolean { return Mod.export.ImGui_IsRectVisibleBySize(size?._ptr || null); },
+
     /** test if rectangle (in screen space) is visible \/ not clipped. to perform coarse clipping on user's side. */
-    IsRectVisible(rect_min, rect_max) {
-        return Mod.export.ImGui_IsRectVisible(rect_min?._ptr || null, rect_max?._ptr || null);
-    },
+    IsRectVisible(rect_min: ImVec2, rect_max: ImVec2): boolean { return Mod.export.ImGui_IsRectVisible(rect_min?._ptr || null, rect_max?._ptr || null); },
+
     /** get global imgui time. incremented by io.DeltaTime every frame. */
-    GetTime() {
-        return Mod.export.ImGui_GetTime();
-    },
+    GetTime(): number { return Mod.export.ImGui_GetTime(); },
+
     /** get global imgui frame count. incremented by 1 every frame. */
-    GetFrameCount() {
-        return Mod.export.ImGui_GetFrameCount();
-    },
+    GetFrameCount(): number { return Mod.export.ImGui_GetFrameCount(); },
+
     /** you may use this when creating your own ImDrawList instances. */
-    GetDrawListSharedData() {
-        return ImDrawListSharedData.wrap(Mod.export.ImGui_GetDrawListSharedData());
-    },
+    GetDrawListSharedData(): ImDrawListSharedData { return ImDrawListSharedData.wrap(Mod.export.ImGui_GetDrawListSharedData()); },
+
     /** get a string corresponding to the enum value (for display, saving, etc.). */
-    GetStyleColorName(idx) {
-        return Mod.export.ImGui_GetStyleColorName(idx);
-    },
+    GetStyleColorName(idx: ImGuiCol): string { return Mod.export.ImGui_GetStyleColorName(idx); },
+
     /** Text Utilities */
-    CalcTextSize(text, text_end, hide_text_after_double_hash = false, wrap_width = -1.0) {
-        return ImVec2.wrap(
-            Mod.export.ImGui_CalcTextSize(text, text_end, hide_text_after_double_hash, wrap_width),
-        );
-    },
+    CalcTextSize(text: string, text_end?: string, hide_text_after_double_hash: boolean = false, wrap_width: number = -1.0): ImVec2 { return ImVec2.wrap(Mod.export.ImGui_CalcTextSize(text, text_end, hide_text_after_double_hash, wrap_width)); },
+
     /** is key being held. */
-    IsKeyDown(key) {
-        return Mod.export.ImGui_IsKeyDown(key);
-    },
+    IsKeyDown(key: ImGuiKey): boolean { return Mod.export.ImGui_IsKeyDown(key); },
+
     /** was key pressed (went from !Down to Down)? if repeat=true, uses io.KeyRepeatDelay \/ KeyRepeatRate */
-    IsKeyPressed(key, repeat = true) {
-        return Mod.export.ImGui_IsKeyPressed(key, repeat);
-    },
+    IsKeyPressed(key: ImGuiKey, repeat: boolean = true): boolean { return Mod.export.ImGui_IsKeyPressed(key, repeat); },
+
     /** was key released (went from Down to !Down)? */
-    IsKeyReleased(key) {
-        return Mod.export.ImGui_IsKeyReleased(key);
-    },
+    IsKeyReleased(key: ImGuiKey): boolean { return Mod.export.ImGui_IsKeyReleased(key); },
+
     /** was key chord (mods + key) pressed, e.g. you can pass 'ImGuiMod_Ctrl | ImGuiKey_S' as a key-chord. This doesn't do any routing or focus check, please consider using Shortcut() function instead. */
-    IsKeyChordPressed(key_chord) {
-        return Mod.export.ImGui_IsKeyChordPressed(key_chord);
-    },
+    IsKeyChordPressed(key_chord: ImGuiKeyChord): boolean { return Mod.export.ImGui_IsKeyChordPressed(key_chord); },
+
     /** uses provided repeat rate\/delay. return a count, most often 0 or 1 but might be >1 if RepeatRate is small enough that DeltaTime > RepeatRate */
-    GetKeyPressedAmount(key, repeat_delay, rate) {
-        return Mod.export.ImGui_GetKeyPressedAmount(key, repeat_delay, rate);
-    },
+    GetKeyPressedAmount(key: ImGuiKey, repeat_delay: number, rate: number): number { return Mod.export.ImGui_GetKeyPressedAmount(key, repeat_delay, rate); },
+
     /** [DEBUG] returns English name of the key. Those names a provided for debugging purpose and are not meant to be saved persistently not compared. */
-    GetKeyName(key) {
-        return Mod.export.ImGui_GetKeyName(key);
-    },
+    GetKeyName(key: ImGuiKey): string { return Mod.export.ImGui_GetKeyName(key); },
+
     /** Override io.WantCaptureKeyboard flag next frame (said flag is left for your application to handle, typically when true it instructs your app to ignore inputs). e.g. force capture keyboard when your widget is being hovered. This is equivalent to setting "io.WantCaptureKeyboard = want_capture_keyboard"; after the next NewFrame() call. */
-    SetNextFrameWantCaptureKeyboard(want_capture_keyboard) {
-        return Mod.export.ImGui_SetNextFrameWantCaptureKeyboard(want_capture_keyboard);
-    },
+    SetNextFrameWantCaptureKeyboard(want_capture_keyboard: boolean): void { return Mod.export.ImGui_SetNextFrameWantCaptureKeyboard(want_capture_keyboard); },
+
     /** Inputs Utilities: Shortcut Testing & Routing [BETA] */
-    Shortcut(key_chord, flags = 0) {
-        return Mod.export.ImGui_Shortcut(key_chord, flags);
-    },
-    SetNextItemShortcut(key_chord, flags = 0) {
-        return Mod.export.ImGui_SetNextItemShortcut(key_chord, flags);
-    },
+    Shortcut(key_chord: ImGuiKeyChord, flags: ImGuiInputFlags = 0): boolean { return Mod.export.ImGui_Shortcut(key_chord, flags); },
+
+    SetNextItemShortcut(key_chord: ImGuiKeyChord, flags: ImGuiInputFlags = 0): void { return Mod.export.ImGui_SetNextItemShortcut(key_chord, flags); },
+
     /** Set key owner to last item ID if it is hovered or active. Equivalent to 'if (IsItemHovered() || IsItemActive()) { SetKeyOwner(key, GetItemID());'. */
-    SetItemKeyOwner(key) {
-        return Mod.export.ImGui_SetItemKeyOwner(key);
-    },
+    SetItemKeyOwner(key: ImGuiKey): void { return Mod.export.ImGui_SetItemKeyOwner(key); },
+
     /** is mouse button held? */
-    IsMouseDown(button) {
-        return Mod.export.ImGui_IsMouseDown(button);
-    },
+    IsMouseDown(button: ImGuiMouseButton): boolean { return Mod.export.ImGui_IsMouseDown(button); },
+
     /** did mouse button clicked? (went from !Down to Down). Same as GetMouseClickedCount() == 1. */
-    IsMouseClicked(button, repeat = false) {
-        return Mod.export.ImGui_IsMouseClicked(button, repeat);
-    },
+    IsMouseClicked(button: ImGuiMouseButton, repeat: boolean = false): boolean { return Mod.export.ImGui_IsMouseClicked(button, repeat); },
+
     /** did mouse button released? (went from Down to !Down) */
-    IsMouseReleased(button) {
-        return Mod.export.ImGui_IsMouseReleased(button);
-    },
+    IsMouseReleased(button: ImGuiMouseButton): boolean { return Mod.export.ImGui_IsMouseReleased(button); },
+
     /** did mouse button double-clicked? Same as GetMouseClickedCount() == 2. (note that a double-click will also report IsMouseClicked() == true) */
-    IsMouseDoubleClicked(button) {
-        return Mod.export.ImGui_IsMouseDoubleClicked(button);
-    },
+    IsMouseDoubleClicked(button: ImGuiMouseButton): boolean { return Mod.export.ImGui_IsMouseDoubleClicked(button); },
+
     /** delayed mouse release (use very sparingly!). Generally used with 'delay >= io.MouseDoubleClickTime' + combined with a 'io.MouseClickedLastCount==1' test. This is a very rarely used UI idiom, but some apps use this: e.g. MS Explorer single click on an icon to rename. */
-    IsMouseReleasedWithDelay(button, delay) {
-        return Mod.export.ImGui_IsMouseReleasedWithDelay(button, delay);
-    },
+    IsMouseReleasedWithDelay(button: ImGuiMouseButton, delay: number): boolean { return Mod.export.ImGui_IsMouseReleasedWithDelay(button, delay); },
+
     /** return the number of successive mouse-clicks at the time where a click happen (otherwise 0). */
-    GetMouseClickedCount(button) {
-        return Mod.export.ImGui_GetMouseClickedCount(button);
-    },
+    GetMouseClickedCount(button: ImGuiMouseButton): number { return Mod.export.ImGui_GetMouseClickedCount(button); },
+
     /** is mouse hovering given bounding rect (in screen space). clipped by current clipping settings, but disregarding of other consideration of focus\/window ordering\/popup-block. */
-    IsMouseHoveringRect(r_min, r_max, clip = true) {
-        return Mod.export.ImGui_IsMouseHoveringRect(r_min?._ptr || null, r_max?._ptr || null, clip);
-    },
+    IsMouseHoveringRect(r_min: ImVec2, r_max: ImVec2, clip: boolean = true): boolean { return Mod.export.ImGui_IsMouseHoveringRect(r_min?._ptr || null, r_max?._ptr || null, clip); },
+
     /** by convention we use (-FLT_MAX,-FLT_MAX) to denote that there is no mouse available */
-    IsMousePosValid(mouse_pos) {
-        return Mod.export.ImGui_IsMousePosValid(mouse_pos?._ptr || null);
-    },
+    IsMousePosValid(mouse_pos?: ImVec2): boolean { return Mod.export.ImGui_IsMousePosValid(mouse_pos?._ptr || null); },
+
     /** [WILL OBSOLETE] is any mouse button held? This was designed for backends, but prefer having backend maintain a mask of held mouse buttons, because upcoming input queue system will make this invalid. */
-    IsAnyMouseDown() {
-        return Mod.export.ImGui_IsAnyMouseDown();
-    },
+    IsAnyMouseDown(): boolean { return Mod.export.ImGui_IsAnyMouseDown(); },
+
     /** shortcut to ImGui::GetIO().MousePos provided by user, to be consistent with other calls */
-    GetMousePos() {
-        return ImVec2.wrap(Mod.export.ImGui_GetMousePos());
-    },
+    GetMousePos(): ImVec2 { return ImVec2.wrap(Mod.export.ImGui_GetMousePos()); },
+
     /** retrieve mouse position at the time of opening popup we have BeginPopup() into (helper to avoid user backing that value themselves) */
-    GetMousePosOnOpeningCurrentPopup() {
-        return ImVec2.wrap(Mod.export.ImGui_GetMousePosOnOpeningCurrentPopup());
-    },
+    GetMousePosOnOpeningCurrentPopup(): ImVec2 { return ImVec2.wrap(Mod.export.ImGui_GetMousePosOnOpeningCurrentPopup()); },
+
     /** is mouse dragging? (uses io.MouseDraggingThreshold if lock_threshold < 0.0f) */
-    IsMouseDragging(button, lock_threshold = -1.0) {
-        return Mod.export.ImGui_IsMouseDragging(button, lock_threshold);
-    },
+    IsMouseDragging(button: ImGuiMouseButton, lock_threshold: number = -1.0): boolean { return Mod.export.ImGui_IsMouseDragging(button, lock_threshold); },
+
     /** return the delta from the initial clicking position while the mouse button is pressed or was just released. This is locked and return 0.0f until the mouse moves past a distance threshold at least once (uses io.MouseDraggingThreshold if lock_threshold < 0.0f) */
-    GetMouseDragDelta(button = 0, lock_threshold = -1.0) {
-        return ImVec2.wrap(Mod.export.ImGui_GetMouseDragDelta(button, lock_threshold));
-    },
-    ResetMouseDragDelta(button = 0) {
-        return Mod.export.ImGui_ResetMouseDragDelta(button);
-    },
+    GetMouseDragDelta(button: ImGuiMouseButton = 0, lock_threshold: number = -1.0): ImVec2 { return ImVec2.wrap(Mod.export.ImGui_GetMouseDragDelta(button, lock_threshold)); },
+
+    ResetMouseDragDelta(button: ImGuiMouseButton = 0): void { return Mod.export.ImGui_ResetMouseDragDelta(button); },
+
     /** get desired mouse cursor shape. Important: reset in ImGui::NewFrame(), this is updated during the frame. valid before Render(). If you use software rendering by setting io.MouseDrawCursor ImGui will render those for you */
-    GetMouseCursor() {
-        return Mod.export.ImGui_GetMouseCursor();
-    },
+    GetMouseCursor(): ImGuiMouseCursor { return Mod.export.ImGui_GetMouseCursor(); },
+
     /** set desired mouse cursor shape */
-    SetMouseCursor(cursor_type) {
-        return Mod.export.ImGui_SetMouseCursor(cursor_type);
-    },
+    SetMouseCursor(cursor_type: ImGuiMouseCursor): void { return Mod.export.ImGui_SetMouseCursor(cursor_type); },
+
     /** Override io.WantCaptureMouse flag next frame (said flag is left for your application to handle, typical when true it instucts your app to ignore inputs). This is equivalent to setting "io.WantCaptureMouse = want_capture_mouse;" after the next NewFrame() call. */
-    SetNextFrameWantCaptureMouse(want_capture_mouse) {
-        return Mod.export.ImGui_SetNextFrameWantCaptureMouse(want_capture_mouse);
-    },
+    SetNextFrameWantCaptureMouse(want_capture_mouse: boolean): void { return Mod.export.ImGui_SetNextFrameWantCaptureMouse(want_capture_mouse); },
+
     /** Clipboard Utilities */
-    GetClipboardText() {
-        return Mod.export.ImGui_GetClipboardText();
-    },
-    SetClipboardText(text) {
-        return Mod.export.ImGui_SetClipboardText(text);
-    },
+    GetClipboardText(): string { return Mod.export.ImGui_GetClipboardText(); },
+
+    SetClipboardText(text: string): void { return Mod.export.ImGui_SetClipboardText(text); },
+
     /** call in main loop. will call CreateWindow\/ResizeWindow\/etc. platform functions for each secondary viewport, and DestroyWindow for each inactive viewport. */
-    UpdatePlatformWindows() {
-        return Mod.export.ImGui_UpdatePlatformWindows();
-    },
+    UpdatePlatformWindows(): void { return Mod.export.ImGui_UpdatePlatformWindows(); },
+
 });
+
 /* -------------------------------------------------------------------------- */
 /* 5. Web Implementation */
 /* -------------------------------------------------------------------------- */
+
 export const ImGuiImplOpenGL3 = {
     /** Initializes the OpenGL3 backend. */
-    Init() {
+    Init(): boolean {
         return Mod.export.cImGui_ImplOpenGL3_Init();
     },
+
     /** Shuts down the OpenGL3 backend. */
-    Shutdown() {
+    Shutdown(): void {
         return Mod.export.cImGui_ImplOpenGL3_Shutdown();
     },
+
     /** Starts a new OpenGL3 frame. */
-    NewFrame() {
+    NewFrame(): void {
         return Mod.export.cImGui_ImplOpenGL3_NewFrame();
     },
+
     /** Renders the OpenGL3 frame. */
-    RenderDrawData(draw_data) {
+    RenderDrawData(draw_data: ImDrawData): void {
         return Mod.export.cImGui_ImplOpenGL3_RenderDrawData(draw_data._ptr);
     },
 };
+
 export const ImGuiImplWGPU = {
     /** Initializes the WebGPU backend. */
-    Init() {
+    Init(): boolean {
         return Mod.export.cImGui_ImplWGPU_Init();
     },
+
     /** Shuts down the WebGPU backend. */
-    Shutdown() {
+    Shutdown(): void {
         return Mod.export.cImGui_ImplWGPU_Shutdown();
     },
+
     /** Starts a new WebGPU frame. */
-    NewFrame() {
+    NewFrame(): void {
         return Mod.export.cImGui_ImplWGPU_NewFrame();
     },
+
     /** Renders the WebGPU frame. */
-    RenderDrawData(draw_data, pass_encoder) {
+    RenderDrawData(draw_data: ImDrawData, pass_encoder: GPURenderPassEncoder): void {
         const handle = Mod.export.JsValStore.add(pass_encoder);
         return Mod.export.cImGui_ImplWGPU_RenderDrawData(draw_data._ptr, handle);
     },
 };
-function handleCanvasSize(canvas, io) {
-    const setDisplayProperties = () => {
+
+function handleCanvasSize(canvas: HTMLCanvasElement, io: ImGuiIO): void {
+    const setDisplayProperties = (): void => {
         const displayWidth = Math.floor(canvas.clientWidth);
         const displayHeight = Math.floor(canvas.clientHeight);
+
         const dpr = globalThis.devicePixelRatio || 1;
+
         const bufferWidth = Math.max(1, Math.round(displayWidth * dpr));
         const bufferHeight = Math.max(1, Math.round(displayHeight * dpr));
+
         canvas.width = bufferWidth;
         canvas.height = bufferHeight;
+
         const gl = canvas.getContext("webgl2");
         if (gl) {
             gl.viewport(0, 0, bufferWidth, bufferHeight);
         }
+
         io.DisplaySize = new ImVec2(displayWidth, displayHeight);
         io.DisplayFramebufferScale = new ImVec2(dpr, dpr);
     };
+
     setDisplayProperties();
     globalThis.addEventListener("resize", setDisplayProperties);
 }
-function handleMouseEvents(canvas, io) {
+
+function handleMouseEvents(canvas: HTMLCanvasElement, io: ImGuiIO): void {
     canvas.addEventListener("mousemove", (event) => {
         const rect = canvas.getBoundingClientRect();
         io.AddMousePosEvent(event.clientX - rect.left, event.clientY - rect.top);
     });
+
     canvas.addEventListener("mousemove", (event) => {
         const rect = canvas.getBoundingClientRect();
         io.AddMousePosEvent(event.clientX - rect.left, event.clientY - rect.top);
+
         const cursorStyle = ImGui.GetMouseCursor();
         switch (cursorStyle) {
             case ImGui.MouseCursor.None:
@@ -3810,41 +3109,52 @@ function handleMouseEvents(canvas, io) {
                 break;
         }
     });
-    const mouseMap = {
+
+    const mouseMap: Record<number, number> = {
         0: ImGui.MouseButton.Left,
         1: ImGui.MouseButton.Middle,
         2: ImGui.MouseButton.Right,
     };
+
     canvas.addEventListener("mousedown", (event) => {
         io.AddMouseButtonEvent(mouseMap[event.button], true);
     });
+
     canvas.addEventListener("mouseup", (event) => {
         io.AddMouseButtonEvent(mouseMap[event.button], false);
     });
+
     canvas.addEventListener("wheel", (event) => {
         io.AddMouseWheelEvent(-event.deltaX * 0.01, -event.deltaY * 0.01);
     });
 }
-function handleKeyboardEvents(canvas, io) {
-    const keyboardMap = new Map();
-    const bindKey = (keys, value) => {
+
+function handleKeyboardEvents(canvas: HTMLCanvasElement, io: ImGuiIO): void {
+    const keyboardMap: Map<string, number[]> = new Map();
+
+    const bindKey = (keys: string | string[], value: number | number[]): void => {
         const keyArray = Array.isArray(keys) ? keys : [keys];
         const valueArray = Array.isArray(value) ? value : [value];
+
         for (const key of keyArray) {
             const existing = keyboardMap.get(key) || [];
             keyboardMap.set(key, [...existing, ...valueArray]);
         }
     };
+
     for (let i = 0; i <= 9; i++) {
-        bindKey(`${i}`, ImGui.Key[`_${i}`]);
-        bindKey(`Numpad${i}`, ImGui.Key[`_Keypad${i}`]);
+        bindKey(`${i}`, ImGui.Key[`_${i}` as keyof typeof ImGui.Key]);
+        bindKey(`Numpad${i}`, ImGui.Key[`_Keypad${i}` as keyof typeof ImGui.Key]);
     }
+
     for (let i = 1; i <= 24; i++) {
-        bindKey(`F${i}`, ImGui.Key[`_F${i}`]);
+        bindKey(`F${i}`, ImGui.Key[`_F${i}` as keyof typeof ImGui.Key]);
     }
+
     for (const letter of "ABCDEFGHIJKLMNOPQRSTUVWXYZ") {
-        bindKey([letter, letter.toLowerCase()], ImGui.Key[`_${letter}`]);
+        bindKey([letter, letter.toLowerCase()], ImGui.Key[`_${letter}` as keyof typeof ImGui.Key]);
     }
+
     bindKey("'", ImGui.Key._Apostrophe);
     bindKey(",", ImGui.Key._Comma);
     bindKey("-", ImGui.Key._Minus);
@@ -3856,11 +3166,13 @@ function handleKeyboardEvents(canvas, io) {
     bindKey("\\", ImGui.Key._Backslash);
     bindKey("]", ImGui.Key._RightBracket);
     bindKey("`", ImGui.Key._GraveAccent);
+
     bindKey("CapsLock", ImGui.Key._CapsLock);
     bindKey("ScrollLock", ImGui.Key._ScrollLock);
     bindKey("NumLock", ImGui.Key._NumLock);
     bindKey("PrintScreen", ImGui.Key._PrintScreen);
     bindKey("Pause", ImGui.Key._Pause);
+
     bindKey("NumpadDecimal", ImGui.Key._KeypadDecimal);
     bindKey("NumpadDivide", ImGui.Key._KeypadDivide);
     bindKey("NumpadMultiply", ImGui.Key._KeypadMultiply);
@@ -3868,6 +3180,7 @@ function handleKeyboardEvents(canvas, io) {
     bindKey("NumpadAdd", ImGui.Key._KeypadAdd);
     bindKey("NumpadEnter", ImGui.Key._KeypadEnter);
     bindKey("NumpadEqual", ImGui.Key._KeypadEqual);
+
     bindKey("Tab", [ImGui.Key._Tab]);
     bindKey("ArrowLeft", [ImGui.Key._LeftArrow]);
     bindKey("ArrowRight", [ImGui.Key._RightArrow]);
@@ -3883,24 +3196,30 @@ function handleKeyboardEvents(canvas, io) {
     bindKey(" ", [ImGui.Key._Space]);
     bindKey("Enter", [ImGui.Key._Enter]);
     bindKey("Escape", [ImGui.Key._Escape]);
+
     bindKey("Control", [ImGui.Key._LeftCtrl, ImGui.Key.ImGuiMod_Ctrl]);
     bindKey("Shift", [ImGui.Key._LeftShift, ImGui.Key.ImGuiMod_Shift]);
     bindKey("Alt", [ImGui.Key._LeftAlt, ImGui.Key.ImGuiMod_Alt]);
     bindKey("Super", [ImGui.Key._LeftSuper, ImGui.Key.ImGuiMod_Super]);
+
     // TODO: Fix too fast repeated inputs (Backspace, Delete...).
     canvas.addEventListener("keydown", (event) => {
         const keys = keyboardMap.get(event.key);
+
         if (keys) {
             for (const key of keys) {
                 io.AddKeyEvent(key, true);
             }
         }
+
         if (event.key.length === 1) {
             io.AddInputCharactersUTF8(event.key);
         }
     });
+
     canvas.addEventListener("keyup", (event) => {
         const keys = keyboardMap.get(event.key);
+
         if (keys) {
             for (const key of keys) {
                 io.AddKeyEvent(key, false);
@@ -3908,104 +3227,128 @@ function handleKeyboardEvents(canvas, io) {
         }
     });
 }
+
 /** Setup IO for the browser. */
-function setupIO(canvas) {
+function setupIO(canvas: HTMLCanvasElement): void {
     canvas.tabIndex = 1;
+
     // Prevent right click context menu.
     canvas.addEventListener("contextmenu", (event) => {
         event.preventDefault();
     });
+
     const io = ImGui.GetIO();
     io.BackendFlags = ImGui.BackendFlags.HasMouseCursors;
+
     handleCanvasSize(canvas, io);
     handleMouseEvents(canvas, io);
     handleKeyboardEvents(canvas, io);
+
     canvas.addEventListener("focus", () => {
         io.AddFocusEvent(true);
     });
+
     canvas.addEventListener("blur", () => {
         io.AddFocusEvent(false);
     });
 }
+
 /** Web implementation of Jsimgui. */
 export const ImGuiImplWeb = {
     /** Initialize Dear ImGui with WebGL2 Backend on the given canvas. */
-    async InitWebGL(canvas) {
+    async InitWebGL(canvas: HTMLCanvasElement): Promise<void> {
         await Mod.init();
         Mod.export.FS.mount(Mod.export.MEMFS, { root: "." }, ".");
+
         const canvasContext = canvas.getContext("webgl2");
+
         if (!canvasContext) {
             throw new Error("Failed to create WebGL2 context.");
         }
+
         ImGui.CreateContext();
         setupIO(canvas);
+
         const handle = Mod.export.GL.registerContext(
             canvasContext,
             canvasContext.getContextAttributes(),
-        );
+        ) as number;
         Mod.export.GL.makeContextCurrent(handle);
+
         ImGuiImplOpenGL3.Init();
     },
+
     /** Initialize Dear ImGui with WebGPU Backend on the given canvas. */
-    async InitWebGPU(canvas, device) {
+    async InitWebGPU(canvas: HTMLCanvasElement, device: GPUDevice) {
         await Mod.init();
         Mod.export.FS.mount(Mod.export.MEMFS, { root: "." }, ".");
+
         ImGui.CreateContext();
         setupIO(canvas);
+
         Mod.export.preinitializedWebGPUDevice = device;
+
         ImGuiImplWGPU.Init();
     },
+
     /** Begin a new ImGui WebGL frame. Call this at the beginning of your render loop. */
-    BeginRenderWebGL() {
+    BeginRenderWebGL(): void {
         ImGuiImplOpenGL3.NewFrame();
         ImGui.NewFrame();
     },
+
     /** Begin a new ImGui WebGPU frame. Call this at the beginning of your render loop. */
-    BeginRenderWebGPU() {
+    BeginRenderWebGPU(): void {
         ImGuiImplWGPU.NewFrame();
         ImGui.NewFrame();
     },
+
     /** End the current ImGui WebGL frame. Call this at the end of your render loop. */
-    EndRenderWebGL() {
+    EndRenderWebGL(): void {
         ImGui.Render();
         ImGuiImplOpenGL3.RenderDrawData(ImGui.GetDrawData());
     },
+
     /** End the current ImGui WebGPU frame. Call this before passEncoder.end(). */
-    EndRenderWebGPU(passEncoder) {
+    EndRenderWebGPU(passEncoder: GPURenderPassEncoder): void {
         ImGui.Render();
         ImGuiImplWGPU.RenderDrawData(ImGui.GetDrawData(), passEncoder);
     },
+
     /** Load an image to be used on a WebGL canvas. Returns the texture id. */
-    LoadImageWebGL(canvas, image) {
+    LoadImageWebGL(canvas: HTMLCanvasElement, image: HTMLImageElement): Promise<ImTextureID> {
         return new Promise((resolve, reject) => {
             image.onload = () => {
                 const gl = canvas.getContext("webgl2");
                 if (!gl) {
                     throw new Error("Failed to create WebGL2 context.");
                 }
+
                 const texture = gl.createTexture();
+
                 gl.bindTexture(gl.TEXTURE_2D, texture);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
                 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
                 const id = Mod.export.GL.getNewId(Mod.export.GL.textures);
                 Mod.export.GL.textures[id] = texture;
+
                 resolve(id);
             };
+
             image.onerror = (error) => {
                 reject(error);
             };
         });
     },
+
     /** Load an image to be used on a WebGPU canvas. Returns the texture id. */
-    LoadImageWebGPU(device, image) {
+    LoadImageWebGPU(device: GPUDevice, image: HTMLImageElement): Promise<ImTextureID> {
         return new Promise((resolve, reject) => {
             image.onload = () => {
-                const textureDescriptor = {
-                    usage:
-                        GPUTextureUsage.COPY_DST |
-                        GPUTextureUsage.TEXTURE_BINDING |
-                        GPUTextureUsage.RENDER_ATTACHMENT,
+                const textureDescriptor: GPUTextureDescriptor = {
+                    usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
                     dimension: "2d",
                     size: {
                         width: image.width,
@@ -4017,7 +3360,8 @@ export const ImGuiImplWeb = {
                     sampleCount: 1,
                 };
                 const texture = device.createTexture(textureDescriptor);
-                const textureDestination = {
+
+                const textureDestination: GPUImageCopyTexture = {
                     texture: texture,
                     mipLevel: 0,
                     origin: {
@@ -4027,17 +3371,15 @@ export const ImGuiImplWeb = {
                     },
                     aspect: "all",
                 };
-                const copySize = {
+                const copySize: GPUExtent3D = {
                     width: image.width,
                     height: image.height,
                     depthOrArrayLayers: 1,
                 };
-                device.queue.copyExternalImageToTexture(
-                    { source: image },
-                    textureDestination,
-                    copySize,
-                );
-                const textureViewDescriptor = {
+
+                device.queue.copyExternalImageToTexture({ source: image }, textureDestination, copySize);
+
+                const textureViewDescriptor: GPUTextureViewDescriptor = {
                     format: "rgba8unorm",
                     dimension: "2d",
                     baseMipLevel: 0,
@@ -4047,10 +3389,13 @@ export const ImGuiImplWeb = {
                     aspect: "all",
                 };
                 const textureView = texture.createView(textureViewDescriptor);
+
                 Mod.export.WebGPU.mgrTexture.create(texture);
                 const id = Mod.export.WebGPU.mgrTextureView.create(textureView);
+
                 resolve(id);
             };
+
             image.onerror = (error) => {
                 reject(error);
             };

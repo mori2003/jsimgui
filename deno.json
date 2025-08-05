@@ -1,57 +1,28 @@
 {
+    "$schema": "https://deno.land/x/deno/cli/schemas/config-file.v1.json",
     "name": "@mori2003/jsimgui",
-    "license": "MIT",
-    "version": "0.1.2",
-
+    "version": "0.3.0",
     "exports": "./build/mod.js",
 
-    "imports": {
-        "@std/assert": "jsr:@std/assert@1",
-        "@std/cli": "jsr:@std/cli@^1.0.11"
-    },
-
     "publish": {
-        "include": [
-            "build/",
-            "deno.json",
-            "README.md",
-            "LICENSE"
+        "include": ["build/", "deno.json", "LICENSE", "package.json", "README.md"],
+        "exclude": [
+            "bindgen/",
+            "node_modules/",
+            "docs/",
+            "src/",
+            "third_party/",
+            ".gitignore",
+            ".gitmodules",
+            "biome.json",
+            "build.ts",
+            "tsconfig.json"
         ]
     },
 
-    "tasks": {
-        "dev": "deno run -R -W --watch=./src ./src/generator/main.js",
-
-        "build:gen-data": "deno run --allow-run ./src/build.js --data",
-        "build:gen-bindings": "deno run --allow-run ./src/build.js --bindings",
-        "build:compile-wasm": "deno run --allow-run -R -W ./src/build.js --wasm",
-        "build:full": "deno task build:gen-bindings && deno task build:compile-wasm"
-    },
-
-    "lint": {
-        "include": [
-            "src/",
-            "build/",
-            "examples/"
-        ],
-        "exclude": [
-            "third_party",
-            "nix",
-            "build/jsimgui.js",
-            "examples/"
-        ],
-        "rules": {
-            "tags": ["recommended"],
-            "exclude": ["no-unused-vars"]
-        }
-    },
-
-    "fmt": {
-        "useTabs": false,
-        "lineWidth": 100,
-        "indentWidth": 4,
-        "semiColons": true,
-        "singleQuote": false,
-        "proseWrap": "preserve"
+    "compilerOptions": {
+        "lib": ["DOM", "ESNext"],
+        "types": ["@webgpu/types"],
+        "strict": true
     }
 }
