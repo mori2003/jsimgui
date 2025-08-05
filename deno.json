@@ -38,7 +38,8 @@
         "exclude": [
             "third_party",
             "nix",
-            "build/imgui-core.js"
+            "build/jsimgui.js",
+            "examples/"
         ],
         "rules": {
             "tags": ["recommended"],

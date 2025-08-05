@@ -4,7 +4,6 @@ import {
     ImGui,
     ImGuiImplOpenGL3,
     ImGuiImplWeb,
-    ImRef,
     ImVec2,
     ImVec4,
 } from "@mori2003/jsimgui";
@@ -70,11 +69,10 @@ function onWindowResize() {
 
 await ImGuiImplWeb.Init(canvas);
 
-const ref = new ImRef(false);
 const cubeColor = [0.0, 0.0, 0.5];
 const cubeRotation = [45, 45, 45];
 const cubePosition = [0, 1, 0];
-const showDemo = new ImRef(false);
+const showDemo = [false];
 
 function frame() {
     ImGuiImplOpenGL3.NewFrame();
@@ -82,7 +80,7 @@ function frame() {
 
     ImGui.SetNextWindowPos(new ImVec2(10, 10), ImEnum.Cond.Once);
     ImGui.SetNextWindowSize(new ImVec2(330, 250), ImEnum.Cond.Once);
-    ImGui.Begin("Three.js", ref);
+    ImGui.Begin("Three.js");
 
     ImGui.SliderFloat3("Cube Rotation", cubeRotation, -360, 360);
     ImGui.SliderFloat3("Cube Position", cubePosition, -2, 2);
@@ -98,7 +96,7 @@ function frame() {
 
     ImGui.End();
 
-    if (showDemo.value) ImGui.ShowDemoWindow(showDemo);
+    if (showDemo[0]) ImGui.ShowDemoWindow(showDemo);
 
     renderer.render(scene, camera);
     renderer.resetState();
