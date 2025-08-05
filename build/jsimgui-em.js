@@ -73,7 +73,7 @@ var MainExport = (() => {
             runtimeInitialized = true;
             if (!Module["noFSInit"] && !FS.initialized) FS.init();
             TTY.init();
-            wasmExports["mb"]();
+            wasmExports["ub"]();
             FS.ignorePermissions = false;
         }
         function postRun() {
@@ -172,9 +172,9 @@ var MainExport = (() => {
         async function createWasm() {
             function receiveInstance(instance, module) {
                 wasmExports = instance.exports;
-                wasmMemory = wasmExports["lb"];
+                wasmMemory = wasmExports["tb"];
                 updateMemoryViews();
-                wasmTable = wasmExports["qb"];
+                wasmTable = wasmExports["yb"];
                 removeRunDependency("wasm-instantiate");
                 return wasmExports;
             }
@@ -611,8 +611,13 @@ var MainExport = (() => {
                 },
             },
         };
+        var zeroMemory = (ptr, size) => HEAPU8.fill(0, ptr, ptr + size);
+        var alignMemory = (size, alignment) => Math.ceil(size / alignment) * alignment;
         var mmapAlloc = (size) => {
-            abort();
+            size = alignMemory(size, 65536);
+            var ptr = _emscripten_builtin_memalign(65536, size);
+            if (ptr) zeroMemory(ptr, size);
+            return ptr;
         };
         var MEMFS = {
             ops_table: null,
@@ -2561,6 +2566,14 @@ var MainExport = (() => {
                 return -e.errno;
             }
         }
+        function ___syscall_fstat64(fd, buf) {
+            try {
+                return SYSCALLS.writeStat(buf, FS.fstat(fd));
+            } catch (e) {
+                if (typeof FS == "undefined" || !(e.name === "ErrnoError")) throw e;
+                return -e.errno;
+            }
+        }
         function ___syscall_ioctl(fd, op, varargs) {
             SYSCALLS.varargs = varargs;
             try {
@@ -4093,6 +4106,9 @@ var MainExport = (() => {
             noExitRuntime = false;
             runtimeKeepaliveCounter = 0;
         };
+        var __emscripten_throw_longjmp = () => {
+            throw Infinity;
+        };
         var requireRegisteredType = (rawType, humanName) => {
             var impl = registeredTypes[rawType];
             if (undefined === impl) {
@@ -4164,6 +4180,35 @@ var MainExport = (() => {
             var v = type["readValueFromPointer"](arg);
             return Emval.toHandle(v);
         };
+        var INT53_MAX = 9007199254740992;
+        var INT53_MIN = -9007199254740992;
+        var bigintToI53Checked = (num) => (num < INT53_MIN || num > INT53_MAX ? NaN : Number(num));
+        function __mmap_js(len, prot, flags, fd, offset, allocated, addr) {
+            offset = bigintToI53Checked(offset);
+            try {
+                var stream = SYSCALLS.getStreamFromFD(fd);
+                var res = FS.mmap(stream, len, offset, prot, flags);
+                var ptr = res.ptr;
+                HEAP32[allocated >> 2] = res.allocated;
+                HEAPU32[addr >> 2] = ptr;
+                return 0;
+            } catch (e) {
+                if (typeof FS == "undefined" || !(e.name === "ErrnoError")) throw e;
+                return -e.errno;
+            }
+        }
+        function __munmap_js(addr, len, prot, flags, fd, offset) {
+            offset = bigintToI53Checked(offset);
+            try {
+                var stream = SYSCALLS.getStreamFromFD(fd);
+                if (prot & 2) {
+                    SYSCALLS.doMsync(addr, stream, len, flags, offset);
+                }
+            } catch (e) {
+                if (typeof FS == "undefined" || !(e.name === "ErrnoError")) throw e;
+                return -e.errno;
+            }
+        }
         var timers = {};
         var handleException = (e) => {
             if (e instanceof ExitStatus || e == "unwind") {
@@ -4760,9 +4805,6 @@ var MainExport = (() => {
                 return e.errno;
             }
         }
-        var INT53_MAX = 9007199254740992;
-        var INT53_MIN = -9007199254740992;
-        var bigintToI53Checked = (num) => (num < INT53_MIN || num > INT53_MAX ? NaN : Number(num));
         function _fd_seek(fd, offset, whence, newOffset) {
             offset = bigintToI53Checked(offset);
             try {
@@ -5584,6 +5626,64 @@ var MainExport = (() => {
             );
         };
         var _glTexParameteri = (x0, x1, x2) => GLctx.texParameteri(x0, x1, x2);
+        var _glTexSubImage2D = (
+            target,
+            level,
+            xoffset,
+            yoffset,
+            width,
+            height,
+            format,
+            type,
+            pixels,
+        ) => {
+            if (true) {
+                if (GLctx.currentPixelUnpackBufferBinding) {
+                    GLctx.texSubImage2D(
+                        target,
+                        level,
+                        xoffset,
+                        yoffset,
+                        width,
+                        height,
+                        format,
+                        type,
+                        pixels,
+                    );
+                    return;
+                }
+                if (pixels) {
+                    var heap = heapObjectForWebGLType(type);
+                    GLctx.texSubImage2D(
+                        target,
+                        level,
+                        xoffset,
+                        yoffset,
+                        width,
+                        height,
+                        format,
+                        type,
+                        heap,
+                        toTypedArrayIndex(pixels, heap),
+                    );
+                    return;
+                }
+            }
+            var pixelData = pixels
+                ? emscriptenWebGLGetTexPixelData(type, format, width, height, pixels, 0)
+                : null;
+            GLctx.texSubImage2D(
+                target,
+                level,
+                xoffset,
+                yoffset,
+                width,
+                height,
+                format,
+                type,
+                pixelData,
+            );
+        };
         var webglGetUniformLocation = (location) => {
             var p = GLctx.currentProgram;
             if (p) {
@@ -6155,134 +6255,174 @@ var MainExport = (() => {
         Module["JsValStore"] = JsValStore;
         var wasmImports = {
             a: ___assert_fail,
-            _: ___cxa_throw,
-            W: ___syscall_fcntl64,
-            gb: ___syscall_ioctl,
-            hb: ___syscall_openat,
-            bb: __abort_js,
-            Y: __embind_register_bigint,
-            aa: __embind_register_bool,
+            aa: ___cxa_throw,
+            z: ___syscall_fcntl64,
+            nb: ___syscall_fstat64,
+            pb: ___syscall_ioctl,
+            Y: ___syscall_openat,
+            ib: __abort_js,
+            _: __embind_register_bigint,
+            ca: __embind_register_bool,
             g: __embind_register_class,
             f: __embind_register_class_constructor,
             c: __embind_register_class_function,
-            kb: __embind_register_emval,
-            X: __embind_register_float,
+            sb: __embind_register_emval,
+            Z: __embind_register_float,
             b: __embind_register_function,
             h: __embind_register_integer,
-            d: __embind_register_memory_view,
-            $: __embind_register_std_string,
-            t: __embind_register_std_wstring,
-            ba: __embind_register_void,
-            $a: __emscripten_runtime_keepalive_clear,
+            e: __embind_register_memory_view,
+            ba: __embind_register_std_string,
+            B: __embind_register_std_wstring,
+            da: __embind_register_void,
+            gb: __emscripten_runtime_keepalive_clear,
+            eb: __emscripten_throw_longjmp,
             r: __emval_as,
-            Ca: __emval_decref,
-            ia: __emval_get_global,
-            Z: __emval_get_property,
-            ta: __emval_instanceof,
-            Ya: __emval_new_cstring,
-            Za: __emval_run_destructors,
+            Ea: __emval_decref,
+            la: __emval_get_global,
+            $: __emval_get_property,
+            va: __emval_instanceof,
+            $a: __emval_new_cstring,
+            ab: __emval_run_destructors,
             q: __emval_set_property,
             s: __emval_take_value,
-            ab: __setitimer_js,
-            cb: _emscripten_resize_heap,
-            Wa: _emscripten_webgpu_get_device,
-            Ra: _emscripten_webgpu_import_render_pass_encoder,
-            ib: _environ_get,
-            jb: _environ_sizes_get,
-            V: _fd_close,
-            fb: _fd_read,
-            db: _fd_seek,
-            eb: _fd_write,
-            U: _glActiveTexture,
-            L: _glAttachShader,
+            kb: __mmap_js,
+            lb: __munmap_js,
+            hb: __setitimer_js,
+            jb: _emscripten_resize_heap,
+            Za: _emscripten_webgpu_get_device,
+            Ua: _emscripten_webgpu_import_render_pass_encoder,
+            qb: _environ_get,
+            rb: _environ_sizes_get,
+            A: _fd_close,
+            X: _fd_read,
+            mb: _fd_seek,
+            ob: _fd_write,
+            W: _glActiveTexture,
+            N: _glAttachShader,
             o: _glBindBuffer,
             k: _glBindTexture,
-            z: _glBindVertexArrayOES,
-            Ja: _glBlendEquation,
-            Qa: _glBlendEquationSeparate,
-            Q: _glBlendFuncSeparate,
+            y: _glBindVertexArrayOES,
+            Ma: _glBlendEquation,
+            Ta: _glBlendEquationSeparate,
+            S: _glBlendFuncSeparate,
             p: _glBufferData,
-            T: _glBufferSubData,
-            Da: _glClear,
-            Ea: _glClearColor,
-            M: _glCompileShader,
-            Ma: _glCreateProgram,
-            O: _glCreateShader,
-            G: _glDeleteBuffers,
-            Ka: _glDeleteProgram,
-            J: _glDeleteShader,
-            Na: _glDeleteTextures,
-            Ta: _glDeleteVertexArraysOES,
-            K: _glDetachShader,
+            V: _glBufferSubData,
+            Fa: _glClear,
+            Ga: _glClearColor,
+            O: _glCompileShader,
+            Pa: _glCreateProgram,
+            Q: _glCreateShader,
+            I: _glDeleteBuffers,
+            Na: _glDeleteProgram,
+            L: _glDeleteShader,
+            Ja: _glDeleteTextures,
+            Wa: _glDeleteVertexArraysOES,
+            M: _glDetachShader,
             i: _glDisable,
-            Ua: _glDrawElements,
+            Xa: _glDrawElements,
             j: _glEnable,
-            x: _glEnableVertexAttribArray,
-            H: _glGenBuffers,
-            Pa: _glGenTextures,
-            Va: _glGenVertexArraysOES,
-            y: _glGetAttribLocation,
-            e: _glGetIntegerv,
-            Fa: _glGetProgramInfoLog,
-            E: _glGetProgramiv,
-            Ga: _glGetShaderInfoLog,
-            F: _glGetShaderiv,
-            Xa: _glGetString,
-            I: _glGetUniformLocation,
+            w: _glEnableVertexAttribArray,
+            J: _glGenBuffers,
+            Sa: _glGenTextures,
+            Ya: _glGenVertexArraysOES,
+            x: _glGetAttribLocation,
+            d: _glGetIntegerv,
+            Ha: _glGetProgramInfoLog,
+            G: _glGetProgramiv,
+            Ia: _glGetShaderInfoLog,
+            H: _glGetShaderiv,
+            _a: _glGetString,
+            K: _glGetUniformLocation,
             l: _glIsEnabled,
-            Sa: _glIsProgram,
-            La: _glLinkProgram,
-            S: _glScissor,
-            N: _glShaderSource,
-            Oa: _glTexImage2D,
+            Va: _glIsProgram,
+            Oa: _glLinkProgram,
+            U: _glScissor,
+            P: _glShaderSource,
+            Ra: _glTexImage2D,
             n: _glTexParameteri,
-            Ia: _glUniform1i,
-            Ha: _glUniformMatrix4fv,
-            R: _glUseProgram,
-            w: _glVertexAttribPointer,
-            P: _glViewport,
-            _a: _proc_exit,
+            Qa: _glTexSubImage2D,
+            La: _glUniform1i,
+            Ka: _glUniformMatrix4fv,
+            T: _glUseProgram,
+            v: _glVertexAttribPointer,
+            R: _glViewport,
+            db: invoke_iii,
+            bb: invoke_iiii,
+            cb: invoke_iiiii,
+            fb: _proc_exit,
             ga: _wgpuBindGroupLayoutRelease,
-            pa: _wgpuBindGroupRelease,
-            D: _wgpuBufferDestroy,
-            v: _wgpuBufferRelease,
-            A: _wgpuDeviceCreateBindGroup,
-            B: _wgpuDeviceCreateBindGroupLayout,
-            u: _wgpuDeviceCreateBuffer,
-            za: _wgpuDeviceCreatePipelineLayout,
-            ya: _wgpuDeviceCreateRenderPipeline,
-            ka: _wgpuDeviceCreateSampler,
-            oa: _wgpuDeviceCreateShaderModule,
-            na: _wgpuDeviceCreateTexture,
-            xa: _wgpuDeviceGetQueue,
+            na: _wgpuBindGroupRelease,
+            F: _wgpuBufferDestroy,
+            u: _wgpuBufferRelease,
+            C: _wgpuDeviceCreateBindGroup,
+            D: _wgpuDeviceCreateBindGroupLayout,
+            t: _wgpuDeviceCreateBuffer,
+            ya: _wgpuDeviceCreatePipelineLayout,
+            xa: _wgpuDeviceCreateRenderPipeline,
+            wa: _wgpuDeviceCreateSampler,
+            ja: _wgpuDeviceCreateShaderModule,
+            Ba: _wgpuDeviceCreateTexture,
+            ua: _wgpuDeviceGetQueue,
             ha: _wgpuPipelineLayoutRelease,
-            wa: _wgpuQueueRelease,
+            ta: _wgpuQueueRelease,
             m: _wgpuQueueWriteBuffer,
-            la: _wgpuQueueWriteTexture,
-            Aa: _wgpuRenderPassEncoderDrawIndexed,
-            C: _wgpuRenderPassEncoderSetBindGroup,
-            qa: _wgpuRenderPassEncoderSetBlendConstant,
-            sa: _wgpuRenderPassEncoderSetIndexBuffer,
-            ra: _wgpuRenderPassEncoderSetPipeline,
-            Ba: _wgpuRenderPassEncoderSetScissorRect,
-            ua: _wgpuRenderPassEncoderSetVertexBuffer,
-            va: _wgpuRenderPassEncoderSetViewport,
+            za: _wgpuQueueWriteTexture,
+            Ca: _wgpuRenderPassEncoderDrawIndexed,
+            E: _wgpuRenderPassEncoderSetBindGroup,
+            oa: _wgpuRenderPassEncoderSetBlendConstant,
+            qa: _wgpuRenderPassEncoderSetIndexBuffer,
+            pa: _wgpuRenderPassEncoderSetPipeline,
+            Da: _wgpuRenderPassEncoderSetScissorRect,
+            ra: _wgpuRenderPassEncoderSetVertexBuffer,
+            sa: _wgpuRenderPassEncoderSetViewport,
             fa: _wgpuRenderPipelineRelease,
-            ca: _wgpuSamplerRelease,
-            ja: _wgpuShaderModuleRelease,
-            ma: _wgpuTextureCreateView,
-            ea: _wgpuTextureRelease,
-            da: _wgpuTextureViewRelease,
+            ea: _wgpuSamplerRelease,
+            ia: _wgpuShaderModuleRelease,
+            Aa: _wgpuTextureCreateView,
+            ka: _wgpuTextureRelease,
+            ma: _wgpuTextureViewRelease,
         };
         var wasmExports = await createWasm();
-        var ___wasm_call_ctors = wasmExports["mb"];
-        var _malloc = wasmExports["nb"];
-        var _free = wasmExports["ob"];
-        var ___getTypeName = wasmExports["pb"];
-        var __emscripten_timeout = wasmExports["rb"];
-        var __emscripten_stack_restore = wasmExports["sb"];
-        var __emscripten_stack_alloc = wasmExports["tb"];
-        var _emscripten_stack_get_current = wasmExports["ub"];
+        var ___wasm_call_ctors = wasmExports["ub"];
+        var _malloc = wasmExports["vb"];
+        var _free = wasmExports["wb"];
+        var ___getTypeName = wasmExports["xb"];
+        var _emscripten_builtin_memalign = wasmExports["zb"];
+        var __emscripten_timeout = wasmExports["Ab"];
+        var _setThrew = wasmExports["Bb"];
+        var __emscripten_stack_restore = wasmExports["Cb"];
+        var __emscripten_stack_alloc = wasmExports["Db"];
+        var _emscripten_stack_get_current = wasmExports["Eb"];
+        function invoke_iii(index, a1, a2) {
+            var sp = stackSave();
+            try {
+                return getWasmTableEntry(index)(a1, a2);
+            } catch (e) {
+                stackRestore(sp);
+                if (e !== e + 0) throw e;
+                _setThrew(1, 0);
+            }
+        }
+        function invoke_iiiii(index, a1, a2, a3, a4) {
+            var sp = stackSave();
+            try {
+                return getWasmTableEntry(index)(a1, a2, a3, a4);
+            } catch (e) {
+                stackRestore(sp);
+                if (e !== e + 0) throw e;
+                _setThrew(1, 0);
+            }
+        }
+        function invoke_iiii(index, a1, a2, a3) {
+            var sp = stackSave();
+            try {
+                return getWasmTableEntry(index)(a1, a2, a3);
+            } catch (e) {
+                stackRestore(sp);
+                if (e !== e + 0) throw e;
+                _setThrew(1, 0);
+            }
+        }
         function run() {
             if (runDependencies > 0) {
                 dependenciesFulfilled = run;
