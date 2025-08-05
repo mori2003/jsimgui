@@ -174,6 +174,7 @@ function compileWasm(): void {
             "./third_party/imgui/imgui_draw.cpp",
             "./third_party/imgui/imgui_tables.cpp",
             "./third_party/imgui/imgui_widgets.cpp",
+            "./third_party/imgui/misc/freetype/imgui_freetype.cpp",
             "./third_party/imgui/backends/imgui_impl_opengl3.cpp",
             "./third_party/imgui/backends/imgui_impl_wgpu.cpp",
             "./third_party/dear_bindings/dcimgui.cpp",
@@ -182,11 +183,17 @@ function compileWasm(): void {
             "./src/fixes/dcimgui_impl_wgpu.cpp", // Small compilation fix for the wgpu backend.
             "-I./third_party/imgui/",
             "-I./third_party/imgui/backends",
+            "-I./third_party/imgui/misc/freetype",
             "-I./third_party/dear_bindings",
+
+            "-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS=1",
+            "-DIMGUI_USE_WCHAR32=1",
+            "-DIMGUI_ENABLE_FREETYPE=1",
+            "-sUSE_FREETYPE=1",
 
             "-o build/jsimgui-em.js",
             "--cache=./.em_cache",
-            "-std=c++20",
+            "-std=c++26",
 
             "-sENVIRONMENT=web",
             "-sMODULARIZE=1",
