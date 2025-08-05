@@ -120,11 +120,21 @@ class StructBinding {
 }
 
 // -------------------------------------------------------------------------------------------------
-// BEGIN GENERATED CODE
+// [BEGIN GENERATED CODE]
 // -------------------------------------------------------------------------------------------------
-
+//
+// export class ImVec2 extends StructBinding {
+// ...
+// }
+//
+// ...
+//
+// export const ImGui = Object.freeze({
+// ...
+// })
+//
 // -------------------------------------------------------------------------------------------------
-// END GENERATED CODE
+// [END GENERATED CODE]
 // -------------------------------------------------------------------------------------------------
 
 // -------------------------------------------------------------------------------------------------
@@ -622,6 +632,20 @@ const setupBrowserIO = (canvas: HTMLCanvasElement) => {
 };
 
 /**
+ * Object containing some state information for jsimgui. Users most likely don't need to worry
+ * about this.
+ */
+export const State = {
+    canvas: null as HTMLCanvasElement | null,
+    device: null as GPUDevice | null,
+
+    beginRenderFn: null as (() => void) | null,
+    endRenderFn: null as ((passEncoder?: GPURenderPassEncoder) => void) | null,
+
+    // TODO: store registered Images/Textures here to update them.
+};
+
+/**
  * Initialization options for jsimgui used in {@linkcode ImGuiImplWeb.Init}.
  */
 export interface InitOptions {
@@ -668,88 +692,219 @@ export interface InitOptions {
     loaderPath?: string;
 }
 
-export const JsimguiState = {
-    device: null as GPUDevice | null,
+/**
+ * Object containing memory information of the WASM heap, mallinfo and stack.
+ */
+interface MemoryInfo {
+    heap: {
+        size: number;
+        max: number;
+        sbrk_ptr: number;
+    };
+    mall: {
+        arena: number;
+        ordblks: number;
+        smblks: number;
+        hblks: number;
+        hblkhd: number;
+        usmblks: number;
+        fsmblks: number;
+        uordblks: number;
+        fordblks: number;
+        keepcost: number;
+    };
+    stack: {
+        base: number;
+        end: number;
+        current: number;
+        free: number;
+    };
+}
+
+/**
+ * This infers the backend to use for the given configuration.
+ *
+ * @param canvas The canvas element to infer the backend from.
+ * @param device The WebGPU device to use. This overrides the backend to WebGPU.
+ * @param backend The backend to use. This will explicitly use this backend.
+ * @returns The backend to use.
+ */
+const getUsedBackend = (
+    canvas: HTMLCanvasElement,
+    device?: GPUDevice,
+    backend?: "webgl" | "webgl2" | "webgpu",
+): "webgl" | "webgl2" | "webgpu" => {
+    if (backend) return backend;
+    if (device) return "webgpu";
+
+    const ctx =
+        canvas.getContext("webgl2") ||
+        canvas.getContext("webgl") ||
+        canvas.getContext("webgpu") ||
+        canvas.getContext("2d") ||
+        canvas.getContext("bitmaprenderer");
+
+    if (ctx instanceof WebGLRenderingContext) return "webgl";
+    if (ctx instanceof WebGL2RenderingContext) return "webgl2";
+    if (ctx instanceof GPUCanvasContext) return "webgpu";
+
+    if (ctx instanceof CanvasRenderingContext2D) {
+        throw new Error("jsimgui: 2D canvas context is not supported.");
+    }
+    if (ctx instanceof ImageBitmapRenderingContext) {
+        throw new Error("jsimgui: ImageBitmapRenderingContext is not supported.");
+    }
+
+    return "webgl2";
 };
 
-let beginRenderFn: () => void = () => {};
-let endRenderFn: (passEncoder?: GPURenderPassEncoder) => void = () => {};
+/**
+ * This constructs the path to the emscripten loader script. If a custom loader path is provided,
+ * it will be used instead.
+ *
+ * @param backend The backend to use.
+ * @param fontLoader The font loader to use.
+ * @param enableDemos Whether to include the Dear ImGui demo windows.
+ * @param loaderPath Custom path which will be used if provided.
+ * @returns The path to the emscripten loader script.
+ */
+const getUsedLoaderPath = (
+    backend: "webgl" | "webgl2" | "webgpu",
+    fontLoader: "truetype" | "freetype",
+    enableDemos: boolean,
+    loaderPath?: string,
+): string => {
+    if (loaderPath) return loaderPath;
 
-/** Web implementation of Jsimgui. */
+    const fontLoaderShort = fontLoader === "truetype" ? "tt" : "ft";
+    return `./${backend}/jsimgui-${backend}-${fontLoaderShort}${enableDemos ? "-demos" : ""}.js`;
+};
+
+/**
+ * This initializes the WebGL/WebGL2 backend.
+ *
+ * @param canvas The canvas element to initialize the WebGL/WebGL2 backend on.
+ */
+const initWebGL = (canvas: HTMLCanvasElement) => {
+    const ctx = canvas.getContext("webgl2") || canvas.getContext("webgl");
+    if (!ctx) {
+        throw new Error("jsimgui: Could not create WebGL/WebGL2 context.");
+    }
+
+    const handle = Mod.export.GL.registerContext(
+        ctx,
+        ctx.getContextAttributes() as WebGLContextAttributes,
+    ) as number;
+
+    Mod.export.GL.makeContextCurrent(handle);
+    ImGuiImplOpenGL3.Init();
+
+    State.beginRenderFn = () => {
+        ImGuiImplOpenGL3.NewFrame();
+    };
+
+    State.endRenderFn = () => {
+        ImGuiImplOpenGL3.RenderDrawData(ImGui.GetDrawData());
+    };
+
+    State.canvas = canvas;
+};
+
+/**
+ * This initializes the WebGPU backend.
+ *
+ * @param canvas The canvas element to initialize the WebGPU backend on.
+ * @param device The WebGPU device to use.
+ */
+const initWebGPU = (canvas: HTMLCanvasElement, device: GPUDevice | undefined) => {
+    if (!device) {
+        throw new Error("jsimgui: WebGPU device is not provided.");
+    }
+
+    Mod.export.preinitializedWebGPUDevice = device;
+    ImGuiImplWGPU.Init();
+
+    State.beginRenderFn = () => {
+        ImGuiImplWGPU.NewFrame();
+    };
+
+    State.endRenderFn = (passEncoder?: GPURenderPassEncoder) => {
+        ImGuiImplWGPU.RenderDrawData(ImGui.GetDrawData(), passEncoder as GPURenderPassEncoder);
+    };
+
+    State.canvas = canvas;
+    State.device = device;
+};
+
+/**
+ * Object providing easy to use functions for initializing jsimgui as well as other things like
+ * loading images and fonts (TODO).
+ */
 export const ImGuiImplWeb = {
-    /** Begin a new ImGui frame. Call this at the beginning of your render loop. */
-    BeginRender() {
-        beginRenderFn();
-        ImGui.NewFrame();
-    },
-
-    /** End the current ImGui frame. Call this at the end of your render loop. */
-    EndRender(passEncoder?: GPURenderPassEncoder) {
-        ImGui.Render();
-        endRenderFn(passEncoder);
+    /**
+     * Returns memory information of the WASM heap, mallinfo and stack.
+     *
+     * @returns Object containing the memory information.
+     */
+    GetMemoryInfo(): MemoryInfo {
+        return {
+            heap: Mod.export.get_wasm_heap_info(),
+            mall: Mod.export.get_wasm_mall_info(),
+            stack: Mod.export.get_wasm_stack_info(),
+        };
     },
 
     /**
-     * Initialize Dear ImGui with the specified options.
+     * Begins a new ImGui frame. Call this at the beginning of your render loop.
+     */
+    BeginRender() {
+        State.beginRenderFn?.();
+        ImGui.NewFrame();
+    },
+
+    /**
+     * Ends the current ImGui frame. Call this at the end of your render loop. The `passEncoder`
+     * is only required when using the WebGPU backend.
+     *
+     * @param passEncoder The WebGPU render pass encoder to use.
+     */
+    EndRender(passEncoder?: GPURenderPassEncoder) {
+        ImGui.Render();
+        State.endRenderFn?.(passEncoder);
+    },
+
+    /**
+     * Initialize Dear ImGui with the specified configuration. This is asynchronous because it
+     * waits for the WASM file to be loaded.
+     *
+     * @param options The initialization options: {@linkcode InitOptions}.
      */
     async Init(options: InitOptions) {
-        const { canvas, device, backend, fontLoader = "truetype", useDemos = false } = options;
+        const {
+            canvas,
+            device,
+            backend,
+            fontLoader = "truetype",
+            enableDemos = false,
+            loaderPath,
+        } = options;
+        const usedBackend = getUsedBackend(canvas, device, backend);
 
-        const inferredBackend = device
-            ? "webgpu"
-            : (() => {
-                  const ctx = canvas.getContext("webgl2") || canvas.getContext("webgl");
-                  if (ctx instanceof WebGL2RenderingContext) return "webgl2";
-                  if (ctx instanceof WebGLRenderingContext) return "webgl";
-                  return null;
-              })();
+        const usedLoaderPath = getUsedLoaderPath(usedBackend, fontLoader, enableDemos, loaderPath);
+        await Mod.init(usedLoaderPath);
 
-        if (!backend && !inferredBackend) {
-            throw new Error("Unknown backend.");
-        }
-
-        const backendName = backend ?? inferredBackend;
-        const fontLoaderShort = fontLoader === "truetype" ? "tt" : "ft";
-        const loaderPath = `./${backendName}/jsimgui-${backendName}-${fontLoaderShort}${useDemos ? "-demos" : ""}.js`;
-
-        await Mod.init(loaderPath);
         Mod.export.FS.mount(Mod.export.MEMFS, { root: "." }, ".");
 
         ImGui.CreateContext();
         setupBrowserIO(canvas);
 
-        if (backendName === "webgpu") {
-            Mod.export.preinitializedWebGPUDevice = device;
-            ImGuiImplWGPU.Init();
-
-            beginRenderFn = () => {
-                ImGuiImplWGPU.NewFrame();
-            };
-            endRenderFn = (passEncoder?: GPURenderPassEncoder) => {
-                ImGuiImplWGPU.RenderDrawData(
-                    ImGui.GetDrawData(),
-                    passEncoder as GPURenderPassEncoder,
-                );
-            };
+        if (usedBackend === "webgl" || usedBackend === "webgl2") {
+            initWebGL(canvas);
             return;
         }
 
-        if (backendName === "webgl" || backendName === "webgl2") {
-            const ctx = canvas.getContext(backendName) as
-                | WebGLRenderingContext
-                | WebGL2RenderingContext;
-            if (!ctx) throw new Error(`Failed to create ${backendName.toUpperCase()} context`);
-
-            const handle = Mod.export.GL.registerContext(ctx, ctx.getContextAttributes()) as number;
-            Mod.export.GL.makeContextCurrent(handle);
-            ImGuiImplOpenGL3.Init();
-
-            beginRenderFn = () => {
-                ImGuiImplOpenGL3.NewFrame();
-            };
-            endRenderFn = () => {
-                ImGuiImplOpenGL3.RenderDrawData(ImGui.GetDrawData());
-            };
+        if (usedBackend === "webgpu") {
+            initWebGPU(canvas, device);
             return;
         }
     },
@@ -848,37 +1003,5 @@ export const ImGuiImplWeb = {
                 reject(error);
             };
         });
-    },
-
-    GetMemoryInfo(): {
-        heap: {
-            size: number;
-            max: number;
-            sbrk_ptr: number;
-        };
-        mall: {
-            arena: number;
-            ordblks: number;
-            smblks: number;
-            hblks: number;
-            hblkhd: number;
-            usmblks: number;
-            fsmblks: number;
-            uordblks: number;
-            fordblks: number;
-            keepcost: number;
-        };
-        stack: {
-            base: number;
-            end: number;
-            current: number;
-            free: number;
-        };
-    } {
-        return {
-            heap: Mod.export.get_wasm_heap_info(),
-            mall: Mod.export.get_wasm_mall_info(),
-            stack: Mod.export.get_wasm_stack_info(),
-        };
     },
 };
