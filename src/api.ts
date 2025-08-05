@@ -43,7 +43,7 @@ export const Mod = {
      * @param loaderPath Path to the Emscripten module loader (e.g. `jsimgui-webgl-tt.js`).
      * @throws {Error} Throws error if the module is already initialized.
      */
-    async init(loaderPath: string): Promise<void> {
+    async init(loaderPath: string) {
         if (Mod._export) {
             throw new Error("jsimgui: Emscripten module is already initialized.");
         }
