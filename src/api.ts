@@ -653,6 +653,8 @@ const setupBrowserIO = (canvas: HTMLCanvasElement) => {
     setupKeyboardIO(canvas);
     setupTouchIO(canvas);
     setupClipboardIO();
+
+    Mod.export.SetupIniSettings();
 };
 
 /**
@@ -668,6 +670,9 @@ export const State = {
     endRenderFn: null as ((passEncoder?: GPURenderPassEncoder) => void) | null,
 
     clipboardData: "" as string,
+
+    saveIniSettingsFn: null as ((iniData: string) => void) | null,
+    loadIniSettingsFn: null as (() => string) | null,
 };
 
 /**
@@ -1084,6 +1089,27 @@ export const ImGuiImplWeb = {
     },
 
     /**
+     * Set the callback for saving the Dear ImGui ini settings. The ini settings will be passed as
+     * string to the callback.
+     *
+     * @param fn The function to save the ImGui ini settings.
+     */
+    SetSaveIniSettingsFn(fn: (iniData: string) => void) {
+        State.saveIniSettingsFn = fn;
+    },
+
+    /**
+     * Set the callback for loading the Dear ImGui ini settings. The callback should return a string
+     * of the ini settings. This callback will be called in the {@linkcode ImGuiImplWeb.Init}
+     * function.
+     *
+     * @param fn The function to load the ImGui ini settings.
+     */
+    SetLoadIniSettingsFn(fn: () => string) {
+        State.loadIniSettingsFn = fn;
+    },
+
+    /**
      * Load a texture/image for the current backend.
      *
      * @param data The image or image data to load.
@@ -1100,6 +1126,11 @@ export const ImGuiImplWeb = {
      * Begins a new ImGui frame. Call this at the beginning of your render loop.
      */
     BeginRender() {
+        if (ImGui.GetIO().WantSaveIniSettings) {
+            State.saveIniSettingsFn?.(ImGui.SaveIniSettingsToMemory());
+            ImGui.GetIO().WantSaveIniSettings = false;
+        }
+
         State.beginRenderFn?.();
         ImGui.NewFrame();
     },
@@ -1140,6 +1171,11 @@ export const ImGuiImplWeb = {
 
         ImGui.CreateContext();
         setupBrowserIO(canvas);
+
+        if (State.loadIniSettingsFn) {
+            const iniData = State.loadIniSettingsFn() || "";
+            ImGui.LoadIniSettingsFromMemory(iniData, iniData.length);
+        }
 
         if (usedBackend === "webgl" || usedBackend === "webgl2") {
             initWebGL(canvas);
