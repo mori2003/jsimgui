@@ -223,9 +223,9 @@ const KEYBOARD_MODIFIER_MAP = {
 
 
 const handleKeyboardEvent = (event: KeyboardEvent, keyDown: boolean, io: ImGuiIO) => {
-    io.AddKeyEvent(KEYBOARD_MAP[event.key], keyDown);
+    io.AddKeyEvent(KEYBOARD_MAP[event.key as keyof typeof KEYBOARD_MAP], keyDown);
 
-    const modifier = KEYBOARD_MODIFIER_MAP[event.key];
+    const modifier = KEYBOARD_MODIFIER_MAP[event.key as keyof typeof KEYBOARD_MODIFIER_MAP];
     if (modifier) {
         io.AddKeyEvent(modifier, keyDown);
     }
@@ -241,7 +241,7 @@ const handleKeyboardEvent = (event: KeyboardEvent, keyDown: boolean, io: ImGuiIO
  */
 function setupCanvasIO(canvas: HTMLCanvasElement) {
     const io = ImGui.GetIO();
-    
+
     const setDisplayProperties = () => {
         const displayWidth = Math.floor(canvas.clientWidth);
         const displayHeight = Math.floor(canvas.clientHeight);
@@ -276,11 +276,11 @@ function setupMouseIO(canvas: HTMLCanvasElement) {
     });
 
     canvas.addEventListener("mousedown", (e) => {
-        io.AddMouseButtonEvent(MOUSE_BUTTON_MAP[e.button], true);
+        io.AddMouseButtonEvent(MOUSE_BUTTON_MAP[e.button as keyof typeof MOUSE_BUTTON_MAP], true);
     });
 
     canvas.addEventListener("mouseup", (e) => {
-        io.AddMouseButtonEvent(MOUSE_BUTTON_MAP[e.button], false);
+        io.AddMouseButtonEvent(MOUSE_BUTTON_MAP[e.button as keyof typeof MOUSE_BUTTON_MAP], false);
     });
 
     canvas.addEventListener("wheel", (e) => {
@@ -312,27 +312,27 @@ function setupTouchIO(canvas: HTMLCanvasElement) {
     const handleTouchEvent = (event: TouchEvent, isButtonDown?: boolean) => {
         event.preventDefault();
         const rect = canvas.getBoundingClientRect();
-        
+
         if (event.touches.length === 2) {
             const touch1 = event.touches[0];
             const touch2 = event.touches[1];
-            
+
             const currentPos = {
                 x: (touch1.clientX + touch2.clientX) / 2,
                 y: (touch1.clientY + touch2.clientY) / 2
             };
-            
+
             if (lastPos.x > 0 && lastPos.y > 0) {
                 const deltaX = (lastPos.x - currentPos.x) * scrollSpeed;
                 const deltaY = (lastPos.y - currentPos.y) * scrollSpeed;
                 io.AddMouseWheelEvent(-deltaX, -deltaY);
             }
-            
+
             lastPos = currentPos;
             return;
     }
 
-        lastPos = { x: 0, y: 0 };        
+        lastPos = { x: 0, y: 0 };
         const touch = event.touches[0];
 
         if (touch) {
@@ -361,7 +361,7 @@ function setupTouchIO(canvas: HTMLCanvasElement) {
     };
 
     const handleTextInput = () => {
-        if (io.WantTextInput) {    
+        if (io.WantTextInput) {
             document.body.appendChild(input);
             input.focus();
 
@@ -374,9 +374,9 @@ function setupTouchIO(canvas: HTMLCanvasElement) {
                 if (!io.WantTextInput) {
                     blurHandler();
                 }
-            });    
+            });
         }
-        else {  
+        else {
             blurHandler();
         }
     }
@@ -411,7 +411,7 @@ function setupBrowserIO(canvas: HTMLCanvasElement) {
     setupCanvasIO(canvas);
     setupMouseIO(canvas);
     setupKeyboardIO(canvas);
-    setupTouchIO(canvas);   
+    setupTouchIO(canvas);
 }
 
 /** Web implementation of Jsimgui. */
