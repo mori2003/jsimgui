@@ -61,7 +61,7 @@ function onWindowResize() {
 
 await ImGuiImplWeb.Init({
     canvas,
-    useDemos: true,
+    enableDemos: true,
 });
 
 export const showDemo = [false];

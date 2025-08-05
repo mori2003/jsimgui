@@ -11,7 +11,7 @@ canvas.height = canvas.clientHeight * devicePixelRatio;
 
 await ImGuiImplWeb.Init({
     canvas,
-    useDemos: true,
+    enableDemos: true,
 });
 
 const color = [0.0, 0.5, 0.5];
