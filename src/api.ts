@@ -439,6 +439,22 @@ const handleKeyboardEvent = (event: KeyboardEvent, keyDown: boolean, io: ImGuiIO
 };
 
 /**
+ * Object containing some state information for jsimgui. Users most likely don't need to worry
+ * about this.
+ */
+export const State = {
+    canvas: null as HTMLCanvasElement | null,
+    device: null as GPUDevice | null,
+
+    beginRenderFn: null as (() => void) | null,
+    endRenderFn: null as ((passEncoder?: GPURenderPassEncoder) => void) | null,
+
+    clipboardData: "" as string,
+
+    // TODO: store registered Images/Textures here to update them.
+};
+
+/**
  * Sets up the correct display size and framebuffer scale for Dear ImGui. Also handles resize
  * events for the canvas.
  *
@@ -609,6 +625,26 @@ const setupTouchIO = (canvas: HTMLCanvasElement) => {
 };
 
 /**
+ * Sets up the clipboard functionality to work between the browser and Dear ImGui.
+ */
+const setupClipboardIO = () => {
+    const getClipboard = (): string => {
+        return State.clipboardData;
+    }
+
+    const setClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
+        State.clipboardData = text;
+    }
+
+    Mod.export.SetupClipboardFunctions(getClipboard, setClipboard);
+
+    document.addEventListener("paste", (e) => {
+        State.clipboardData = e.clipboardData?.getData("text/plain") ?? "";
+    });
+};
+
+/**
  * Sets up Dear ImGui for the browser. This includes:
  * - Setting up the canvas and resize events.
  * - Setting up mouse input, movement and cursor handling.
@@ -632,21 +668,10 @@ const setupBrowserIO = (canvas: HTMLCanvasElement) => {
     setupMouseIO(canvas);
     setupKeyboardIO(canvas);
     setupTouchIO(canvas);
+    setupClipboardIO();
 };
 
-/**
- * Object containing some state information for jsimgui. Users most likely don't need to worry
- * about this.
- */
-export const State = {
-    canvas: null as HTMLCanvasElement | null,
-    device: null as GPUDevice | null,
 
-    beginRenderFn: null as (() => void) | null,
-    endRenderFn: null as ((passEncoder?: GPURenderPassEncoder) => void) | null,
-
-    // TODO: store registered Images/Textures here to update them.
-};
 
 /**
  * Initialization options for jsimgui used in {@linkcode ImGuiImplWeb.Init}.

@@ -120,8 +120,31 @@ class ArrayParam<bool> {
 /* Manual Backend Bindings - WebGL and WebGPU */
 /* -------------------------------------------------------------------------- */
 
+static auto get_clipboard_fn = emscripten::val::null();
+static auto set_clipboard_fn = emscripten::val::null();
+
+auto get_clipboard_text(ImGuiContext*) -> const char* {
+    static auto text{std::string()};
+    text = get_clipboard_fn().as<std::string>();
+
+    return text.c_str();
+};
+
+auto set_clipboard_text(ImGuiContext*, const char* text) -> void {
+    set_clipboard_fn(std::string(text));
+};
+
 EMSCRIPTEN_BINDINGS(impl) {
 
+bind_func("SetupClipboardFunctions", [](emscripten::val get_fn, emscripten::val set_fn){
+    auto const& platform_io{ImGui_GetPlatformIO()};
+
+    get_clipboard_fn = get_fn;
+    set_clipboard_fn = set_fn;
+
+    platform_io->Platform_GetClipboardTextFn = get_clipboard_text;
+    platform_io->Platform_SetClipboardTextFn = set_clipboard_text;
+});
 bind_func("get_wasm_heap_info", [](){
     auto ret{emscripten::val::object()};
 
