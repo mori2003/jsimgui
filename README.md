@@ -14,11 +14,17 @@ JavaScript/TypeScript bindings for the [Dear ImGui](https://github.com/ocornut/i
 
 ## Examples
 
-- **WebGL2**: Basic example using a WebGL2 clear canvas - [View Example](https://mori2003.github.io/jsimgui/docs/examples/webgl/)
+**Clear canvas**
 
-- **WebGPU (WIP)**: Basic example using a WebGPU clear canvas - [View Example](https://mori2003.github.io/jsimgui/docs/examples/webgpu/)
+- **WebGL** - [View Example](https://mori2003.github.io/jsimgui/docs/examples/canvas/webgl/)
 
-- **Three.js**: Integration with Three.js WebGL2 renderer - [View Example](https://mori2003.github.io/jsimgui/docs/examples/threegl/)
+- **WebGL2** - [View Example](https://mori2003.github.io/jsimgui/docs/examples/canvas/webgl2/)
+
+- **WebGPU** - [View Example](https://mori2003.github.io/jsimgui/docs/examples/canvas/webgpu/)
+
+**Three.js**
+
+- **Three.js WebGL2** - [View Example](https://mori2003.github.io/jsimgui/docs/examples/threejs/)
 
 ## Todo
 The library should be somewhat usable, but expect bugs and missing features! (Custom font support, INI settings, etc.) Please open an issue if you find something.
