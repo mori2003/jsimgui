@@ -1,6 +1,4 @@
 var MainExport = (() => {
-    var _scriptName = import.meta.url;
-
     return async function (moduleArg = {}) {
         var moduleRtn;
 
@@ -12,12 +10,12 @@ var MainExport = (() => {
         });
         var ENVIRONMENT_IS_WEB = true;
         var ENVIRONMENT_IS_WORKER = false;
-        var moduleOverrides = Object.assign({}, Module);
         var arguments_ = [];
         var thisProgram = "./this.program";
         var quit_ = (status, toThrow) => {
             throw toThrow;
         };
+        var _scriptName = import.meta.url;
         var scriptDirectory = "";
         function locateFile(path) {
             if (Module["locateFile"]) {
@@ -27,22 +25,9 @@ var MainExport = (() => {
         }
         var readAsync, readBinary;
         if (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) {
-            if (ENVIRONMENT_IS_WORKER) {
-                scriptDirectory = self.location.href;
-            } else if (typeof document != "undefined" && document.currentScript) {
-                scriptDirectory = document.currentScript.src;
-            }
-            if (_scriptName) {
-                scriptDirectory = _scriptName;
-            }
-            if (scriptDirectory.startsWith("blob:")) {
-                scriptDirectory = "";
-            } else {
-                scriptDirectory = scriptDirectory.slice(
-                    0,
-                    scriptDirectory.replace(/[?#].*/, "").lastIndexOf("/") + 1,
-                );
-            }
+            try {
+                scriptDirectory = new URL(".", _scriptName).href;
+            } catch {}
             {
                 readAsync = async (url) => {
                     var response = await fetch(url, { credentials: "same-origin" });
@@ -54,13 +39,9 @@ var MainExport = (() => {
             }
         } else {
         }
-        var out = Module["print"] || console.log.bind(console);
-        var err = Module["printErr"] || console.error.bind(console);
-        Object.assign(Module, moduleOverrides);
-        moduleOverrides = null;
-        if (Module["arguments"]) arguments_ = Module["arguments"];
-        if (Module["thisProgram"]) thisProgram = Module["thisProgram"];
-        var wasmBinary = Module["wasmBinary"];
+        var out = console.log.bind(console);
+        var err = console.error.bind(console);
+        var wasmBinary;
         var wasmMemory;
         var ABORT = false;
         var EXITSTATUS;
@@ -68,16 +49,16 @@ var MainExport = (() => {
         var runtimeInitialized = false;
         function updateMemoryViews() {
             var b = wasmMemory.buffer;
-            Module["HEAP8"] = HEAP8 = new Int8Array(b);
-            Module["HEAP16"] = HEAP16 = new Int16Array(b);
-            Module["HEAPU8"] = HEAPU8 = new Uint8Array(b);
-            Module["HEAPU16"] = HEAPU16 = new Uint16Array(b);
-            Module["HEAP32"] = HEAP32 = new Int32Array(b);
-            Module["HEAPU32"] = HEAPU32 = new Uint32Array(b);
-            Module["HEAPF32"] = HEAPF32 = new Float32Array(b);
-            Module["HEAPF64"] = HEAPF64 = new Float64Array(b);
-            Module["HEAP64"] = HEAP64 = new BigInt64Array(b);
-            Module["HEAPU64"] = HEAPU64 = new BigUint64Array(b);
+            HEAP8 = new Int8Array(b);
+            HEAP16 = new Int16Array(b);
+            HEAPU8 = new Uint8Array(b);
+            HEAPU16 = new Uint16Array(b);
+            HEAP32 = new Int32Array(b);
+            HEAPU32 = new Uint32Array(b);
+            HEAPF32 = new Float32Array(b);
+            HEAPF64 = new Float64Array(b);
+            HEAP64 = new BigInt64Array(b);
+            HEAPU64 = new BigUint64Array(b);
         }
         function preRun() {
             if (Module["preRun"]) {
@@ -205,8 +186,7 @@ var MainExport = (() => {
             if (Module["instantiateWasm"]) {
                 return new Promise((resolve, reject) => {
                     Module["instantiateWasm"](info, (mod, inst) => {
-                        receiveInstance(mod, inst);
-                        resolve(mod.exports);
+                        resolve(receiveInstance(mod, inst));
                     });
                 });
             }
@@ -233,49 +213,19 @@ var MainExport = (() => {
             }
         };
         var onPostRuns = [];
-        var addOnPostRun = (cb) => onPostRuns.unshift(cb);
+        var addOnPostRun = (cb) => onPostRuns.push(cb);
         var onPreRuns = [];
-        var addOnPreRun = (cb) => onPreRuns.unshift(cb);
-        var noExitRuntime = Module["noExitRuntime"] || true;
+        var addOnPreRun = (cb) => onPreRuns.push(cb);
+        var noExitRuntime = true;
         var stackRestore = (val) => __emscripten_stack_restore(val);
         var stackSave = () => _emscripten_stack_get_current();
-        var UTF8Decoder = typeof TextDecoder != "undefined" ? new TextDecoder() : undefined;
-        var UTF8ArrayToString = (heapOrArray, idx = 0, maxBytesToRead = NaN) => {
-            var endIdx = idx + maxBytesToRead;
-            var endPtr = idx;
-            while (heapOrArray[endPtr] && !(endPtr >= endIdx)) ++endPtr;
-            if (endPtr - idx > 16 && heapOrArray.buffer && UTF8Decoder) {
-                return UTF8Decoder.decode(heapOrArray.subarray(idx, endPtr));
-            }
-            var str = "";
-            while (idx < endPtr) {
-                var u0 = heapOrArray[idx++];
-                if (!(u0 & 128)) {
-                    str += String.fromCharCode(u0);
-                    continue;
-                }
-                var u1 = heapOrArray[idx++] & 63;
-                if ((u0 & 224) == 192) {
-                    str += String.fromCharCode(((u0 & 31) << 6) | u1);
-                    continue;
-                }
-                var u2 = heapOrArray[idx++] & 63;
-                if ((u0 & 240) == 224) {
-                    u0 = ((u0 & 15) << 12) | (u1 << 6) | u2;
-                } else {
-                    u0 = ((u0 & 7) << 18) | (u1 << 12) | (u2 << 6) | (heapOrArray[idx++] & 63);
-                }
-                if (u0 < 65536) {
-                    str += String.fromCharCode(u0);
-                } else {
-                    var ch = u0 - 65536;
-                    str += String.fromCharCode(55296 | (ch >> 10), 56320 | (ch & 1023));
-                }
-            }
-            return str;
+        var UTF8Decoder = new TextDecoder();
+        var UTF8ToString = (ptr, maxBytesToRead) => {
+            if (!ptr) return "";
+            var maxPtr = ptr + maxBytesToRead;
+            for (var end = ptr; !(end >= maxPtr) && HEAPU8[end]; ) ++end;
+            return UTF8Decoder.decode(HEAPU8.subarray(ptr, end));
         };
-        var UTF8ToString = (ptr, maxBytesToRead) =>
-            ptr ? UTF8ArrayToString(HEAPU8, ptr, maxBytesToRead) : "";
         var ___assert_fail = (condition, filename, line, func) =>
             abort(
                 `Assertion failed: ${UTF8ToString(condition)}, at: ` +
@@ -457,6 +407,16 @@ var MainExport = (() => {
                 outputParts = outputParts.concat(toParts.slice(samePartsLength));
                 return outputParts.join("/");
             },
+        };
+        var UTF8ArrayToString = (heapOrArray, idx = 0, maxBytesToRead = NaN) => {
+            var endIdx = idx + maxBytesToRead;
+            var endPtr = idx;
+            while (heapOrArray[endPtr] && !(endPtr >= endIdx)) ++endPtr;
+            return UTF8Decoder.decode(
+                heapOrArray.buffer
+                    ? heapOrArray.subarray(idx, endPtr)
+                    : new Uint8Array(heapOrArray.slice(idx, endPtr)),
+            );
         };
         var FS_stdin_getChar_buffer = [];
         var lengthBytesUTF8 = (str) => {
@@ -684,7 +644,6 @@ var MainExport = (() => {
                             llseek: MEMFS.stream_ops.llseek,
                             read: MEMFS.stream_ops.read,
                             write: MEMFS.stream_ops.write,
-                            allocate: MEMFS.stream_ops.allocate,
                             mmap: MEMFS.stream_ops.mmap,
                             msync: MEMFS.stream_ops.msync,
                         },
@@ -907,10 +866,6 @@ var MainExport = (() => {
                     }
                     return position;
                 },
-                allocate(stream, offset, length) {
-                    MEMFS.expandFileStorage(stream.node, offset + length);
-                    stream.node.usedBytes = Math.max(stream.node.usedBytes, offset + length);
-                },
                 mmap(stream, length, position, prot, flags) {
                     if (!FS.isFile(stream.node.mode)) {
                         throw new FS.ErrnoError(43);
@@ -954,10 +909,8 @@ var MainExport = (() => {
             var arrayBuffer = await readAsync(url);
             return new Uint8Array(arrayBuffer);
         };
-        var FS_createDataFile = (parent, name, fileData, canRead, canWrite, canOwn) => {
-            FS.createDataFile(parent, name, fileData, canRead, canWrite, canOwn);
-        };
-        var preloadPlugins = Module["preloadPlugins"] || [];
+        var FS_createDataFile = (...args) => FS.createDataFile(...args);
+        var preloadPlugins = [];
         var FS_handledByPreloadPlugin = (byteArray, fullname, finish, onerror) => {
             if (typeof Browser != "undefined") Browser.init();
             var handled = false;
@@ -1139,7 +1092,12 @@ var MainExport = (() => {
                         }
                         if (parts[i] === "..") {
                             current_path = PATH.dirname(current_path);
-                            current = current.parent;
+                            if (FS.isRoot(current)) {
+                                path = current_path + "/" + parts.slice(i + 1).join("/");
+                                continue linkloop;
+                            } else {
+                                current = current.parent;
+                            }
                             continue;
                         }
                         current_path = PATH.join2(current_path, parts[i]);
@@ -1555,9 +1513,10 @@ var MainExport = (() => {
             mkdirTree(path, mode) {
                 var dirs = path.split("/");
                 var d = "";
-                for (var i = 0; i < dirs.length; ++i) {
-                    if (!dirs[i]) continue;
-                    d += "/" + dirs[i];
+                for (var dir of dirs) {
+                    if (!dir) continue;
+                    if (d || PATH.isAbs(path)) d += "/";
+                    d += dir;
                     try {
                         FS.mkdir(d, mode);
                     } catch (e) {
@@ -1985,24 +1944,6 @@ var MainExport = (() => {
                 if (!seeking) stream.position += bytesWritten;
                 return bytesWritten;
             },
-            allocate(stream, offset, length) {
-                if (FS.isClosed(stream)) {
-                    throw new FS.ErrnoError(8);
-                }
-                if (offset < 0 || length <= 0) {
-                    throw new FS.ErrnoError(28);
-                }
-                if ((stream.flags & 2097155) === 0) {
-                    throw new FS.ErrnoError(8);
-                }
-                if (!FS.isFile(stream.node.mode) && !FS.isDir(stream.node.mode)) {
-                    throw new FS.ErrnoError(43);
-                }
-                if (!stream.stream_ops.allocate) {
-                    throw new FS.ErrnoError(138);
-                }
-                stream.stream_ops.allocate(stream, offset, length);
-            },
             mmap(stream, length, position, prot, flags) {
                 if ((prot & 2) !== 0 && (flags & 2) === 0 && (stream.flags & 2097155) !== 2) {
                     throw new FS.ErrnoError(2);
@@ -2182,12 +2123,10 @@ var MainExport = (() => {
             },
             quit() {
                 FS.initialized = false;
-                for (var i = 0; i < FS.streams.length; i++) {
-                    var stream = FS.streams[i];
-                    if (!stream) {
-                        continue;
+                for (var stream of FS.streams) {
+                    if (stream) {
+                        FS.close(stream);
                     }
-                    FS.close(stream);
                 }
             },
             findObject(path, dontResolveLastLink) {
@@ -2730,17 +2669,6 @@ var MainExport = (() => {
             }
         }
         var __abort_js = () => abort("");
-        var embindRepr = (v) => {
-            if (v === null) {
-                return "null";
-            }
-            var t = typeof v;
-            if (t === "object" || t === "array" || t === "function") {
-                return v.toString();
-            } else {
-                return "" + v;
-            }
-        };
         var embind_init_charCodes = () => {
             var codes = new Array(256);
             for (var i = 0; i < 256; ++i) {
@@ -2760,48 +2688,14 @@ var MainExport = (() => {
         var awaitingDependencies = {};
         var registeredTypes = {};
         var typeDependencies = {};
-        var BindingError;
+        var BindingError = class BindingError extends Error {
+            constructor(message) {
+                super(message);
+                this.name = "BindingError";
+            }
+        };
         var throwBindingError = (message) => {
             throw new BindingError(message);
-        };
-        var InternalError;
-        var throwInternalError = (message) => {
-            throw new InternalError(message);
-        };
-        var whenDependentTypesAreResolved = (myTypes, dependentTypes, getTypeConverters) => {
-            myTypes.forEach((type) => (typeDependencies[type] = dependentTypes));
-            function onComplete(typeConverters) {
-                var myTypeConverters = getTypeConverters(typeConverters);
-                if (myTypeConverters.length !== myTypes.length) {
-                    throwInternalError("Mismatched type converter count");
-                }
-                for (var i = 0; i < myTypes.length; ++i) {
-                    registerType(myTypes[i], myTypeConverters[i]);
-                }
-            }
-            var typeConverters = new Array(dependentTypes.length);
-            var unregisteredTypes = [];
-            var registered = 0;
-            dependentTypes.forEach((dt, i) => {
-                if (registeredTypes.hasOwnProperty(dt)) {
-                    typeConverters[i] = registeredTypes[dt];
-                } else {
-                    unregisteredTypes.push(dt);
-                    if (!awaitingDependencies.hasOwnProperty(dt)) {
-                        awaitingDependencies[dt] = [];
-                    }
-                    awaitingDependencies[dt].push(() => {
-                        typeConverters[i] = registeredTypes[dt];
-                        ++registered;
-                        if (registered === unregisteredTypes.length) {
-                            onComplete(typeConverters);
-                        }
-                    });
-                }
-            });
-            if (0 === unregisteredTypes.length) {
-                onComplete(typeConverters);
-            }
         };
         function sharedRegisterType(rawType, registeredInstance, options = {}) {
             var name = registeredInstance.name;
@@ -2848,19 +2742,17 @@ var MainExport = (() => {
         };
         var __embind_register_bigint = (primitiveType, name, size, minRange, maxRange) => {
             name = readLatin1String(name);
-            var isUnsignedType = name.indexOf("u") != -1;
+            const isUnsignedType = minRange === 0n;
+            let fromWireType = (value) => value;
             if (isUnsignedType) {
-                maxRange = (1n << 64n) - 1n;
+                const bitSize = size * 8;
+                fromWireType = (value) => BigInt.asUintN(bitSize, value);
+                maxRange = fromWireType(maxRange);
             }
             registerType(primitiveType, {
                 name,
-                fromWireType: (value) => value,
-                toWireType: function (destructors, value) {
-                    if (typeof value != "bigint" && typeof value != "number") {
-                        throw new TypeError(
-                            `Cannot convert "${embindRepr(value)}" to ${this.name}`,
-                        );
-                    }
+                fromWireType,
+                toWireType: (destructors, value) => {
                     if (typeof value == "number") {
                         value = BigInt(value);
                     }
@@ -2920,111 +2812,6 @@ var MainExport = (() => {
                 runDestructor($$);
             }
         };
-        var downcastPointer = (ptr, ptrClass, desiredClass) => {
-            if (ptrClass === desiredClass) {
-                return ptr;
-            }
-            if (undefined === desiredClass.baseClass) {
-                return null;
-            }
-            var rv = downcastPointer(ptr, ptrClass, desiredClass.baseClass);
-            if (rv === null) {
-                return null;
-            }
-            return desiredClass.downcast(rv);
-        };
-        var registeredPointers = {};
-        var registeredInstances = {};
-        var getBasestPointer = (class_, ptr) => {
-            if (ptr === undefined) {
-                throwBindingError("ptr should not be undefined");
-            }
-            while (class_.baseClass) {
-                ptr = class_.upcast(ptr);
-                class_ = class_.baseClass;
-            }
-            return ptr;
-        };
-        var getInheritedInstance = (class_, ptr) => {
-            ptr = getBasestPointer(class_, ptr);
-            return registeredInstances[ptr];
-        };
-        var makeClassHandle = (prototype, record) => {
-            if (!record.ptrType || !record.ptr) {
-                throwInternalError("makeClassHandle requires ptr and ptrType");
-            }
-            var hasSmartPtrType = !!record.smartPtrType;
-            var hasSmartPtr = !!record.smartPtr;
-            if (hasSmartPtrType !== hasSmartPtr) {
-                throwInternalError("Both smartPtrType and smartPtr must be specified");
-            }
-            record.count = { value: 1 };
-            return attachFinalizer(
-                Object.create(prototype, { $$: { value: record, writable: true } }),
-            );
-        };
-        function RegisteredPointer_fromWireType(ptr) {
-            var rawPointer = this.getPointee(ptr);
-            if (!rawPointer) {
-                this.destructor(ptr);
-                return null;
-            }
-            var registeredInstance = getInheritedInstance(this.registeredClass, rawPointer);
-            if (undefined !== registeredInstance) {
-                if (0 === registeredInstance.$$.count.value) {
-                    registeredInstance.$$.ptr = rawPointer;
-                    registeredInstance.$$.smartPtr = ptr;
-                    return registeredInstance["clone"]();
-                } else {
-                    var rv = registeredInstance["clone"]();
-                    this.destructor(ptr);
-                    return rv;
-                }
-            }
-            function makeDefaultHandle() {
-                if (this.isSmartPointer) {
-                    return makeClassHandle(this.registeredClass.instancePrototype, {
-                        ptrType: this.pointeeType,
-                        ptr: rawPointer,
-                        smartPtrType: this,
-                        smartPtr: ptr,
-                    });
-                } else {
-                    return makeClassHandle(this.registeredClass.instancePrototype, {
-                        ptrType: this,
-                        ptr,
-                    });
-                }
-            }
-            var actualType = this.registeredClass.getActualType(rawPointer);
-            var registeredPointerRecord = registeredPointers[actualType];
-            if (!registeredPointerRecord) {
-                return makeDefaultHandle.call(this);
-            }
-            var toType;
-            if (this.isConst) {
-                toType = registeredPointerRecord.constPointerType;
-            } else {
-                toType = registeredPointerRecord.pointerType;
-            }
-            var dp = downcastPointer(rawPointer, this.registeredClass, toType.registeredClass);
-            if (dp === null) {
-                return makeDefaultHandle.call(this);
-            }
-            if (this.isSmartPointer) {
-                return makeClassHandle(toType.registeredClass.instancePrototype, {
-                    ptrType: toType,
-                    ptr: dp,
-                    smartPtrType: this,
-                    smartPtr: ptr,
-                });
-            } else {
-                return makeClassHandle(toType.registeredClass.instancePrototype, {
-                    ptrType: toType,
-                    ptr: dp,
-                });
-            }
-        }
         var attachFinalizer = (handle) => {
             if ("undefined" === typeof FinalizationRegistry) {
                 attachFinalizer = (handle) => handle;
@@ -3055,7 +2842,8 @@ var MainExport = (() => {
         };
         var delayFunction;
         var init_ClassHandle = () => {
-            Object.assign(ClassHandle.prototype, {
+            let proto = ClassHandle.prototype;
+            Object.assign(proto, {
                 isAliasOf(other) {
                     if (!(this instanceof ClassHandle)) {
                         return false;
@@ -3128,10 +2916,15 @@ var MainExport = (() => {
                     return this;
                 },
             });
+            const symbolDispose = Symbol.dispose;
+            if (symbolDispose) {
+                proto[symbolDispose] = proto["delete"];
+            }
         };
         function ClassHandle() {}
         var createNamedFunction = (name, func) =>
             Object.defineProperty(func, "name", { value: name });
+        var registeredPointers = {};
         var ensureOverloadTable = (proto, methodName, humanName) => {
             if (undefined === proto[methodName].overloadTable) {
                 var prevFunc = proto[methodName];
@@ -3209,6 +3002,17 @@ var MainExport = (() => {
                 ptrClass = ptrClass.baseClass;
             }
             return ptr;
+        };
+        var embindRepr = (v) => {
+            if (v === null) {
+                return "null";
+            }
+            var t = typeof v;
+            if (t === "object" || t === "array" || t === "function") {
+                return v.toString();
+            } else {
+                return "" + v;
+            }
         };
         function constNoSmartPtrRawPointerToWireType(destructors, handle) {
             if (handle === null) {
@@ -3318,6 +3122,119 @@ var MainExport = (() => {
         function readPointer(pointer) {
             return this["fromWireType"](HEAPU32[pointer >> 2]);
         }
+        var downcastPointer = (ptr, ptrClass, desiredClass) => {
+            if (ptrClass === desiredClass) {
+                return ptr;
+            }
+            if (undefined === desiredClass.baseClass) {
+                return null;
+            }
+            var rv = downcastPointer(ptr, ptrClass, desiredClass.baseClass);
+            if (rv === null) {
+                return null;
+            }
+            return desiredClass.downcast(rv);
+        };
+        var registeredInstances = {};
+        var getBasestPointer = (class_, ptr) => {
+            if (ptr === undefined) {
+                throwBindingError("ptr should not be undefined");
+            }
+            while (class_.baseClass) {
+                ptr = class_.upcast(ptr);
+                class_ = class_.baseClass;
+            }
+            return ptr;
+        };
+        var getInheritedInstance = (class_, ptr) => {
+            ptr = getBasestPointer(class_, ptr);
+            return registeredInstances[ptr];
+        };
+        var InternalError = class InternalError extends Error {
+            constructor(message) {
+                super(message);
+                this.name = "InternalError";
+            }
+        };
+        var throwInternalError = (message) => {
+            throw new InternalError(message);
+        };
+        var makeClassHandle = (prototype, record) => {
+            if (!record.ptrType || !record.ptr) {
+                throwInternalError("makeClassHandle requires ptr and ptrType");
+            }
+            var hasSmartPtrType = !!record.smartPtrType;
+            var hasSmartPtr = !!record.smartPtr;
+            if (hasSmartPtrType !== hasSmartPtr) {
+                throwInternalError("Both smartPtrType and smartPtr must be specified");
+            }
+            record.count = { value: 1 };
+            return attachFinalizer(
+                Object.create(prototype, { $$: { value: record, writable: true } }),
+            );
+        };
+        function RegisteredPointer_fromWireType(ptr) {
+            var rawPointer = this.getPointee(ptr);
+            if (!rawPointer) {
+                this.destructor(ptr);
+                return null;
+            }
+            var registeredInstance = getInheritedInstance(this.registeredClass, rawPointer);
+            if (undefined !== registeredInstance) {
+                if (0 === registeredInstance.$$.count.value) {
+                    registeredInstance.$$.ptr = rawPointer;
+                    registeredInstance.$$.smartPtr = ptr;
+                    return registeredInstance["clone"]();
+                } else {
+                    var rv = registeredInstance["clone"]();
+                    this.destructor(ptr);
+                    return rv;
+                }
+            }
+            function makeDefaultHandle() {
+                if (this.isSmartPointer) {
+                    return makeClassHandle(this.registeredClass.instancePrototype, {
+                        ptrType: this.pointeeType,
+                        ptr: rawPointer,
+                        smartPtrType: this,
+                        smartPtr: ptr,
+                    });
+                } else {
+                    return makeClassHandle(this.registeredClass.instancePrototype, {
+                        ptrType: this,
+                        ptr,
+                    });
+                }
+            }
+            var actualType = this.registeredClass.getActualType(rawPointer);
+            var registeredPointerRecord = registeredPointers[actualType];
+            if (!registeredPointerRecord) {
+                return makeDefaultHandle.call(this);
+            }
+            var toType;
+            if (this.isConst) {
+                toType = registeredPointerRecord.constPointerType;
+            } else {
+                toType = registeredPointerRecord.pointerType;
+            }
+            var dp = downcastPointer(rawPointer, this.registeredClass, toType.registeredClass);
+            if (dp === null) {
+                return makeDefaultHandle.call(this);
+            }
+            if (this.isSmartPointer) {
+                return makeClassHandle(toType.registeredClass.instancePrototype, {
+                    ptrType: toType,
+                    ptr: dp,
+                    smartPtrType: this,
+                    smartPtr: ptr,
+                });
+            } else {
+                return makeClassHandle(toType.registeredClass.instancePrototype, {
+                    ptrType: toType,
+                    ptr: dp,
+                });
+            }
+        }
         var init_RegisteredPointer = () => {
             Object.assign(RegisteredPointer.prototype, {
                 getPointee(ptr) {
@@ -3383,10 +3300,11 @@ var MainExport = (() => {
         };
         var wasmTable;
         var getWasmTableEntry = (funcPtr) => wasmTable.get(funcPtr);
-        var embind__requireFunction = (signature, rawFunction) => {
+        var embind__requireFunction = (signature, rawFunction, isAsync = false) => {
             signature = readLatin1String(signature);
             function makeDynCaller() {
-                return getWasmTableEntry(rawFunction);
+                var rtn = getWasmTableEntry(rawFunction);
+                return rtn;
             }
             var fp = makeDynCaller();
             if (typeof fp != "function") {
@@ -3396,27 +3314,7 @@ var MainExport = (() => {
             }
             return fp;
         };
-        var extendError = (baseErrorType, errorName) => {
-            var errorClass = createNamedFunction(errorName, function (message) {
-                this.name = errorName;
-                this.message = message;
-                var stack = new Error(message).stack;
-                if (stack !== undefined) {
-                    this.stack = this.toString() + "\n" + stack.replace(/^Error(:[^\n]*)?\n/, "");
-                }
-            });
-            errorClass.prototype = Object.create(baseErrorType.prototype);
-            errorClass.prototype.constructor = errorClass;
-            errorClass.prototype.toString = function () {
-                if (this.message === undefined) {
-                    return this.name;
-                } else {
-                    return `${this.name}: ${this.message}`;
-                }
-            };
-            return errorClass;
-        };
-        var UnboundTypeError;
+        class UnboundTypeError extends Error {}
         var getTypeName = (type) => {
             var ptr = ___getTypeName(type);
             var rv = readLatin1String(ptr);
@@ -3442,6 +3340,41 @@ var MainExport = (() => {
             }
             types.forEach(visit);
             throw new UnboundTypeError(`${message}: ` + unboundTypes.map(getTypeName).join([", "]));
+        };
+        var whenDependentTypesAreResolved = (myTypes, dependentTypes, getTypeConverters) => {
+            myTypes.forEach((type) => (typeDependencies[type] = dependentTypes));
+            function onComplete(typeConverters) {
+                var myTypeConverters = getTypeConverters(typeConverters);
+                if (myTypeConverters.length !== myTypes.length) {
+                    throwInternalError("Mismatched type converter count");
+                }
+                for (var i = 0; i < myTypes.length; ++i) {
+                    registerType(myTypes[i], myTypeConverters[i]);
+                }
+            }
+            var typeConverters = new Array(dependentTypes.length);
+            var unregisteredTypes = [];
+            var registered = 0;
+            dependentTypes.forEach((dt, i) => {
+                if (registeredTypes.hasOwnProperty(dt)) {
+                    typeConverters[i] = registeredTypes[dt];
+                } else {
+                    unregisteredTypes.push(dt);
+                    if (!awaitingDependencies.hasOwnProperty(dt)) {
+                        awaitingDependencies[dt] = [];
+                    }
+                    awaitingDependencies[dt].push(() => {
+                        typeConverters[i] = registeredTypes[dt];
+                        ++registered;
+                        if (registered === unregisteredTypes.length) {
+                            onComplete(typeConverters);
+                        }
+                    });
+                }
+            });
+            if (0 === unregisteredTypes.length) {
+                onComplete(typeConverters);
+            }
         };
         var __embind_register_class = (
             rawType,
@@ -3484,10 +3417,10 @@ var MainExport = (() => {
                     }
                     var constructor = createNamedFunction(name, function (...args) {
                         if (Object.getPrototypeOf(this) !== instancePrototype) {
-                            throw new BindingError("Use 'new' to construct " + name);
+                            throw new BindingError(`Use 'new' to construct ${name}`);
                         }
                         if (undefined === registeredClass.constructor_body) {
-                            throw new BindingError(name + " has no accessible constructor");
+                            throw new BindingError(`${name} has no accessible constructor`);
                         }
                         var body = registeredClass.constructor_body[args.length];
                         if (undefined === body) {
@@ -3566,21 +3499,6 @@ var MainExport = (() => {
                 }
             }
             return false;
-        }
-        function newFunc(constructor, argumentList) {
-            if (!(constructor instanceof Function)) {
-                throw new TypeError(
-                    `new_ called with constructor type ${typeof constructor} which is not a function`,
-                );
-            }
-            var dummy = createNamedFunction(
-                constructor.name || "unknownFunctionName",
-                function () {},
-            );
-            dummy.prototype = constructor.prototype;
-            var obj = new dummy();
-            var r = constructor.apply(obj, argumentList);
-            return r instanceof Object ? r : obj;
         }
         function createJsInvoker(argTypes, isClassMethodFunc, returns, isAsync) {
             var needsDestructorStack = usesDestructorStack(argTypes);
@@ -3679,8 +3597,7 @@ var MainExport = (() => {
                 returns,
                 isAsync,
             );
-            args.push(invokerFnBody);
-            var invokerFn = newFunc(Function, args)(...closureArgs);
+            var invokerFn = new Function(...args, invokerFnBody)(...closureArgs);
             return createNamedFunction(humanName, invokerFn);
         }
         var __embind_register_class_constructor = (
@@ -3745,7 +3662,7 @@ var MainExport = (() => {
             var rawArgTypes = heap32VectorToArray(argCount, rawArgTypesAddr);
             methodName = readLatin1String(methodName);
             methodName = getFunctionName(methodName);
-            rawInvoker = embind__requireFunction(invokerSignature, rawInvoker);
+            rawInvoker = embind__requireFunction(invokerSignature, rawInvoker, isAsync);
             whenDependentTypesAreResolved([], [rawClassType], (classType) => {
                 classType = classType[0];
                 var humanName = `${classType.name}.${methodName}`;
@@ -3797,22 +3714,17 @@ var MainExport = (() => {
             });
         };
         var emval_freelist = [];
-        var emval_handles = [];
+        var emval_handles = [0, 1, , 1, null, 1, true, 1, false, 1];
         var __emval_decref = (handle) => {
             if (handle > 9 && 0 === --emval_handles[handle + 1]) {
                 emval_handles[handle] = undefined;
                 emval_freelist.push(handle);
             }
         };
-        var count_emval_handles = () => emval_handles.length / 2 - 5 - emval_freelist.length;
-        var init_emval = () => {
-            emval_handles.push(0, 1, undefined, 1, null, 1, true, 1, false, 1);
-            Module["count_emval_handles"] = count_emval_handles;
-        };
         var Emval = {
             toValue: (handle) => {
                 if (!handle) {
-                    throwBindingError("Cannot use deleted val. handle = " + handle);
+                    throwBindingError(`Cannot use deleted val. handle = ${handle}`);
                 }
                 return emval_handles[handle];
             },
@@ -3886,7 +3798,7 @@ var MainExport = (() => {
             var argTypes = heap32VectorToArray(argCount, rawArgTypesAddr);
             name = readLatin1String(name);
             name = getFunctionName(name);
-            rawInvoker = embind__requireFunction(signature, rawInvoker);
+            rawInvoker = embind__requireFunction(signature, rawInvoker, isAsync);
             exposePublicSymbol(
                 name,
                 function () {
@@ -3906,32 +3818,17 @@ var MainExport = (() => {
         };
         var __embind_register_integer = (primitiveType, name, size, minRange, maxRange) => {
             name = readLatin1String(name);
-            if (maxRange === -1) {
-                maxRange = 4294967295;
-            }
-            var fromWireType = (value) => value;
-            if (minRange === 0) {
+            const isUnsignedType = minRange === 0;
+            let fromWireType = (value) => value;
+            if (isUnsignedType) {
                 var bitshift = 32 - 8 * size;
                 fromWireType = (value) => (value << bitshift) >>> bitshift;
-            }
-            var isUnsignedType = name.includes("unsigned");
-            var checkAssertions = (value, toTypeName) => {};
-            var toWireType;
-            if (isUnsignedType) {
-                toWireType = function (destructors, value) {
-                    checkAssertions(value, this.name);
-                    return value >>> 0;
-                };
-            } else {
-                toWireType = function (destructors, value) {
-                    checkAssertions(value, this.name);
-                    return value;
-                };
+                maxRange = fromWireType(maxRange);
             }
             registerType(primitiveType, {
                 name,
                 fromWireType,
-                toWireType,
+                toWireType: (destructors, value) => value,
                 argPackAdvance: GenericWireTypeSize,
                 readValueFromPointer: integerReadValueFromPointer(name, size, minRange !== 0),
                 destructorFunction: null,
@@ -4014,9 +3911,7 @@ var MainExport = (() => {
                     if (
                         !(
                             valueIsOfTypeString ||
-                            value instanceof Uint8Array ||
-                            value instanceof Uint8ClampedArray ||
-                            value instanceof Int8Array
+                            (ArrayBuffer.isView(value) && value.BYTES_PER_ELEMENT == 1)
                         )
                     ) {
                         throwBindingError("Cannot pass non-string to std::string");
@@ -4029,10 +3924,10 @@ var MainExport = (() => {
                     var base = _malloc(4 + length + 1);
                     var ptr = base + 4;
                     HEAPU32[base >> 2] = length;
-                    if (stdStringIsUTF8 && valueIsOfTypeString) {
-                        stringToUTF8(value, ptr, length + 1);
-                    } else {
-                        if (valueIsOfTypeString) {
+                    if (valueIsOfTypeString) {
+                        if (stdStringIsUTF8) {
+                            stringToUTF8(value, ptr, length + 1);
+                        } else {
                             for (var i = 0; i < length; ++i) {
                                 var charCode = value.charCodeAt(i);
                                 if (charCode > 255) {
@@ -4043,11 +3938,9 @@ var MainExport = (() => {
                                 }
                                 HEAPU8[ptr + i] = charCode;
                             }
-                        } else {
-                            for (var i = 0; i < length; ++i) {
-                                HEAPU8[ptr + i] = value[i];
-                            }
                         }
+                    } else {
+                        HEAPU8.set(value, ptr);
                     }
                     if (destructors !== null) {
                         destructors.push(_free, base);
@@ -4061,23 +3954,13 @@ var MainExport = (() => {
                 },
             });
         };
-        var UTF16Decoder =
-            typeof TextDecoder != "undefined" ? new TextDecoder("utf-16le") : undefined;
+        var UTF16Decoder = new TextDecoder("utf-16le");
         var UTF16ToString = (ptr, maxBytesToRead) => {
-            var endPtr = ptr;
-            var idx = endPtr >> 1;
+            var idx = ptr >> 1;
             var maxIdx = idx + maxBytesToRead / 2;
-            while (!(idx >= maxIdx) && HEAPU16[idx]) ++idx;
-            endPtr = idx << 1;
-            if (endPtr - ptr > 32 && UTF16Decoder)
-                return UTF16Decoder.decode(HEAPU8.subarray(ptr, endPtr));
-            var str = "";
-            for (var i = 0; !(i >= maxBytesToRead / 2); ++i) {
-                var codeUnit = HEAP16[(ptr + i * 2) >> 1];
-                if (codeUnit == 0) break;
-                str += String.fromCharCode(codeUnit);
-            }
-            return str;
+            var endIdx = idx;
+            while (!(endIdx >= maxIdx) && HEAPU16[endIdx]) ++endIdx;
+            return UTF16Decoder.decode(HEAPU16.subarray(idx, endIdx));
         };
         var stringToUTF16 = (str, outPtr, maxBytesToWrite) => {
             maxBytesToWrite ??= 2147483647;
@@ -4819,27 +4702,24 @@ var MainExport = (() => {
             }
             return getEnvStrings.strings;
         };
-        var stringToAscii = (str, buffer) => {
-            for (var i = 0; i < str.length; ++i) {
-                HEAP8[buffer++] = str.charCodeAt(i);
-            }
-            HEAP8[buffer] = 0;
-        };
         var _environ_get = (__environ, environ_buf) => {
             var bufSize = 0;
-            getEnvStrings().forEach((string, i) => {
+            var envp = 0;
+            for (var string of getEnvStrings()) {
                 var ptr = environ_buf + bufSize;
-                HEAPU32[(__environ + i * 4) >> 2] = ptr;
-                stringToAscii(string, ptr);
-                bufSize += string.length + 1;
-            });
+                HEAPU32[(__environ + envp) >> 2] = ptr;
+                bufSize += stringToUTF8(string, ptr, Infinity) + 1;
+                envp += 4;
+            }
             return 0;
         };
         var _environ_sizes_get = (penviron_count, penviron_buf_size) => {
             var strings = getEnvStrings();
             HEAPU32[penviron_count >> 2] = strings.length;
             var bufSize = 0;
-            strings.forEach((string) => (bufSize += string.length + 1));
+            for (var string of strings) {
+                bufSize += lengthBytesUTF8(string) + 1;
+            }
             HEAPU32[penviron_buf_size >> 2] = bufSize;
             return 0;
         };
@@ -5746,8 +5626,8 @@ var MainExport = (() => {
         var _wgpuBufferDestroy = (bufferId) => {
             var bufferWrapper = WebGPU.mgrBuffer.objects[bufferId];
             if (bufferWrapper.onUnmap) {
-                for (var i = 0; i < bufferWrapper.onUnmap.length; ++i) {
-                    bufferWrapper.onUnmap[i]();
+                for (var f of bufferWrapper.onUnmap) {
+                    f();
                 }
                 bufferWrapper.onUnmap = undefined;
             }
@@ -6256,23 +6136,23 @@ var MainExport = (() => {
         MEMFS.doesNotExistError = new FS.ErrnoError(44);
         MEMFS.doesNotExistError.stack = "<generic error, no stack>";
         embind_init_charCodes();
-        BindingError = Module["BindingError"] = class BindingError extends Error {
-            constructor(message) {
-                super(message);
-                this.name = "BindingError";
-            }
-        };
-        InternalError = Module["InternalError"] = class InternalError extends Error {
-            constructor(message) {
-                super(message);
-                this.name = "InternalError";
-            }
-        };
         init_ClassHandle();
         init_RegisteredPointer();
-        UnboundTypeError = Module["UnboundTypeError"] = extendError(Error, "UnboundTypeError");
-        init_emval();
         WebGPU.initManagers();
+        {
+            if (Module["noExitRuntime"]) noExitRuntime = Module["noExitRuntime"];
+            if (Module["preloadPlugins"]) preloadPlugins = Module["preloadPlugins"];
+            if (Module["print"]) out = Module["print"];
+            if (Module["printErr"]) err = Module["printErr"];
+            if (Module["wasmBinary"]) wasmBinary = Module["wasmBinary"];
+            if (Module["arguments"]) arguments_ = Module["arguments"];
+            if (Module["thisProgram"]) thisProgram = Module["thisProgram"];
+        }
+        Module["FS"] = FS;
+        Module["MEMFS"] = MEMFS;
+        Module["GL"] = GL;
+        Module["WebGPU"] = WebGPU;
+        Module["JsValStore"] = JsValStore;
         var wasmImports = {
             a: ___assert_fail,
             _: ___cxa_throw,
@@ -6403,11 +6283,6 @@ var MainExport = (() => {
         var __emscripten_stack_restore = wasmExports["sb"];
         var __emscripten_stack_alloc = wasmExports["tb"];
         var _emscripten_stack_get_current = wasmExports["ub"];
-        Module["FS"] = FS;
-        Module["MEMFS"] = MEMFS;
-        Module["GL"] = GL;
-        Module["WebGPU"] = WebGPU;
-        Module["JsValStore"] = JsValStore;
         function run() {
             if (runDependencies > 0) {
                 dependenciesFulfilled = run;
@@ -6436,12 +6311,15 @@ var MainExport = (() => {
                 doRun();
             }
         }
-        if (Module["preInit"]) {
-            if (typeof Module["preInit"] == "function") Module["preInit"] = [Module["preInit"]];
-            while (Module["preInit"].length > 0) {
-                Module["preInit"].pop()();
+        function preInit() {
+            if (Module["preInit"]) {
+                if (typeof Module["preInit"] == "function") Module["preInit"] = [Module["preInit"]];
+                while (Module["preInit"].length > 0) {
+                    Module["preInit"].shift()();
+                }
             }
         }
+        preInit();
         run();
         moduleRtn = readyPromise;
 
