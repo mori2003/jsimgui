@@ -4,14 +4,25 @@ JavaScript bindings for the [Dear ImGui](https://github.com/ocornut/imgui) libra
 
 Currently only compatible with WebGL2. Built with: [Dear ImGui](https://github.com/ocornut/imgui), [Dear Bindings](https://github.com/dearimgui/dear_bindings), [Deno](https://deno.com/) and [Emscripten](https://emscripten.org/).
 
+## Todo
+The library is currently in a very early stage but core functionality is there. It's also not optimized yet in terms of performance & size (Wasm binary is about ~750kb).
+
+Some planned goals are:
+- [ ] Improve documentation and usage with JSDoc comments
+- [ ] Clipboard support
+- [ ] Image and ImageButton
+- [ ] Custom fonts
+- [ ] Saving ImGui settings
+- [ ] WebGPU backend
+
 ## Examples
 
-- **WebGL2**: Basic example using WebGL2 clear canvas - [View Example](https://mori2003.github.io/jsimgui/examples/webgl/)
+- **WebGL2**: Basic example using a WebGL2 clear canvas - [View Example](https://mori2003.github.io/jsimgui/examples/webgl/)
 - **Three.js**: Integration with Three.js WebGL2 renderer - [View Example](https://mori2003.github.io/jsimgui/examples/threegl/)
 
 ## Getting Started
 
-The package is available on the [JSR ](https://jsr.io/@mori2003/jsimgui/) package registry. Use it with your favorite package manager (See: https://jsr.io/docs/using-packages).
+The package is available on the [JSR](https://jsr.io/@mori2003/jsimgui/) package registry. Use it with your favorite package manager (See: https://jsr.io/docs/using-packages).
 
 ```bash
 # Deno
@@ -47,27 +58,17 @@ function frame() {
 requestAnimationFrame(frame);
 ```
 
-## Notes
-
-Some changes have been made to the API to make it more usable in JavaScript.
+## API Notes
 
 ### Arrays
 
-Arrays are modified in-place when passed as arguments:
+Arrays are modified in-place when passed as arguments. Single-sized arrays are also used for references:
 
 ```js
 const color = [0.2, 0.8, 0.5];
 ImGui.ColorEdit3("BackgroundColor", color); // Modifies the color array.
-```
-
-### Pointers
-
-Use `ImRef` to wrap primitive values that need to be modified by reference:
-
-```js
-const isVisible = new ImRef(true); // Or use numbers: new ImRef(42);
-ImGui.Checkbox("Show Window", isVisible);
-console.log(isVisible.value); // Access the modified value.
+const isVisible = [true];
+ImGui.Checkbox("Show Window", isVisible); // Modifies isVisible[0].
 ```
 
 ### Enums
@@ -96,16 +97,13 @@ cd jsimgui
 2. Generate the dear_bindings data
 
 ```bash
-deno task gen-data
+deno task build:gen-data
 ```
 
 3. Build the project
 
 ```bash
-deno task build-full
-
-# To run the tests:
-deno task test
+deno task build:full
 ```
 
 ## Project Structure

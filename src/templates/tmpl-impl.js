@@ -1,3 +1,8 @@
+// deno-lint-ignore-file
+import {
+    ImGui,
+    ImGuiImplOpenGL3
+} from "@mori2003/jsimgui";
 
 /**
  * Namespace for the Web implementation of jsimgui.
@@ -26,6 +31,16 @@ export const ImGuiImplWeb = {
 
             ImGuiImplOpenGL3.Init();
         }
+    },
+
+    BeginRender: () => {
+        ImGuiImplOpenGL3.NewFrame();
+        ImGui.NewFrame();
+    },
+
+    EndRender: () => {
+        ImGui.Render();
+        ImGuiImplOpenGL3.RenderDrawData(ImGui.GetDrawData());
     },
 
     /**

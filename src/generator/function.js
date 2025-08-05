@@ -8,52 +8,55 @@ function filterFunctions(functions) {
     const excludedSuffixes = ["ID", "V", "Callback", "Int", "Ptr", "Str", "ImVec2", "ImVec4"];
 
     const excludedFunctions = [
-        // Text functions will be bound manually.
-
-        "ImGui_GetIO",
-        "ImGui_GetStyle",
+        "ImGui_GetIO", // Manually bound.
+        "ImGui_GetStyle", // Manually bound.
 
         "ImGui_TextUnformatted",
         "ImGui_TextUnformattedEx",
-        "ImGui_Text",
-        "ImGui_TextV",
-        "ImGui_TextColored",
-        "ImGui_TextColoredV",
-        "ImGui_TextDisabled",
-        "ImGui_TextDisabledV",
-        "ImGui_TextWrapped",
-        "ImGui_TextWrappedV",
-        "ImGui_LabelText",
-        "ImGui_LabelTextV",
-        "ImGui_BulletText",
-        "ImGui_BulletTextV",
-        "ImGui_SeparatorText",
-        "ImGui_SetTooltip",
-        "ImGui_SetItemTooltip",
+        "ImGui_Text", // Manually bound.
+        "ImGui_TextV", // Manually bound.
+        "ImGui_TextColored", // Manually bound.
+        "ImGui_TextColoredV", // Manually bound.
+        "ImGui_TextDisabled", // Manually bound.
+        "ImGui_TextDisabledV", // Manually bound.
+        "ImGui_TextWrapped", // Manually bound.
+        "ImGui_TextWrappedV", // Manually bound.
+        "ImGui_LabelText", // Manually bound.
+        "ImGui_LabelTextV", // Manually bound.
+        "ImGui_BulletText", // Manually bound.
+        "ImGui_BulletTextV", // Manually bound.
+        "ImGui_SeparatorText", // Manually bound.
+        "ImGui_SetTooltip", // Manually bound.
+        "ImGui_SetItemTooltip", // Manually bound.
 
-        "ImGui_PlotLinesEx",
-        "ImGui_PlotHistogramEx",
-        "ImGui_ColorPicker4",
-        "ImGui_ColorPicker4Ex",
+        "ImGui_GetClipboardText", // Manually bound.
+        "ImGui_SetClipboardText", // Manually bound.
 
-        "ImGui_SetNextWindowSizeConstraints",
-        "ImGui_DragScalarEx",
-        "ImGui_DragScalarNEx",
-        "ImGui_SliderScalarEx",
-        "ImGui_SliderScalarNEx",
-        "ImGui_ComboCharEx",
-        "ImGui_InputTextEx",
-        "ImGui_VSliderScalarEx",
-        "ImGui_InputTextWithHintEx",
-        "ImGui_InputTextMultilineEx",
-        "ImGui_InputScalarEx",
-        "ImGui_InputScalarNEx",
-        "ImGui_ListBox",
-        "ImGui_ListBoxEx",
+        "ImGui_PlotLinesEx", // Manually bound.
+        "ImGui_PlotHistogramEx", // Manually bound.
 
-        // Will be bound manually.
-        "ImGui_GetClipboardText",
-        "ImGui_SetClipboardText",
+        "ImGui_InputTextEx", // Manually bound.
+        "ImGui_InputTextWithHintEx", // Manually bound.
+        "ImGui_InputTextMultilineEx", // Manually bound.
+
+        "ImGui_ImageEx", // Manually bound.
+        "ImGui_ImageButtonEx", // Manually bound.
+
+        "ImGui_ListBox", // Excluded. Use BeginListBox/EndListBox instead.
+        "ImGui_ListBoxEx", // Excluded. Use BeginListBox/EndListBox instead.
+        "ImGui_ListBoxCallbackEx", // Excluded. Use BeginListBox/EndListBox instead.
+        "ImGui_Combo", // Excluded. Use BeginCombo/EndCombo instead.
+        "ImGui_ComboCharEx", // Excluded. Use BeginCombo/EndCombo instead.
+        "ImGui_ComboCallbackEx", // Excluded. Use BeginCombo/EndCombo instead.
+
+        "ImGui_DragScalarEx", // Excluded.
+        "ImGui_DragScalarNEx", // Excluded.
+        "ImGui_InputScalarEx", // Excluded.
+        "ImGui_InputScalarNEx", // Excluded.
+        "ImGui_SliderScalarEx", // Excluded.
+        "ImGui_SliderScalarNEx", // Excluded.
+        "ImGui_VSliderScalarEx", // Excluded.
+
         "ImGui_BeginDragDropSource",
         "ImGui_SetDragDropPayload",
         "ImGui_EndDragDropSource",
@@ -62,6 +65,7 @@ function filterFunctions(functions) {
         "ImGui_EndDragDropTarget",
         "ImGui_GetDragDropPayload",
 
+        "ImGui_SetNextWindowSizeConstraints",
         "ImGui_LogToTTY",
         "ImGui_LogToFile",
         "ImGui_LogToClipboard",

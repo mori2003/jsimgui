@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
@@ -350,6 +351,11 @@ EMSCRIPTEN_BINDINGS(manual) {
     bind_prop(ImGuiStyle, CurveTessellationTol, float)
     bind_prop(ImGuiStyle, CircleTessellationMaxError, float)
     //bind_prop(ImGuiStyle, Colors, ImVec4)
+    bind_prop(ImGuiStyle, HoverStationaryDelay, float)
+    bind_prop(ImGuiStyle, HoverDelayShort, float)
+    bind_prop(ImGuiStyle, HoverDelayNormal, float)
+    bind_prop(ImGuiStyle, HoverFlagsForTooltipMouse, ImGuiHoveredFlags)
+    bind_prop(ImGuiStyle, HoverFlagsForTooltipNav, ImGuiHoveredFlags)
 
     // Member functions
     .function("ImGuiStyle_ScaleAllSizes", &ImGuiStyle_ScaleAllSizes, allow_ptr())
@@ -370,31 +376,78 @@ EMSCRIPTEN_BINDINGS(manual) {
     /* Widgets Text */
 
     bind_func("ImGui_Text", [](std::string fmt){
-        ImGui_Text("%s", fmt.c_str());
+        return ImGui_Text("%s", fmt.c_str());
     });
 
     bind_func("ImGui_TextColored", [](ImVec4 col, std::string fmt){
-        ImGui_TextColored(col, "%s", fmt.c_str());
+        return ImGui_TextColored(col, "%s", fmt.c_str());
     });
 
     bind_func("ImGui_TextDisabled", [](std::string fmt){
-        ImGui_TextDisabled("%s", fmt.c_str());
+        return ImGui_TextDisabled("%s", fmt.c_str());
     });
 
     bind_func("ImGui_TextWrapped", [](std::string fmt){
-        ImGui_TextWrapped("%s", fmt.c_str());
+       return  ImGui_TextWrapped("%s", fmt.c_str());
     });
 
     bind_func("ImGui_LabelText", [](std::string label, std::string fmt){
-        ImGui_LabelText(label.c_str(), "%s", fmt.c_str());
+        return ImGui_LabelText(label.c_str(), "%s", fmt.c_str());
     });
 
     bind_func("ImGui_BulletText", [](std::string fmt){
-        ImGui_BulletText("%s", fmt.c_str());
+        return ImGui_BulletText("%s", fmt.c_str());
     });
 
     bind_func("ImGui_SeparatorText", [](std::string label){
-        ImGui_SeparatorText(label.c_str());
+        return ImGui_SeparatorText(label.c_str());
+    });
+
+    bind_func("ImGui_SetTooltip", [](std::string fmt){
+        return ImGui_SetTooltip("%s", fmt.c_str());
+    });
+
+    bind_func("ImGui_SetItemTooltip", [](std::string fmt){
+        return ImGui_SetItemTooltip("%s", fmt.c_str());
+    });
+
+    bind_func("ImGui_PlotLinesEx", [](std::string label, emscripten::val values, int values_count, int values_offset, std::string overlay_text, float scale_min, float scale_max, ImVec2 graph_size){
+        auto values_bind = ArrayParam<float>(values);
+        return ImGui_PlotLinesEx(label.c_str(), &values_bind, values_count, values_offset, overlay_text.c_str(), scale_min, scale_max, graph_size, sizeof(float));
+    }, allow_ptr());
+
+    bind_func("ImGui_PlotHistogramEx", [](std::string label, emscripten::val values, int values_count, int values_offset, std::string overlay_text, float scale_min, float scale_max, ImVec2 graph_size){
+        auto values_bind = ArrayParam<float>(values);
+        return ImGui_PlotHistogramEx(label.c_str(), &values_bind, values_count, values_offset, overlay_text.c_str(), scale_min, scale_max, graph_size, sizeof(float));
+    }, allow_ptr());
+
+    /* Widgets Input with Keyboard */
+    bind_func("ImGui_InputText", [](std::string label, std::string buf, size_t buf_size, ImGuiInputTextFlags flags){
+        return ImGui_InputText(label.c_str(), buf.data(), buf_size, flags);
+    }, allow_ptr());
+
+    bind_func("ImGui_InputTextMultilineEx", [](std::string label, std::string buf, size_t buf_size, ImVec2 size, ImGuiInputTextFlags flags){
+        return ImGui_InputTextMultilineEx(label.c_str(), buf.data(), buf_size, size, flags, nullptr, nullptr);
+    }, allow_ptr());
+
+    bind_func("ImGui_InputTextWithHintEx", [](std::string label, std::string hint, std::string buf, size_t buf_size, ImGuiInputTextFlags flags){
+        return ImGui_InputTextWithHintEx(label.c_str(), hint.c_str(), buf.data(), buf_size, flags, nullptr, nullptr);
+    }, allow_ptr());
+
+    bind_func("ImGui_GetClipboardText", [](){
+        return std::string(ImGui_GetClipboardText());
+    });
+
+    bind_func("ImGui_SetClipboardText", [](std::string text){
+        return ImGui_SetClipboardText(text.c_str());
+    });
+
+    bind_func("ImGui_ImageEx", [](int user_texture_id, ImVec2 image_size, ImVec2 uv0, ImVec2 uv1, ImVec4 tint_col, ImVec4 border_col){
+        return ImGui_ImageEx(user_texture_id, image_size, uv0, uv1, tint_col, border_col);
+    });
+
+    bind_func("ImGui_ImageButtonEx", [](std::string str_id, int user_texture_id, ImVec2 image_size, ImVec2 uv0, ImVec2 uv1, ImVec4 bg_col, ImVec4 tint_col){
+        return ImGui_ImageButtonEx(str_id.c_str(), user_texture_id, image_size, uv0, uv1, bg_col, tint_col);
     });
 
 }

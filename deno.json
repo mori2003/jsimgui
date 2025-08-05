@@ -16,17 +16,12 @@
 
     "tasks": {
         "dev": "deno run -R -W --watch=./src ./src/generator/main.js",
-        "test": "deno test --allow-read",
 
         "build:gen-data": "deno run --allow-run ./src/build.js --data",
         "build:gen-bindings": "deno run --allow-run ./src/build.js --bindings",
         "build:compile-wasm": "deno run --allow-run -R -W ./src/build.js --wasm",
         "build:full": "deno task build:gen-bindings && deno task build:compile-wasm",
         "build:release": "deno task build:full && echo 'Add your release build steps here'"
-    },
-
-    "test": {
-        "include": ["src/tests"]
     },
 
     "lint": {
