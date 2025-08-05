@@ -16,6 +16,8 @@ declare class StructBinding {
     static wrap(ptr: any): any;
 }
 /** TODO: Add comment */
+export type ImDrawIdx = number;
+/** TODO: Add comment */
 export type ImGuiID = number;
 /** TODO: Add comment */
 export type ImS8 = number;
@@ -114,10 +116,6 @@ export type ImGuiViewportFlags = number;
 /** TODO: Add comment */
 export type ImGuiWindowFlags = number;
 /** TODO: Add comment */
-export type ImTextureID = BigInt;
-/** TODO: Add comment */
-export type ImDrawIdx = number;
-/** TODO: Add comment */
 export type ImWchar32 = number;
 /** TODO: Add comment */
 export type ImWchar16 = number;
@@ -125,6 +123,8 @@ export type ImWchar16 = number;
 export type ImWchar = number;
 /** TODO: Add comment */
 export type ImGuiSelectionUserData = BigInt;
+/** TODO: Add comment */
+export type ImTextureID = BigInt;
 /** Data shared among multiple draw lists (typically owned by parent ImGui context, but you may create one yourself) */
 export declare class ImDrawListSharedData extends StructBinding {
     constructor();
@@ -179,6 +179,9 @@ export declare class ImGuiStyle extends StructBinding {
     /** Thickness of border around windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU\/GPU costly). */
     get WindowBorderSize(): number;
     set WindowBorderSize(v: number);
+    /** Hit-testing extent outside\/inside resizing border. Also extend determination of hovered window. Generally meaningfully larger than WindowBorderSize to make it easy to reach borders. */
+    get WindowBorderHoverPadding(): number;
+    set WindowBorderHoverPadding(v: number);
     /** Minimum window size. This is a global setting. If you want to constrain individual windows, use SetNextWindowSizeConstraints(). */
     get WindowMinSize(): ImVec2;
     set WindowMinSize(v: ImVec2);
@@ -242,15 +245,21 @@ export declare class ImGuiStyle extends StructBinding {
     /** The size in pixels of the dead-zone around zero on logarithmic sliders that cross zero. */
     get LogSliderDeadzone(): number;
     set LogSliderDeadzone(v: number);
+    /** Thickness of border around Image() calls. */
+    get ImageBorderSize(): number;
+    set ImageBorderSize(v: number);
     /** Radius of upper corners of a tab. Set to 0.0f to have rectangular tabs. */
     get TabRounding(): number;
     set TabRounding(v: number);
     /** Thickness of border around tabs. */
     get TabBorderSize(): number;
     set TabBorderSize(v: number);
-    /** Minimum width for close button to appear on an unselected tab when hovered. Set to 0.0f to always show when hovering, set to FLT_MAX to never show close button unless selected. */
-    get TabMinWidthForCloseButton(): number;
-    set TabMinWidthForCloseButton(v: number);
+    /** -1: always visible. 0.0f: visible when hovered. >0.0f: visible when hovered if minimum width. */
+    get TabCloseButtonMinWidthSelected(): number;
+    set TabCloseButtonMinWidthSelected(v: number);
+    /** -1: always visible. 0.0f: visible when hovered. >0.0f: visible when hovered if minimum width. FLT_MAX: never show close button when unselected. */
+    get TabCloseButtonMinWidthUnselected(): number;
+    set TabCloseButtonMinWidthUnselected(v: number);
     /** Thickness of tab-bar separator, which takes on the tab active color to denote focus. */
     get TabBarBorderSize(): number;
     set TabBarBorderSize(v: number);
@@ -466,9 +475,12 @@ export declare class ImGuiIO extends StructBinding {
     /** = false          \/\/ Enable various tools calling IM_DEBUG_BREAK(). */
     get ConfigDebugIsDebuggerPresent(): boolean;
     set ConfigDebugIsDebuggerPresent(v: boolean);
-    /** = true           \/\/ Highlight and show an error message when multiple items have conflicting identifiers. */
+    /** = true           \/\/ Highlight and show an error message popup when multiple items have conflicting identifiers. */
     get ConfigDebugHighlightIdConflicts(): boolean;
     set ConfigDebugHighlightIdConflicts(v: boolean);
+    /** true \/\/ Show "Item Picker" button in aforementioned popup. */
+    get ConfigDebugHighlightIdConflictsShowItemPicker(): boolean;
+    set ConfigDebugHighlightIdConflictsShowItemPicker(v: boolean);
     /** = false          \/\/ First-time calls to Begin()\/BeginChild() will return false. NEEDS TO BE SET AT APPLICATION BOOT TIME if you don't want to miss windows. */
     get ConfigDebugBeginReturnValueOnce(): boolean;
     set ConfigDebugBeginReturnValueOnce(v: boolean);
@@ -1178,6 +1190,8 @@ export declare const ImGui: Readonly<{
         /** Available on some keyboard\/mouses. Often referred as "Browser Back" */
         _AppBack: number;
         _AppForward: number;
+        /** Non-US backslash. */
+        _Oem102: number;
         /** Menu (Xbox)      + (Switch)   Start\/Options (PS) */
         _GamepadStart: number;
         /** View (Xbox)      - (Switch)   Share (PS) */
@@ -1449,6 +1463,8 @@ export declare const ImGui: Readonly<{
         GrabMinSize: number;
         /** float     GrabRounding */
         GrabRounding: number;
+        /** float     ImageBorderSize */
+        ImageBorderSize: number;
         /** float     TabRounding */
         TabRounding: number;
         /** float     TabBorderSize */
@@ -1583,6 +1599,10 @@ export declare const ImGui: Readonly<{
         ResizeNWSE: number;
         /** (Unused by Dear ImGui functions. Use for e.g. hyperlinks) */
         Hand: number;
+        /** When waiting for something to process\/load. */
+        Wait: number;
+        /** When waiting for something to process\/load, but application is still interactive. */
+        Progress: number;
         /** When hovering something with disallowed interaction. Usually a crossed circle. */
         NotAllowed: number;
         COUNT: number;
@@ -2081,7 +2101,7 @@ export declare const ImGui: Readonly<{
     LabelText(label: string, fmt: string): void;
     /** shortcut for Bullet()+Text() */
     BulletText(fmt: string): void;
-    /** currently: formatted text with an horizontal line */
+    /** currently: formatted text with a horizontal line */
     SeparatorText(label: string): void;
     /** button */
     Button(label: string, size?: ImVec2): boolean;
@@ -2102,7 +2122,8 @@ export declare const ImGui: Readonly<{
     /** hyperlink text button, automatically open file\/url when clicked */
     TextLinkOpenURL(label: string, url?: string): void;
     /** Widgets: Images */
-    Image(user_texture_id: ImTextureID, image_size: ImVec2, uv0?: ImVec2, uv1?: ImVec2, tint_col?: ImVec4, border_col?: ImVec4): void;
+    Image(user_texture_id: ImTextureID, image_size: ImVec2, uv0?: ImVec2, uv1?: ImVec2): void;
+    ImageWithBg(user_texture_id: ImTextureID, image_size: ImVec2, uv0?: ImVec2, uv1?: ImVec2, bg_col?: ImVec4, tint_col?: ImVec4): void;
     ImageButton(str_id: string, user_texture_id: ImTextureID, image_size: ImVec2, uv0?: ImVec2, uv1?: ImVec2, bg_col?: ImVec4, tint_col?: ImVec4): boolean;
     /** Widgets: Combo Box (Dropdown) */
     BeginCombo(label: string, preview_value: string, flags?: ImGuiComboFlags): boolean;
@@ -2297,7 +2318,7 @@ export declare const ImGui: Readonly<{
     /** Clipping */
     PushClipRect(clip_rect_min: ImVec2, clip_rect_max: ImVec2, intersect_with_current_clip_rect: boolean): void;
     PopClipRect(): void;
-    /** make last item the default focused item of of a newly appearing window. */
+    /** make last item the default focused item of a newly appearing window. */
     SetItemDefaultFocus(): void;
     /** focus keyboard on the next widget. Use positive 'offset' to access sub components of a multiple component widget. Use -1 to access previous widget. */
     SetKeyboardFocusHere(offset?: number): void;
@@ -2361,7 +2382,7 @@ export declare const ImGui: Readonly<{
     IsKeyChordPressed(key_chord: ImGuiKeyChord): boolean;
     /** uses provided repeat rate\/delay. return a count, most often 0 or 1 but might be >1 if RepeatRate is small enough that DeltaTime > RepeatRate */
     GetKeyPressedAmount(key: ImGuiKey, repeat_delay: number, rate: number): number;
-    /** [DEBUG] returns English name of the key. Those names a provided for debugging purpose and are not meant to be saved persistently not compared. */
+    /** [DEBUG] returns English name of the key. Those names are provided for debugging purpose and are not meant to be saved persistently nor compared. */
     GetKeyName(key: ImGuiKey): string;
     /** Override io.WantCaptureKeyboard flag next frame (said flag is left for your application to handle, typically when true it instructs your app to ignore inputs). e.g. force capture keyboard when your widget is being hovered. This is equivalent to setting "io.WantCaptureKeyboard = want_capture_keyboard"; after the next NewFrame() call. */
     SetNextFrameWantCaptureKeyboard(want_capture_keyboard: boolean): void;

@@ -229,6 +229,8 @@ bind_struct<ImGuiStyle>("ImGuiStyle")
 .function("set_WindowRounding", override([](ImGuiStyle& self, float value){ self.WindowRounding = value; }), allow_ptr())
 .function("get_WindowBorderSize", override([](const ImGuiStyle& self){ return self.WindowBorderSize; }), rvp_ref(), allow_ptr())
 .function("set_WindowBorderSize", override([](ImGuiStyle& self, float value){ self.WindowBorderSize = value; }), allow_ptr())
+.function("get_WindowBorderHoverPadding", override([](const ImGuiStyle& self){ return self.WindowBorderHoverPadding; }), rvp_ref(), allow_ptr())
+.function("set_WindowBorderHoverPadding", override([](ImGuiStyle& self, float value){ self.WindowBorderHoverPadding = value; }), allow_ptr())
 .function("get_WindowMinSize", override([](const ImGuiStyle& self){ return self.WindowMinSize; }), rvp_ref(), allow_ptr())
 .function("set_WindowMinSize", override([](ImGuiStyle& self, ImVec2 value){ self.WindowMinSize = value; }), allow_ptr())
 .function("get_WindowTitleAlign", override([](const ImGuiStyle& self){ return self.WindowTitleAlign; }), rvp_ref(), allow_ptr())
@@ -271,12 +273,16 @@ bind_struct<ImGuiStyle>("ImGuiStyle")
 .function("set_GrabRounding", override([](ImGuiStyle& self, float value){ self.GrabRounding = value; }), allow_ptr())
 .function("get_LogSliderDeadzone", override([](const ImGuiStyle& self){ return self.LogSliderDeadzone; }), rvp_ref(), allow_ptr())
 .function("set_LogSliderDeadzone", override([](ImGuiStyle& self, float value){ self.LogSliderDeadzone = value; }), allow_ptr())
+.function("get_ImageBorderSize", override([](const ImGuiStyle& self){ return self.ImageBorderSize; }), rvp_ref(), allow_ptr())
+.function("set_ImageBorderSize", override([](ImGuiStyle& self, float value){ self.ImageBorderSize = value; }), allow_ptr())
 .function("get_TabRounding", override([](const ImGuiStyle& self){ return self.TabRounding; }), rvp_ref(), allow_ptr())
 .function("set_TabRounding", override([](ImGuiStyle& self, float value){ self.TabRounding = value; }), allow_ptr())
 .function("get_TabBorderSize", override([](const ImGuiStyle& self){ return self.TabBorderSize; }), rvp_ref(), allow_ptr())
 .function("set_TabBorderSize", override([](ImGuiStyle& self, float value){ self.TabBorderSize = value; }), allow_ptr())
-.function("get_TabMinWidthForCloseButton", override([](const ImGuiStyle& self){ return self.TabMinWidthForCloseButton; }), rvp_ref(), allow_ptr())
-.function("set_TabMinWidthForCloseButton", override([](ImGuiStyle& self, float value){ self.TabMinWidthForCloseButton = value; }), allow_ptr())
+.function("get_TabCloseButtonMinWidthSelected", override([](const ImGuiStyle& self){ return self.TabCloseButtonMinWidthSelected; }), rvp_ref(), allow_ptr())
+.function("set_TabCloseButtonMinWidthSelected", override([](ImGuiStyle& self, float value){ self.TabCloseButtonMinWidthSelected = value; }), allow_ptr())
+.function("get_TabCloseButtonMinWidthUnselected", override([](const ImGuiStyle& self){ return self.TabCloseButtonMinWidthUnselected; }), rvp_ref(), allow_ptr())
+.function("set_TabCloseButtonMinWidthUnselected", override([](ImGuiStyle& self, float value){ self.TabCloseButtonMinWidthUnselected = value; }), allow_ptr())
 .function("get_TabBarBorderSize", override([](const ImGuiStyle& self){ return self.TabBarBorderSize; }), rvp_ref(), allow_ptr())
 .function("set_TabBarBorderSize", override([](ImGuiStyle& self, float value){ self.TabBarBorderSize = value; }), allow_ptr())
 .function("get_TabBarOverlineSize", override([](const ImGuiStyle& self){ return self.TabBarOverlineSize; }), rvp_ref(), allow_ptr())
@@ -424,6 +430,8 @@ bind_struct<ImGuiIO>("ImGuiIO")
 .function("set_ConfigDebugIsDebuggerPresent", override([](ImGuiIO& self, bool value){ self.ConfigDebugIsDebuggerPresent = value; }), allow_ptr())
 .function("get_ConfigDebugHighlightIdConflicts", override([](const ImGuiIO& self){ return self.ConfigDebugHighlightIdConflicts; }), rvp_ref(), allow_ptr())
 .function("set_ConfigDebugHighlightIdConflicts", override([](ImGuiIO& self, bool value){ self.ConfigDebugHighlightIdConflicts = value; }), allow_ptr())
+.function("get_ConfigDebugHighlightIdConflictsShowItemPicker", override([](const ImGuiIO& self){ return self.ConfigDebugHighlightIdConflictsShowItemPicker; }), rvp_ref(), allow_ptr())
+.function("set_ConfigDebugHighlightIdConflictsShowItemPicker", override([](ImGuiIO& self, bool value){ self.ConfigDebugHighlightIdConflictsShowItemPicker = value; }), allow_ptr())
 .function("get_ConfigDebugBeginReturnValueOnce", override([](const ImGuiIO& self){ return self.ConfigDebugBeginReturnValueOnce; }), rvp_ref(), allow_ptr())
 .function("set_ConfigDebugBeginReturnValueOnce", override([](ImGuiIO& self, bool value){ self.ConfigDebugBeginReturnValueOnce = value; }), allow_ptr())
 .function("get_ConfigDebugBeginReturnValueLoop", override([](const ImGuiIO& self){ return self.ConfigDebugBeginReturnValueLoop; }), rvp_ref(), allow_ptr())
@@ -1034,8 +1042,12 @@ bind_func("ImGui_TextLinkOpenURL", [](std::string label, std::string url){
     return ImGui_TextLinkOpenURL(label.c_str(), url.c_str());
 }, allow_ptr());
 
-bind_func("ImGui_Image", [](ImTextureID user_texture_id, ImVec2 image_size, ImVec2 uv0, ImVec2 uv1, ImVec4 tint_col, ImVec4 border_col){
-    return ImGui_Image(user_texture_id, image_size, uv0, uv1, tint_col, border_col);
+bind_func("ImGui_Image", [](ImTextureID user_texture_id, ImVec2 image_size, ImVec2 uv0, ImVec2 uv1){
+    return ImGui_Image(user_texture_id, image_size, uv0, uv1);
+});
+
+bind_func("ImGui_ImageWithBg", [](ImTextureID user_texture_id, ImVec2 image_size, ImVec2 uv0, ImVec2 uv1, ImVec4 bg_col, ImVec4 tint_col){
+    return ImGui_ImageWithBg(user_texture_id, image_size, uv0, uv1, bg_col, tint_col);
 });
 
 bind_func("ImGui_ImageButton", [](std::string str_id, ImTextureID user_texture_id, ImVec2 image_size, ImVec2 uv0, ImVec2 uv1, ImVec4 bg_col, ImVec4 tint_col){
