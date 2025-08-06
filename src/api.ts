@@ -1,5 +1,6 @@
 /* @ts-self-types="./mod.d.ts" */
 
+/** biome-ignore-all assist/source/organizeImports: . */
 /** biome-ignore-all lint/correctness/noUnusedVariables: . */
 /** biome-ignore-all lint/suspicious/noExplicitAny: . */
 
@@ -26,6 +27,37 @@
 // [1.] Emscripten Module Interface
 // -------------------------------------------------------------------------------------------------
 
+// @ts-ignore
+import { MainExport as WebGL_TT } from "./jsimgui-webgl-tt.js"; // @ts-ignore
+import { MainExport as WebGL_TT_DEMOS } from "./jsimgui-webgl-tt-demos.js"; // @ts-ignore
+import { MainExport as WebGL_FT } from "./jsimgui-webgl-ft.js"; // @ts-ignore
+import { MainExport as WebGL_FT_DEMOS } from "./jsimgui-webgl-ft-demos.js"; // @ts-ignore
+
+import { MainExport as WebGL2_TT } from "./jsimgui-webgl-tt.js"; // @ts-ignore
+import { MainExport as WebGL2_TT_DEMOS } from "./jsimgui-webgl-tt-demos.js"; // @ts-ignore
+import { MainExport as WebGL2_FT } from "./jsimgui-webgl-ft.js"; // @ts-ignore
+import { MainExport as WebGL2_FT_DEMOS } from "./jsimgui-webgl-ft-demos.js"; // @ts-ignore
+
+import { MainExport as WebGPU_TT } from "./jsimgui-webgpu-tt.js"; // @ts-ignore
+import { MainExport as WebGPU_TT_DEMOS } from "./jsimgui-webgpu-tt-demos.js"; // @ts-ignore
+import { MainExport as WebGPU_FT } from "./jsimgui-webgpu-ft.js"; // @ts-ignore
+import { MainExport as WebGPU_FT_DEMOS } from "./jsimgui-webgpu-ft-demos.js"; // @ts-ignore
+
+const IMPORT_MAP = {
+    "jsimgui-webgl-tt": WebGL_TT,
+    "jsimgui-webgl-tt-demos": WebGL_TT_DEMOS,
+    "jsimgui-webgl-ft": WebGL_FT,
+    "jsimgui-webgl-ft-demos": WebGL_FT_DEMOS,
+    "jsimgui-webgl2-tt": WebGL2_TT,
+    "jsimgui-webgl2-tt-demos": WebGL2_TT_DEMOS,
+    "jsimgui-webgl2-ft": WebGL2_FT,
+    "jsimgui-webgl2-ft-demos": WebGL2_FT_DEMOS,
+    "jsimgui-webgpu-tt": WebGPU_TT,
+    "jsimgui-webgpu-tt-demos": WebGPU_TT_DEMOS,
+    "jsimgui-webgpu-ft": WebGPU_FT,
+    "jsimgui-webgpu-ft-demos": WebGPU_FT_DEMOS,
+} as const;
+
 /**
  * Object wrapping the exported Emscripten module. Used to access any of the exported functions
  * or runtime methods.
@@ -51,7 +83,13 @@ const Mod = {
             throw new Error("jsimgui: Emscripten module is already initialized.");
         }
 
-        const MainExport = await import(loaderPath);
+        let MainExport: any;
+        if (loaderPath && loaderPath in IMPORT_MAP) {
+            MainExport = IMPORT_MAP[loaderPath as keyof typeof IMPORT_MAP];
+        } else {
+            MainExport = await import(loaderPath);
+        }
+
         const module = await MainExport.default();
         Mod._export = module;
     },
@@ -1002,7 +1040,7 @@ const getUsedLoaderPath = (
     if (loaderPath) return loaderPath;
 
     const fontLoaderShort = fontLoader === "truetype" ? "tt" : "ft";
-    return `./${backend}/jsimgui-${backend}-${fontLoaderShort}${enableDemos ? "-demos" : ""}.js`;
+    return `./jsimgui-${backend}-${fontLoaderShort}${enableDemos ? "-demos" : ""}.js`;
 };
 
 /**

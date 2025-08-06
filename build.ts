@@ -51,7 +51,7 @@ const getOutputPath = (cfg: BuildConfig): string => {
         cfg.includeDemos ? "demos" : "",
     ].filter(Boolean);
 
-    return `build/${cfg.backend}/jsimgui-${buildTags.join("-")}.js`;
+    return `build/jsimgui-${buildTags.join("-")}.js`;
 };
 
 /**
