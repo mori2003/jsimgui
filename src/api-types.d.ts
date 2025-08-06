@@ -38,6 +38,7 @@ declare class ImGuiIO {
     WantCaptureMouse: boolean;
     WantCaptureKeyboard: boolean;
     BackendFlags: ImGuiBackendFlags;
+    WantSaveIniSettings: boolean;
 
     AddKeyEvent(key: ImGuiKey, down: boolean): void;
     AddInputCharactersUTF8(characters: string): void;
@@ -60,4 +61,7 @@ declare const ImGui: {
     Render(): void;
     CreateContext(): void;
     GetDrawData(): ImDrawData;
+
+    SaveIniSettingsToMemory(): string;
+    LoadIniSettingsFromMemory(ini_data: string, ini_size: number): void;
 };
