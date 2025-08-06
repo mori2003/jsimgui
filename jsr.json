@@ -1,0 +1,11 @@
+{
+    "$schema": "https://jsr.io/schema/config-file.v1.json",
+
+    "name": "@mori2003/jsimgui",
+    "version": "0.6.0",
+    "license": "MIT",
+    "exports": "./build/mod.js",
+    "publish": {
+        "include": ["LICENSE", "README.md", "./build/"]
+    }
+}
