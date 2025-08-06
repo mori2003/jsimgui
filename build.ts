@@ -5,9 +5,9 @@
  * [node|bun|deno] build.ts --help
  */
 
-import { stdout, exit, argv } from "node:process";
-import { existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
+import { argv, exit, stdout } from "node:process";
 import { styleText } from "node:util";
 import { main as runGenerator } from "./src/generator/main.ts";
 
@@ -274,7 +274,7 @@ const buildWasm = (cfg: BuildConfig) => {
  * Step 4: Compiles the .ts file to the mod.js and mod.d.ts files.
  */
 const buildTs = () => {
-    const cmd = "./node_modules/.bin/tsc";
+    const cmd = "./node_modules/.bin/tsc --project tsconfig.build.json";
 
     if (argv.includes("--verbose")) {
         stdout.write("\n");
