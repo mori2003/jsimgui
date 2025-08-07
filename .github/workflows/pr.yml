@@ -1,0 +1,42 @@
+name: "Validate PR"
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - edited
+      - reopened
+
+jobs:
+  main:
+    name: Validate PR title
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            fix
+            feat
+            style
+            build
+            refactor
+            ci
+            test
+            perf
+            chore
+            revert
+            docs
+          scopes: |
+            init
+            api
+            generator
+            examples
+            deps
+            ci
+            build
+            README          
+          requireScope: true
