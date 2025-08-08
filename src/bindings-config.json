@@ -1,0 +1,30 @@
+{
+    "sourceLocationUrl": "https://github.com/ocornut/imgui/blob/master/imgui.h",
+    "defines": {
+        "exclude": [
+            "IMGUI_HAS_TABLE",
+            "IMGUI_HAS_TEXTURES",
+            "IMGUI_HAS_VIEWPORT",
+            "IMGUI_HAS_DOCK",
+            "IMGUI_DEAR_BINDINGS_HAS_GETWINDOWFRAMEBUFFERSCALE",
+            "IMGUI_DEAR_BINDINGS_HAS_GETWINDOWWORKAREAINSETS",
+            "IMGUI_API",
+            "IMGUI_IMPL_API",
+            "IM_MSVC_RUNTIME_CHECKS_OFF",
+            "IM_MSVC_RUNTIME_CHECKS_RESTORE",
+            "ImTextureID_Invalid",
+            "IMGUI_PAYLOAD_TYPE_COLOR_3F",
+            "IMGUI_PAYLOAD_TYPE_COLOR_4F",
+            "IM_UNICODE_CODEPOINT_INVALID",
+            "IM_UNICODE_CODEPOINT_MAX",
+            "IMGUI_DEFINE_MATH_OPERATORS_IMPLEMENTED",
+            "IM_COL32_R_SHIFT",
+            "IM_COL32_G_SHIFT",
+            "IM_COL32_B_SHIFT",
+            "IM_COL32_A_SHIFT",
+            "IM_COL32_A_MASK",
+            "IM_DRAWLIST_TEX_LINES_WIDTH_MAX",
+            "ImFontAtlasRectId_Invalid"
+        ]
+    }
+}
