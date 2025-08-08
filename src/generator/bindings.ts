@@ -29,7 +29,7 @@ export const structBindings: Record<string, StructBinding> = {
     ImGuiStyle: ImGuiStyle(),
     ImGuiIO: ImGuiIO(),
     ImGuiMultiSelectIO: { opaque: true },
-    ImDrawList: { opaque: true },
+    ImDrawList: ImDrawList(),
     ImDrawData: { opaque: true },
     ImFontConfig: { opaque: true },
     ImFontAtlas: { opaque: true },
@@ -53,6 +53,22 @@ export const functionBindings: Record<string, FunctionBinding> = {
     ImGui_InputTextWithHint: ImGui_InputTextWithHint(),
     ImGui_PlotLines: ImGui_PlotLines(),
     ImGui_PlotHistogram: ImGui_PlotHistogram(),
+
+    ImDrawList_AddCallback: { exclude: true },
+    ImDrawList_AddText: ImDrawList_AddText(),
+    ImDrawList_AddTextImFontPtr: { exclude: true },
+    ImDrawList__SetDrawListSharedData: { exclude: true },
+    ImDrawList__ResetForNewFrame: { exclude: true },
+    ImDrawList__ClearFreeMemory: { exclude: true },
+    ImDrawList__PopUnusedDrawCmd: { exclude: true },
+    ImDrawList__TryMergeDrawCmds: { exclude: true },
+    ImDrawList__OnChangedClipRect: { exclude: true },
+    ImDrawList__OnChangedTexture: { exclude: true },
+    ImDrawList__OnChangedVtxOffset: { exclude: true },
+    ImDrawList__SetTexture: { exclude: true },
+    ImDrawList__CalcCircleAutoSegmentCount: { exclude: true },
+    ImDrawList__PathArcToFastEx: { exclude: true },
+    ImDrawList__PathArcToN: { exclude: true },
 
     ImGuiIO_SetKeyEventNativeData: { exclude: true },
     ImFontAtlas_AddFontFromMemoryCompressedTTF: { exclude: true },
@@ -176,6 +192,45 @@ function ImGuiStyle() {
         },
         exclude: {
             fields: ["Colors"],
+        },
+    };
+}
+
+function ImDrawList() {
+    return {
+        override: {
+            comment: "Draw command list",
+        },
+        exclude: {
+            fields: [
+                "CmdBuffer",
+                "IdxBuffer",
+                "VtxBuffer",
+                "_VtxCurrentIdx",
+                "_Data",
+                "_VtxWritePtr",
+                "_IdxWritePtr",
+                "_Path",
+                "_CmdHeader",
+                "_Splitter",
+                "_ClipRectStack",
+                "_TextureStack",
+                "_CallbacksDataBuf",
+            ],
+        },
+    };
+}
+
+function ImDrawList_AddText() {
+    return {
+        override: {
+            typescript: [
+                "    AddText(pos: ImVec2, col: ImU32, text_begin: string): void { return this._ptr.ImDrawList_AddText(pos?._ptr || null, col, text_begin); }\n",
+            ].join(""),
+            cplusplus: [
+                '.function("ImDrawList_AddText", override([](ImDrawList* self, ImVec2 pos, ImU32 col, std::string text_begin){ return ImDrawList_AddText(self, pos, col, text_begin.c_str(), nullptr); }), allow_ptr())',
+                "\n",
+            ].join(""),
         },
     };
 }
