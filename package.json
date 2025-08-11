@@ -27,9 +27,7 @@
     "devDependencies": {
         "@biomejs/biome": "2.1.2",
         "@types/node": "latest",
-        "@webgpu/types": "latest"
-    },
-    "peerDependencies": {
+        "@webgpu/types": "latest",
         "typescript": "5.8.3"
     }
 }
