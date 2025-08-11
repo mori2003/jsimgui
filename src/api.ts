@@ -27,37 +27,6 @@
 // [1.] Emscripten Module Interface
 // -------------------------------------------------------------------------------------------------
 
-// @ts-ignore
-import { MainExport as WebGL_TT } from "./jsimgui-webgl-tt.js"; // @ts-ignore
-import { MainExport as WebGL_TT_DEMOS } from "./jsimgui-webgl-tt-demos.js"; // @ts-ignore
-import { MainExport as WebGL_FT } from "./jsimgui-webgl-ft.js"; // @ts-ignore
-import { MainExport as WebGL_FT_DEMOS } from "./jsimgui-webgl-ft-demos.js"; // @ts-ignore
-
-import { MainExport as WebGL2_TT } from "./jsimgui-webgl-tt.js"; // @ts-ignore
-import { MainExport as WebGL2_TT_DEMOS } from "./jsimgui-webgl-tt-demos.js"; // @ts-ignore
-import { MainExport as WebGL2_FT } from "./jsimgui-webgl-ft.js"; // @ts-ignore
-import { MainExport as WebGL2_FT_DEMOS } from "./jsimgui-webgl-ft-demos.js"; // @ts-ignore
-
-import { MainExport as WebGPU_TT } from "./jsimgui-webgpu-tt.js"; // @ts-ignore
-import { MainExport as WebGPU_TT_DEMOS } from "./jsimgui-webgpu-tt-demos.js"; // @ts-ignore
-import { MainExport as WebGPU_FT } from "./jsimgui-webgpu-ft.js"; // @ts-ignore
-import { MainExport as WebGPU_FT_DEMOS } from "./jsimgui-webgpu-ft-demos.js"; // @ts-ignore
-
-const IMPORT_MAP = {
-    "jsimgui-webgl-tt": WebGL_TT,
-    "jsimgui-webgl-tt-demos": WebGL_TT_DEMOS,
-    "jsimgui-webgl-ft": WebGL_FT,
-    "jsimgui-webgl-ft-demos": WebGL_FT_DEMOS,
-    "jsimgui-webgl2-tt": WebGL2_TT,
-    "jsimgui-webgl2-tt-demos": WebGL2_TT_DEMOS,
-    "jsimgui-webgl2-ft": WebGL2_FT,
-    "jsimgui-webgl2-ft-demos": WebGL2_FT_DEMOS,
-    "jsimgui-webgpu-tt": WebGPU_TT,
-    "jsimgui-webgpu-tt-demos": WebGPU_TT_DEMOS,
-    "jsimgui-webgpu-ft": WebGPU_FT,
-    "jsimgui-webgpu-ft-demos": WebGPU_FT_DEMOS,
-} as const;
-
 /**
  * Object wrapping the exported Emscripten module. Used to access any of the exported functions
  * or runtime methods.
@@ -78,16 +47,65 @@ const Mod = {
      * @param loaderPath Path to the Emscripten module loader (e.g. `jsimgui-webgl-tt.js`).
      * @throws {Error} Throws error if the module is already initialized.
      */
-    async init(loaderPath: string) {
+    async init(loaderPath: string, customLoaderPath: string | undefined) {
         if (Mod._export) {
             throw new Error("jsimgui: Emscripten module is already initialized.");
         }
 
         let MainExport: any;
-        if (loaderPath && loaderPath in IMPORT_MAP) {
-            MainExport = IMPORT_MAP[loaderPath as keyof typeof IMPORT_MAP];
+        if (customLoaderPath) {
+            MainExport = await import(`${customLoaderPath}`);
         } else {
-            MainExport = await import(loaderPath);
+            switch (loaderPath) {
+                case "./jsimgui-webgl-tt.js":
+                    // @ts-ignore
+                    MainExport = await import("./jsimgui-webgl-tt.js");
+                    break;
+                case "./jsimgui-webgl-tt-demos.js":
+                    // @ts-ignore
+                    MainExport = await import("./jsimgui-webgl-tt-demos.js");
+                    break;
+                case "./jsimgui-webgl-ft.js":
+                    // @ts-ignore
+                    MainExport = await import("./jsimgui-webgl-ft.js");
+                    break;
+                case "./jsimgui-webgl-ft-demos.js":
+                    // @ts-ignore
+                    MainExport = await import("./jsimgui-webgl-ft-demos.js");
+                    break;
+                case "./jsimgui-webgl2-tt.js":
+                    // @ts-ignore
+                    MainExport = await import("./jsimgui-webgl2-tt.js");
+                    break;
+                case "./jsimgui-webgl2-tt-demos.js":
+                    // @ts-ignore
+                    MainExport = await import("./jsimgui-webgl2-tt-demos.js");
+                    break;
+                case "./jsimgui-webgl2-ft.js":
+                    // @ts-ignore
+                    MainExport = await import("./jsimgui-webgl2-ft.js");
+                    break;
+                case "./jsimgui-webgl2-ft-demos.js":
+                    // @ts-ignore
+                    MainExport = await import("./jsimgui-webgl2-ft-demos.js");
+                    break;
+                case "./jsimgui-webgpu-tt.js":
+                    // @ts-ignore
+                    MainExport = await import("./jsimgui-webgpu-tt.js");
+                    break;
+                case "./jsimgui-webgpu-tt-demos.js":
+                    // @ts-ignore
+                    MainExport = await import("./jsimgui-webgpu-tt-demos.js");
+                    break;
+                case "./jsimgui-webgpu-ft.js":
+                    // @ts-ignore
+                    MainExport = await import("./jsimgui-webgpu-ft.js");
+                    break;
+                case "./jsimgui-webgpu-ft-demos.js":
+                    // @ts-ignore
+                    MainExport = await import("./jsimgui-webgpu-ft-demos.js");
+                    break;
+            }
         }
 
         const module = await MainExport.default();
@@ -1037,10 +1055,7 @@ const getUsedLoaderPath = (
     backend: "webgl" | "webgl2" | "webgpu",
     fontLoader: "truetype" | "freetype",
     enableDemos: boolean,
-    loaderPath?: string,
 ): string => {
-    if (loaderPath) return loaderPath;
-
     const fontLoaderShort = fontLoader === "truetype" ? "tt" : "ft";
     return `./jsimgui-${backend}-${fontLoaderShort}${enableDemos ? "-demos" : ""}.js`;
 };
@@ -1204,8 +1219,8 @@ export const ImGuiImplWeb = {
         const usedBackend = getUsedBackend(canvas, device, backend);
         State.backend = usedBackend;
 
-        const usedLoaderPath = getUsedLoaderPath(usedBackend, fontLoader, enableDemos, loaderPath);
-        await Mod.init(usedLoaderPath);
+        const usedLoaderPath = getUsedLoaderPath(usedBackend, fontLoader, enableDemos);
+        await Mod.init(usedLoaderPath, loaderPath);
 
         Mod.export.FS.mount(Mod.export.MEMFS, { root: "." }, ".");
 
