@@ -53,7 +53,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: jsimgui-${{ matrix.backend }}-${{ matrix.font-loader }}${{ matrix.demos && '-demos' || '' }}
-        path: |
-          build/${{ matrix.backend }}/
-          build/mod.js
-          build/mod.d.ts
+        path: build/
