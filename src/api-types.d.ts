@@ -39,6 +39,7 @@ declare class ImGuiIO {
     WantCaptureKeyboard: boolean;
     BackendFlags: ImGuiBackendFlags;
     WantSaveIniSettings: boolean;
+    ConfigMacOSXBehaviors: boolean;
 
     AddKeyEvent(key: ImGuiKey, down: boolean): void;
     AddInputCharactersUTF8(characters: string): void;
