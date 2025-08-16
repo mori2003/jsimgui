@@ -54,6 +54,7 @@ export const functionBindings: Record<string, FunctionBinding> = {
     ImGui_PlotLines: ImGui_PlotLines(),
     ImGui_PlotHistogram: ImGui_PlotHistogram(),
 
+    ImGui_FindViewportByID: { exclude: true },
     ImDrawList_AddCallback: { exclude: true },
     ImDrawList_AddText: ImDrawList_AddText(),
     ImDrawList_AddTextImFontPtr: { exclude: true },
