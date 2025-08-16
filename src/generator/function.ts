@@ -6,7 +6,7 @@ import { functionBindings } from "./bindings.ts";
 
 /** Filter out functions by a given prefix. Also filters out overload variants. */
 function filterFunctionsByPrefix(functions: ImGuiFunction[], prefix: string): ImGuiFunction[] {
-    const excludedSuffixes = ["ID", "V", "Callback", "Ptr", "Str", "ImVec2", "ImVec4"];
+    const excludedSuffixes = ["V", "Callback", "Ptr", "Str", "ImVec2", "ImVec4"];
 
     return functions.filter(
         (func) =>
