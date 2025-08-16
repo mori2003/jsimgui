@@ -462,6 +462,7 @@ const KEYBOARD_MAP = {
     Shift: ImGui.Key._LeftShift,
     Alt: ImGui.Key._LeftAlt,
     Super: ImGui.Key._LeftSuper,
+    Meta: ImGui.Key._LeftSuper,
 } as const;
 
 /**
@@ -473,7 +474,12 @@ const KEYBOARD_MODIFIER_MAP = {
     Shift: ImGui.Key.ImGuiMod_Shift,
     Alt: ImGui.Key.ImGuiMod_Alt,
     Super: ImGui.Key.ImGuiMod_Super,
+    Meta: ImGui.Key.ImGuiMod_Super,
 } as const;
+
+const metaKeyInfo = {
+    isDown: false,
+};
 
 /**
  * Forwards keyboard events to Dear ImGui. This is both used for normal keyboard events as well as
@@ -484,7 +490,18 @@ const KEYBOARD_MODIFIER_MAP = {
  * @param io The {@linkcode ImGuiIO} object to forward the event to.
  */
 const handleKeyboardEvent = (event: KeyboardEvent, keyDown: boolean, io: ImGuiIO) => {
+    if (event.key === "Meta") {
+        metaKeyInfo.isDown = keyDown;
+    }
+
     io.AddKeyEvent(KEYBOARD_MAP[event.key as keyof typeof KEYBOARD_MAP], keyDown);
+
+    // NOTE: We lift the key when the meta key is pressed, because on macOS the browsers
+    // 'keyup' events are not fired for other keys when meta key is held down.
+    // see: https://stackoverflow.com/q/11818637.
+    if (metaKeyInfo.isDown) {
+        io.AddKeyEvent(KEYBOARD_MAP[event.key as keyof typeof KEYBOARD_MAP], false);
+    }
 
     const modifier = KEYBOARD_MODIFIER_MAP[event.key as keyof typeof KEYBOARD_MODIFIER_MAP];
     if (modifier) {
@@ -561,6 +578,11 @@ const setupMouseIO = (canvas: HTMLCanvasElement) => {
  */
 const setupKeyboardIO = (canvas: HTMLCanvasElement) => {
     const io = ImGui.GetIO();
+
+    // Swap super and ctrl keys on macOS.
+    if (navigator.userAgent.includes("Mac")) {
+        io.ConfigMacOSXBehaviors = true;
+    }
 
     // TODO: Fix too fast repeated inputs (Backspace, Delete...).
     canvas.addEventListener("keydown", (e) => handleKeyboardEvent(e, true, io));
