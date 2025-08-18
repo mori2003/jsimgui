@@ -1,4 +1,4 @@
-name: "📦 Build"
+name: '📦 Build'
 
 on:
   push:
@@ -7,9 +7,9 @@ on:
   workflow_call:
 
 env:
-  NODE_VERSION: "24.5.0"
-  EMSDK_VERSION: "4.0.13"
-  PYTHON_VERSION: "3.13"
+  NODE_VERSION: '24.5.0'
+  EMSDK_VERSION: '4.0.13'
+  PYTHON_VERSION: '3.13'
 
 jobs:
   build-matrix:
@@ -19,58 +19,39 @@ jobs:
         backend: [ webgl, webgl2, webgpu ]
         font-loader: [ truetype, freetype ]
         demos: [ false, true ]
-
     name: "Build Matrix (${{ matrix.backend }}-${{ matrix.font-loader }}${{ matrix.demos && '-demos' || '' }})"
-
     steps:
-    - name: "Checkout Repository"
-      uses: actions/checkout@v4
-      with:
-        submodules: 'true'
-
-    - name: "Setup Node.js"
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-
-    - name: "Install dependencies"
-      run: npm ci
-
-    - name: "Setup uv"
-      uses: astral-sh/setup-uv@v6
-      with:
-        enable-cache: true
-        version: latest
-        python-version: ${{ env.PYTHON_VERSION }}
-
-    - name: "Install Python dependencies"
-      run: |
-        uv venv
-        source .venv/bin/activate
-        uv pip install ply
-
-    - name: "Setup Emscripten"
-      uses: pyodide/setup-emsdk@v15
-      with:
-        version: ${{ env.EMSDK_VERSION }}
-        actions-cache-folder: 'emsdk-cache'
-
-    - name: "Cache Emscripten"
-      uses: actions/cache/@v4
-      with:
-        path: .em_cache
-        key: "${{ runner.os }}-${{ env.EMSDK_VERSION }}-${{ matrix.backend }}-${{ matrix.font-loader }}-${{ matrix.demos }}"
-          
-    - name: "Building Configuration"
-      run: |
-        source .venv/bin/activate
-        node build.ts --backend=${{ matrix.backend }} --font-loader=${{ matrix.font-loader }} ${{ matrix.demos && '--demos' || '' }}
-
-    - name: "Upload build artifacts"
-      uses: actions/upload-artifact@v4
-      with:
-        name: jsimgui-${{ matrix.backend }}-${{ matrix.font-loader }}${{ matrix.demos && '-demos' || '' }}
-        path: build/
-        retention-days: 7
-    
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      - run: npm ci
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          version: 'latest'
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: |
+          uv venv
+          source .venv/bin/activate
+          uv pip install ply
+      - uses: pyodide/setup-emsdk@v15
+        with:
+          version: ${{ env.EMSDK_VERSION }}
+          actions-cache-folder: 'emsdk-cache'
+      - uses: actions/cache/@v4
+        with:
+          path: .em_cache
+          key: "${{ runner.os }}-${{ env.EMSDK_VERSION }}-${{ matrix.backend }}-${{ matrix.font-loader }}-${{ matrix.demos }}"
+      - run: |
+          source .venv/bin/activate
+          node build.ts --backend=${{ matrix.backend }} --font-loader=${{ matrix.font-loader }} ${{ matrix.demos && '--demos' || '' }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jsimgui-${{ matrix.backend }}-${{ matrix.font-loader }}${{ matrix.demos && '-demos' || '' }}
+          path: build/
+          retention-days: 7
+      
