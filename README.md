@@ -31,34 +31,46 @@ The library should be somewhat usable, but expect bugs and missing features! (Cu
 
 ## Quick Start
 
+Dear ImGui is rendered to a `<canvas>` element. Here is a short single-file example (also on [CodePen](https://codepen.io/mori2003/pen/xbwVaQg)).
 For more information, see the [wiki](https://github.com/mori2003/jsimgui/wiki).
 
-```bash
-npm install @mori2003/jsimgui
-```
 
-```js
-import { ImGui, ImGuiImplWeb } from "@mori2003/jsimgui";
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            #render-canvas {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+        <script type="module">
+            import { ImGui, ImGuiImplWeb } from "https://esm.sh/@mori2003/jsimgui";
 
-const myCanvas = document.querySelector("#imgui-canvas");
+            await ImGuiImplWeb.Init({
+                canvas: document.querySelector("#render-canvas"),
+                enableDemos: true,
+            });
 
-await ImGuiImplWeb.Init({
-    canvas: myCanvas,
-});
+            function render() {
+                ImGuiImplWeb.BeginRender();
 
-function frame() {
-    ImGuiImplWeb.BeginRender();
+                ImGui.Begin("New Window");
+                ImGui.Text("Hello, World!");
+                ImGui.End();
+                ImGui.ShowDemoWindow();
 
-    ImGui.Begin("New Window");
-    ImGui.Text("Hello from JS!");
-    ImGui.End();
-
-    // Render your scene...
-
-    ImGuiImplWeb.EndRender();
-    requestAnimationFrame(frame);
-}
-requestAnimationFrame(frame);
+                ImGuiImplWeb.EndRender();
+                requestAnimationFrame(render);
+            }
+            requestAnimationFrame(render);
+        </script>
+    </head>
+    <body>
+        <canvas id="render-canvas"></canvas>
+    </body>
+</html>
 ```
 
 
