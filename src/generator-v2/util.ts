@@ -1,4 +1,4 @@
-interface Exclude {
+interface ExcludeElement {
     is_internal?: boolean;
     conditionals?: {
         condition: string;
@@ -6,11 +6,22 @@ interface Exclude {
     }[];
 }
 
-export const isInternal = (element: Exclude): boolean => {
+/**
+ * Checks if the given element is an Dear ImGui internal element.
+ * @param element - The element to check.
+ * @returns True if the element is internal, false otherwise.
+ */
+export const isInternal = (element: ExcludeElement): boolean => {
     return element.is_internal ?? false;
 };
 
-export const isObsolete = (element: Exclude): boolean => {
+/**
+ * Checks if the given element is an obsolete element. We exclude those
+ * since we compile the library with `IMGUI_DISABLE_OBSOLETE_FUNCTIONS` defined.
+ * @param element - The element to check.
+ * @returns True if the element is obsolete, false otherwise.
+ */
+export const isObsolete = (element: ExcludeElement): boolean => {
     if (!element.conditionals) {
         return false;
     }
@@ -28,7 +39,7 @@ export const isObsolete = (element: Exclude): boolean => {
  * @param filterFn - A function that returns true if the item should be kept, false if it should be removed.
  * @returns A new object or array with the filtered items.
  */
-export const filterRecursive = <T>(data: T, filterFn: (item: Exclude) => boolean): T => {
+export const filterRecursive = <T>(data: T, filterFn: (item: ExcludeElement) => boolean): T => {
     if (Array.isArray(data)) {
         return data.filter(filterFn).map((item) => filterRecursive(item, filterFn)) as T;
     }
