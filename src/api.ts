@@ -490,6 +490,10 @@ const metaKeyInfo = {
  * @param io The {@linkcode ImGuiIO} object to forward the event to.
  */
 const handleKeyboardEvent = (event: KeyboardEvent, keyDown: boolean, io: ImGuiIO) => {
+    if (!Object.hasOwn(KEYBOARD_MAP, event.key)) {
+        return;
+    }
+
     if (event.key === "Meta") {
         metaKeyInfo.isDown = keyDown;
     }
@@ -542,6 +546,21 @@ const setupCanvasIO = (canvas: HTMLCanvasElement) => {
 };
 
 /**
+ * Handles mouse button events.
+ *
+ * @param event The mouse event to handle.
+ * @param isDown Whether the button is being pressed or released.
+ * @param io The {@linkcode ImGuiIO} object to forward the event to.
+ */
+const handleMouseButtonEvent = (event: MouseEvent, isDown: boolean, io: ImGuiIO) => {
+    if (!Object.hasOwn(MOUSE_BUTTON_MAP, event.button)) {
+        return;
+    }
+
+    io.AddMouseButtonEvent(MOUSE_BUTTON_MAP[event.button as keyof typeof MOUSE_BUTTON_MAP], isDown);
+};
+
+/**
  * Sets up mouse key, wheel input and movement. Also handles cursor style changes.
  *
  * @param canvas The canvas element to set up.
@@ -557,17 +576,11 @@ const setupMouseIO = (canvas: HTMLCanvasElement) => {
         canvas.style.cursor = MOUSE_CURSOR_MAP[ImGui.GetMouseCursor()];
     });
 
-    canvas.addEventListener("mousedown", (e) => {
-        io.AddMouseButtonEvent(MOUSE_BUTTON_MAP[e.button as keyof typeof MOUSE_BUTTON_MAP], true);
-    });
-
-    canvas.addEventListener("mouseup", (e) => {
-        io.AddMouseButtonEvent(MOUSE_BUTTON_MAP[e.button as keyof typeof MOUSE_BUTTON_MAP], false);
-    });
-
-    canvas.addEventListener("wheel", (e) => {
-        io.AddMouseWheelEvent(-e.deltaX * scrollSpeed, -e.deltaY * scrollSpeed);
-    });
+    canvas.addEventListener("mousedown", (e) => handleMouseButtonEvent(e, true, io));
+    canvas.addEventListener("mouseup", (e) => handleMouseButtonEvent(e, false, io));
+    canvas.addEventListener("wheel", (e) =>
+        io.AddMouseWheelEvent(-e.deltaX * scrollSpeed, -e.deltaY * scrollSpeed),
+    );
 };
 
 /**
