@@ -1,4 +1,4 @@
-name: "New Release"
+name: '🚀 Publish Release'
 
 on:
   push:
@@ -6,18 +6,82 @@ on:
       - "v*.*.*"
 
 jobs:
-  release:
+  build:
+    uses: ./.github/workflows/build.yml
+
+  publish-npmjs:
     runs-on: ubuntu-latest
+    name: 'Publish to npmjs'
+    needs: build
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: build
+          merge-multiple: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm ci && npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-jsr:
+    runs-on: ubuntu-latest
+    name: 'Publish to JSR'
+    needs: build
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: build
+          merge-multiple: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+          cache: 'npm'
+      - run: npx jsr publish
+
+  deploy-pages:
+    runs-on: ubuntu-latest
+    needs: [publish-npmjs, publish-jsr]
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: build
+          merge-multiple: true
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+            path: '.'
+      - uses: actions/deploy-pages@v4
+        id: deployment
+        
+
+  release-gh:
+    runs-on: ubuntu-latest
+    name: 'Make GitHub Release'
+    needs: [publish-npmjs, publish-jsr]
     permissions:
       contents: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
-      - name: Generate a changelog
-        uses: orhun/git-cliff-action@v4
+      - uses: orhun/git-cliff-action@v4
         id: git-cliff
         with:
           config: .github/cliff.toml
@@ -25,9 +89,7 @@ jobs:
         env:
           OUTPUT: CHANGES.md
           GITHUB_REPO: ${{ github.repository }}
-
-      - name: Release
-        uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v2
         with:
           body: ${{ steps.git-cliff.outputs.content }}
           generate_release_notes: false
