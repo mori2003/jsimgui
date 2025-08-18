@@ -1,25 +1,23 @@
-import { readFileSync } from "node:fs";
 import { getJsDocComment } from "./comment.ts";
-import { getContext } from "./context.ts";
-import type { CodeOutput } from "./core.ts";
+import type { ImGuiDefine } from "./interface.ts";
+import { type CodeOutput, context } from "./main.ts";
 
-const typescript = (): string => {
-    return getContext().data.defines
-        .map((define: any) => {
-            if (getContext().config.defines?.exclude?.includes(define.name)) {
+const ts = (): string => {
+    return context.data.defines
+        .map((define: ImGuiDefine) => {
+            if (context.config.defines?.exclude?.includes(define.name)) {
                 return "";
             }
 
             const comment = getJsDocComment(define.comments?.attached, define);
-
-            return `${comment}\nexport const ${define.name} = ${define.content};`;
+            return `${comment}export const ${define.name} = ${define.content};\n`;
         })
-        .join("\n");
+        .join("");
 };
 
 export const generateDefines = (): CodeOutput => {
     return {
-        ts: typescript(),
+        ts: ts(),
         cpp: "",
     };
 };
