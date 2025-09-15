@@ -1,3 +1,4 @@
+import { generateJsDocComment } from "./comment.ts";
 import type { ImGuiData } from "./interface.ts";
 
 // TODO: Refactor... hacky solution.
@@ -59,8 +60,8 @@ export function generateTypedefs(jsonData: ImGuiData): string {
         ["signed int", "number"],
         ["unsigned long", "number"],
         ["signed long", "number"],
-        ["unsigned long long", "BigInt"],
-        ["signed long long", "BigInt"],
+        ["unsigned long long", "bigint"],
+        ["signed long long", "bigint"],
     ]);
 
     const newTypedefMap = new Map([...baseTypeMap]);
@@ -79,7 +80,9 @@ export function generateTypedefs(jsonData: ImGuiData): string {
     }
 
     const typedefs = Array.from(newTypedefMap.keys()).map((typedef) => {
-        return `/** TODO: Add comment */\nexport type ${typedef} = ${newTypedefMap.get(typedef)};\n`;
+        const typedefData = jsonData.typedefs.find((typedefData) => typedefData.name === typedef);
+        const comment = generateJsDocComment(typedefData ?? {});
+        return `${comment}export type ${typedef} = ${newTypedefMap.get(typedef)};\n`;
     });
 
     return typedefs.join("");
