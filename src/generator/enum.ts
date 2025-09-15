@@ -1,4 +1,4 @@
-import { formatComment } from "./comment.ts";
+import { generateJsDocComment } from "./comment.ts";
 import type { ImGuiData, ImGuiEnum } from "./interface.ts";
 
 /** Trims the field name to remove the enum name prefix. */
@@ -15,25 +15,16 @@ function trimEnumName(enumName: string): string {
 /** Generates TypeScript code for an enum. */
 function getEnumCode(enumData: ImGuiEnum): string {
     const trimmedName = trimEnumName(enumData.name);
-    const enumComment = formatComment(enumData.comments?.preceding?.[0]);
+    const enumComment = generateJsDocComment(enumData);
 
     const elementCode = enumData.elements.map((element) => {
         const fieldName = trimFieldName(element.name, enumData.name);
-        const fieldComment = formatComment(element.comments?.attached);
+        const fieldComment = generateJsDocComment(element);
 
-        return [
-            fieldComment ? `        /** ${fieldComment} */\n` : "",
-            `        ${fieldName}: ${element.value},\n`,
-        ].join("");
+        return [fieldComment, `        ${fieldName}: ${element.value},\n`].join("");
     });
 
-    return [
-        enumComment ? `    /** ${enumComment} */\n` : "",
-        `    ${trimmedName}: {\n`,
-        ...elementCode,
-        "    },\n",
-        "\n",
-    ].join("");
+    return [enumComment, `    ${trimmedName}: {\n`, ...elementCode, "    },\n", "\n"].join("");
 }
 
 /** Generates TypeScript code for the enums and flags in the ImGui data. */
