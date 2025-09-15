@@ -1,0 +1,11 @@
+Checks:
+    "clang-diagnostic-*, \
+    clang-analyzer-*, \
+    cppcoreguidelines-*, \
+    bugprone-*, \
+    modernize-*, \
+    misc-*, \
+    performance-*, \
+    llvm-*, \
+    readability-*, \
+    portability-*"
