@@ -262,7 +262,7 @@ function getFunctionCodeCpp(functionData: ImGuiFunction): string {
         : `    return ${functionData.name}(${callArgs});\n`;
 
     return [
-        `bind_func("${functionData.name}", [](${funcArgs}){\n`,
+        `bind_fn("${functionData.name}", [](${funcArgs}){\n`,
         funcBody,
         `}${policies});\n`,
         "\n",

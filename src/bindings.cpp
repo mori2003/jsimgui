@@ -1,6 +1,9 @@
-#include <string>
-#include <vector>
+#include <cstddef>
+#include <cstdint>
 #include <malloc.h>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include <dcimgui.h>
 #include <dcimgui_impl_opengl3.h>
@@ -18,198 +21,204 @@
 #include <webgpu/webgpu.h>
 #include <webgpu/webgpu_cpp.h>
 
+namespace {
 
-
-
-
-
-constexpr auto allow_ptr() {
-    return emscripten::allow_raw_pointers();
+constexpr auto allow_ptr() -> emscripten::allow_raw_pointers {
+    return {};
 }
 
-constexpr auto rvp_ref() {
-  return emscripten::return_value_policy::reference();
+constexpr auto rvp_ref() -> emscripten::return_value_policy::reference {
+    return {};
 }
 
-template <typename Func>
-constexpr auto override(Func &&func) {
-  return emscripten::optional_override(std::forward<Func>(func));
+template <typename Fn>
+constexpr auto override(Fn&& fn) {
+    return emscripten::optional_override(std::forward<Fn>(fn));
 }
 
-template <typename Func, typename... Args, typename... Policies>
-constexpr void bind_func(const std::string &name, Func &&func, Policies &&...policies) {
-    return emscripten::function(name.c_str(), override(std::forward<Func>(func)), std::forward<Policies>(policies)...);
+template <typename Fn, typename... Policies>
+constexpr auto bind_fn(const char* name, Fn&& func, Policies&&... policies) -> void {
+    return emscripten::function(
+        name,
+        emscripten::optional_override(std::forward<Fn>(func)),
+        std::forward<Policies>(policies)...
+    );
 }
 
-template <typename Struct>
-constexpr auto bind_struct(const std::string &name) {
-  return emscripten::class_<Struct>(name.c_str());
+template <typename T>
+constexpr auto bind_struct(const char* name) -> emscripten::class_<T> {
+    return emscripten::class_<T>(name);
 }
 
-template<typename T>
+template <typename T>
 class ArrayParam {
-    private:
-        std::vector<T> value;
-        emscripten::val& js_value;
+  private:
+    std::vector<T> value;
+    emscripten::val& js_value;
 
-    public:
-        ArrayParam(emscripten::val& js_value) : js_value(js_value) {
-            if (js_value.isNull() || js_value.isUndefined() || !js_value.isArray()) {
-                return;
-            }
-
-            int length = js_value["length"].as<int>();
-            value.reserve(length);
-
-            for (int i = 0; i < length; i++) {
-                value.push_back(js_value[i].as<T>());
-            }
+  public:
+    ArrayParam(emscripten::val& js_value) : js_value(js_value) {
+        if (js_value.isNull() || js_value.isUndefined() || !js_value.isArray()) {
+            return;
         }
 
-        ~ArrayParam() {
-            if (js_value.isNull() || js_value.isUndefined() || !js_value.isArray()) {
-                return;
-            }
+        int length = js_value["length"].as<int>();
+        value.reserve(length);
 
-            for (size_t i = 0; i < value.size(); i++) {
-                js_value.set(i, value[i]);
-            }
+        for (int i = 0; i < length; i++) {
+            value.push_back(js_value[i].as<T>());
+        }
+    }
+
+    ~ArrayParam() {
+        if (js_value.isNull() || js_value.isUndefined() || !js_value.isArray()) {
+            return;
         }
 
-        constexpr T* operator&() {
-            if (js_value.isNull() || js_value.isUndefined() || !js_value.isArray()) {
-                return nullptr;
-            }
-
-            return value.data();
+        for (size_t i = 0; i < value.size(); i++) {
+            js_value.set(i, value[i]);
         }
+    }
+
+    constexpr T* operator&() {
+        if (js_value.isNull() || js_value.isUndefined() || !js_value.isArray()) {
+            return nullptr;
+        }
+
+        return value.data();
+    }
 };
 
-template<>
+template <>
 class ArrayParam<bool> {
-    private:
-        bool value;
-        emscripten::val& js_value;
+  private:
+    bool value;
+    emscripten::val& js_value;
 
-    public:
-        ArrayParam(emscripten::val& js_value) : js_value(js_value) {
-            if (js_value.isNull() || js_value.isUndefined() || !js_value.isArray()) {
-                return;
-            }
-
-            value = js_value[0].as<bool>();
+  public:
+    ArrayParam(emscripten::val& js_value) : js_value(js_value) {
+        if (js_value.isNull() || js_value.isUndefined() || !js_value.isArray()) {
+            return;
         }
 
-        ~ArrayParam() {
-            if (js_value.isNull() || js_value.isUndefined() || !js_value.isArray()) {
-                return;
-            }
+        value = js_value[0].as<bool>();
+    }
 
-            js_value.set(0, value);
+    ~ArrayParam() {
+        if (js_value.isNull() || js_value.isUndefined() || !js_value.isArray()) {
+            return;
         }
 
-        bool* operator&() {
-            if (js_value.isNull() || js_value.isUndefined() || !js_value.isArray()) {
-                return nullptr;
-            }
-            return &value;
+        js_value.set(0, value);
+    }
+
+    bool* operator&() {
+        if (js_value.isNull() || js_value.isUndefined() || !js_value.isArray()) {
+            return nullptr;
         }
+        return &value;
+    }
 };
+
+auto get_clipboard_fn = emscripten::val::null();
+auto set_clipboard_fn = emscripten::val::null();
+
+auto get_clipboard_text(ImGuiContext* /*ctx*/) -> const char* {
+    static auto text = std::string();
+    text = get_clipboard_fn().as<std::string>();
+    return text.c_str();
+};
+
+auto set_clipboard_text(ImGuiContext* /*ctx*/, const char* text) -> void {
+    set_clipboard_fn(std::string(text));
+};
+
+} // namespace
 
 /* -------------------------------------------------------------------------- */
 /* Manual Backend Bindings - WebGL and WebGPU */
 /* -------------------------------------------------------------------------- */
 
-static auto get_clipboard_fn = emscripten::val::null();
-static auto set_clipboard_fn = emscripten::val::null();
-
-auto get_clipboard_text(ImGuiContext*) -> const char* {
-    static auto text{std::string()};
-    text = get_clipboard_fn().as<std::string>();
-
-    return text.c_str();
-};
-
-auto set_clipboard_text(ImGuiContext*, const char* text) -> void {
-    set_clipboard_fn(std::string(text));
-};
-
 EMSCRIPTEN_BINDINGS(impl) {
 
-bind_func("SetupIniSettings", [](){
-    auto const& io{ImGui_GetIO()};
-    io->IniFilename = nullptr;
-});
+    bind_fn("SetupIniSettings", []() -> void {
+        auto const& io = ImGui_GetIO();
+        io->IniFilename = nullptr;
+    });
 
-bind_func("SetupClipboardFunctions", [](emscripten::val get_fn, emscripten::val set_fn){
-    auto const& platform_io{ImGui_GetPlatformIO()};
+    bind_fn("SetupClipboardFunctions", [](emscripten::val get_fn, emscripten::val set_fn) -> void {
+        auto const& platform_io = ImGui_GetPlatformIO();
 
-    get_clipboard_fn = get_fn;
-    set_clipboard_fn = set_fn;
+        get_clipboard_fn = std::move(get_fn);
+        set_clipboard_fn = std::move(set_fn);
 
-    platform_io->Platform_GetClipboardTextFn = get_clipboard_text;
-    platform_io->Platform_SetClipboardTextFn = set_clipboard_text;
-});
-bind_func("get_wasm_heap_info", [](){
-    auto ret{emscripten::val::object()};
+        platform_io->Platform_GetClipboardTextFn = get_clipboard_text;
+        platform_io->Platform_SetClipboardTextFn = set_clipboard_text;
+    });
 
-    ret.set("size", emscripten::val(emscripten_get_heap_size()));
-    ret.set("max", emscripten::val(emscripten_get_heap_max()));
-    ret.set("sbrk_ptr", emscripten::val(*emscripten_get_sbrk_ptr()));
+    bind_fn("get_wasm_heap_info", []() -> emscripten::val {
+        auto obj = emscripten::val::object();
 
-    return ret;
-});
+        obj.set("size", emscripten::val(emscripten_get_heap_size()));
+        obj.set("max", emscripten::val(emscripten_get_heap_max()));
+        obj.set("sbrk_ptr", emscripten::val(*emscripten_get_sbrk_ptr()));
 
-bind_func("get_wasm_stack_info", [](){
-    auto ret{emscripten::val::object()};
+        return obj;
+    });
 
-    ret.set("base", emscripten::val(emscripten_stack_get_base()));
-    ret.set("end", emscripten::val(emscripten_stack_get_end()));
-    ret.set("current", emscripten::val(emscripten_stack_get_current()));
-    ret.set("free", emscripten::val(emscripten_stack_get_free()));
+    bind_fn("get_wasm_stack_info", []() -> emscripten::val {
+        auto obj = emscripten::val::object();
 
-    return ret;
-});
+        obj.set("base", emscripten::val(emscripten_stack_get_base()));
+        obj.set("end", emscripten::val(emscripten_stack_get_end()));
+        obj.set("current", emscripten::val(emscripten_stack_get_current()));
+        obj.set("free", emscripten::val(emscripten_stack_get_free()));
 
-bind_func("get_wasm_mall_info", [](){
-    auto const& info{mallinfo()};
-    auto ret{emscripten::val::object()};
+        return obj;
+    });
 
-    ret.set("arena", emscripten::val(info.arena));
-    ret.set("ordblks", emscripten::val(info.ordblks));
-    ret.set("smblks", emscripten::val(info.smblks));
-    ret.set("hblks", emscripten::val(info.hblks));
-    ret.set("hblkhd", emscripten::val(info.hblkhd));
-    ret.set("usmblks", emscripten::val(info.usmblks));
-    ret.set("fsmblks", emscripten::val(info.fsmblks));
-    ret.set("uordblks", emscripten::val(info.uordblks));
-    ret.set("fordblks", emscripten::val(info.fordblks));
-    ret.set("keepcost", emscripten::val(info.keepcost));
+    bind_fn("get_wasm_mall_info", []() -> emscripten::val {
+        auto const& info = mallinfo();
+        auto obj = emscripten::val::object();
 
-    return ret;
-});
+        obj.set("arena", emscripten::val(info.arena));
+        obj.set("ordblks", emscripten::val(info.ordblks));
+        obj.set("smblks", emscripten::val(info.smblks));
+        obj.set("hblks", emscripten::val(info.hblks));
+        obj.set("hblkhd", emscripten::val(info.hblkhd));
+        obj.set("usmblks", emscripten::val(info.usmblks));
+        obj.set("fsmblks", emscripten::val(info.fsmblks));
+        obj.set("uordblks", emscripten::val(info.uordblks));
+        obj.set("fordblks", emscripten::val(info.fordblks));
+        obj.set("keepcost", emscripten::val(info.keepcost));
 
+        return obj;
+    });
 
 /* -------------------------------------------------------------------------- */
 /* WebGL */
 /* -------------------------------------------------------------------------- */
 #ifdef JSIMGUI_BACKEND_WEBGL
 
-bind_func("cImGui_ImplOpenGL3_Init", [](){
-    return cImGui_ImplOpenGL3_Init();
-});
+    bind_fn("cImGui_ImplOpenGL3_Init", []() -> bool {
+        return cImGui_ImplOpenGL3_Init();
+    });
 
-bind_func("cImGui_ImplOpenGL3_Shutdown", [](){
-    return cImGui_ImplOpenGL3_Shutdown();
-});
+    bind_fn("cImGui_ImplOpenGL3_Shutdown", []() -> void {
+        cImGui_ImplOpenGL3_Shutdown();
+    });
 
-bind_func("cImGui_ImplOpenGL3_NewFrame", [](){
-    return cImGui_ImplOpenGL3_NewFrame();
-});
+    bind_fn("cImGui_ImplOpenGL3_NewFrame", []() -> void {
+        cImGui_ImplOpenGL3_NewFrame();
+    });
 
-bind_func("cImGui_ImplOpenGL3_RenderDrawData", [](ImDrawData* draw_data){
-    return cImGui_ImplOpenGL3_RenderDrawData(draw_data);
-}, allow_ptr());
+    bind_fn(
+        "cImGui_ImplOpenGL3_RenderDrawData",
+        [](ImDrawData* draw_data) -> void {
+            cImGui_ImplOpenGL3_RenderDrawData(draw_data);
+        },
+        allow_ptr()
+    );
 
 #endif
 /* -------------------------------------------------------------------------- */
@@ -217,39 +226,42 @@ bind_func("cImGui_ImplOpenGL3_RenderDrawData", [](ImDrawData* draw_data){
 /* -------------------------------------------------------------------------- */
 #ifdef JSIMGUI_BACKEND_WEBGPU
 
-bind_func("cImGui_ImplWGPU_Init", [](){
-    wgpu::Device device = wgpu::Device::Acquire(emscripten_webgpu_get_device());
+    bind_fn("cImGui_ImplWGPU_Init", []() -> bool {
+        auto device = wgpu::Device::Acquire(emscripten_webgpu_get_device());
 
-    ImGui_ImplWGPU_InitInfo init_info = {
-        .Device = device.MoveToCHandle(),
-        .NumFramesInFlight = 3,
-        .RenderTargetFormat = WGPUTextureFormat_BGRA8Unorm,
-        .DepthStencilFormat = WGPUTextureFormat_Undefined,
-        .PipelineMultisampleState = {
-            .count = 1,
-            .mask = UINT32_MAX,
-            .alphaToCoverageEnabled = false,
+        auto init_info = ImGui_ImplWGPU_InitInfo{
+            .Device = device.MoveToCHandle(),
+            .NumFramesInFlight = 3,
+            .RenderTargetFormat = WGPUTextureFormat_BGRA8Unorm,
+            .DepthStencilFormat = WGPUTextureFormat_Undefined,
+            .PipelineMultisampleState = {
+                .count = 1,
+                .mask = UINT32_MAX,
+                .alphaToCoverageEnabled = false,
+            },
+        };
+
+        return cImGui_ImplWGPU_Init(&init_info);
+    });
+
+    bind_fn("cImGui_ImplWGPU_Shutdown", []() -> void {
+        cImGui_ImplWGPU_Shutdown();
+    });
+
+    bind_fn("cImGui_ImplWGPU_NewFrame", []() -> void {
+        cImGui_ImplWGPU_NewFrame();
+    });
+
+    bind_fn(
+        "cImGui_ImplWGPU_RenderDrawData",
+        [](ImDrawData* draw_data, int pass_encoder_handle) -> void {
+            auto pass_encoder = wgpu::RenderPassEncoder::Acquire(
+                emscripten_webgpu_import_render_pass_encoder(pass_encoder_handle)
+            );
+
+            cImGui_ImplWGPU_RenderDrawData(draw_data, pass_encoder.MoveToCHandle());
         },
-    };
-
-    return cImGui_ImplWGPU_Init(&init_info);
-});
-
-bind_func("cImGui_ImplWGPU_Shutdown", [](){
-    return cImGui_ImplWGPU_Shutdown();
-});
-
-bind_func("cImGui_ImplWGPU_NewFrame", [](){
-    return cImGui_ImplWGPU_NewFrame();
-});
-
-bind_func("cImGui_ImplWGPU_RenderDrawData", [](ImDrawData* draw_data, int pass_encoder_handle){
-    wgpu::RenderPassEncoder pass_encoder = wgpu::RenderPassEncoder::Acquire(
-        emscripten_webgpu_import_render_pass_encoder(pass_encoder_handle)
+        allow_ptr()
     );
-
-    return cImGui_ImplWGPU_RenderDrawData(draw_data, pass_encoder.MoveToCHandle());
-}, allow_ptr());
 #endif
-
 }
