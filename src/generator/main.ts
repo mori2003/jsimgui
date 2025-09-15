@@ -1,31 +1,44 @@
-/**
- * Bindings generator tool for jsimgui. It generates the C++ bindings and the TypeScript API
- * using the dear_bindings json data files.
- */
-
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { tsGenerateEnums } from "./enum.ts";
 import { filterSkippables } from "./filter.ts";
-import { generateEnumsTs } from "./enum.ts";
 import { generateFunctionsCpp, generateFunctionsTs } from "./function.ts";
+import type { ImGuiData } from "./interface.ts";
 import { generateStructsCpp, generateStructsTs } from "./struct.ts";
 import { generateTypedefs } from "./types.ts";
 
-/** Main entry point for the generator. Gets called by the build script. */
-export function main(): void {
-    const fileData = readFileSync("./third_party/dear_bindings/dcimgui.json", "utf-8");
-    generateBindings(fileData);
+export interface GeneratorContext {
+    data: ImGuiData;
+    config: {};
+    stats: {
+        defines?: {
+            total: number;
+            bound: number;
+        };
+    };
 }
 
+/** Main entry point for the generator. Gets called by the build script. */
+export const main = () => {
+    const fileData = readFileSync("./third_party/dear_bindings/dcimgui.json", "utf-8");
+    generateBindings(fileData);
+};
+
 /** Generates the bindings from the given metadata and writes them to the output files. */
-function generateBindings(fileData: string): void {
+const generateBindings = (fileData: string) => {
     // Filters out internal & obsolete functions, structs, enums... which we don't need.
     const data = filterSkippables(JSON.parse(fileData), true, true);
+
+    const ctx: GeneratorContext = {
+        data,
+        config: {},
+        stats: {},
+    };
 
     // Generate the TS bindings.
     const tsCode = ((): string => {
         const typedefs = generateTypedefs(data);
         const structs = generateStructsTs(data);
-        const enums = generateEnumsTs(data);
+        const enums = tsGenerateEnums(ctx);
         const functions = generateFunctionsTs(data);
 
         const headerTemplate = readFileSync("./src/api.ts", "utf-8");
@@ -62,13 +75,7 @@ function generateBindings(fileData: string): void {
         const beforeGenerated = headerTemplate.substring(0, beginIndex + beginMarker.length + 102);
         const afterGenerated = headerTemplate.substring(endIndex - endMarker.length - 84);
 
-        return [
-            beforeGenerated,
-            "\n",
-            generatedCode,
-            "\n",
-            afterGenerated,
-        ].join("");
+        return [beforeGenerated, "\n", generatedCode, "\n", afterGenerated].join("");
     })();
 
     // Generate the C++ bindings.
@@ -99,4 +106,4 @@ function generateBindings(fileData: string): void {
     mkdirSync("./bindgen", { recursive: true });
     writeFileSync("./bindgen/mod.ts", tsCode);
     writeFileSync("./bindgen/jsimgui.cpp", cppCode);
-}
+};
