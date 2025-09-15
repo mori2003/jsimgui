@@ -1,4 +1,4 @@
-import { formatComment } from "./comment.ts";
+import { formatComment, generateJsDocComment } from "./comment.ts";
 import type { ImGuiArgument, ImGuiData, ImGuiFunction } from "./interface.ts";
 import { toTsType } from "./types.ts";
 import { isStructBound } from "./struct.ts";
@@ -93,9 +93,7 @@ export function getFunctionCodeTs(functionData: ImGuiFunction): string {
     }
 
     const trimmedName = functionData.name.slice(6); // Remove the "ImGui_" prefix.
-    const functionComment = formatComment(
-        functionData.comments?.attached ?? functionData.comments?.preceding?.[0],
-    );
+    const comment = generateJsDocComment(functionData);
 
     const funcArgs = getFuncArgsTs(functionData.arguments);
     const callArgs = getCallArgsTs(functionData.arguments);
@@ -106,7 +104,7 @@ export function getFunctionCodeTs(functionData: ImGuiFunction): string {
         : `return Mod.export.${functionData.name}(${callArgs});`;
 
     return [
-        functionComment ? `    /** ${functionComment} */\n` : "",
+        comment,
         `    ${trimmedName}(${funcArgs}): ${returnType} { ${funcCall} },\n`,
         "\n",
     ].join("");
@@ -124,9 +122,7 @@ export function getMethodCodeTs(functionData: ImGuiFunction): string {
     }
 
     const trimmedName = functionData.name.replace(`${functionData.original_class}_`, "");
-    const functionComment = formatComment(
-        functionData.comments?.attached ?? functionData.comments?.preceding?.[0],
-    );
+    const comment = generateJsDocComment(functionData);
 
     // Slice arguments to remove "self".
     const args = functionData.arguments.slice(1);
@@ -139,11 +135,9 @@ export function getMethodCodeTs(functionData: ImGuiFunction): string {
         ? `return ${returnType}.wrap(this._ptr.${functionData.name}(${callArgs}));`
         : `return this._ptr.${functionData.name}(${callArgs});`;
 
-    return [
-        functionComment ? `    /** ${functionComment} */\n` : "",
-        `    ${trimmedName}(${funcArgs}): ${returnType} { ${funcCall} }\n`,
-        "\n",
-    ].join("");
+    return [comment, `    ${trimmedName}(${funcArgs}): ${returnType} { ${funcCall} }\n`, "\n"].join(
+        "",
+    );
 }
 
 /** Generates TypeScript code for the functions in the ImGui data. */

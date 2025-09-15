@@ -17,15 +17,9 @@ export interface GeneratorContext {
     };
 }
 
-/** Main entry point for the generator. Gets called by the build script. */
-export const main = () => {
-    const fileData = readFileSync("./third_party/dear_bindings/dcimgui.json", "utf-8");
-    generateBindings(fileData);
-};
-
-/** Generates the bindings from the given metadata and writes them to the output files. */
-const generateBindings = (fileData: string) => {
+export const runGenerator = () => {
     // Filters out internal & obsolete functions, structs, enums... which we don't need.
+    const fileData = readFileSync("./third_party/dear_bindings/dcimgui.json", "utf-8");
     const data = filterSkippables(JSON.parse(fileData), true, true);
 
     const ctx: GeneratorContext = {

@@ -9,7 +9,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
 import { argv, exit, stdout } from "node:process";
 import { styleText } from "node:util";
-import { main as runGenerator } from "./src/generator/main.ts";
+import { runGenerator } from "./src/generator/main.ts";
 
 const runCommand = (cmd: string, failCb?: () => void) => {
     const [command, ...args] = cmd.split(" ");
