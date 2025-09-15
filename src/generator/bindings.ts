@@ -290,7 +290,7 @@ function ImGui_GetVersion() {
     return {
         override: {
             cplusplus: [
-                'bind_func("ImGui_GetVersion", [](){\n',
+                'bind_fn("ImGui_GetVersion", [](){\n',
                 "    return std::string(ImGui_GetVersion());\n",
                 "});\n",
                 "\n",
@@ -307,7 +307,7 @@ function ImGui_Text() {
                 "    Text(fmt: string): void { return Mod.export.ImGui_Text(fmt); },\n",
             ].join(""),
             cplusplus: [
-                'bind_func("ImGui_Text", [](std::string fmt){\n',
+                'bind_fn("ImGui_Text", [](std::string fmt){\n',
                 '    return ImGui_Text("%s", fmt.c_str());\n',
                 "});\n",
                 "\n",
@@ -324,7 +324,7 @@ function ImGui_TextColored() {
                 "    TextColored(col: ImVec4, fmt: string): void { return Mod.export.ImGui_TextColored(col?._ptr, fmt); },\n",
             ].join(""),
             cplusplus: [
-                'bind_func("ImGui_TextColored", [](ImVec4 col, std::string fmt){\n',
+                'bind_fn("ImGui_TextColored", [](ImVec4 col, std::string fmt){\n',
                 '    return ImGui_TextColored(col, "%s", fmt.c_str());\n',
                 "});\n",
                 "\n",
@@ -341,7 +341,7 @@ function ImGui_TextDisabled() {
                 "    TextDisabled(fmt: string): void { return Mod.export.ImGui_TextDisabled(fmt); },\n",
             ].join(""),
             cplusplus: [
-                'bind_func("ImGui_TextDisabled", [](std::string fmt){\n',
+                'bind_fn("ImGui_TextDisabled", [](std::string fmt){\n',
                 '    return ImGui_TextDisabled("%s", fmt.c_str());\n',
                 "});\n",
                 "\n",
@@ -358,7 +358,7 @@ function ImGui_TextWrapped() {
                 "    TextWrapped(fmt: string): void { return Mod.export.ImGui_TextWrapped(fmt); },\n",
             ].join(""),
             cplusplus: [
-                'bind_func("ImGui_TextWrapped", [](std::string fmt){\n',
+                'bind_fn("ImGui_TextWrapped", [](std::string fmt){\n',
                 '    return ImGui_TextWrapped("%s", fmt.c_str());\n',
                 "});\n",
                 "\n",
@@ -375,7 +375,7 @@ function ImGui_LabelText() {
                 "    LabelText(label: string, fmt: string): void { return Mod.export.ImGui_LabelText(label, fmt); },\n",
             ].join(""),
             cplusplus: [
-                'bind_func("ImGui_LabelText", [](std::string label, std::string fmt){\n',
+                'bind_fn("ImGui_LabelText", [](std::string label, std::string fmt){\n',
                 '    return ImGui_LabelText(label.c_str(), "%s", fmt.c_str());\n',
                 "});\n",
                 "\n",
@@ -392,7 +392,7 @@ function ImGui_BulletText() {
                 "    BulletText(fmt: string): void { return Mod.export.ImGui_BulletText(fmt); },\n",
             ].join(""),
             cplusplus: [
-                'bind_func("ImGui_BulletText", [](std::string fmt){\n',
+                'bind_fn("ImGui_BulletText", [](std::string fmt){\n',
                 '    return ImGui_BulletText("%s", fmt.c_str());\n',
                 "});\n",
                 "\n",
@@ -409,7 +409,7 @@ function ImGui_SetTooltip() {
                 "    SetTooltip(fmt: string): void { return Mod.export.ImGui_SetTooltip(fmt); },\n",
             ].join(""),
             cplusplus: [
-                'bind_func("ImGui_SetTooltip", [](std::string fmt){\n',
+                'bind_fn("ImGui_SetTooltip", [](std::string fmt){\n',
                 '    return ImGui_SetTooltip("%s", fmt.c_str());\n',
                 "});\n",
                 "\n",
@@ -426,7 +426,7 @@ function ImGui_SetItemTooltip() {
                 "    SetItemTooltip(fmt: string): void { return Mod.export.ImGui_SetItemTooltip(fmt); },\n",
             ].join(""),
             cplusplus: [
-                'bind_func("ImGui_SetItemTooltip", [](std::string fmt){\n',
+                'bind_fn("ImGui_SetItemTooltip", [](std::string fmt){\n',
                 '    return ImGui_SetItemTooltip("%s", fmt.c_str());\n',
                 "});\n",
                 "\n",
@@ -443,7 +443,7 @@ function ImGui_InputText() {
                 "\n",
             ].join(""),
             cplusplus: [
-                'bind_func("ImGui_InputText", [](std::string label, emscripten::val buf, size_t buf_size, ImGuiInputTextFlags flags){\n',
+                'bind_fn("ImGui_InputText", [](std::string label, emscripten::val buf, size_t buf_size, ImGuiInputTextFlags flags){\n',
                 "    auto buf_bind = buf[0].as<std::string>();\n",
                 "    std::vector<char> buf_data(buf_size);\n",
                 "    strncpy(buf_data.data(), buf_bind.c_str(), buf_size - 1);\n",
@@ -466,7 +466,7 @@ function ImGui_InputTextMultiline() {
                 "\n",
             ].join(""),
             cplusplus: [
-                'bind_func("ImGui_InputTextMultiline", [](std::string label, emscripten::val buf, size_t buf_size, ImVec2 size, ImGuiInputTextFlags flags){\n',
+                'bind_fn("ImGui_InputTextMultiline", [](std::string label, emscripten::val buf, size_t buf_size, ImVec2 size, ImGuiInputTextFlags flags){\n',
                 "    auto buf_bind = buf[0].as<std::string>();\n",
                 "    std::vector<char> buf_data(buf_size);\n",
                 "    strncpy(buf_data.data(), buf_bind.c_str(), buf_size - 1);\n",
@@ -489,7 +489,7 @@ function ImGui_InputTextWithHint() {
                 "\n",
             ].join(""),
             cplusplus: [
-                'bind_func("ImGui_InputTextWithHint", [](std::string label, std::string hint, emscripten::val buf, size_t buf_size, ImGuiInputTextFlags flags){\n',
+                'bind_fn("ImGui_InputTextWithHint", [](std::string label, std::string hint, emscripten::val buf, size_t buf_size, ImGuiInputTextFlags flags){\n',
                 "    auto buf_bind = buf[0].as<std::string>();\n",
                 "    std::vector<char> buf_data(buf_size);\n",
                 "    strncpy(buf_data.data(), buf_bind.c_str(), buf_size - 1);\n",
@@ -512,7 +512,7 @@ function ImGui_PlotLines() {
                 "\n",
             ].join(""),
             cplusplus: [
-                'bind_func("ImGui_PlotLines", [](std::string label, emscripten::val values, int values_count, int values_offset, std::string overlay_text, float scale_min, float scale_max, ImVec2 graph_size){\n',
+                'bind_fn("ImGui_PlotLines", [](std::string label, emscripten::val values, int values_count, int values_offset, std::string overlay_text, float scale_min, float scale_max, ImVec2 graph_size){\n',
                 "    auto values_bind = ArrayParam<float>(values);\n",
                 "    return ImGui_PlotLines(label.c_str(), &values_bind, values_count, values_offset, overlay_text.c_str(), scale_min, scale_max, graph_size, sizeof(float));\n",
                 "}, allow_ptr());\n",
@@ -530,7 +530,7 @@ function ImGui_PlotHistogram() {
                 "\n",
             ].join(""),
             cplusplus: [
-                'bind_func("ImGui_PlotHistogram", [](std::string label, emscripten::val values, int values_count, int values_offset, std::string overlay_text, float scale_min, float scale_max, ImVec2 graph_size){\n',
+                'bind_fn("ImGui_PlotHistogram", [](std::string label, emscripten::val values, int values_count, int values_offset, std::string overlay_text, float scale_min, float scale_max, ImVec2 graph_size){\n',
                 "    auto values_bind = ArrayParam<float>(values);\n",
                 "    return ImGui_PlotHistogram(label.c_str(), &values_bind, values_count, values_offset, overlay_text.c_str(), scale_min, scale_max, graph_size, sizeof(float));\n",
                 "}, allow_ptr());\n",
@@ -547,7 +547,7 @@ function ImGui_LoadIniSettingsFromMemory() {
                 "    LoadIniSettingsFromMemory(ini_data: string, ini_size: number): void { return Mod.export.ImGui_LoadIniSettingsFromMemory(ini_data, ini_size); },\n",
             ].join(""),
             cplusplus: [
-                'bind_func("ImGui_LoadIniSettingsFromMemory", [](std::string ini_data, size_t ini_size){\n',
+                'bind_fn("ImGui_LoadIniSettingsFromMemory", [](std::string ini_data, size_t ini_size){\n',
                 "    return ImGui_LoadIniSettingsFromMemory(ini_data.c_str(), ini_size);\n",
                 "});\n",
                 "\n",
@@ -563,9 +563,9 @@ function ImGui_SaveIniSettingsToMemory() {
                 "    SaveIniSettingsToMemory(): string { return Mod.export.ImGui_SaveIniSettingsToMemory(); },\n",
             ].join(""),
             cplusplus: [
-                'bind_func("ImGui_SaveIniSettingsToMemory", [](){\n',
+                'bind_fn("ImGui_SaveIniSettingsToMemory", [](){\n',
                 "    auto const ini_data = ImGui_SaveIniSettingsToMemory(nullptr);\n",
-                "    return std::string(ini_data ? ini_data : \"\");\n",
+                '    return std::string(ini_data ? ini_data : "");\n',
                 "});\n",
                 "\n",
             ].join(""),
