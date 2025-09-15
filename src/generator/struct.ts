@@ -1,8 +1,8 @@
-import type { ImGuiStruct, ImGuiData, ImGuiFunction } from "./interface.ts";
-import { formatComment } from "./comment.ts";
-import { toTsType } from "./types.ts";
 import { structBindings } from "./bindings.ts";
+import { formatComment, generateJsDocComment } from "./comment.ts";
 import { getMethodCodeCpp, getMethodCodeTs } from "./function.ts";
+import type { ImGuiData, ImGuiFunction, ImGuiStruct } from "./interface.ts";
+import { toTsType } from "./types.ts";
 
 export function isStructBound(structDeclaration: string): boolean {
     return structDeclaration in structBindings;
@@ -10,9 +10,10 @@ export function isStructBound(structDeclaration: string): boolean {
 
 /** Generates TypeScript code for a struct. */
 function getStructCodeTs(structData: ImGuiStruct, functions: ImGuiFunction[]): string {
-    const structComment =
-        structBindings[structData.name]?.override?.comment ??
-        formatComment(structData.comments?.attached ?? structData.comments?.preceding?.[0]);
+    // const structComment =
+    //     structBindings[structData.name]?.override?.comment ??
+    //     formatComment(structData.comments?.attached ?? structData.comments?.preceding?.[0]);
+    const comment = generateJsDocComment(structData);
 
     const ctor =
         structBindings[structData.name]?.override?.ctor ??
@@ -25,11 +26,11 @@ function getStructCodeTs(structData: ImGuiStruct, functions: ImGuiFunction[]): s
                 return "";
             }
 
-            const fieldComment = formatComment(field.comments?.attached);
+            const fieldComment = generateJsDocComment(field);
             const type = toTsType(field.type.declaration);
 
             return [
-                fieldComment ? `    /** ${fieldComment} */\n` : "",
+                fieldComment,
                 `    get ${field.name}(): ${type} {`,
                 type in structBindings
                     ? ` return ${type}.wrap(this._ptr.get_${field.name}()); `
@@ -55,7 +56,7 @@ function getStructCodeTs(structData: ImGuiStruct, functions: ImGuiFunction[]): s
     }
 
     return [
-        structComment ? `/** ${structComment} */\n` : "",
+        comment,
         `export class ${structData.name} extends StructBinding {\n`,
         ctor,
         ...fields,
