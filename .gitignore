@@ -10,4 +10,3 @@ bun.lock
 
 dev/
 docs/examples/dev/
-dist/
