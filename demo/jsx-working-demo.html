@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSX ImGui Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #1e1e1e;
+            color: white;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            height: 80vh;
+        }
+        .left, .right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        textarea {
+            background: #2d2d2d;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 14px;
+            color: white;
+            resize: vertical;
+            min-height: 150px;
+        }
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #005a9e;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .status.success { background: #2d5a2d; color: #90ee90; }
+        .status.error { background: #5a2d2d; color: #ff6b6b; }
+        .status.info { background: #2d4a5a; color: #87ceeb; }
+        canvas {
+            background: #1a1a1a;
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            width: 100%;
+            height: 100%;
+        }
+        .console {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            color: white;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>JSX ImGui Demo</h1>
+    <div class="container">
+        <div class="left">
+            <h3>JSX Code:</h3>
+            <textarea id="jsxEditor">function App() {
+  const [count, setCount] = useState(0);
+  const [name, setName] = useState('');
+  const [volume, setVolume] = useState(0.5);
+  const [enabled, setEnabled] = useState(false);
+
+  return (
+    <App>
+      <Body>
+        <Window title="JSX ImGui Demo">
+          <Text>Welcome to JSX ImGui!</Text>
+          <Text>Count: {count}</Text>
+          <Button onClick={() => setCount(count + 1)}>
+            Clicked {count} times
+          </Button>
+          <SameLine />
+          <Button id="greenButton" onClick={() => console.log('Green button clicked!')}>
+            Green Button
+          </Button>
+          <SameLine />
+          <Checkbox 
+            label="Enable Feature" 
+            checked={enabled}
+            onChange={setEnabled}
+          />
+          <InputText 
+            label="Name" 
+            hint="Enter your name"
+            value={name}
+            onChange={setName}
+          />
+          <SliderFloat 
+            label="Volume" 
+            min={0} 
+            max={1}
+            value={volume}
+            onChange={setVolume}
+          />
+        </Window>
+      </Body>
+    </App>
+  );
+}
+</textarea>
+            
+            <h3>TSS Styles:</h3>
+            <textarea id="tssEditor">scope {
+  red: 0xCC0000FF;
+  green: 0x00CC00FF;
+  blue: 0x0000CCFF;
+  white: 0xFFFFFFFF;
+  black: 0x000000FF;
+  primary: 0x4CAF50FF;
+  secondary: 0x2196F3FF;
+  accent: 0xFF9800FF;
+  buttonGreen: 0x32CD32FF;
+  
+  Window {
+    text-color: white;
+  }
+  
+  Button {
+    button-color: primary;
+    text-color: white;
+  }
+  
+  #greenButton {
+    button-color: buttonGreen;
+    text-color: black;
+  }
+  
+  Text {
+    text-color: white;
+  }
+  
+  Checkbox {
+    text-color: accent;
+  }
+  
+  InputText {
+    widget-background-color: 0x3D3D3DFF;
+    text-color: white;
+  }
+  
+  SliderFloat {
+    widget-background-color: 0x3D3D3DFF;
+    text-color: white;
+  }
+}</textarea>
+            
+
+            
+            <div>
+                <label for="backendSelect">Backend:</label>
+                <select id="backendSelect">
+                    <option value="webgl2" selected>WebGL2</option>
+                    <option value="webgpu">WebGPU</option>
+                </select>
+                <button id="renderBtn">Render JSX to ImGui</button>
+                <button id="resetBtn">Reset</button>
+                <div id="status" class="status info">Ready to render</div>
+            </div>
+        </div>
+        
+        <div class="right">
+            <h3>ImGui Canvas:</h3>
+            <canvas id="canvas" width="600" height="400"></canvas>
+            
+            <h3>Console Output:</h3>
+            <div id="consoleOutput" class="console">Console output will appear here...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        let ImGui = null;
+        let ImGuiImplWeb = null;
+        let isRendering = false;
+        let animationId = null;
+        let context = null;
+        let isInited = false;
+        let frameCount = 0;
+        let backend = 'webgl2'; // Global backend variable
+        
+        // State for JSX demo
+        const state = { count: 0 };
+        let renderer = null;
+        let logger = null;
+        
+        // Console output
+        const consoleOutput = document.getElementById('consoleOutput');
+        const originalLog = console.log;
+        console.log = (...args) => {
+            originalLog(...args);
+            consoleOutput.textContent += args.join(' ') + '\n';
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        };
+        
+        // Load TXML/TSS renderer for JSX demo
+        async function loadRenderer() {
+            try {
+                const { TXMLTSSRenderer, DefaultConsoleLogger, jsx, jsxs, Fragment, jsxToTXML } = await import('../dist/index.js');
+                logger = new DefaultConsoleLogger();
+                
+                // Expose JSX runtime on window for use in the demo
+                window.jsxRuntime = { jsx, jsxs, Fragment };
+                window.jsxToTXML = jsxToTXML;
+                
+                // Wait for ImGui to be properly initialized before creating renderer
+                if (!ImGui || typeof ImGui === 'function') {
+                    console.log('Waiting for ImGui to be initialized...');
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+                
+                renderer = new TXMLTSSRenderer(logger);
+                
+                // Register event handlers
+                renderer.registerEventHandler('incrementCount', () => {
+                    state.count++;
+                    console.log('Count incremented via JSX:', state.count);
+                    document.getElementById('status').textContent = `Count: ${state.count}`;
+                    document.getElementById('status').className = 'status success';
+                });
+                
+                renderer.registerEventHandler('resetCount', () => {
+                    state.count = 0;
+                    console.log('Count reset via JSX');
+                });
+                
+                renderer.registerEventHandler('greenClick', () => {
+                    console.log('Green button clicked! JSX Working Demo with TSS styling!');
+                    document.getElementById('status').textContent = 'Green button clicked!';
+                    document.getElementById('status').className = 'status success';
+                });
+                
+                console.log('JSX renderer loaded successfully');
+                return true;
+            } catch (error) {
+                console.error('Failed to load JSX renderer:', error);
+                return false;
+            }
+        }
+        
+        // Load Babel standalone for JSX transform
+        const babelUrl = 'https://unpkg.com/@babel/standalone/babel.min.js';
+        // Attempt to load Babel asynchronously; if not yet available, we fallback and a later frame will use it
+        let Babel = null;
+        (function loadBabel() {
+            try {
+                if ((window).Babel) { Babel = (window).Babel; return; }
+                const babelScript = document.createElement('script');
+                babelScript.src = babelUrl;
+                babelScript.onload = () => { try { Babel = (window).Babel; console.log('Babel loaded for JSX transform'); } catch {} };
+                babelScript.onerror = () => { console.warn('Failed to load Babel, will rely on fallback JSX heuristic'); };
+                document.head.appendChild(babelScript);
+            } catch {}
+        })();
+
+        // Convert JSX text from textarea to TXML using the library runtime when possible
+        function convertJSXTextToTXML(jsxText, tssText = '') {
+            // Force fallback conversion for now since library runtime is broken
+            console.log('Using fallback conversion for JSX Working Demo');
+            try {
+                if (false && window.jsxToTXML && window.jsxRuntime && Babel) {
+                    const { jsx, jsxs, Fragment } = window.jsxRuntime;
+                    
+                    // Create a variadic h function that maps to our jsx/jsxs
+                    const h = (type, props, ...children) => {
+                        if (children.length === 0) {
+                            return jsx(type, props);
+                        } else {
+                            return jsxs(type, props, children);
+                        }
+                    };
+                    
+                    // Normalize user code to avoid identifier shadowing (e.g., function App())
+                    const normalized = jsxText.replace(/function\s+App\s*\(/, 'function RootComponent(');
+
+                    // Transform normalized JSX to use our h function
+                    const transformed = Babel.transform(normalized, {
+                        presets: [['env', { modules: false }]],
+                        plugins: [[Babel.availablePlugins["transform-react-jsx"], { 
+                            pragma: 'h', 
+                            pragmaFrag: 'Fragment' 
+                        }]]
+                    }).code;
+                    
+                    // Provide minimal shims to avoid ReferenceError for hooks like useState
+                    // Provide shims for capitalized tags (App, Head, Body, Window, Text, Button, etc.)
+                    // The JSX transform will pass string tags through 'h', but some user code may reference these identifiers.
+                    const factory = new Function('h', 'jsx', 'jsxs', 'Fragment', 'state', 'useState', 'App', 'Head', 'Body', 'Window', 'Text', 'Button', 'InputText', 'SliderFloat', 'Checkbox', 'SameLine', `"use strict";\n${transformed}\n;return (typeof RootComponent === 'function' ? RootComponent() : (typeof defaultExport === 'function' ? defaultExport() : undefined));`);
+                    const useStateShim = (initial) => {
+                        let value = typeof initial === 'function' ? initial() : initial;
+                        const setValue = (next) => { value = typeof next === 'function' ? next(value) : next; };
+                        return [value, setValue];
+                    };
+                    const tag = (name) => name; // map identifiers to string tag names
+                    const element = factory(
+                        h, jsx, jsxs, Fragment, state, useStateShim,
+                        tag('App'), tag('Head'), tag('Body'), tag('Window'), tag('Text'), tag('Button'), tag('InputText'), tag('SliderFloat'), tag('Checkbox'), tag('SameLine')
+                    );
+                    if (element) {
+                        console.log('JSX element created via library runtime:', element);
+                        const txml = window.jsxToTXML(element);
+                        console.log('Generated TXML via library:', txml);
+                        return txml;
+                    }
+                }
+            } catch (e) {
+                console.warn('JSX runtime evaluation failed, falling back to heuristic conversion:', e);
+            }
+
+            // Fallback: previous heuristic conversion to ensure the demo remains usable
+            const hasButton = jsxText.includes('Button');
+            const hasCheckbox = jsxText.includes('Checkbox');
+            const hasInputText = jsxText.includes('InputText');
+            const hasSliderFloat = jsxText.includes('SliderFloat');
+            const hasSameLine = jsxText.includes('SameLine');
+            const textCount = (jsxText.match(/<Text/g) || []).length;
+            const titleMatch = jsxText.match(/title="([^"]*)"/);
+            const title = titleMatch ? titleMatch[1] : 'JSX ImGui Demo';
+
+            let txml = `<App>\n  <Body>\n    <Window title="${title}">\n      <Text>Welcome to JSX ImGui!</Text>\n      <Text>Count: ${state.count}</Text>\n      <Text>JSX contains ${textCount} Text elements</Text>`;
+            if (hasButton) {
+                txml += `\n      <Button onClick="incrementCount">Clicked ${state.count} times</Button>`;
+                txml += `\n      <SameLine />`;
+                txml += `\n      <Button id="greenButton" onClick="greenClick">Green Button</Button>`;
+            }
+            if (hasSameLine && !hasButton) txml += `\n      <SameLine />`;
+            if (hasCheckbox) txml += `\n      <Checkbox label="Enable Feature" />`;
+            if (hasInputText) txml += `\n      <InputText label="Name" hint="Enter your name" />`;
+            if (hasSliderFloat) txml += `\n      <SliderFloat label="Volume" min="0" max="1" />`;
+
+            if (tssText) {
+                const tssRules = (tssText.match(/[A-Za-z]+\s*{/g) || []).length;
+                const hasPrimaryColor = tssText.includes('primaryColor:');
+                const hasSecondaryColor = tssText.includes('secondaryColor:');
+                const hasAccentColor = tssText.includes('accentColor:');
+                txml += `\n      <Text>TSS Analysis: ${tssRules} rules found</Text>\n      <Text>TSS Colors: ${hasPrimaryColor ? 'Primary' : ''} ${hasSecondaryColor ? 'Secondary' : ''} ${hasAccentColor ? 'Accent' : ''}</Text>`;
+            }
+
+            txml += `\n    </Window>\n  </Body>\n</App>`;
+            return txml;
+        }
+        
+        // Create JSX element using the actual JSX runtime from our library (fallback)
+        function createJSXElement() {
+            // Import the JSX runtime functions
+            const { jsx, jsxs, Fragment } = window.jsxRuntime || {};
+            
+            if (!jsx || !jsxs) {
+                console.warn('JSX runtime not available, falling back to TXML');
+                return `<App>
+  <Body>
+    <Window title="JSX ImGui Demo">
+      <Text>JSX rendered to ImGui</Text>
+      <Text>Count: ${state.count}</Text>
+      <Button onClick="incrementCount">Increment</Button>
+      <SameLine />
+      <Button onClick="resetCount">Reset</Button>
+    </Window>
+  </Body>
+</App>`;
+            }
+            
+            // Create JSX element using the runtime
+            const jsxElement = jsxs('App', null, [
+                jsxs('Body', null, [
+                    jsxs('Window', { title: 'JSX ImGui Demo' }, [
+                        jsx('Text', null, 'JSX rendered to ImGui'),
+                        jsx('Text', null, `Count: ${state.count}`),
+                        jsx('Button', { onClick: 'incrementCount' }, 'Increment'),
+                        jsx('SameLine', null),
+                        jsx('Button', { onClick: 'resetCount' }, 'Reset')
+                    ])
+                ])
+            ]);
+            
+            // Convert JSX element to TXML string
+            return window.jsxToTXML ? window.jsxToTXML(jsxElement) : 'JSX conversion not available';
+        }
+        
+        // ImGui demo using the exact working pattern
+        async function initImGui() {
+            try {
+                if (isInited) {
+                    console.log('ImGui already initialized; skipping re-init');
+                    isRendering = true;
+                    return true;
+                }
+                console.log('Loading jsimgui...');
+                const jsimgui = await import('https://esm.sh/@mori2003/jsimgui');
+                ImGui = jsimgui.ImGui;
+                ImGuiImplWeb = jsimgui.ImGuiImplWeb;
+                console.log('jsimgui loaded successfully');
+                
+                const canvas = document.getElementById('canvas');
+                console.log('Canvas element:', canvas);
+                
+                // Set canvas dimensions
+                canvas.width = 600;
+                canvas.height = 400;
+                console.log('Canvas dimensions set to:', canvas.width, 'x', canvas.height);
+                
+                // Get selected backend
+                const backendEl = document.getElementById('backendSelect');
+                backend = backendEl && 'value' in backendEl ? backendEl.value : 'webgl2';
+                
+                let device = null;
+                
+                if (backend === 'webgpu') {
+                    // Check WebGPU support
+                    if (!navigator.gpu) {
+                        throw new Error('WebGPU not supported in this browser');
+                    }
+                    
+                    // Get WebGPU context
+                    context = canvas.getContext('webgpu');
+                    if (!context) {
+                        throw new Error('WebGPU context not supported');
+                    }
+                    
+                    // Request WebGPU adapter and device
+                    const adapter = await navigator.gpu.requestAdapter({
+                        powerPreference: 'high-performance'
+                    });
+                    if (!adapter) {
+                        throw new Error('WebGPU adapter not available');
+                    }
+                    
+                    device = await adapter.requestDevice({
+                        requiredFeatures: [],
+                        requiredLimits: {}
+                    });
+                    
+                    // Configure WebGPU context
+                    const preferredFormat = navigator.gpu.getPreferredCanvasFormat();
+                    context.configure({
+                        device,
+                        format: preferredFormat,
+                        usage: GPUTextureUsage.RENDER_ATTACHMENT,
+                        alphaMode: 'premultiplied'
+                    });
+                    
+                    console.log('WebGPU context created and configured');
+                    
+                    // Wait for WebGPU device to be fully ready
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                } else {
+                    // WebGL2 backend
+                    context = canvas.getContext('webgl2');
+                    if (!context) {
+                        throw new Error('WebGL2 not supported');
+                    }
+                    console.log('WebGL2 context created');
+                }
+                
+                // Initialize ImGui with proper backend configuration
+                console.log('Initializing ImGui...');
+                if (backend === 'webgpu') {
+                    await ImGuiImplWeb.Init({
+                        canvas,
+                        device,
+                        enableDemos: true,
+                        backend: 'webgpu'
+                    });
+                } else {
+                    await ImGuiImplWeb.Init({
+                        canvas,
+                        context,
+                        enableDemos: true,
+                        backend: 'webgl2'
+                    });
+                }
+                console.log('ImGuiImplWeb.Init() completed');
+                
+                // Wait for ImGui to be properly initialized
+                console.log('Waiting for ImGui to be fully initialized...');
+                await new Promise(resolve => setTimeout(resolve, 500));
+                console.log('ImGui initialization wait completed');
+                
+                // Load JSX renderer
+                await loadRenderer();
+                
+                // Set ImGui instances in renderer after proper initialization
+                console.log('Setting ImGui instances in renderer...');
+                renderer.setImGui(ImGui, ImGuiImplWeb);
+                console.log('ImGui instances set in renderer');
+                
+                // Set up render loop using proper ImGui frame management
+                function frame() {
+                    if (!isRendering) return;
+                    
+                    try {
+                        // Use proper ImGui frame management sequence
+                        ImGuiImplWeb.BeginRender();
+                        
+                        // DEBUG: Check frame state
+                        frameCount++;
+                        console.log(`Frame ${frameCount}: Starting render with proper frame management`);
+                        
+                        // Render JSX content using the library
+                        try {
+                            const jsxCode = document.getElementById('jsxEditor').value;
+                            const tss = document.getElementById('tssEditor').value;
+                            
+                            console.log('Converting JSX to TXML...');
+                            console.log('JSX Code from textarea:', jsxCode);
+                            console.log('TSS from textarea:', tss);
+                            console.log('TSS length:', tss.length, 'characters');
+                            
+                            // For now, create a simple TXML from the JSX textarea content
+                            // This is a basic implementation - in a real scenario, you'd parse the JSX properly
+                            const txml = convertJSXTextToTXML(jsxCode, tss);
+                            console.log('Generated TXML:', txml);
+                            
+                            // Also log some TSS analysis to show it's being processed
+                            const hasPrimaryColor = tss.includes('primaryColor:');
+                            const hasSecondaryColor = tss.includes('secondaryColor:');
+                            const hasAccentColor = tss.includes('accentColor:');
+                            const tssRules = (tss.match(/[A-Za-z]+\s*{/g) || []).length;
+                            console.log(`TSS Analysis: ${tssRules} rules, primary: ${hasPrimaryColor}, secondary: ${hasSecondaryColor}, accent: ${hasAccentColor}`);
+                            
+                            // Render via library (logger will emit generated code)
+                            if (ImGui && ImGuiImplWeb) {
+                                console.log('Calling renderer.render()...');
+                                renderer.render(txml, tss);
+                                console.log('renderer.render() completed');
+                                
+                                // Test: Add a simple ImGui call to verify ImGui is working
+                                console.log('Testing basic ImGui call...');
+                                ImGui.Begin("Test Window");
+                                ImGui.Text("Hello from ImGui!");
+                                ImGui.End();
+                                console.log('Basic ImGui call completed');
+                            } else {
+                                console.log('ImGui not ready yet, skipping render');
+                            }
+                            
+                        } catch (error) {
+                            console.error('JSX render error:', error);
+                            // Fallback to simple demo
+                            ImGui.Begin("JSX ImGui Demo (Error)");
+                            ImGui.Text("JSX renderer error");
+                            ImGui.Text(`Error: ${error.message}`);
+                            ImGui.End();
+                        }
+                        
+                        // Show the ImGui demo window
+                        ImGui.ShowDemoWindow();
+                        
+                        // Clear the canvas if we are webgl; webgpu handles this for us
+                        if (backend === 'webgl2') {
+                            context.clearColor(0.1, 0.3, 0.1, 1.0);
+                            context.clear(context.COLOR_BUFFER_BIT);
+                        }
+                        
+                        // EndRender with proper parameters for WebGPU
+                        if (backend === 'webgpu') {
+                            // For WebGPU, we need to create a render pass
+                            const commandEncoder = device.createCommandEncoder();
+                            const textureView = context.getCurrentTexture().createView();
+                            
+                            const renderPassDescriptor = {
+                                colorAttachments: [{
+                                    view: textureView,
+                                    clearValue: { r: 0.1, g: 0.3, b: 0.1, a: 1.0 },
+                                    loadOp: 'clear',
+                                    storeOp: 'store',
+                                }],
+                            };
+                            
+                            const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+                            ImGuiImplWeb.EndRender(passEncoder);
+                            passEncoder.end();
+                            
+                            device.queue.submit([commandEncoder.finish()]);
+                        } else {
+                            ImGuiImplWeb.EndRender();
+                        }
+                        
+                        console.log('JSX ImGui rendered successfully');
+                    } catch (error) {
+                        console.error('Render loop error:', error.message);
+                        isRendering = false;
+                        if (animationId) {
+                            cancelAnimationFrame(animationId);
+                            animationId = null;
+                        }
+                    }
+                    
+                    if (isRendering) {
+                        animationId = requestAnimationFrame(frame);
+                    }
+                }
+                
+                // Start render loop
+                isRendering = true;
+                frame();
+                
+                console.log('JSX ImGui initialized successfully');
+                isInited = true;
+                return true;
+                
+            } catch (error) {
+                console.error('ImGui initialization failed:', error);
+                isRendering = false;
+                throw error;
+            }
+        }
+
+        function teardownImGui() {
+            try {
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+                isRendering = false;
+                try { ImGuiImplWeb && ImGuiImplWeb.Shutdown && ImGuiImplWeb.Shutdown(); } catch {}
+                try { ImGui && ImGui.DestroyContext && ImGui.DestroyContext(); } catch {}
+            } finally {
+                isInited = false;
+                ImGui = null;
+                ImGuiImplWeb = null;
+                context = null;
+            }
+        }
+        
+        // Event listeners
+        document.getElementById('renderBtn').addEventListener('click', async () => {
+            try {
+                document.getElementById('status').textContent = 'Initializing...';
+                document.getElementById('status').className = 'status info';
+                
+                await initImGui();
+                
+                document.getElementById('status').textContent = 'Rendering JSX...';
+                document.getElementById('status').className = 'status success';
+                
+            } catch (error) {
+                console.error('Render failed:', error);
+                document.getElementById('status').textContent = 'Render failed';
+                document.getElementById('status').className = 'status error';
+            }
+        });
+        
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            teardownImGui();
+            
+            // Reset state
+            state.count = 0;
+            
+            // Clear canvas (WebGPU handles clears during EndRender pass; for WebGL2 we can skip manual 2D clears)
+            // Intentionally no-op to avoid null 2D context errors
+            
+            // Clear console
+            consoleOutput.textContent = 'Console output will appear here...';
+            
+            document.getElementById('status').textContent = 'Reset complete';
+            document.getElementById('status').className = 'status info';
+            
+            console.log('Reset complete');
+        });
+
+        // Reinitialize on backend change (requires teardown)
+        document.getElementById('backendSelect').addEventListener('change', async () => {
+            try {
+                document.getElementById('status').textContent = 'Switching backend...';
+                document.getElementById('status').className = 'status info';
+                teardownImGui();
+                await initImGui();
+                document.getElementById('status').textContent = 'Backend switched';
+                document.getElementById('status').className = 'status success';
+            } catch (e) {
+                document.getElementById('status').textContent = 'Backend switch failed';
+                document.getElementById('status').className = 'status error';
+            }
+        });
+        
+        // Add live updates when content changes
+        function setupLiveUpdates() {
+            const jsxEditor = document.getElementById('jsxEditor');
+            const tssEditor = document.getElementById('tssEditor');
+            
+            let updateTimeout = null;
+            const updateDelay = 500; // 500ms delay after user stops typing
+            
+            function scheduleUpdate() {
+                if (updateTimeout) {
+                    clearTimeout(updateTimeout);
+                }
+                updateTimeout = setTimeout(() => {
+                    if (isRendering && renderer) {
+                        console.log('Content changed, re-rendering...');
+                        const now = new Date().toLocaleTimeString();
+                        document.getElementById('status').textContent = `Content updated at ${now}`;
+                        document.getElementById('status').className = 'status info';
+                        // The render loop will pick up the new content automatically
+                    }
+                }, updateDelay);
+            }
+            
+            jsxEditor.addEventListener('input', scheduleUpdate);
+            tssEditor.addEventListener('input', scheduleUpdate);
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('JSX ImGui Demo loaded');
+            setupLiveUpdates();
+        });
+    </script>
+</body>
+</html>
