@@ -1,16 +1,23 @@
 {
-    "$schema": "https://json.schemastore.org/tsconfig.json",
-
-    "files": ["build.ts", "./src/api.ts", "./src/api-types.d.ts"],
-    "compilerOptions": {
-        "target": "ESNext",
-        "module": "ESNext",
-        "lib": ["ESNext", "DOM"],
-        "types": ["@webgpu/types", "node"],
-        "noEmit": true,
-        "strict": true,
-        "allowImportingTsExtensions": true,
-        "erasableSyntaxOnly": true,
-        "verbatimModuleSyntax": true,
-    }
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": false,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": false,
+    "jsx": "react-jsx",
+    "jsxImportSource": "imgui-jsx-runtime",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "declaration": true,
+    "outDir": "dist"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
