@@ -1,4 +1,4 @@
-import { formatComment, generateJsDocComment } from "./comment.ts";
+import { formatComment, generateJsDocComment } from "./bindings/comment.ts";
 import type { ImGuiArgument, ImGuiData, ImGuiFunction } from "./interface.ts";
 import { toTsType } from "./bindings/typedef.ts";
 import { isStructBound } from "./struct.ts";
