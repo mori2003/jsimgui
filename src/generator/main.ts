@@ -1,5 +1,5 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { tsGenerateEnums } from "./bindings/enum";
+import { tsGenerateEnums } from "./bindings/enum.ts";
 import { filterSkippables } from "./filter.ts";
 import { generateFunctionsCpp, generateFunctionsTs } from "./function.ts";
 import type { ImGuiData } from "./interface.ts";
