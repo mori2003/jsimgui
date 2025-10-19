@@ -1,0 +1,254 @@
+{
+    "inputPathJson": "./third_party/dear_bindings/dcimgui.json",
+    "outputPathTs": "./bindgen/mod.ts",
+    "outputPathCpp": "./bindgen/jsimgui.cpp",
+    "outputPathInfo": "./bindgen/generator-info.txt",
+    "bindings": {
+        "typedefs": {
+            "ImGuiInputTextCallback": {
+                "overrideImpl": {
+                    "ts": [
+                        "export type ImGuiInputTextCallback = (data: ImGuiInputTextCallbackData) => number;\n"
+                    ]
+                }
+            },
+            "ImGuiSizeCallback": {
+                "overrideImpl": {
+                    "ts": [
+                        "export type ImGuiSizeCallback = (data: ImGuiSizeCallbackData) => void;\n"
+                    ]
+                }
+            },
+            "ImDrawCallback": {
+                "overrideImpl": {
+                    "ts": [
+                        "export type ImDrawCallback = (parent_list: ImDrawList, cmd: ImDrawCmd) => void;\n"
+                    ]
+                }
+            },
+
+            "ImGuiMemAllocFunc": { "isExcluded": true },
+            "ImGuiMemFreeFunc": { "isExcluded": true },
+            "ImWchar": { "isExcluded": true }
+        },
+        "structs": {
+            "ImVec2": { "isExcluded": true },
+            "ImVec4": { "isExcluded": true },
+            "ImTextureRef": { "isExcluded": true },
+            "__anonymous_type0": { "isExcluded": true },
+            "ImVector_ImGuiTextRange": { "isExcluded": true },
+            "ImVector_char": { "isExcluded": true },
+            "ImVector_ImGuiStoragePair": { "isExcluded": true },
+            "ImVector_ImGuiSelectionRequest": { "isExcluded": true },
+            "ImVector_ImDrawChannel": { "isExcluded": true },
+            "ImVector_ImDrawCmd": { "isExcluded": true },
+            "ImVector_ImDrawIdx": { "isExcluded": true },
+            "ImVector_ImDrawVert": { "isExcluded": true },
+            "ImVector_ImVec2": { "isExcluded": true },
+            "ImVector_ImVec4": { "isExcluded": true },
+            "ImVector_ImTextureRef": { "isExcluded": true },
+            "ImVector_ImU8": { "isExcluded": true },
+            "ImVector_ImDrawListPtr": { "isExcluded": true },
+            "ImVector_ImTextureRect": { "isExcluded": true },
+            "ImVector_ImU32": { "isExcluded": true },
+            "ImVector_ImWchar": { "isExcluded": true },
+            "ImVector_ImFontPtr": { "isExcluded": true },
+            "ImVector_ImFontConfig": { "isExcluded": true },
+            "ImVector_ImDrawListSharedDataPtr": { "isExcluded": true },
+            "ImVector_float": { "isExcluded": true },
+            "ImVector_ImU16": { "isExcluded": true },
+            "ImVector_ImFontGlyph": { "isExcluded": true },
+            "ImVector_ImFontConfigPtr": { "isExcluded": true },
+            "ImVector_ImGuiPlatformMonitor": { "isExcluded": true },
+            "ImVector_ImTextureDataPtr": { "isExcluded": true },
+            "ImVector_ImGuiViewportPtr": { "isExcluded": true },
+            "ImGuiTextFilter_ImGuiTextRange": { "isExcluded": true },
+            "ImDrawCmdHeader": { "isExcluded": true },
+            "ImDrawCmd": { "isExcluded": false },
+            "ImDrawVert": { "isExcluded": true },
+            "ImGuiSelectionExternalStorage": { "isExcluded": true },
+            "ImGuiSizeCallbackData": { "isExcluded": false },
+            "ImColor": { "isExcluded": true },
+            "ImGuiSelectionBasicStorage": { "isExcluded": true },
+            "ImDrawData": { "isOpaque": true },
+            "ImGuiStyle": {
+                "fields": {
+                    "Colors": { "isExcluded": true }
+                }
+            },
+            "ImGuiIO": {
+                "fields": {
+                    "MouseDown": { "isExcluded": true },
+                    "KeysData": { "isExcluded": true },
+                    "MouseClickedPos": { "isExcluded": true },
+                    "MouseClickedTime": { "isExcluded": true },
+                    "MouseClicked": { "isExcluded": true },
+                    "MouseClickedCount": { "isExcluded": true },
+                    "MouseDoubleClicked": { "isExcluded": true },
+                    "MouseDoubleClickedTime": { "isExcluded": true },
+                    "MouseClickedLastCount": { "isExcluded": true },
+                    "MouseReleased": { "isExcluded": true },
+                    "MouseReleasedTime": { "isExcluded": true },
+                    "MouseDownOwned": { "isExcluded": true },
+                    "MouseDownOwnedUnlessPopupClose": { "isExcluded": true },
+                    "MouseDownDuration": { "isExcluded": true },
+                    "MouseDownDurationPrev": { "isExcluded": true },
+                    "MouseDragMaxDistanceAbs": { "isExcluded": true },
+                    "MouseDragMaxDistanceSqr": { "isExcluded": true },
+                    "InputQueueCharacters": { "isExcluded": true }
+                }
+            },
+            "ImGuiMultiSelectIO": { "isOpaque": true },
+            "ImGuiSelectionRequest": { "isExcluded": true },
+            "ImGuiPlatformImeData": { "isExcluded": true },
+            "ImGuiPlatformMonitor": { "isExcluded": true },
+            "ImGuiPlatformIO": { "isOpaque": true },
+            "ImGuiViewport": { "isExcluded": false },
+            "ImFont": { "isOpaque": true },
+            "ImFontBaked": { "isOpaque": true },
+            "ImFontAtlas": { "isOpaque": true },
+            "ImFontAtlasRect": { "isExcluded": true },
+            "ImFontGlyphRangesBuilder": { "isExcluded": true },
+            "ImFontGlyph": { "isExcluded": true },
+            "ImFontConfig": { "isExcluded": true },
+            "ImTextureData": { "isExcluded": true },
+            "ImTextureRect": { "isExcluded": true },
+            "ImDrawList": { "isOpaque": true },
+            "ImDrawListSplitter": { "isExcluded": true },
+            "ImGuiTextBuffer": { "isExcluded": true },
+            "ImGuiStorage": { "isExcluded": true }
+        },
+        "functions": {
+            "ImGui_SetNextWindowSizeConstraints": { "isExcluded": true },
+            "ImGui_CheckboxFlagsIntPtr": { "isExcluded": true },
+            "ImGui_CheckboxFlagsUintPtr": { "isExcluded": true },
+            "ImGui_ProgressBar": { "isExcluded": true },
+            "ImGui_PushIDPtr": { "isExcluded": true },
+            "ImGui_PushIDStr": { "isExcluded": true },
+            "ImGui_GetIDStr": { "isExcluded": true },
+            "ImGui_GetIDPtr": { "isExcluded": true },
+
+            "ImGui_TextUnformatted": { "isExcluded": true },
+            "ImGui_Text": {
+                "overrideImpl": {
+                    "ts": [
+                        "    Text(fmt: string): void {\n",
+                        "        Mod.export.ImGui_Text(fmt);\n",
+                        "    },\n"
+                    ],
+                    "cpp": [
+                        "bind_fn(\"ImGui_Text\", [](std::string fmt){\n",
+                        "    ImGui_TextUnformatted(fmt.c_str(), nullptr);\n",
+                        "});\n"
+                    ]
+                }
+            },
+            "ImGui_TextV": { "isExcluded": true },
+            "ImGui_TextColored": { "isExcluded": true },
+            "ImGui_TextColoredV": { "isExcluded": true },
+            "ImGui_TextDisabled": { "isExcluded": true },
+            "ImGui_TextDisabledV": { "isExcluded": true },
+            "ImGui_TextWrapped": { "isExcluded": true },
+            "ImGui_TextWrappedV": { "isExcluded": true },
+            "ImGui_LabelText": { "isExcluded": true },
+            "ImGui_LabelTextV": { "isExcluded": true },
+            "ImGui_BulletText": { "isExcluded": true },
+            "ImGui_BulletTextV": { "isExcluded": true },
+            "ImGui_ComboChar": { "isExcluded": true },
+            "ImGui_ComboCallback": { "isExcluded": true },
+
+            "ImGui_DragFloat": { "isExcluded": true },
+            "ImGui_DragFloat2": { "isExcluded": true },
+            "ImGui_DragFloat3": { "isExcluded": true },
+            "ImGui_DragFloat4": { "isExcluded": true },
+            "ImGui_DragFloatRange2": { "isExcluded": true },
+            "ImGui_DragInt": { "isExcluded": true },
+            "ImGui_DragInt2": { "isExcluded": true },
+            "ImGui_DragInt3": { "isExcluded": true },
+            "ImGui_DragInt4": { "isExcluded": true },
+            "ImGui_DragIntRange2": { "isExcluded": true },
+            "ImGui_DragScalar": { "isExcluded": true },
+            "ImGui_DragScalarN": { "isExcluded": true },
+            "ImGui_SliderFloat": { "isExcluded": true },
+            "ImGui_SliderFloat2": { "isExcluded": true },
+            "ImGui_SliderFloat3": { "isExcluded": true },
+            "ImGui_SliderFloat4": { "isExcluded": true },
+            "ImGui_SliderAngle": { "isExcluded": true },
+            "ImGui_SliderInt": { "isExcluded": true },
+            "ImGui_SliderInt2": { "isExcluded": true },
+            "ImGui_SliderInt3": { "isExcluded": true },
+            "ImGui_SliderInt4": { "isExcluded": true },
+            "ImGui_SliderScalar": { "isExcluded": true },
+            "ImGui_SliderScalarN": { "isExcluded": true },
+            "ImGui_VSliderFloat": { "isExcluded": true },
+            "ImGui_VSliderInt": { "isExcluded": true },
+            "ImGui_VSliderScalar": { "isExcluded": true },
+
+            "ImGui_InputInt": { "isExcluded": true },
+            "ImGui_InputInt2": { "isExcluded": true },
+            "ImGui_InputInt3": { "isExcluded": true },
+            "ImGui_InputInt4": { "isExcluded": true },
+
+            "ImGui_ColorEdit3": { "isExcluded": true },
+            "ImGui_ColorEdit4": { "isExcluded": true },
+            "ImGui_ColorPicker3": { "isExcluded": true },
+            "ImGui_ColorPicker4": { "isExcluded": true },
+
+            "ImGui_InputText": { "isExcluded": true },
+            "ImGui_InputTextMultiline": { "isExcluded": true },
+            "ImGui_InputTextWithHint": { "isExcluded": true },
+            "ImGui_InputFloat": { "isExcluded": true },
+            "ImGui_InputFloat2": { "isExcluded": true },
+            "ImGui_InputFloat3": { "isExcluded": true },
+            "ImGui_InputFloat4": { "isExcluded": true },
+            "ImGui_InputDouble": { "isExcluded": true },
+            "ImGui_InputDouble2": { "isExcluded": true },
+            "ImGui_InputDouble3": { "isExcluded": true },
+            "ImGui_InputDouble4": { "isExcluded": true },
+            "ImGui_InputScalar": { "isExcluded": true },
+            "ImGui_InputScalarN": { "isExcluded": true },
+
+            "ImGui_TreeNodeStr": { "isExcluded": true },
+            "ImGui_TreeNodePtr": { "isExcluded": true },
+            "ImGui_TreeNodeV": { "isExcluded": true },
+            "ImGui_TreeNodeVPtr": { "isExcluded": true },
+            "ImGui_TreeNodeEx": { "isExcluded": true },
+            "ImGui_TreeNodeExStr": { "isExcluded": true },
+            "ImGui_TreeNodeExPtr": { "isExcluded": true },
+            "ImGui_TreeNodeExV": { "isExcluded": true },
+            "ImGui_TreeNodeExVPtr": { "isExcluded": true },
+
+            "ImGui_TreePushPtr": { "isExcluded": true },
+            "ImGui_ListBox": { "isExcluded": true },
+            "ImGui_ListBoxCallback": { "isExcluded": true },
+
+            "ImGui_PlotLines": { "isExcluded": true },
+            "ImGui_PlotLinesCallback": { "isExcluded": true },
+            "ImGui_PlotHistogram": { "isExcluded": true },
+            "ImGui_PlotHistogramCallback": { "isExcluded": true },
+            "ImGui_SetTooltip": { "isExcluded": true },
+            "ImGui_SetTooltipV": { "isExcluded": true },
+            "ImGui_SetItemTooltip": { "isExcluded": true },
+            "ImGui_SetItemTooltipV": { "isExcluded": true },
+            "ImGui_BeginTable": { "isExcluded": true },
+            "ImGui_LogText": { "isExcluded": true },
+            "ImGui_LogTextV": { "isExcluded": true },
+            "ImGui_SetDragDropPayload": { "isExcluded": true },
+            "ImGui_SetStateStorage": { "isExcluded": true },
+            "ImGui_GetStateStorage": { "isExcluded": true },
+            "ImGui_ColorConvertU32ToFloat4": { "isExcluded": true },
+            "ImGui_ColorConvertFloat4ToU32": { "isExcluded": true },
+            "ImGui_ColorConvertRGBtoHSV": { "isExcluded": true },
+            "ImGui_ColorConvertHSVtoRGB": { "isExcluded": true },
+
+            "ImGui_SaveIniSettingsToMemory": { "isExcluded": true },
+            "ImGui_DebugLog": { "isExcluded": true },
+            "ImGui_DebugLogV": { "isExcluded": true },
+
+            "ImGui_SetAllocatorFunctions": { "isExcluded": true },
+            "ImGui_GetAllocatorFunctions": { "isExcluded": true },
+            "ImGui_MemAlloc": { "isExcluded": true },
+            "ImGui_MemFree": { "isExcluded": true }
+        }
+    }
+}

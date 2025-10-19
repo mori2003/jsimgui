@@ -54,6 +54,8 @@ export const functionBindings: Record<string, FunctionBinding> = {
     ImGui_PlotLines: ImGui_PlotLines(),
     ImGui_PlotHistogram: ImGui_PlotHistogram(),
 
+    ImGui_IsMousePosValid: { exclude: true },
+
     ImGui_FindViewportByID: { exclude: true },
     ImDrawList_AddCallback: { exclude: true },
     ImDrawList_AddText: ImDrawList_AddText(),
@@ -226,7 +228,7 @@ function ImDrawList_AddText() {
     return {
         override: {
             typescript: [
-                "    AddText(pos: ImVec2, col: ImU32, text_begin: string): void { return this._ptr.ImDrawList_AddText(pos?._ptr || null, col, text_begin); }\n",
+                "    AddText(pos: ImVec2, col: ImU32, text_begin: string): void { return this._ptr.ImDrawList_AddText(pos, col, text_begin); }\n",
             ].join(""),
             cplusplus: [
                 '.function("ImDrawList_AddText", override([](ImDrawList* self, ImVec2 pos, ImU32 col, std::string text_begin){ return ImDrawList_AddText(self, pos, col, text_begin.c_str(), nullptr); }), allow_ptr())',
@@ -321,7 +323,7 @@ function ImGui_TextColored() {
         override: {
             typescript: [
                 "    /** shortcut for PushStyleColor(ImGuiCol_Text, col); Text(fmt, ...); PopStyleColor(); */\n",
-                "    TextColored(col: ImVec4, fmt: string): void { return Mod.export.ImGui_TextColored(col?._ptr, fmt); },\n",
+                "    TextColored(col: ImVec4, fmt: string): void { return Mod.export.ImGui_TextColored(col, fmt); },\n",
             ].join(""),
             cplusplus: [
                 'bind_fn("ImGui_TextColored", [](ImVec4 col, std::string fmt){\n',
@@ -462,7 +464,7 @@ function ImGui_InputTextMultiline() {
     return {
         override: {
             typescript: [
-                "    InputTextMultiline(label: string, buf: string[], buf_size: number, size: ImVec2 = new ImVec2(0, 0), flags: ImGuiInputTextFlags = 0): boolean { return Mod.export.ImGui_InputTextMultiline(label, buf, buf_size, size?._ptr, flags); },\n",
+                "    InputTextMultiline(label: string, buf: string[], buf_size: number, size: ImVec2 = new ImVec2(0, 0), flags: ImGuiInputTextFlags = 0): boolean { return Mod.export.ImGui_InputTextMultiline(label, buf, buf_size, size, flags); },\n",
                 "\n",
             ].join(""),
             cplusplus: [
@@ -508,7 +510,7 @@ function ImGui_PlotLines() {
     return {
         override: {
             typescript: [
-                "    PlotLines(label: string, values: number[], values_count: number, values_offset: number = 0, overlay_text: string = '', scale_min: number = Number.MAX_VALUE, scale_max: number = Number.MAX_VALUE, graph_size: ImVec2 = new ImVec2(0, 0)): void { return Mod.export.ImGui_PlotLines(label, values, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size?._ptr); },\n",
+                "    PlotLines(label: string, values: number[], values_count: number, values_offset: number = 0, overlay_text: string = '', scale_min: number = Number.MAX_VALUE, scale_max: number = Number.MAX_VALUE, graph_size: ImVec2 = new ImVec2(0, 0)): void { return Mod.export.ImGui_PlotLines(label, values, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size); },\n",
                 "\n",
             ].join(""),
             cplusplus: [
@@ -526,7 +528,7 @@ function ImGui_PlotHistogram() {
     return {
         override: {
             typescript: [
-                "    PlotHistogram(label: string, values: number[], values_count: number, values_offset: number = 0, overlay_text: string = '', scale_min: number = Number.MAX_VALUE, scale_max: number = Number.MAX_VALUE, graph_size: ImVec2 = new ImVec2(0, 0)): void { return Mod.export.ImGui_PlotHistogram(label, values, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size?._ptr); },\n",
+                "    PlotHistogram(label: string, values: number[], values_count: number, values_offset: number = 0, overlay_text: string = '', scale_min: number = Number.MAX_VALUE, scale_max: number = Number.MAX_VALUE, graph_size: ImVec2 = new ImVec2(0, 0)): void { return Mod.export.ImGui_PlotHistogram(label, values, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size); },\n",
                 "\n",
             ].join(""),
             cplusplus: [

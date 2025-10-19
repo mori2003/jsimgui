@@ -1,207 +1,3 @@
-/* @ts-self-types="./mod.d.ts" */
-
-/** biome-ignore-all assist/source/organizeImports: . */
-/** biome-ignore-all lint/correctness/noUnusedVariables: . */
-/** biome-ignore-all lint/suspicious/noExplicitAny: . */
-
-/**
- * jsimgui - TypeScript/JavaScript bindings for
- * {@link https://github.com/ocornut/imgui | Dear ImGui}.
- *
- * This module provides the TypeScript/JavaScript API for jsimgui. {@linkcode ImGuiImplWeb} provides
- * methods for easily initializing and integrating jsimgui.
- * The ImGui functions and enums can be accessed via the exported {@linkcode ImGui} object.
- *
- * For more information, see the {@link https://github.com/mori2003/jsimgui | GitHub Repository}.
- *
- * File structure:
- * [1.] Emscripten Module Interface
- * [2.] ImGui Typedefs - GENERATED
- * [3.] ImGui Structs/Classes - GENERATED
- * [4.] ImGui Functions and Enums - GENERATED
- * [5.] ImGui WebGL/WebGL2/WebGPU Backend Functions
- * [6.] Web Implementation
- */
-
-// -------------------------------------------------------------------------------------------------
-// [1.] Emscripten Module Interface
-// -------------------------------------------------------------------------------------------------
-
-/**
- * Object wrapping the exported Emscripten module. Used to access any of the exported functions
- * or runtime methods.
- */
-const Mod = {
-    /**
-     * The Emscripten module exports.
-     */
-    _export: null,
-
-    /**
-     * Initialize the Emscripten module by loading and instantiating it.
-     *
-     * This method loads the Emscripten module from the specified path and makes its exports
-     * available through the {@linkcode Mod.export} getter. It will be called by
-     * {@linkcode ImGuiImplWeb.Init}.
-     *
-     * @param loaderPath Path to the Emscripten module loader (e.g. `jsimgui-webgl-tt.js`).
-     * @throws {Error} Throws error if the module is already initialized.
-     */
-    async init(loaderPath: string, customLoaderPath: string | undefined) {
-        if (Mod._export) {
-            throw new Error("jsimgui: Emscripten module is already initialized.");
-        }
-
-        let MainExport: any;
-        if (customLoaderPath) {
-            MainExport = await import(`${customLoaderPath}`);
-        } else {
-            switch (loaderPath) {
-                case "./jsimgui-webgl-tt.js":
-                    // @ts-ignore
-                    MainExport = await import("./jsimgui-webgl-tt.js");
-                    break;
-                case "./jsimgui-webgl-tt-demos.js":
-                    // @ts-ignore
-                    MainExport = await import("./jsimgui-webgl-tt-demos.js");
-                    break;
-                case "./jsimgui-webgl-ft.js":
-                    // @ts-ignore
-                    MainExport = await import("./jsimgui-webgl-ft.js");
-                    break;
-                case "./jsimgui-webgl-ft-demos.js":
-                    // @ts-ignore
-                    MainExport = await import("./jsimgui-webgl-ft-demos.js");
-                    break;
-                case "./jsimgui-webgl2-tt.js":
-                    // @ts-ignore
-                    MainExport = await import("./jsimgui-webgl2-tt.js");
-                    break;
-                case "./jsimgui-webgl2-tt-demos.js":
-                    // @ts-ignore
-                    MainExport = await import("./jsimgui-webgl2-tt-demos.js");
-                    break;
-                case "./jsimgui-webgl2-ft.js":
-                    // @ts-ignore
-                    MainExport = await import("./jsimgui-webgl2-ft.js");
-                    break;
-                case "./jsimgui-webgl2-ft-demos.js":
-                    // @ts-ignore
-                    MainExport = await import("./jsimgui-webgl2-ft-demos.js");
-                    break;
-                case "./jsimgui-webgpu-tt.js":
-                    // @ts-ignore
-                    MainExport = await import("./jsimgui-webgpu-tt.js");
-                    break;
-                case "./jsimgui-webgpu-tt-demos.js":
-                    // @ts-ignore
-                    MainExport = await import("./jsimgui-webgpu-tt-demos.js");
-                    break;
-                case "./jsimgui-webgpu-ft.js":
-                    // @ts-ignore
-                    MainExport = await import("./jsimgui-webgpu-ft.js");
-                    break;
-                case "./jsimgui-webgpu-ft-demos.js":
-                    // @ts-ignore
-                    MainExport = await import("./jsimgui-webgpu-ft-demos.js");
-                    break;
-            }
-        }
-
-        const module = await MainExport.default();
-        Mod._export = module;
-    },
-
-    /**
-     * Access to the Emscripten module exports.
-     *
-     * Provides access to all exported functions, classes and runtime methods from the
-     * Emscripten module.
-     *
-     * @throws {Error} Throws error if the module has not been initialized via {@linkcode Mod.init}.
-     * @returns Object containing all exported functions, classes and runtime methods.
-     */
-    get export(): any {
-        if (!Mod._export) {
-            throw new Error(
-                "jsimgui: Emscripten module is not initialized. Did you call ImGuiImplWeb.Init()?",
-            );
-        }
-
-        return this._export;
-    },
-};
-
-/**
- * Finalizer that deletes the underlying C++ struct/class when the JavaScript wrapper is garbage
- * collected.
- */
-const finalizer = new FinalizationRegistry((ptr: any) => {
-    ptr?.delete();
-});
-
-/**
- * A class that wraps an underlying exported C++ struct/class. This will be inherited by
- * all struct/class bindings.
- */
-class StructBinding {
-    /**
-     * The underlying C++ struct/class.
-     */
-    _ptr: any;
-
-    /**
-     * Create a new instance of an underlying C++ struct/class.
-     *
-     * @param name The name of the Emscripten exported C++ struct/class.
-     */
-    constructor(name: string) {
-        this._ptr = new Mod.export[name]();
-        finalizer.register(this, this._ptr);
-    }
-
-    /**
-     * Wrap a new C++ struct/class into a JavaScript wrapper. This is used by the generated bindings
-     * code when for example a function returns a new struct/class.
-     *
-     * @param ptr An instance of the underlying C++ struct/class.
-     * @returns The JavaScript wrapped object.
-     */
-    static wrap(ptr: any): any {
-        // We use `this` here to call the constructor of the parent class.
-        // TODO: Find a better way to do this.
-        // biome-ignore lint/complexity/noThisInStatic: See the explanation above.
-        const wrap = Reflect.construct(this, []);
-        wrap._ptr = ptr;
-
-        return wrap;
-    }
-}
-
-const IM_COL32_WHITE = 0xffffffff;
-
-// -------------------------------------------------------------------------------------------------
-// [BEGIN GENERATED CODE]
-// -------------------------------------------------------------------------------------------------
-//
-// export class ImVec2 extends StructBinding {
-// ...
-// }
-//
-// ...
-//
-// export const ImGui = Object.freeze({
-// ...
-// })
-//
-// -------------------------------------------------------------------------------------------------
-// [END GENERATED CODE]
-// -------------------------------------------------------------------------------------------------
-
-// -------------------------------------------------------------------------------------------------
-// [5.] ImGui WebGL/WebGL2/WebGPU Backend Functions
-// -------------------------------------------------------------------------------------------------
-
 /**
  * Object containing functions for initializing and rendering the WebGL/WebGL2 (OpenGL3) backend.
  * As a user you most likely will not need to use this object directly. {@linkcode ImGuiImplWeb}
@@ -237,7 +33,7 @@ export const ImGuiImplOpenGL3 = {
      * @param draw_data The draw data to render.
      */
     RenderDrawData(draw_data: ImDrawData): void {
-        Mod.export.cImGui_ImplOpenGL3_RenderDrawData(draw_data._ptr);
+        Mod.export.cImGui_ImplOpenGL3_RenderDrawData(draw_data.ptr);
     },
 };
 
@@ -278,7 +74,7 @@ export const ImGuiImplWGPU = {
      */
     RenderDrawData(draw_data: ImDrawData, pass_encoder: GPURenderPassEncoder) {
         const handle = Mod.export.JsValStore.add(pass_encoder);
-        Mod.export.cImGui_ImplWGPU_RenderDrawData(draw_data._ptr, handle);
+        Mod.export.cImGui_ImplWGPU_RenderDrawData(draw_data.ptr, handle);
     },
 };
 
@@ -1216,10 +1012,11 @@ export const ImGuiImplWeb = {
      * Begins a new ImGui frame. Call this at the beginning of your render loop.
      */
     BeginRender() {
-        if (ImGui.GetIO().WantSaveIniSettings) {
-            State.saveIniSettingsFn?.(ImGui.SaveIniSettingsToMemory());
-            ImGui.GetIO().WantSaveIniSettings = false;
-        }
+        // TODO: Reimplement!
+        // if (ImGui.GetIO().WantSaveIniSettings) {
+        //     State.saveIniSettingsFn?.(ImGui.SaveIniSettingsToMemory());
+        //     ImGui.GetIO().WantSaveIniSettings = false;
+        // }
 
         State.beginRenderFn?.();
         ImGui.NewFrame();

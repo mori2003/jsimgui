@@ -45,7 +45,12 @@ export interface TypeDescription {
     declaration: string;
     description: {
         kind: string;
-        builtin_type: string;
+        builtin_type?: string;
+        name?: string;
+        inner_type?: {
+            kind: string;
+            name: string;
+        };
     };
 }
 
