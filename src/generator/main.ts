@@ -1,10 +1,10 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tsGenerateEnums } from "./bindings/enum.ts";
+import { tsGenerateTypedefs } from "./bindings/typedef.ts";
 import { filterSkippables } from "./filter.ts";
 import { generateFunctionsCpp, generateFunctionsTs } from "./function.ts";
 import type { ImGuiData } from "./interface.ts";
 import { generateStructsCpp, generateStructsTs } from "./struct.ts";
-import { generateTypedefs } from "./types.ts";
 import { loadGeneratorConfig, type GeneratorConfig } from "./config.ts";
 
 export interface GeneratorContext {
@@ -31,7 +31,7 @@ export const runGenerator = () => {
 
     // Generate the TS bindings.
     const tsCode = ((): string => {
-        const typedefs = generateTypedefs(data);
+        const typedefs = tsGenerateTypedefs(ctx);
         const structs = generateStructsTs(data);
         const enums = tsGenerateEnums(ctx);
         const functions = generateFunctionsTs(data);

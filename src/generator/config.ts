@@ -1,5 +1,10 @@
 import { readFileSync } from "node:fs";
 
+export interface TypedefConfig {
+    name: string;
+    isExcluded: boolean;
+}
+
 export interface EnumConfig {
     name: string;
     isExcluded: boolean;
@@ -10,6 +15,7 @@ export interface GeneratorConfig {
     outputPathCpp?: string;
     outputPathInfo?: string;
     bindings?: {
+        typedefs?: EnumConfig[];
         enums?: EnumConfig[];
     };
 }

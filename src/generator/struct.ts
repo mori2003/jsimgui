@@ -2,7 +2,7 @@ import { structBindings } from "./bindings.ts";
 import { formatComment, generateJsDocComment } from "./comment.ts";
 import { getMethodCodeCpp, getMethodCodeTs } from "./function.ts";
 import type { ImGuiData, ImGuiFunction, ImGuiStruct } from "./interface.ts";
-import { toTsType } from "./types.ts";
+import { toTsType } from "./bindings/typedef.ts";
 
 export function isStructBound(structDeclaration: string): boolean {
     return structDeclaration in structBindings;
