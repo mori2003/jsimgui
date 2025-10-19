@@ -1,15 +1,16 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { tsGenerateEnums } from "./enum.ts";
+import { tsGenerateEnums } from "./bindings/enum.ts";
 import { filterSkippables } from "./filter.ts";
 import { generateFunctionsCpp, generateFunctionsTs } from "./function.ts";
 import type { ImGuiData } from "./interface.ts";
 import { generateStructsCpp, generateStructsTs } from "./struct.ts";
 import { generateTypedefs } from "./types.ts";
+import { loadGeneratorConfig, type GeneratorConfig } from "./config.ts";
 
 export interface GeneratorContext {
+    config: GeneratorConfig;
     data: ImGuiData;
-    config: {};
-    stats: {
+    stats?: {
         defines?: {
             total: number;
             bound: number;
@@ -23,8 +24,8 @@ export const runGenerator = () => {
     const data = filterSkippables(JSON.parse(fileData), true, true);
 
     const ctx: GeneratorContext = {
+        config: loadGeneratorConfig("./src/generator-config.json"),
         data,
-        config: {},
         stats: {},
     };
 
