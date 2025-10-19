@@ -1,5 +1,5 @@
 import { structBindings } from "./bindings.ts";
-import { formatComment, generateJsDocComment } from "./comment.ts";
+import { formatComment, generateJsDocComment } from "./bindings/comment.ts";
 import { getMethodCodeCpp, getMethodCodeTs } from "./function.ts";
 import type { ImGuiData, ImGuiFunction, ImGuiStruct } from "./interface.ts";
 import { toTsType } from "./bindings/typedef.ts";

@@ -1,4 +1,4 @@
-import { generateJsDocComment } from "../comment.ts";
+import { generateJsDocComment } from "./comment.ts";
 import type { ImGuiTypedef } from "../interface.ts";
 import type { GeneratorContext } from "../main.ts";
 
