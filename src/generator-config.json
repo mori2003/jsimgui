@@ -1,0 +1,8 @@
+{
+    "outputPathTs": "./bindgen/mod.ts",
+    "outputPathCpp": "./bindgen/jsimgui.cpp",
+    "outputPathInfo": "./bindgen/generator-info.txt",
+    "bindings": {
+        "enums": []
+    }
+}
