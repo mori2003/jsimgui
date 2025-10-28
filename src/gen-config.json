@@ -62,12 +62,11 @@
             "ImVector_ImGuiPlatformMonitor": { "isExcluded": true },
             "ImVector_ImTextureDataPtr": { "isExcluded": true },
             "ImVector_ImGuiViewportPtr": { "isExcluded": true },
+
             "ImGuiTextFilter_ImGuiTextRange": { "isExcluded": true },
             "ImDrawCmdHeader": { "isExcluded": true },
-            "ImDrawCmd": { "isExcluded": false },
             "ImDrawVert": { "isExcluded": true },
             "ImGuiSelectionExternalStorage": { "isExcluded": true },
-            "ImGuiSizeCallbackData": { "isExcluded": false },
             "ImColor": { "isExcluded": true },
             "ImGuiSelectionBasicStorage": { "isExcluded": true },
             "ImDrawData": { "isOpaque": true },
@@ -113,22 +112,30 @@
             "ImFontConfig": { "isExcluded": true },
             "ImTextureData": { "isExcluded": true },
             "ImTextureRect": { "isExcluded": true },
-            "ImDrawList": { "isOpaque": true },
+            "ImDrawList": {
+                "fields": {
+                    "CmdBuffer": { "isExcluded": true },
+                    "IdxBuffer": { "isExcluded": true },
+                    "VtxBuffer": { "isExcluded": true },
+                    "_VtxCurrentIdx": { "isExcluded": true },
+                    "_Data": { "isExcluded": true },
+                    "_VtxWritePtr": { "isExcluded": true },
+                    "_IdxWritePtr": { "isExcluded": true },
+                    "_Path": { "isExcluded": true },
+                    "_CmdHeader": { "isExcluded": true },
+                    "_Splitter": { "isExcluded": true },
+                    "_ClipRectStack": { "isExcluded": true },
+                    "_TextureStack": { "isExcluded": true },
+                    "_CallbacksDataBuf": { "isExcluded": true },
+                    "_FringeScale": { "isExcluded": true },
+                    "_OwnerName": { "isExcluded": true }
+                }
+            },
             "ImDrawListSplitter": { "isExcluded": true },
             "ImGuiTextBuffer": { "isExcluded": true },
             "ImGuiStorage": { "isExcluded": true }
         },
         "functions": {
-            "ImGui_SetNextWindowSizeConstraints": { "isExcluded": true },
-            "ImGui_CheckboxFlagsIntPtr": { "isExcluded": true },
-            "ImGui_CheckboxFlagsUintPtr": { "isExcluded": true },
-            "ImGui_ProgressBar": { "isExcluded": true },
-            "ImGui_PushIDPtr": { "isExcluded": true },
-            "ImGui_PushIDStr": { "isExcluded": true },
-            "ImGui_GetIDStr": { "isExcluded": true },
-            "ImGui_GetIDPtr": { "isExcluded": true },
-
-            "ImGui_TextUnformatted": { "isExcluded": true },
             "ImGui_Text": {
                 "overrideImpl": {
                     "ts": [
@@ -143,108 +150,250 @@
                     ]
                 }
             },
-            "ImGui_TextV": { "isExcluded": true },
-            "ImGui_TextColored": { "isExcluded": true },
-            "ImGui_TextColoredV": { "isExcluded": true },
-            "ImGui_TextDisabled": { "isExcluded": true },
-            "ImGui_TextDisabledV": { "isExcluded": true },
-            "ImGui_TextWrapped": { "isExcluded": true },
-            "ImGui_TextWrappedV": { "isExcluded": true },
-            "ImGui_LabelText": { "isExcluded": true },
-            "ImGui_LabelTextV": { "isExcluded": true },
-            "ImGui_BulletText": { "isExcluded": true },
-            "ImGui_BulletTextV": { "isExcluded": true },
+            "ImGui_TextColored": {
+                "overrideImpl": {
+                    "ts": [
+                        "    TextColored(col: ImVec4, fmt: string): void {\n",
+                        "        Mod.export.ImGui_TextColored(col, fmt);\n",
+                        "    },\n"
+                    ],
+                    "cpp": [
+                        "bind_fn(\"ImGui_TextColored\", [](JsVal col, std::string fmt){\n",
+                        "    ImGui_TextColored(get_imvec4(col), \"%s\", fmt.c_str());\n",
+                        "});\n"
+                    ]
+                }
+            },
+            "ImGui_TextDisabled": {
+                "overrideImpl": {
+                    "ts": [
+                        "    TextDisabled(fmt: string): void {\n",
+                        "        Mod.export.ImGui_TextDisabled(fmt);\n",
+                        "    },\n"
+                    ],
+                    "cpp": [
+                        "bind_fn(\"ImGui_TextDisabled\", [](std::string fmt){\n",
+                        "    ImGui_TextDisabled(\"%s\", fmt.c_str());\n",
+                        "});\n"
+                    ]
+                }
+            },
+            "ImGui_TextWrapped": {
+                "overrideImpl": {
+                    "ts": [
+                        "    TextWrapped(fmt: string): void {\n",
+                        "        Mod.export.ImGui_TextWrapped(fmt);\n",
+                        "    },\n"
+                    ],
+                    "cpp": [
+                        "bind_fn(\"ImGui_TextWrapped\", [](std::string fmt){\n",
+                        "    ImGui_TextWrapped(\"%s\", fmt.c_str());\n",
+                        "});\n"
+                    ]
+                }
+            },
+            "ImGui_LabelText": {
+                "overrideImpl": {
+                    "ts": [
+                        "    LabelText(label: string, fmt: string): void {\n",
+                        "        Mod.export.ImGui_LabelText(label, fmt);\n",
+                        "    },\n"
+                    ],
+                    "cpp": [
+                        "bind_fn(\"ImGui_LabelText\", [](std::string label, std::string fmt){\n",
+                        "    ImGui_LabelText(label.c_str(), \"%s\", fmt.c_str());\n",
+                        "});\n"
+                    ]
+                }
+            },
+            "ImGui_BulletText": {
+                "overrideImpl": {
+                    "ts": [
+                        "    BulletText(fmt: string): void {\n",
+                        "        Mod.export.ImGui_BulletText(fmt);\n",
+                        "    },\n"
+                    ],
+                    "cpp": [
+                        "bind_fn(\"ImGui_BulletText\", [](std::string fmt){\n",
+                        "    ImGui_BulletText(\"%s\", fmt.c_str());\n",
+                        "});\n"
+                    ]
+                }
+            },
+            "ImGui_DebugLog": {
+                "overrideImpl": {
+                    "ts": [
+                        "    DebugLog(fmt: string): void {\n",
+                        "        Mod.export.ImGui_DebugLog(fmt);\n",
+                        "    },\n"
+                    ],
+                    "cpp": [
+                        "bind_fn(\"ImGui_DebugLog\", [](std::string fmt){\n",
+                        "    ImGui_DebugLog(\"%s\", fmt.c_str());\n",
+                        "});\n"
+                    ]
+                }
+            },
+            "ImGui_LogText": {
+                "overrideImpl": {
+                    "ts": [
+                        "    LogText(fmt: string): void {\n",
+                        "        Mod.export.ImGui_LogText(fmt);\n",
+                        "    },\n"
+                    ],
+                    "cpp": [
+                        "bind_fn(\"ImGui_LogText\", [](std::string fmt){\n",
+                        "    ImGui_LogText(\"%s\", fmt.c_str());\n",
+                        "});\n"
+                    ]
+                }
+            },
+            "ImGui_SetTooltip": {
+                "overrideImpl": {
+                    "ts": [
+                        "    SetTooltip(fmt: string): void {\n",
+                        "        Mod.export.ImGui_SetTooltip(fmt);\n",
+                        "    },\n"
+                    ],
+                    "cpp": [
+                        "bind_fn(\"ImGui_SetTooltip\", [](std::string fmt){\n",
+                        "    ImGui_SetTooltip(\"%s\", fmt.c_str());\n",
+                        "});\n"
+                    ]
+                }
+            },
+            "ImGui_SetItemTooltip": {
+                "overrideImpl": {
+                    "ts": [
+                        "    SetItemTooltip(fmt: string): void {\n",
+                        "        Mod.export.ImGui_SetItemTooltip(fmt);\n",
+                        "    },\n"
+                    ],
+                    "cpp": [
+                        "bind_fn(\"ImGui_SetItemTooltip\", [](std::string fmt){\n",
+                        "    ImGui_SetItemTooltip(\"%s\", fmt.c_str());\n",
+                        "});\n"
+                    ]
+                }
+            },
+
+            "ImGui_InputText": {
+                "overrideImpl": {
+                    "ts": [
+                        "    InputText(label: string, buf: [string], buf_size: number, flags: ImGuiInputTextFlags = 0): void {\n",
+                        "        Mod.export.ImGui_InputText(label, buf, buf_size, flags);\n",
+                        "    },\n"
+                    ],
+                    "cpp": [
+                        "bind_fn(\"ImGui_InputText\", [](std::string label, JsVal buf, size_t buf_size, ImGuiInputTextFlags flags){\n",
+                        "    auto _bind_buf = buf[0].as<std::string>();\n",
+                        "    _bind_buf.reserve(buf_size);\n",
+                        "    auto const ret = ImGui_InputText(label.c_str(), _bind_buf.data(), buf_size, flags, nullptr, nullptr);\n",
+                        "    buf.set(0, std::string(_bind_buf.data()));\n",
+                        "    return ret;\n",
+                        "});\n"
+                    ]
+                }
+            },
+            "ImGui_InputTextMultiline": {
+                "overrideImpl": {
+                    "ts": [
+                        "    InputTextMultiline(label: string, buf: [string], buf_size: number, size: ImVec2 = new ImVec2(0, 0), flags: ImGuiInputTextFlags = 0): void {\n",
+                        "        Mod.export.ImGui_InputTextMultiline(label, buf, buf_size, size, flags);\n",
+                        "    },\n"
+                    ],
+                    "cpp": [
+                        "bind_fn(\"ImGui_InputTextMultiline\", [](std::string label, JsVal buf, size_t buf_size, JsVal size, ImGuiInputTextFlags flags){\n",
+                        "    auto _bind_buf = buf[0].as<std::string>();\n",
+                        "    _bind_buf.reserve(buf_size);\n",
+                        "    auto const ret = ImGui_InputTextMultiline(label.c_str(), _bind_buf.data(), buf_size, get_imvec2(size), flags, nullptr, nullptr);\n",
+                        "    buf.set(0, std::string(_bind_buf.data()));\n",
+                        "    return ret;\n",
+                        "});\n"
+                    ]
+                }
+            },
+            "ImGui_InputTextWithHint": {
+                "overrideImpl": {
+                    "ts": [
+                        "    InputTextWithHint(label: string, hint: string, buf: [string], buf_size: number, flags: ImGuiInputTextFlags = 0): void {\n",
+                        "        Mod.export.ImGui_InputTextWithHint(label, hint, buf, buf_size, flags);\n",
+                        "    },\n"
+                    ],
+                    "cpp": [
+                        "bind_fn(\"ImGui_InputTextWithHint\", [](std::string label, std::string hint, JsVal buf, size_t buf_size, ImGuiInputTextFlags flags){\n",
+                        "    auto _bind_buf = buf[0].as<std::string>();\n",
+                        "    _bind_buf.reserve(buf_size);\n",
+                        "    auto const ret = ImGui_InputTextWithHint(label.c_str(), hint.c_str(), _bind_buf.data(), buf_size, flags, nullptr, nullptr);\n",
+                        "    buf.set(0, std::string(_bind_buf.data()));\n",
+                        "    return ret;\n",
+                        "});\n"
+                    ]
+                }
+            },
+            "ImGui_SetNextWindowSizeConstraints": {
+                "overrideImpl": {
+                    "ts": [
+                        "    SetNextWindowSizeConstraints(min: ImVec2, max: ImVec2): void {\n",
+                        "        Mod.export.ImGui_SetNextWindowSizeConstraints(min, max);\n",
+                        "    },\n"
+                    ],
+                    "cpp": [
+                        "bind_fn(\"ImGui_SetNextWindowSizeConstraints\", [](JsVal min, JsVal max){\n",
+                        "    ImGui_SetNextWindowSizeConstraints(get_imvec2(min), get_imvec2(max), nullptr, nullptr);\n",
+                        "});\n"
+                    ]
+                }
+            },
             "ImGui_ComboChar": { "isExcluded": true },
             "ImGui_ComboCallback": { "isExcluded": true },
+            "ImGui_ListBox": { "isExcluded": true },
+            "ImGui_ListBoxCallback": { "isExcluded": true },
+            "ImGui_PlotLinesCallback": { "isExcluded": true },
+            "ImGui_PlotHistogramCallback": { "isExcluded": true },
+            "ImGui_SetDragDropPayload": { "isExcluded": true },
 
-            "ImGui_DragFloat": { "isExcluded": true },
-            "ImGui_DragFloat2": { "isExcluded": true },
-            "ImGui_DragFloat3": { "isExcluded": true },
-            "ImGui_DragFloat4": { "isExcluded": true },
-            "ImGui_DragFloatRange2": { "isExcluded": true },
-            "ImGui_DragInt": { "isExcluded": true },
-            "ImGui_DragInt2": { "isExcluded": true },
-            "ImGui_DragInt3": { "isExcluded": true },
-            "ImGui_DragInt4": { "isExcluded": true },
-            "ImGui_DragIntRange2": { "isExcluded": true },
-            "ImGui_DragScalar": { "isExcluded": true },
-            "ImGui_DragScalarN": { "isExcluded": true },
-            "ImGui_SliderFloat": { "isExcluded": true },
-            "ImGui_SliderFloat2": { "isExcluded": true },
-            "ImGui_SliderFloat3": { "isExcluded": true },
-            "ImGui_SliderFloat4": { "isExcluded": true },
-            "ImGui_SliderAngle": { "isExcluded": true },
-            "ImGui_SliderInt": { "isExcluded": true },
-            "ImGui_SliderInt2": { "isExcluded": true },
-            "ImGui_SliderInt3": { "isExcluded": true },
-            "ImGui_SliderInt4": { "isExcluded": true },
-            "ImGui_SliderScalar": { "isExcluded": true },
-            "ImGui_SliderScalarN": { "isExcluded": true },
-            "ImGui_VSliderFloat": { "isExcluded": true },
-            "ImGui_VSliderInt": { "isExcluded": true },
-            "ImGui_VSliderScalar": { "isExcluded": true },
-
-            "ImGui_InputInt": { "isExcluded": true },
-            "ImGui_InputInt2": { "isExcluded": true },
-            "ImGui_InputInt3": { "isExcluded": true },
-            "ImGui_InputInt4": { "isExcluded": true },
-
-            "ImGui_ColorEdit3": { "isExcluded": true },
-            "ImGui_ColorEdit4": { "isExcluded": true },
-            "ImGui_ColorPicker3": { "isExcluded": true },
-            "ImGui_ColorPicker4": { "isExcluded": true },
-
-            "ImGui_InputText": { "isExcluded": true },
-            "ImGui_InputTextMultiline": { "isExcluded": true },
-            "ImGui_InputTextWithHint": { "isExcluded": true },
-            "ImGui_InputFloat": { "isExcluded": true },
-            "ImGui_InputFloat2": { "isExcluded": true },
-            "ImGui_InputFloat3": { "isExcluded": true },
-            "ImGui_InputFloat4": { "isExcluded": true },
-            "ImGui_InputDouble": { "isExcluded": true },
-            "ImGui_InputDouble2": { "isExcluded": true },
-            "ImGui_InputDouble3": { "isExcluded": true },
-            "ImGui_InputDouble4": { "isExcluded": true },
-            "ImGui_InputScalar": { "isExcluded": true },
-            "ImGui_InputScalarN": { "isExcluded": true },
-
+            "ImGui_TextV": { "isExcluded": true },
+            "ImGui_TextUnformatted": { "isExcluded": true },
+            "ImGui_TextColoredV": { "isExcluded": true },
+            "ImGui_TextDisabledV": { "isExcluded": true },
+            "ImGui_TextWrappedV": { "isExcluded": true },
+            "ImGui_LabelTextV": { "isExcluded": true },
+            "ImGui_BulletTextV": { "isExcluded": true },
+            "ImGui_DebugLogV": { "isExcluded": true },
+            "ImGui_LogTextV": { "isExcluded": true },
+            "ImGui_SetTooltipV": { "isExcluded": true },
+            "ImGui_SetItemTooltipV": { "isExcluded": true },
+            "ImGui_LoadIniSettingsFromDisk": { "isExcluded": true },
+            "ImGui_SaveIniSettingsToDisk": { "isExcluded": true },
             "ImGui_TreeNodeStr": { "isExcluded": true },
             "ImGui_TreeNodePtr": { "isExcluded": true },
             "ImGui_TreeNodeV": { "isExcluded": true },
             "ImGui_TreeNodeVPtr": { "isExcluded": true },
-            "ImGui_TreeNodeEx": { "isExcluded": true },
             "ImGui_TreeNodeExStr": { "isExcluded": true },
             "ImGui_TreeNodeExPtr": { "isExcluded": true },
             "ImGui_TreeNodeExV": { "isExcluded": true },
             "ImGui_TreeNodeExVPtr": { "isExcluded": true },
-
             "ImGui_TreePushPtr": { "isExcluded": true },
-            "ImGui_ListBox": { "isExcluded": true },
-            "ImGui_ListBoxCallback": { "isExcluded": true },
-
-            "ImGui_PlotLines": { "isExcluded": true },
-            "ImGui_PlotLinesCallback": { "isExcluded": true },
-            "ImGui_PlotHistogram": { "isExcluded": true },
-            "ImGui_PlotHistogramCallback": { "isExcluded": true },
-            "ImGui_SetTooltip": { "isExcluded": true },
-            "ImGui_SetTooltipV": { "isExcluded": true },
-            "ImGui_SetItemTooltip": { "isExcluded": true },
-            "ImGui_SetItemTooltipV": { "isExcluded": true },
-            "ImGui_BeginTable": { "isExcluded": true },
-            "ImGui_LogText": { "isExcluded": true },
-            "ImGui_LogTextV": { "isExcluded": true },
-            "ImGui_SetDragDropPayload": { "isExcluded": true },
+            "ImGui_PushIDPtr": { "isExcluded": true },
+            "ImGui_PushIDStr": { "isExcluded": true },
+            "ImGui_GetIDStr": { "isExcluded": true },
+            "ImGui_GetIDPtr": { "isExcluded": true },
+            "ImGui_DragScalar": { "isExcluded": true },
+            "ImGui_DragScalarN": { "isExcluded": true },
+            "ImGui_SliderScalar": { "isExcluded": true },
+            "ImGui_SliderScalarN": { "isExcluded": true },
+            "ImGui_InputScalar": { "isExcluded": true },
+            "ImGui_InputScalarN": { "isExcluded": true },
+            "ImGui_VSliderFloat": { "isExcluded": true },
+            "ImGui_VSliderInt": { "isExcluded": true },
+            "ImGui_VSliderScalar": { "isExcluded": true },
             "ImGui_SetStateStorage": { "isExcluded": true },
             "ImGui_GetStateStorage": { "isExcluded": true },
             "ImGui_ColorConvertU32ToFloat4": { "isExcluded": true },
             "ImGui_ColorConvertFloat4ToU32": { "isExcluded": true },
             "ImGui_ColorConvertRGBtoHSV": { "isExcluded": true },
             "ImGui_ColorConvertHSVtoRGB": { "isExcluded": true },
-
-            "ImGui_SaveIniSettingsToMemory": { "isExcluded": true },
-            "ImGui_DebugLog": { "isExcluded": true },
-            "ImGui_DebugLogV": { "isExcluded": true },
-
             "ImGui_SetAllocatorFunctions": { "isExcluded": true },
             "ImGui_GetAllocatorFunctions": { "isExcluded": true },
             "ImGui_MemAlloc": { "isExcluded": true },

@@ -4,6 +4,8 @@ import { generateJsDocComment } from "./comments.ts";
 import { getArguments, getParameters } from "./functions.ts";
 
 export const getTsType = (declaration: string) => {
+    // TODO: Refactor!
+
     // biome-ignore format: ...
     const typeMap = {
         "int": "number",
@@ -18,8 +20,20 @@ export const getTsType = (declaration: string) => {
 
         "bool*": "[boolean]",
         "int*": "[number]",
+        "size_t*": "[number]",
+        "unsigned int*": "[number]",
         "float*": "[number]",
+        "const float*": "number[]",
         "double*": "[number]",
+        "float[2]": "[number, number]",
+        "float[3]": "[number, number, number]",
+        "float[4]": "[number, number, number, number]",
+        "int[2]": "[number, number]",
+        "int[3]": "[number, number, number]",
+        "int[4]": "[number, number, number, number]",
+        "double[2]": "[number, number]",
+        "double[3]": "[number, number, number]",
+        "double[4]": "[number, number, number, number]",
     }
 
     if (declaration in typeMap) {

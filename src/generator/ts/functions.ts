@@ -1,19 +1,36 @@
-import type { ImGuiFunction } from "../interface";
+import type { ImGuiArgument, ImGuiFunction } from "../interface";
 import type { GeneratorContext } from "../main.ts";
 import { generateJsDocComment } from "./comments.ts";
 import { getTsType, isStructType } from "./structs.ts";
 
-const getDefaultValue = (defaultValue: string) => {
+const getDefaultValue = (arg: ImGuiArgument): string => {
+    // TODO: Refactor!
+    let defaultValue = arg.default_value ?? "";
+    defaultValue = defaultValue.replace("FLT_MIN", "Number.MIN_VALUE");
+    defaultValue = defaultValue.replace("FLT_MAX", "Number.MAX_VALUE");
+
+    if (defaultValue === "NULL" && arg.type?.declaration === "const char*") {
+        return '""';
+    }
+
     if (defaultValue === "NULL") {
         return "null";
+    }
+
+    if (defaultValue === "ImVec2(0.0f, 0.0f)") {
+        return `new ImVec2(0.0, 0.0)`;
     }
 
     if (defaultValue.startsWith("ImVec")) {
         return `new ${defaultValue}`;
     }
 
-    if (/^-?[\d.]+f$/.test(defaultValue)) {
+    if (/^[+-]?[\d.]+f$/.test(defaultValue)) {
         return defaultValue.slice(0, -1);
+    }
+
+    if (defaultValue === "sizeof(float)") {
+        return "4";
     }
 
     return defaultValue;
@@ -49,7 +66,7 @@ export const getParameters = (functionData: ImGuiFunction, skipSelf: boolean = f
             }
 
             let type = getTsType(arg.type?.declaration ?? "any");
-            const defaultValue = getDefaultValue(arg.default_value ?? "");
+            const defaultValue = getDefaultValue(arg);
 
             if (defaultValue === "null") {
                 type = `${type} | null`;
