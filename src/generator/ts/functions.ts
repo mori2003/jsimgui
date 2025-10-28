@@ -1,7 +1,7 @@
 import type { ImGuiFunction } from "../interface";
 import type { GeneratorContext } from "../main.ts";
-import { generateJsDocComment } from "./comments";
-import { getTsType, isStructType } from "./structs";
+import { generateJsDocComment } from "./comments.ts";
+import { getTsType, isStructType } from "./structs.ts";
 
 const getDefaultValue = (defaultValue: string) => {
     if (defaultValue === "NULL") {

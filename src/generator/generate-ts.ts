@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 import type { GeneratorContext } from "./main.ts";
-import { generateEnums } from "./ts/enums";
-import { generateFunctions } from "./ts/functions";
-import { generateStructs } from "./ts/structs";
+import { generateEnums } from "./ts/enums.ts";
+import { generateFunctions } from "./ts/functions.ts";
+import { generateStructs } from "./ts/structs.ts";
 import { generateTypedefs } from "./ts/typedefs.ts";
 
 export const generateTypeScriptBindings = (ctx: GeneratorContext): string => {
