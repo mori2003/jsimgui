@@ -1,11 +1,9 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { tsGenerateEnums } from "./bindings/enum.ts";
-import { tsGenerateTypedefs } from "./bindings/typedef.ts";
+import type { GeneratorConfig } from "./config.ts";
 import { filterSkippables } from "./filter.ts";
-import { generateFunctionsCpp, generateFunctionsTs } from "./function.ts";
+import { generateCppBindings } from "./generate-cpp.ts";
+import { generateTypeScriptBindings } from "./generate-ts.ts";
 import type { ImGuiData } from "./interface.ts";
-import { generateStructsCpp, generateStructsTs } from "./struct.ts";
-import { loadGeneratorConfig, type GeneratorConfig } from "./config.ts";
 
 export interface GeneratorContext {
     config: GeneratorConfig;
@@ -24,79 +22,15 @@ export const runGenerator = () => {
     const data = filterSkippables(JSON.parse(fileData), true, true);
 
     const ctx: GeneratorContext = {
-        config: loadGeneratorConfig("./src/generator-config.json"),
+        config: JSON.parse(readFileSync("./src/gen-config.json", "utf-8")),
         data,
         stats: {},
     };
 
-    // Generate the TS bindings.
-    const tsCode = ((): string => {
-        const typedefs = tsGenerateTypedefs(ctx);
-        const structs = generateStructsTs(data);
-        const enums = tsGenerateEnums(ctx);
-        const functions = generateFunctionsTs(data);
+    console.log(ctx.data.functions.length);
 
-        const headerTemplate = readFileSync("./src/api.ts", "utf-8");
-
-        const generatedCode = [
-            "/* -------------------------------------------------------------------------- */\n",
-            "/* 2. Typedefs */\n",
-            "/* -------------------------------------------------------------------------- */\n",
-            "\n",
-            typedefs,
-            "\n",
-            "/* -------------------------------------------------------------------------- */\n",
-            "/* 3. Structs */\n",
-            "/* -------------------------------------------------------------------------- */\n",
-            "\n",
-            structs,
-            "/* -------------------------------------------------------------------------- */\n",
-            "/* 4. ImGui Object - Enums/Flags and Functions */\n",
-            "/* -------------------------------------------------------------------------- */\n",
-            "export const ImGui = Object.freeze({\n",
-            "\n",
-            enums,
-            functions,
-            "});\n",
-        ].join("");
-
-        const beginMarker = "[BEGIN GENERATED CODE]";
-        const endMarker = "[END GENERATED CODE]";
-
-        const beginIndex = headerTemplate.indexOf(beginMarker);
-        const endIndex = headerTemplate.indexOf(endMarker);
-
-        // TODO: Remove magic numbers.
-        const beforeGenerated = headerTemplate.substring(0, beginIndex + beginMarker.length + 102);
-        const afterGenerated = headerTemplate.substring(endIndex - endMarker.length - 84);
-
-        return [beforeGenerated, "\n", generatedCode, "\n", afterGenerated].join("");
-    })();
-
-    // Generate the C++ bindings.
-    const cppCode = ((): string => {
-        const structs = generateStructsCpp(data);
-        const functions = generateFunctionsCpp(data);
-
-        return [
-            readFileSync("./src/bindings.cpp", "utf-8"),
-            "/* -------------------------------------------------------------------------- */\n",
-            "/* AUTO-GENERATED BINDINGS */\n",
-            "/* -------------------------------------------------------------------------- */\n",
-            "\n",
-            "EMSCRIPTEN_BINDINGS(jsimgui) {\n",
-            "/* -------------------------------------------------------------------------- */\n",
-            "/* STRUCTS */\n",
-            "/* -------------------------------------------------------------------------- */\n",
-            "\n",
-            structs,
-            "/* -------------------------------------------------------------------------- */\n",
-            "/* FUNCTIONS */\n",
-            "/* -------------------------------------------------------------------------- */\n",
-            functions,
-            "}\n",
-        ].join("");
-    })();
+    const tsCode = generateTypeScriptBindings(ctx);
+    const cppCode = generateCppBindings(ctx);
 
     mkdirSync("./bindgen", { recursive: true });
     writeFileSync("./bindgen/mod.ts", tsCode);

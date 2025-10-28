@@ -21,6 +21,8 @@
 #include <webgpu/webgpu.h>
 #include <webgpu/webgpu_cpp.h>
 
+using JsVal = emscripten::val;
+
 namespace {
 
 constexpr auto allow_ptr() -> emscripten::allow_raw_pointers {
@@ -119,6 +121,50 @@ class ArrayParam<bool> {
         return &value;
     }
 };
+
+auto get_imvec2(JsVal const& val) -> ImVec2_t {
+    return ImVec2_t{
+        .x = val["x"].as<float>(),
+        .y = val["y"].as<float>(),
+    };
+}
+
+auto wrap_imvec2(ImVec2_t const& val) -> JsVal {
+    auto obj = JsVal::object();
+    obj.set("x", val.x);
+    obj.set("y", val.y);
+    return obj;
+}
+
+auto get_imvec4(JsVal const& val) -> ImVec4_t {
+    return ImVec4_t{
+        .x = val["x"].as<float>(),
+        .y = val["y"].as<float>(),
+        .z = val["z"].as<float>(),
+        .w = val["w"].as<float>(),
+    };
+}
+
+auto wrap_imvec4(ImVec4_t const& val) -> JsVal {
+    auto obj = JsVal::object();
+    obj.set("x", val.x);
+    obj.set("y", val.y);
+    obj.set("z", val.z);
+    obj.set("w", val.w);
+    return obj;
+}
+
+auto get_imtexture_ref(JsVal const& val) -> ImTextureRef {
+    return ImTextureRef{
+        ._TexID = val["_TexID"].as<ImTextureID>(),
+    };
+}
+
+auto wrap_imtexture_ref(ImTextureRef const& val) -> JsVal {
+    auto obj = JsVal::object();
+    obj.set("_TexID", val._TexID);
+    return obj;
+}
 
 auto get_clipboard_fn = emscripten::val::null();
 auto set_clipboard_fn = emscripten::val::null();
