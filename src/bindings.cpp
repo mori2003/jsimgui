@@ -6,20 +6,24 @@
 #include <vector>
 
 #include <dcimgui.h>
-#include <dcimgui_impl_opengl3.h>
-#include <dcimgui_impl_wgpu.h>
 #include <dcimgui_internal.h>
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
-
 #include <emscripten/heap.h>
 #include <emscripten/stack.h>
 
+#ifdef JSIMGUI_BACKEND_WEBGL
+#include <dcimgui_impl_opengl3.h>
 #include <emscripten/html5_webgl.h>
+#endif
+
+#ifdef JSIMGUI_BACKEND_WEBGPU
+#include <dcimgui_impl_wgpu.h>
 #include <emscripten/html5_webgpu.h>
 #include <webgpu/webgpu.h>
 #include <webgpu/webgpu_cpp.h>
+#endif
 
 using JsVal = emscripten::val;
 

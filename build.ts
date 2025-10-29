@@ -7,6 +7,7 @@
 
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
+import { join as joinPath } from "node:path";
 import { argv, exit, stdout } from "node:process";
 import { styleText } from "node:util";
 import { runGenerator } from "./src/generator/main.ts";
@@ -268,7 +269,6 @@ const buildWasm = (cfg: BuildConfig) => {
         stdout.write("\n");
     }
 
-    mkdirSync(`build/${cfg.backend}`, { recursive: true });
     runCommand(cmd.join(" "));
 };
 
@@ -276,7 +276,8 @@ const buildWasm = (cfg: BuildConfig) => {
  * Step 4: Compiles the .ts file to the mod.js and mod.d.ts files.
  */
 const buildTs = () => {
-    const cmd = "./node_modules/.bin/tsc --project tsconfig.build.json";
+    const tscPath = joinPath("node_modules", ".bin", "tsc");
+    const cmd = `${tscPath} --project tsconfig.build.json`;
 
     if (argv.includes("--verbose")) {
         stdout.write("\n");
@@ -294,8 +295,9 @@ const buildTs = () => {
  */
 const buildFmt = (cfg: BuildConfig) => {
     const outputPath = getOutputPath(cfg);
-    const cmd = `./node_modules/.bin/biome format --write ${outputPath}`;
-    const cmd2 = "./node_modules/.bin/biome format --write ./build/mod.js";
+    const biomePath = joinPath("node_modules", ".bin", "biome");
+    const cmd = `${biomePath} format --write ${outputPath}`;
+    const cmd2 = `${biomePath} format --write ./build/mod.js`;
 
     if (argv.includes("--verbose")) {
         stdout.write("\n");
