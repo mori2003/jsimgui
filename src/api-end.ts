@@ -1012,11 +1012,10 @@ export const ImGuiImplWeb = {
      * Begins a new ImGui frame. Call this at the beginning of your render loop.
      */
     BeginRender() {
-        // TODO: Reimplement!
-        // if (ImGui.GetIO().WantSaveIniSettings) {
-        //     State.saveIniSettingsFn?.(ImGui.SaveIniSettingsToMemory());
-        //     ImGui.GetIO().WantSaveIniSettings = false;
-        // }
+        if (ImGui.GetIO().WantSaveIniSettings) {
+            State.saveIniSettingsFn?.(ImGui.SaveIniSettingsToMemory());
+            ImGui.GetIO().WantSaveIniSettings = false;
+        }
 
         State.beginRenderFn?.();
         ImGui.NewFrame();

@@ -4,10 +4,47 @@ import type { GeneratorContext } from "../main.ts";
 export const getPreProcess = (functionData: ImGuiFunction) => {
     let code = "";
 
+    // TODO: Refactor!
     code += functionData.arguments
         .map((arg) => {
             if (arg.type?.declaration === "bool*") {
                 return `    auto _bind_${arg.name} = ArrayParam<bool>(${arg.name});\n`;
+            }
+
+            if (arg.type?.declaration === "size_t*") {
+                return `    auto _bind_${arg.name} = ArrayParam<size_t>(${arg.name});\n`;
+            }
+
+            if (
+                arg.type?.declaration === "float*" ||
+                arg.type?.declaration === "const float*" ||
+                arg.type?.declaration === "float[2]" ||
+                arg.type?.declaration === "float[3]" ||
+                arg.type?.declaration === "float[4]"
+            ) {
+                return `    auto _bind_${arg.name} = ArrayParam<float>(${arg.name});\n`;
+            }
+
+            if (
+                arg.type?.declaration === "double*" ||
+                arg.type?.declaration === "double[2]" ||
+                arg.type?.declaration === "double[3]" ||
+                arg.type?.declaration === "double[4]"
+            ) {
+                return `    auto _bind_${arg.name} = ArrayParam<double>(${arg.name});\n`;
+            }
+
+            if (
+                arg.type?.declaration === "int*" ||
+                arg.type?.declaration === "int[2]" ||
+                arg.type?.declaration === "int[3]" ||
+                arg.type?.declaration === "int[4]"
+            ) {
+                return `    auto _bind_${arg.name} = ArrayParam<int>(${arg.name});\n`;
+            }
+
+            if (arg.type?.declaration === "unsigned int*") {
+                return `    auto _bind_${arg.name} = ArrayParam<unsigned int>(${arg.name});\n`;
             }
 
             return "";
@@ -20,6 +57,7 @@ export const getPreProcess = (functionData: ImGuiFunction) => {
 export const getArguments = (functionData: ImGuiFunction) => {
     let code = "";
 
+    // TODO: Refactor!
     code += functionData.arguments
         .map((arg) => {
             if (arg.type?.declaration === "const char*") {
@@ -38,7 +76,24 @@ export const getArguments = (functionData: ImGuiFunction) => {
                 return `get_imtexture_ref(${arg.name})`;
             }
 
-            if (arg.type?.declaration === "bool*") {
+            if (
+                arg.type?.declaration === "bool*" ||
+                arg.type?.declaration === "float*" ||
+                arg.type?.declaration === "const float*" ||
+                arg.type?.declaration === "size_t*" ||
+                arg.type?.declaration === "double*" ||
+                arg.type?.declaration === "int*" ||
+                arg.type?.declaration === "unsigned int*" ||
+                arg.type?.declaration === "float[2]" ||
+                arg.type?.declaration === "float[3]" ||
+                arg.type?.declaration === "float[4]" ||
+                arg.type?.declaration === "int[2]" ||
+                arg.type?.declaration === "int[3]" ||
+                arg.type?.declaration === "int[4]" ||
+                arg.type?.declaration === "double[2]" ||
+                arg.type?.declaration === "double[3]" ||
+                arg.type?.declaration === "double[4]"
+            ) {
                 return `&_bind_${arg.name}`;
             }
 
@@ -52,13 +107,31 @@ export const getArguments = (functionData: ImGuiFunction) => {
 export const getParameters = (functionData: ImGuiFunction) => {
     let code = "";
 
+    // TODO: Refactor!
     code += functionData.arguments
         .map((arg) => {
             if (arg.type?.declaration === "const char*") {
                 return `std::string ${arg.name}`;
             }
 
-            if (arg.type?.declaration === "bool*") {
+            if (
+                arg.type?.declaration === "bool*" ||
+                arg.type?.declaration === "float*" ||
+                arg.type?.declaration === "size_t*" ||
+                arg.type?.declaration === "const float*" ||
+                arg.type?.declaration === "double*" ||
+                arg.type?.declaration === "int*" ||
+                arg.type?.declaration === "unsigned int*" ||
+                arg.type?.declaration === "float[2]" ||
+                arg.type?.declaration === "float[3]" ||
+                arg.type?.declaration === "float[4]" ||
+                arg.type?.declaration === "int[2]" ||
+                arg.type?.declaration === "int[3]" ||
+                arg.type?.declaration === "int[4]" ||
+                arg.type?.declaration === "double[2]" ||
+                arg.type?.declaration === "double[3]" ||
+                arg.type?.declaration === "double[4]"
+            ) {
                 return `JsVal ${arg.name}`;
             }
 
@@ -110,17 +183,23 @@ export const generateFunctions = (ctx: GeneratorContext): string => {
         }
 
         const name = functionData.name;
-        const returnType = functionData.return_type.declaration;
+        let returnType = functionData.return_type.declaration;
         const parameters = getParameters(functionData);
         const args = getArguments(functionData);
 
         const preProcess = getPreProcess(functionData);
+
+        if (returnType === "const char*") {
+            returnType = "std::string";
+        }
 
         code += `bind_fn("${name}", [](${parameters}) -> ${returnType} {\n`;
         code += preProcess;
 
         if (returnType === "void") {
             code += `    ${name}(${args});\n`;
+        } else if (returnType === "const char*") {
+            code += `    return std::string(${name}(${args}));\n`;
         } else {
             code += `    return ${name}(${args});\n`;
         }

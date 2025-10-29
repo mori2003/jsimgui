@@ -30,6 +30,10 @@ export interface FunctionConfig {
 }
 
 export interface GeneratorConfig {
+    inputPathJson?: string;
+    outputPathTs?: string;
+    outputPathCpp?: string;
+    outputPathInfo?: string;
     bindings?: {
         typedefs?: Record<string, TypedefConfig>;
         structs?: Record<string, StructConfig>;

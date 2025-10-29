@@ -192,3 +192,5 @@ export class ImTextureRef {
         return new ImTextureRef(obj._TexID);
     }
 }
+
+const IM_COL32_WHITE = 0xffffffff;

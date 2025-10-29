@@ -40,6 +40,7 @@ const generateFields = (structData: ImGuiStruct, ctx: GeneratorContext): string 
             continue;
         }
 
+        // TODO: Refactor!
         if (field.type.declaration === "ImVec2") {
             code += `.function("get_${field.name}", override([](const ${structData.name}& self){ return wrap_imvec2(self.${field.name}); }), rvp_ref(), allow_ptr())\n`;
             code += `.function("set_${field.name}", override([](${structData.name}& self, JsVal value){ self.${field.name} = get_imvec2(value); }), allow_ptr())\n`;
