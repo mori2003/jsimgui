@@ -79,8 +79,8 @@ For more information, see the [wiki](https://github.com/mori2003/jsimgui/wiki).
 
 ### Prerequisites
 
-- A Node.js compatible runtime (Node.js, Deno, Bun)
-- [Emscripten](https://emscripten.org/)
+- A Node.js compatible runtime (Node.js >= v22.18.0, Deno, Bun)
+- [Emscripten](https://emscripten.org/) v4.0.17 (Currently not possible to build for WebGPU with >= v4.0.18)
 - [Python](https://www.python.org/) with [Ply](https://pypi.org/project/ply/) (For dear_bindings)
 
 ### Build
