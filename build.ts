@@ -269,6 +269,7 @@ const buildWasm = (cfg: BuildConfig) => {
         stdout.write("\n");
     }
 
+    mkdirSync("build", { recursive: true });
     runCommand(cmd.join(" "));
 };
 
