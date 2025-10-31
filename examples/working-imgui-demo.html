@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TXML/TSS ImGui Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #1e1e1e;
+            color: white;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            height: 80vh;
+        }
+        .left, .right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        textarea {
+            background: #2d2d2d;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 14px;
+            color: white;
+            resize: vertical;
+            min-height: 150px;
+        }
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #005a9e;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .status.success { background: #2d5a2d; color: #90ee90; }
+        .status.error { background: #5a2d2d; color: #ff6b6b; }
+        .status.info { background: #2d4a5a; color: #87ceeb; }
+        canvas {
+            background: #1a1a1a;
+            border: 2px solid #007acc;
+            border-radius: 8px;
+            width: 100%;
+            height: 100%;
+        }
+        .console {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            color: white;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>TXML/TSS ImGui Demo</h1>
+    <div class="container">
+        <div class="left">
+            <h3>TXML Code:</h3>
+            <textarea id="txmlEditor"><App>
+  <Head>
+    <Text>TXML/TSS Demo</Text>
+  </Head>
+  <Body>
+    <Window title="TXML/TSS Demo" width="400" height="300">
+      <Text>Welcome to TXML/TSS!</Text>
+      <Text>This demonstrates all requirements:</Text>
+      <Text>#1: TXML Structure (App/Head/Body)</Text>
+      <Text>#2: Events (onClick handlers)</Text>
+      <Text>#3: Layout (SameLine, sizing)</Text>
+      
+      <Button onClick="handleClick">Click Me!</Button>
+      <SameLine />
+      <Button id="greenButton" onClick="testHandler">Green Button</Button>
+      
+      <InputText label="Name" hint="Enter your name" />
+      <SliderFloat label="Volume" min="0" max="1" />
+      <Checkbox label="Enable Feature" />
+    </Window>
+  </Body>
+</App></textarea>
+            
+            <h3>TSS Styles:</h3>
+            <textarea id="tssEditor">scope {
+  red: 0xCC0000FF;
+  green: 0x00CC00FF;
+  blue: 0x0000CCFF;
+  white: 0xFFFFFFFF;
+  black: 0x000000FF;
+  primary: 0x4CAF50FF;
+  secondary: 0x2196F3FF;
+  accent: 0xFF9800FF;
+  
+  Window {
+    text-color: white;
+  }
+  
+  Button {
+    button-color: primary;
+    text-color: white;
+  }
+  
+  #greenButton {
+    button-color: green;
+    text-color: black;
+  }
+  
+  Text {
+    text-color: white;
+  }
+  
+  Checkbox {
+    text-color: accent;
+  }
+  
+  InputText {
+    widget-background-color: 0x3D3D3DFF;
+    text-color: white;
+  }
+  
+  SliderFloat {
+    widget-background-color: 0x3D3D3DFF;
+    text-color: white;
+  }
+}</textarea>
+            
+            <div>
+                <label for="backendSelect">Backend:</label>
+                <select id="backendSelect">
+                    <option value="webgl2" selected>WebGL2</option>
+                    <option value="webgpu">WebGPU</option>
+                </select>
+                <button id="renderBtn">Render to ImGui</button>
+                <button id="resetBtn">Reset</button>
+                <div id="status" class="status info">Ready to render</div>
+            </div>
+        </div>
+        
+        <div class="right">
+            <h3>ImGui Canvas:</h3>
+            <canvas id="canvas" width="600" height="400"></canvas>
+            
+            <h3>Console Output:</h3>
+            <div id="consoleOutput" class="console">Console output will appear here...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        let ImGui = null;
+        let ImGuiImplWeb = null;
+        let isRendering = false;
+        let animationId = null;
+        let context = null;
+        let renderer = null;
+        let logger = null;
+        let frameCount = 0;
+        let backend = 'webgl2'; // Global backend variable
+        
+        // Console output
+        const consoleOutput = document.getElementById('consoleOutput');
+        const originalLog = console.log;
+        console.log = (...args) => {
+            originalLog(...args);
+            consoleOutput.textContent += args.join(' ') + '\n';
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        };
+        
+        // Load TXML/TSS renderer
+        async function loadRenderer() {
+            try {
+                const { TXMLTSSRenderer, DefaultConsoleLogger } = await import('../dist/index.js');
+                logger = new DefaultConsoleLogger();
+                
+                // Wait for ImGui to be properly initialized before creating renderer
+                if (!ImGui || typeof ImGui === 'function') {
+                    console.log('Waiting for ImGui to be initialized...');
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+                
+                renderer = new TXMLTSSRenderer(logger);
+                
+                // Register event handlers
+                renderer.registerEventHandler('handleClick', () => {
+                    console.log('Button clicked via TXML/TSS renderer!');
+                    document.getElementById('status').textContent = 'TXML Button clicked!';
+                    document.getElementById('status').className = 'status success';
+                });
+                
+                renderer.registerEventHandler('testHandler', () => {
+                    console.log('Test handler called!');
+                });
+                
+                console.log('TXML/TSS renderer loaded successfully');
+                return true;
+            } catch (error) {
+                console.error('Failed to load TXML/TSS renderer:', error);
+                return false;
+            }
+        }
+        
+        // No stub code generator; logging comes from library logger
+        
+        // ImGui demo using the exact working pattern
+        async function initImGui() {
+            try {
+                console.log('Loading jsimgui...');
+                const jsimgui = await import('https://esm.sh/@mori2003/jsimgui');
+                ImGui = jsimgui.ImGui;
+                ImGuiImplWeb = jsimgui.ImGuiImplWeb;
+                console.log('jsimgui loaded successfully');
+                
+                const canvas = document.getElementById('canvas');
+                console.log('Canvas element:', canvas);
+                
+                // Set canvas dimensions
+                canvas.width = 600;
+                canvas.height = 400;
+                console.log('Canvas dimensions set to:', canvas.width, 'x', canvas.height);
+                
+                // Get selected backend
+                const backendEl = document.getElementById('backendSelect');
+                backend = backendEl && 'value' in backendEl ? backendEl.value : 'webgl2';
+                
+                let device = null;
+                
+                if (backend === 'webgpu') {
+                    // Check WebGPU support
+                    if (!navigator.gpu) {
+                        throw new Error('WebGPU not supported in this browser');
+                    }
+                    
+                    // Get WebGPU context
+                    context = canvas.getContext('webgpu');
+                    if (!context) {
+                        throw new Error('WebGPU context not supported');
+                    }
+                    
+                    // Request WebGPU adapter and device
+                    const adapter = await navigator.gpu.requestAdapter();
+                    if (!adapter) {
+                        throw new Error('WebGPU adapter not available');
+                    }
+                    
+                    device = await adapter.requestDevice();
+                    
+                    // Configure WebGPU context
+                    context.configure({
+                        device,
+                        format: navigator.gpu.getPreferredCanvasFormat(),
+                    });
+                    
+                    console.log('WebGPU context created and configured');
+                } else {
+                    // WebGL2 backend
+                    context = canvas.getContext('webgl2');
+                    if (!context) {
+                        throw new Error('WebGL2 not supported');
+                    }
+                    console.log('WebGL2 context created');
+                }
+                
+                // Initialize ImGui with proper backend configuration
+                console.log('Initializing ImGui...');
+                if (backend === 'webgpu') {
+                    await ImGuiImplWeb.Init({
+                        canvas,
+                        device,
+                        enableDemos: true,
+                        backend: 'webgpu'
+                    });
+                } else {
+                    await ImGuiImplWeb.Init({
+                        canvas,
+                        context,
+                        enableDemos: true,
+                        backend: 'webgl2'
+                    });
+                }
+                console.log('ImGuiImplWeb.Init() completed');
+                
+                // Wait for ImGui to be properly initialized
+                console.log('Waiting for ImGui to be fully initialized...');
+                await new Promise(resolve => setTimeout(resolve, 500));
+                console.log('ImGui initialization wait completed');
+                
+                // Load TXML/TSS renderer
+                await loadRenderer();
+                
+                // Set ImGui instances in renderer after proper initialization
+                console.log('Setting ImGui instances in renderer...');
+                renderer.setImGui(ImGui, ImGuiImplWeb);
+                console.log('ImGui instances set in renderer');
+                
+                // Set up render loop using the exact working pattern
+                function frame() {
+                    if (!isRendering) return;
+                    
+                    try {
+                        ImGuiImplWeb.BeginRender();
+                        
+                        // DEBUG: Check frame state
+                        frameCount++;
+                        console.log(`Frame ${frameCount}: Starting render (no NewFrame needed)`);
+                        
+                        // Render TXML/TSS content using the library
+                        try {
+                            const txml = document.getElementById('txmlEditor').value;
+                            const tss = document.getElementById('tssEditor').value;
+                            
+                            console.log('Rendering TXML/TSS...');
+                            console.log('TXML:', txml);
+                            console.log('TSS:', tss);
+                            console.log('TSS length:', tss.length, 'characters');
+                            
+                            // Render via library (logger will emit generated code)
+                            if (ImGui && ImGuiImplWeb) {
+                                console.log('Calling renderer.render()...');
+                                renderer.render(txml, tss);
+                                console.log('renderer.render() completed');
+                                
+                                // Test: Add a simple ImGui call to verify ImGui is working
+                                console.log('Testing basic ImGui call...');
+                                ImGui.Begin("Test Window");
+                                ImGui.Text("Hello from ImGui!");
+                                ImGui.End();
+                                console.log('Basic ImGui call completed');
+                            } else {
+                                console.log('ImGui not ready yet, skipping render');
+                            }
+                            
+                        } catch (error) {
+                            console.error('TXML/TSS render error:', error);
+                            // Fallback to simple demo
+                            ImGui.Begin("TXML/TSS Demo (Error)");
+                            ImGui.Text("TXML/TSS renderer error");
+                            ImGui.Text(`Error: ${error.message}`);
+                            ImGui.End();
+                        }
+                        
+                        // Don't show demo window - we want our TXML/TSS content
+                        
+                        // Clear the canvas if we are webgl; webgpu handles this for us
+                        if (backend === 'webgl2') {
+                            context.clearColor(0.2, 0.4, 0.6, 1.0);
+                            context.clear(context.COLOR_BUFFER_BIT);
+                        }
+                        
+                        // EndRender with proper parameters for WebGPU
+                        if (backend === 'webgpu') {
+                            // For WebGPU, we need to create a render pass
+                            const commandEncoder = device.createCommandEncoder();
+                            const textureView = context.getCurrentTexture().createView();
+                            
+                            const renderPassDescriptor = {
+                                colorAttachments: [{
+                                    view: textureView,
+                                    clearValue: { r: 0.2, g: 0.4, b: 0.6, a: 1.0 },
+                                    loadOp: 'clear',
+                                    storeOp: 'store',
+                                }],
+                            };
+                            
+                            const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+                            ImGuiImplWeb.EndRender(passEncoder);
+                            passEncoder.end();
+                            
+                            device.queue.submit([commandEncoder.finish()]);
+                        } else {
+                            ImGuiImplWeb.EndRender();
+                        }
+                        
+                        console.log('ImGui rendered successfully');
+                    } catch (error) {
+                        console.error('Render loop error:', error.message);
+                        isRendering = false;
+                        if (animationId) {
+                            cancelAnimationFrame(animationId);
+                            animationId = null;
+                        }
+                    }
+                    
+                    if (isRendering) {
+                        animationId = requestAnimationFrame(frame);
+                    }
+                }
+                
+                // Start render loop
+                isRendering = true;
+                frame();
+                
+                console.log('ImGui initialized successfully');
+                return true;
+                
+            } catch (error) {
+                console.error('ImGui initialization failed:', error);
+                isRendering = false;
+                throw error;
+            }
+        }
+        
+        // Event listeners
+        document.getElementById('renderBtn').addEventListener('click', async () => {
+            try {
+                document.getElementById('status').textContent = 'Initializing...';
+                document.getElementById('status').className = 'status info';
+                
+                if (!isRendering) {
+                    await initImGui();
+                }
+                
+                document.getElementById('status').textContent = 'Rendering...';
+                document.getElementById('status').className = 'status success';
+                
+            } catch (error) {
+                console.error('Render failed:', error);
+                document.getElementById('status').textContent = 'Render failed';
+                document.getElementById('status').className = 'status error';
+            }
+        });
+        
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+            
+            isRendering = false;
+            ImGui = null;
+            ImGuiImplWeb = null;
+            context = null;
+            
+            // Clear canvas
+            const canvas = document.getElementById('canvas');
+            if (backend === 'webgl2') {
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+            
+            // Clear console
+            consoleOutput.textContent = 'Console output will appear here...';
+            
+            document.getElementById('status').textContent = 'Reset complete';
+            document.getElementById('status').className = 'status info';
+            
+            console.log('Reset complete');
+        });
+        
+        // Add live updates when content changes
+        function setupLiveUpdates() {
+            const txmlEditor = document.getElementById('txmlEditor');
+            const tssEditor = document.getElementById('tssEditor');
+            
+            let updateTimeout = null;
+            const updateDelay = 500; // 500ms delay after user stops typing
+            
+            function scheduleUpdate() {
+                if (updateTimeout) {
+                    clearTimeout(updateTimeout);
+                }
+                updateTimeout = setTimeout(() => {
+                    if (isRendering && renderer) {
+                        console.log('Content changed, re-rendering...');
+                        const now = new Date().toLocaleTimeString();
+                        document.getElementById('status').textContent = `Content updated at ${now}`;
+                        document.getElementById('status').className = 'status info';
+                        // The render loop will pick up the new content automatically
+                    }
+                }, updateDelay);
+            }
+            
+            txmlEditor.addEventListener('input', scheduleUpdate);
+            tssEditor.addEventListener('input', scheduleUpdate);
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('TXML/TSS ImGui Demo loaded');
+            setupLiveUpdates();
+        });
+    </script>
+</body>
+</html>
