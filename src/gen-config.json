@@ -105,11 +105,41 @@
             "ImGuiViewport": { "isExcluded": false },
             "ImFont": { "isOpaque": true },
             "ImFontBaked": { "isOpaque": true },
-            "ImFontAtlas": { "isOpaque": true },
-            "ImFontAtlasRect": { "isExcluded": true },
+            "ImFontAtlas": {
+                "fields": {
+                    "TexData": {
+                        "isExcluded": true
+                    }
+                },
+                "methods": {
+                    "ImFontAtlas_AddFontFromFileTTF": {
+                        "overrideImpl": {
+                            "ts": [
+                                "    AddFontFromFileTTF(filename: string, size_pixels: number = 0.0, font_cfg: ImFontConfig | null = null, glyph_ranges: ImWchar[] | null = null): ImFont {\n",
+                                "        return this.ptr.ImFontAtlas_AddFontFromFileTTF(filename, size_pixels, font_cfg?.ptr || null, glyph_ranges);\n",
+                                "    }\n"
+                            ],
+                            "cpp": [
+                                ".function(\"ImFontAtlas_AddFontFromFileTTF\", override([](ImFontAtlas* self, std::string filename, float size_pixels, const ImFontConfig* font_cfg, JsVal glyph_ranges) -> ImFont* {\n",
+                                "    auto _bind_glyph_ranges = ArrayParam<ImWchar>(glyph_ranges);\n",
+                                "    return ImFontAtlas_AddFontFromFileTTF(self, filename.c_str(), size_pixels, font_cfg, &_bind_glyph_ranges);\n",
+                                "}), rvp_ref(), allow_ptr())\n"
+                            ]
+                        }
+                    },
+                    "ImFontAtlas_AddFontFromMemoryTTF": { "isExcluded": true },
+                    "ImFontAtlas_AddFontFromMemoryCompressedTTF": { "isExcluded": true },
+                    "ImFontAtlas_AddFontFromMemoryCompressedBase85TTF": { "isExcluded": true }
+                }
+            },
+            "ImFontAtlasRect": { "isExcluded": false },
             "ImFontGlyphRangesBuilder": { "isExcluded": true },
             "ImFontGlyph": { "isExcluded": true },
-            "ImFontConfig": { "isExcluded": true },
+            "ImFontConfig": {
+                "fields": {
+                    "Name": { "isExcluded": true }
+                }
+            },
             "ImTextureData": { "isExcluded": true },
             "ImTextureRect": { "isExcluded": true },
             "ImDrawList": {

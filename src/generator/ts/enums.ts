@@ -36,5 +36,19 @@ export const generateEnums = (ctx: GeneratorContext): string => {
         code += "},\n";
     }
 
+    // TODO: Handle this case.
+    code += "FreeTypeLoaderFlags: {\n";
+    code += "NoHinting: 1,\n";
+    code += "NoAutoHint: 2,\n";
+    code += "ForceAutoHint: 4,\n";
+    code += "LightHinting: 8,\n";
+    code += "MonoHinting: 16,\n";
+    code += "Bold: 32,\n";
+    code += "Oblique: 64,\n";
+    code += "Monochrome: 128,\n";
+    code += "LoadColor: 256,\n";
+    code += "Bitmap: 512,\n";
+    code += "},\n";
+
     return code;
 };

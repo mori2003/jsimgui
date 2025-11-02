@@ -10,6 +10,17 @@ const generateMethods = (structData: ImGuiStruct, ctx: GeneratorContext): string
     const structMethods = ctx.data.functions.filter((f) => f.original_class === structData.name);
 
     for (const methodData of structMethods) {
+        const config = ctx.config.bindings?.structs?.[structData.name];
+        if (config?.methods?.[methodData.name]?.isExcluded) {
+            continue;
+        }
+
+        const overrideImpl = config?.methods?.[methodData.name]?.overrideImpl;
+        if (overrideImpl?.cpp) {
+            code += overrideImpl.cpp.join("");
+            continue;
+        }
+
         const name = methodData.name;
         const returnType = methodData.return_type.declaration;
         const parameters = getParameters(methodData);

@@ -17,6 +17,7 @@ export const getTsType = (declaration: string) => {
         "char*": "string",
         "const char*": "string",
         "size_t": "number",
+        "unsigned short": "number",
 
         "bool*": "[boolean]",
         "int*": "[number]",
@@ -56,6 +57,17 @@ const generateMethods = (structData: ImGuiStruct, ctx: GeneratorContext): string
     const structMethods = ctx.data.functions.filter((f) => f.original_class === structData.name);
 
     for (const methodData of structMethods) {
+        const config = ctx.config.bindings?.structs?.[structData.name];
+        if (config?.methods?.[methodData.name]?.isExcluded) {
+            continue;
+        }
+
+        const overrideImpl = config?.methods?.[methodData.name]?.overrideImpl;
+        if (overrideImpl?.ts) {
+            code += overrideImpl.ts.join("");
+            continue;
+        }
+
         const comment = generateJsDocComment(methodData);
         const name = methodData.name.slice(structData.name.length + 1);
         const type = getTsType(methodData.return_type.declaration);

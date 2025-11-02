@@ -5,6 +5,14 @@ export interface TypedefConfig {
     };
 }
 
+export interface MethodConfig {
+    isExcluded?: boolean;
+    overrideImpl?: {
+        ts?: string[];
+        cpp?: string[];
+    };
+}
+
 export interface StructConfig {
     isExcluded?: boolean;
     isOpaque?: boolean;
@@ -15,6 +23,7 @@ export interface StructConfig {
             isExcluded: boolean;
         }
     >;
+    methods?: Record<string, MethodConfig>;
 }
 
 export interface EnumConfig {

@@ -43,8 +43,10 @@ export const generateTypedefs = (ctx: GeneratorContext): string => {
         code += `export type ${name} = ${type};\n`;
     }
 
-    // TODO: Handle this special case.
+    // TODO: Handle the special cases.
     code += "export type ImWchar = number;\n";
+    code += "export type ImTextureFormat = number;\n";
+    code += "export type ImGuiFreeTypeLoaderFlags = number;\n";
 
     return code;
 };
