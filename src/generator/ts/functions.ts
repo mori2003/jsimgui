@@ -45,6 +45,19 @@ export const getArguments = (functionData: ImGuiFunction, skipSelf: boolean = fa
                 return "";
             }
 
+            if (
+                arg.type?.description?.kind === "Pointer" &&
+                arg.type?.description?.inner_type?.kind === "User" &&
+                arg.type?.declaration !== "ImVec2" &&
+                arg.type?.declaration !== "size_t*" &&
+                arg.type?.declaration !== "const ImVec2*" &&
+                arg.type?.declaration !== "const ImVec4*" &&
+                arg.type?.declaration !== "ImVec4" &&
+                arg.type?.declaration !== "ImTextureRef"
+            ) {
+                return `${arg.name}?.ptr ?? null`;
+            }
+
             return `${arg.name}`;
         })
         .join(", ");

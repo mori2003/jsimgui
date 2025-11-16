@@ -1009,6 +1009,16 @@ export const ImGuiImplWeb = {
     },
 
     /**
+     * Load a font file to the filesystem for the current backend. Add it then using
+     * `ImGui.GetIO().Fonts.AddFontFromFileTTF(filename);`
+     * @param filename The filename of the font to load.
+     * @param fontData The font data to load.
+     */
+    LoadFont(filename: string, fontData: Uint8Array): void {
+        Mod.export.FS.writeFile(filename, fontData);
+    },
+
+    /**
      * Begins a new ImGui frame. Call this at the beginning of your render loop.
      */
     BeginRender() {
