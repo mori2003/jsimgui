@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>jsimgui</title>
+        <link rel="stylesheet" href="../style.css" />
+        <style>
+            body {
+    margin: 0;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+}
+
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+        </style>
+        <script type="importmap">
+            {
+                "imports": {
+                    "@mori2003/jsimgui": "../../../../build/mod.js"
+                }
+            }
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/pixi.js@8.14.3/dist/pixi.min.js"></script>
+        <script src="main.js" type="module"></script>
+    </head>
+
+    <body>
+        <main>
+        </main>
+    </body>
+</html>
