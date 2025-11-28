@@ -230,6 +230,7 @@ const buildWasm = (cfg: BuildConfig) => {
         "-sWASM_BIGINT",
 
         "-sMODULARIZE=1",
+        "-sSINGLE_FILE",
         "-sEXPORT_ES6=1",
         "-sEXPORT_NAME=MainExport",
 
