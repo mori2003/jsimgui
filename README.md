@@ -1,5 +1,10 @@
 # jsimgui: JavaScript bindings for Dear ImGui
 
+[![npm](https://img.shields.io/badge/npm-red?logo=npm)](https://www.npmjs.com/package/@mori2003/jsimgui)
+[![jsr](https://img.shields.io/badge/jsr-teal?logo=jsr)](https://jsr.io/@mori2003/jsimgui)
+![](https://img.shields.io/badge/Dear_ImGui-v1.92.4--docking-blue)
+![](https://github.com/mori2003/jsimgui/actions/workflows/build.yml/badge.svg)
+
 ![showcase](./docs/showcase.png)
 
 JavaScript/TypeScript bindings for the [Dear ImGui](https://github.com/ocornut/imgui) library.
