@@ -31,6 +31,14 @@ JavaScript/TypeScript bindings for the [Dear ImGui](https://github.com/ocornut/i
 
 - **Three.js WebGL2** - [View Example](https://mori2003.github.io/jsimgui/docs/examples/threejs/)
 
+**PixiJS**
+
+- **PixiJS** - [View Example](https://mori2003.github.io/jsimgui/docs/examples/pixijs/)
+
+**Babylon.js**
+
+- **Babylon.js** - [View Example](https://mori2003.github.io/jsimgui/docs/examples/babylonjs/)
+
 ## Todo
 The library should be somewhat usable, but expect bugs and missing features! (Custom font support, INI settings, etc.) Please open an issue if you find something.
 
