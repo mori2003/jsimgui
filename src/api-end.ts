@@ -326,15 +326,7 @@ const setupCanvasIO = (canvas: HTMLCanvasElement) => {
         const displayWidth = Math.floor(canvas.clientWidth);
         const displayHeight = Math.floor(canvas.clientHeight);
 
-        const dpr = globalThis.devicePixelRatio || 1;
-        const bufferWidth = Math.max(1, Math.round(displayWidth * dpr));
-        const bufferHeight = Math.max(1, Math.round(displayHeight * dpr));
-
-        canvas.width = bufferWidth;
-        canvas.height = bufferHeight;
-
         io.DisplaySize = new ImVec2(displayWidth, displayHeight);
-        io.DisplayFramebufferScale = new ImVec2(dpr, dpr);
     };
 
     setDisplayProperties();
