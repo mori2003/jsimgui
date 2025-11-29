@@ -8,7 +8,7 @@
     },
     "files": {
         "ignoreUnknown": false,
-        "maxSize": 2048576
+        "maxSize": 4048576
     },
     "formatter": {
         "enabled": true,
