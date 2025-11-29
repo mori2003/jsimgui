@@ -4,12 +4,18 @@ import { showJsimguiDemo } from "../demo.js";
 const canvas = document.querySelector("#render-canvas");
 const context = canvas.getContext("webgl");
 
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
 await ImGuiImplWeb.Init({
     canvas,
     enableDemos: true,
 });
 
 const frame = () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
     ImGuiImplWeb.BeginRender();
 
     ImGui.Begin("New Window");
