@@ -72,7 +72,36 @@
             "ImDrawData": { "isOpaque": true },
             "ImGuiStyle": {
                 "fields": {
-                    "Colors": { "isExcluded": true }
+                    "Colors": {
+                        "overrideImpl": {
+                            "ts": [
+                                "    get Colors(): ImVec4[] {\n",
+                                "        return this.ptr.get_Colors();\n",
+                                "    }\n",
+                                "\n",
+                                "    set Colors(v: ImVec4[]) {\n",
+                                "        this.ptr.set_Colors(v);\n",
+                                "    }\n",
+                                "\n"
+                            ],
+                            "cpp": [
+                                ".function(\"get_Colors\", override([](const ImGuiStyle& self){ \n",
+                                "    auto obj = emscripten::val::array();\n",
+                                "    for (auto i = 0; i < ImGuiCol_COUNT; i++) {\n",
+                                "        obj.set(i, wrap_imvec4(self.Colors[i]));\n",
+                                "    };\n",
+                                "    return obj;\n",
+                                "}), rvp_ref(), allow_ptr())\n",
+                                "\n",
+                                ".function(\"set_Colors\", override([](ImGuiStyle& self, JsVal value){\n",
+                                "    for (auto i = 0; i < ImGuiCol_COUNT; i++) {\n",
+                                "        self.Colors[i] = get_imvec4(value[i].as<JsVal>());\n",
+                                "    };\n",
+                                "}), allow_ptr())\n",
+                                "\n"
+                            ]
+                        }
+                    }
                 }
             },
             "ImGuiIO": {

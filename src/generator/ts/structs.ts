@@ -100,6 +100,12 @@ const generateFields = (structData: ImGuiStruct, ctx: GeneratorContext): string 
             continue;
         }
 
+        const overrideImpl = config?.[structData.name]?.fields?.[field.name]?.overrideImpl;
+        if (overrideImpl?.ts) {
+            code += overrideImpl.ts.join("");
+            continue;
+        }
+
         const comment = generateJsDocComment(field);
         const name = field.name;
         const type = getTsType(field.type.declaration);

@@ -21,6 +21,10 @@ export interface StructConfig {
         {
             name: string;
             isExcluded: boolean;
+            overrideImpl?: {
+                ts?: string[];
+                cpp?: string[];
+            };
         }
     >;
     methods?: Record<string, MethodConfig>;

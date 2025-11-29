@@ -51,6 +51,12 @@ const generateFields = (structData: ImGuiStruct, ctx: GeneratorContext): string 
             continue;
         }
 
+        const overrideImpl = config?.[structData.name]?.fields?.[field.name]?.overrideImpl;
+        if (overrideImpl?.cpp) {
+            code += overrideImpl.cpp.join("");
+            continue;
+        }
+
         // TODO: Refactor!
         if (field.type.declaration === "ImVec2") {
             code += `.function("get_${field.name}", override([](const ${structData.name}& self){ return wrap_imvec2(self.${field.name}); }), rvp_ref(), allow_ptr())\n`;
