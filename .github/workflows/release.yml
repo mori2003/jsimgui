@@ -69,27 +69,3 @@ jobs:
             path: '.'
       - uses: actions/deploy-pages@v4
         id: deployment
-        
-
-  release-gh:
-    runs-on: ubuntu-latest
-    name: 'Make GitHub Release'
-    needs: [publish-npmjs, publish-jsr]
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: orhun/git-cliff-action@v4
-        id: git-cliff
-        with:
-          config: .github/cliff.toml
-          args: -vv --latest --strip header
-        env:
-          OUTPUT: CHANGES.md
-          GITHUB_REPO: ${{ github.repository }}
-      - uses: softprops/action-gh-release@v2
-        with:
-          body: ${{ steps.git-cliff.outputs.content }}
-          generate_release_notes: false
