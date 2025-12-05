@@ -313,24 +313,11 @@ const handleKeyboardEvent = (event: KeyboardEvent, keyDown: boolean, io: ImGuiIO
     }
 };
 
-/**
- * Sets up the correct display size and framebuffer scale for Dear ImGui. Also handles resize
- * events for the canvas.
- *
- * @param canvas The canvas element to set up.
- */
-const setupCanvasIO = (canvas: HTMLCanvasElement) => {
+const setDisplayProperties = (canvas: HTMLCanvasElement) => {
     const io = ImGui.GetIO();
-
-    const setDisplayProperties = () => {
-        const displayWidth = Math.floor(canvas.clientWidth);
-        const displayHeight = Math.floor(canvas.clientHeight);
-
-        io.DisplaySize = new ImVec2(displayWidth, displayHeight);
-    };
-
-    setDisplayProperties();
-    globalThis.addEventListener("resize", setDisplayProperties);
+    const width = Math.floor(canvas.clientWidth);
+    const height = Math.floor(canvas.clientHeight);
+    io.DisplaySize = new ImVec2(width, height);
 };
 
 /**
@@ -529,7 +516,8 @@ const setupBrowserIO = (canvas: HTMLCanvasElement) => {
     canvas.addEventListener("focus", () => io.AddFocusEvent(true));
     canvas.addEventListener("blur", () => io.AddFocusEvent(false));
 
-    setupCanvasIO(canvas);
+    setDisplayProperties(canvas);
+
     setupMouseIO(canvas);
     setupKeyboardIO(canvas);
     setupTouchIO(canvas);
@@ -1014,6 +1002,8 @@ export const ImGuiImplWeb = {
      * Begins a new ImGui frame. Call this at the beginning of your render loop.
      */
     BeginRender() {
+        setDisplayProperties(State.canvas as HTMLCanvasElement);
+
         if (ImGui.GetIO().WantSaveIniSettings) {
             State.saveIniSettingsFn?.(ImGui.SaveIniSettingsToMemory());
             ImGui.GetIO().WantSaveIniSettings = false;
