@@ -53,20 +53,30 @@ For more information, see the [wiki](https://github.com/mori2003/jsimgui/wiki).
 <html>
     <head>
         <style>
-            #render-canvas {
-                width: 100%;
-                height: 100%;
+            body {
+                margin: 0;
+            }
+
+            canvas {
+                display: block;
+                width: 100vw;
+                height: 100vh;
             }
         </style>
         <script type="module">
             import { ImGui, ImGuiImplWeb } from "https://esm.sh/@mori2003/jsimgui";
 
+            const canvas = document.querySelector("#render-canvas");
+
             await ImGuiImplWeb.Init({
-                canvas: document.querySelector("#render-canvas"),
+                canvas: canvas,
                 enableDemos: true,
             });
 
             function render() {
+                canvas.width = canvas.clientWidth;
+                canvas.height = canvas.clientHeight;
+
                 ImGuiImplWeb.BeginRender();
 
                 ImGui.Begin("New Window");
