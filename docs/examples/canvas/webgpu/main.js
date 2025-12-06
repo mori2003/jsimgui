@@ -4,9 +4,6 @@ import { showJsimguiDemo } from "../demo.js";
 const canvas = document.querySelector("#render-canvas");
 const context = canvas.getContext("webgpu");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
 const adapter = await navigator.gpu.requestAdapter();
 const device = await adapter.requestDevice();
 
@@ -22,8 +19,8 @@ await ImGuiImplWeb.Init({
 });
 
 const frame = () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
 
     ImGuiImplWeb.BeginRender();
 
