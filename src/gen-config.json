@@ -190,6 +190,34 @@
                     "_OwnerName": { "isExcluded": true }
                 }
             },
+            "ImGuiPayload": {
+                "fields": {
+                    "Data": {
+                        "overrideImpl": {
+                            "ts": [
+                                "    get Data(): string {\n",
+                                "        return this.ptr.get_Data();\n",
+                                "    }\n"
+                            ],
+                            "cpp": [
+                                ".function(\"get_Data\", override([](const ImGuiPayload* self){ return std::string((char*)self->Data, self->DataSize); }), rvp_ref(), allow_ptr())\n"
+                            ]
+                        }
+                    },
+                    "DataSize": {
+                        "overrideImpl": {
+                            "ts": [
+                                "    get DataSize(): number {\n",
+                                "        return this.ptr.get_DataSize();\n",
+                                "    }\n"
+                            ],
+                            "cpp": [
+                                ".function(\"get_DataSize\", override([](const ImGuiPayload* self){ return self->DataSize; }), rvp_ref(), allow_ptr())\n"
+                            ]
+                        }
+                    }
+                }
+            },
             "ImDrawListSplitter": { "isExcluded": true },
             "ImGuiTextBuffer": { "isExcluded": true },
             "ImGuiStorage": { "isExcluded": true }
@@ -410,7 +438,20 @@
             "ImGui_ListBoxCallback": { "isExcluded": true },
             "ImGui_PlotLinesCallback": { "isExcluded": true },
             "ImGui_PlotHistogramCallback": { "isExcluded": true },
-            "ImGui_SetDragDropPayload": { "isExcluded": true },
+            "ImGui_SetDragDropPayload": {
+                "overrideImpl": {
+                    "ts": [
+                        "    SetDragDropPayload(type: string, data: string, sz: number, cond: ImGuiCond): boolean {\n",
+                        "        return Mod.export.ImGui_SetDragDropPayload(type, data, sz, cond);\n",
+                        "    },\n"
+                    ],
+                    "cpp": [
+                        "bind_fn(\"ImGui_SetDragDropPayload\", [](std::string type, std::string data, size_t sz, ImGuiCond cond){\n",
+                        "    return ImGui_SetDragDropPayload(type.c_str(), data.data(), sz, cond);\n",
+                        "});\n"
+                    ]
+                }
+            },
 
             "ImGui_TextV": { "isExcluded": true },
             "ImGui_TextUnformatted": { "isExcluded": true },
