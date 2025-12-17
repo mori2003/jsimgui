@@ -100,26 +100,31 @@ For more information, see the [wiki](https://github.com/mori2003/jsimgui/wiki).
 
 ## Building
 
-### Prerequisites
-
-- A Node.js compatible runtime (Node.js >= v22.18.0, Deno, Bun)
-- [Emscripten](https://emscripten.org/) v4.0.17 (Currently not possible to build for WebGPU with >= v4.0.18)
-- [Python](https://www.python.org/) with [Ply](https://pypi.org/project/ply/) (For dear_bindings)
-
-### Build
-
-#### 1. Clone the repository with submodules
+### 1. Clone the repository with submodules
 
 ```bash
 git clone https://github.com/mori2003/jsimgui.git --recurse-submodules
 cd jsimgui
 ```
 
+### 2. Build
+
+#### Using Docker Image
+```bash
+docker build -t jsimgui .
+docker run -v "$PWD:/workspace" jsimgui bash -c "npm install && node build.ts"
+```
+#### Manually
+
+**Prerequisites**
+
+- A Node.js compatible runtime (Node.js >= v22.18.0, Deno, Bun)
+- [Emscripten](https://emscripten.org/) v4.0.17 (Currently not possible to build for WebGPU with >= v4.0.18)
+- [Python](https://www.python.org/) with [Ply](https://pypi.org/project/ply/) (For dear_bindings)
+
 ```bash
 npm install
 ```
-
-#### 2. Run the build script
 
 This will build the default library configuration: WebGL2, truetype font loader, no demos.
 
