@@ -367,8 +367,8 @@
             "ImGui_InputText": {
                 "overrideImpl": {
                     "ts": [
-                        "    InputText(label: string, buf: [string], buf_size: number, flags: ImGuiInputTextFlags = 0): void {\n",
-                        "        Mod.export.ImGui_InputText(label, buf, buf_size, flags);\n",
+                        "    InputText(label: string, buf: [string], buf_size: number, flags: ImGuiInputTextFlags = 0): boolean {\n",
+                        "        return Mod.export.ImGui_InputText(label, buf, buf_size, flags);\n",
                         "    },\n"
                     ],
                     "cpp": [
@@ -385,8 +385,8 @@
             "ImGui_InputTextMultiline": {
                 "overrideImpl": {
                     "ts": [
-                        "    InputTextMultiline(label: string, buf: [string], buf_size: number, size: ImVec2 = new ImVec2(0, 0), flags: ImGuiInputTextFlags = 0): void {\n",
-                        "        Mod.export.ImGui_InputTextMultiline(label, buf, buf_size, size, flags);\n",
+                        "    InputTextMultiline(label: string, buf: [string], buf_size: number, size: ImVec2 = new ImVec2(0, 0), flags: ImGuiInputTextFlags = 0): boolean {\n",
+                        "        return Mod.export.ImGui_InputTextMultiline(label, buf, buf_size, size, flags);\n",
                         "    },\n"
                     ],
                     "cpp": [
@@ -403,8 +403,8 @@
             "ImGui_InputTextWithHint": {
                 "overrideImpl": {
                     "ts": [
-                        "    InputTextWithHint(label: string, hint: string, buf: [string], buf_size: number, flags: ImGuiInputTextFlags = 0): void {\n",
-                        "        Mod.export.ImGui_InputTextWithHint(label, hint, buf, buf_size, flags);\n",
+                        "    InputTextWithHint(label: string, hint: string, buf: [string], buf_size: number, flags: ImGuiInputTextFlags = 0): boolean {\n",
+                        "        return Mod.export.ImGui_InputTextWithHint(label, hint, buf, buf_size, flags);\n",
                         "    },\n"
                     ],
                     "cpp": [
