@@ -11,6 +11,14 @@ RUN uv python install 3.14.2 --default \
 
 ENV PATH="$PATH:/emsdk/upstream/emscripten:/emsdk/"
 COPY --from=docker.io/emscripten/emsdk:4.0.17 /emsdk /emsdk/
-COPY --from=node:25.2.1 /usr/local/bin/node /usr/local/bin/node
-COPY --from=denoland/deno:2.6.1 /usr/bin/deno /usr/local/bin/deno
-COPY --from=oven/bun:1.3.4 /usr/local/bin/bun /usr/local/bin/bun
+
+ENV NVM_DIR="/root/.nvm"
+ENV PATH="$PATH:$NVM_DIR/versions/node/v25.2.1/bin"
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash \
+    && \. "$HOME/.nvm/nvm.sh" \
+    && nvm install 25.2.1 \
+    && npm install -g bun \
+    && npm install -g deno \
+    && node -v \
+    && bun -v \
+    && deno -v
