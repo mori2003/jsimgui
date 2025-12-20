@@ -34,7 +34,7 @@ const generateMethods = (structData: ImGuiStruct, ctx: GeneratorContext): string
             code += `    return ${name}(${args});\n`;
         }
 
-        code += `}), allow_ptr())\n`;
+        code += `}), AllowRawPtrs{})\n`;
 
         code += "\n";
     }
@@ -59,15 +59,15 @@ const generateFields = (structData: ImGuiStruct, ctx: GeneratorContext): string 
 
         // TODO: Refactor!
         if (field.type.declaration === "ImVec2") {
-            code += `.function("get_${field.name}", override([](const ${structData.name}& self){ return wrap_imvec2(self.${field.name}); }), rvp_ref(), allow_ptr())\n`;
-            code += `.function("set_${field.name}", override([](${structData.name}& self, JsVal value){ self.${field.name} = get_imvec2(value); }), allow_ptr())\n`;
+            code += `.function("get_${field.name}", override([](const ${structData.name}& self){ return wrap_imvec2(self.${field.name}); }), ReturnRef{}, AllowRawPtrs{})\n`;
+            code += `.function("set_${field.name}", override([](${structData.name}& self, JsVal value){ self.${field.name} = get_imvec2(value); }), AllowRawPtrs{})\n`;
             code += "\n";
             continue;
         }
 
-        code += `.function("get_${field.name}", override([](const ${structData.name}& self){ return self.${field.name}; }), rvp_ref(), allow_ptr())\n`;
+        code += `.function("get_${field.name}", override([](const ${structData.name}& self){ return self.${field.name}; }), ReturnRef{}, AllowRawPtrs{})\n`;
 
-        code += `.function("set_${field.name}", override([](${structData.name}& self, ${field.type.declaration} value){ self.${field.name} = value; }), allow_ptr())\n`;
+        code += `.function("set_${field.name}", override([](${structData.name}& self, ${field.type.declaration} value){ self.${field.name} = value; }), AllowRawPtrs{})\n`;
 
         code += "\n";
     }

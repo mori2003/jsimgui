@@ -18,7 +18,7 @@ export interface GeneratorContext {
 }
 
 export const runGenerator = () => {
-    const configData = JSON.parse(readFileSync("./src/gen-config.json", "utf-8"));
+    const configData = JSON.parse(readFileSync("./src/imgui/config.json", "utf-8"));
 
     // Filters out internal & obsolete functions, structs, enums... which we don't need.
     const fileData = readFileSync(

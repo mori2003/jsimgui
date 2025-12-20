@@ -1,11 +1,17 @@
 Checks:
-    "clang-diagnostic-*, \
-    clang-analyzer-*, \
-    cppcoreguidelines-*, \
-    bugprone-*, \
-    modernize-*, \
-    misc-*, \
-    performance-*, \
-    llvm-*, \
-    readability-*, \
-    portability-*"
+    "*, \
+    -misc-use-anonymous-namespace, \
+    -modernize-use-trailing-return-type, \
+    -hicpp-named-parameter, \
+    -readability-named-parameter, \
+    -altera-struct-pack-align, \
+    -cert-err58-cpp, \
+    -fuchsia-statically-constructed-objects, \
+    -hicpp-braces-around-statements, \
+    -altera-unroll-loops, \
+    -readability-braces-around-statements, \
+    -google-readability-braces-around-statements, \
+    -fuchsia-trailing-return, \
+    -concurrency-mt-unsafe, \
+    -llvmlibc*, \
+    -readability-identifier-length"

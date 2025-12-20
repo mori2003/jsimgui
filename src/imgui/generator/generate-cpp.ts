@@ -4,14 +4,18 @@ import { generateStructs } from "./cpp/structs.ts";
 import type { GeneratorContext } from "./main.ts";
 
 export const generateCppBindings = (ctx: GeneratorContext): string => {
-    const templateBegin = readFileSync("./src/bindings.cpp", "utf-8");
-
     let code = "";
-    code += templateBegin;
-    code += "EMSCRIPTEN_BINDINGS(jsimgui) {\n";
+
+    code += "#include <util.hpp>\n";
+    code += "#include <wrappers.hpp>\n";
+    code += "#include <dcimgui.h>\n";
+    code += "#include <dcimgui_internal.h>\n";
+    code += "#include <emscripten/bind.h>\n";
+
+    code += "static auto const IMGUI = Bindings([]() {\n";
     code += generateStructs(ctx);
     code += generateFunctions(ctx);
-    code += "}\n";
+    code += "});\n";
 
     return code;
 };

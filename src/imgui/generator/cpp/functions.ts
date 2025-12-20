@@ -165,7 +165,7 @@ export const generateFunctions = (ctx: GeneratorContext): string => {
         let allowedPtr = false;
 
         if (functionData.return_type.declaration.includes("*")) {
-            policies = ", rvp_ref(), allow_ptr()";
+            policies = ", ReturnRef{}, AllowRawPtrs{}";
             allowedPtr = true;
         }
 
@@ -173,7 +173,7 @@ export const generateFunctions = (ctx: GeneratorContext): string => {
             !allowedPtr &&
             functionData.arguments.some((arg) => arg.type?.declaration.includes("*"))
         ) {
-            policies = ", allow_ptr()";
+            policies = ", AllowRawPtrs{}";
         }
 
         const overrideImpl = config?.[functionData.name]?.overrideImpl;

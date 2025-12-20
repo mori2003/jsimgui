@@ -10,7 +10,7 @@ import { existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
 import { join as joinPath } from "node:path";
 import { argv, exit, stdout } from "node:process";
 import { styleText } from "node:util";
-import { runGenerator } from "./src/generator/main.ts";
+import { runGenerator } from "./src/imgui/generator/main.ts";
 
 const runCommand = (cmd: string, failCb?: () => void) => {
     const [command, ...args] = cmd.split(" ");
@@ -167,7 +167,7 @@ const buildWasm = (cfg: BuildConfig) => {
         webgl: {
             sources: [
                 "./third_party/imgui/backends/imgui_impl_opengl3.cpp",
-                "./src/fixes/dcimgui_impl_opengl3.cpp",
+                "./src/imgui/api/cpp/dcimgui_impl_opengl3.cpp",
             ],
             flags: ["-sMIN_WEBGL_VERSION=1", "-sMAX_WEBGL_VERSION=1", "-DJSIMGUI_BACKEND_WEBGL"],
             exports: ["GL"],
@@ -175,7 +175,7 @@ const buildWasm = (cfg: BuildConfig) => {
         webgl2: {
             sources: [
                 "./third_party/imgui/backends/imgui_impl_opengl3.cpp",
-                "./src/fixes/dcimgui_impl_opengl3.cpp",
+                "./src/imgui/api/cpp/dcimgui_impl_opengl3.cpp",
             ],
             flags: ["-sMIN_WEBGL_VERSION=2", "-sMAX_WEBGL_VERSION=2", "-DJSIMGUI_BACKEND_WEBGL"],
             exports: ["GL"],
@@ -183,7 +183,7 @@ const buildWasm = (cfg: BuildConfig) => {
         webgpu: {
             sources: [
                 "./third_party/imgui/backends/imgui_impl_wgpu.cpp",
-                "./src/fixes/dcimgui_impl_wgpu.cpp",
+                "./src/imgui/api/cpp/dcimgui_impl_wgpu.cpp",
             ],
             flags: ["-sUSE_WEBGPU=1", "-DJSIMGUI_BACKEND_WEBGPU"],
             exports: ["WebGPU", "JsValStore"],
@@ -202,6 +202,10 @@ const buildWasm = (cfg: BuildConfig) => {
     } as const;
 
     const sourceFiles = [
+        //"./bindgen/jsimgui.cpp",
+        "./src/imgui/api/cpp/web.cpp",
+        cfg.backend === "webgl2" || cfg.backend === "webgl" ? "./src/imgui/api/cpp/webgl.cpp" : "",
+        cfg.backend === "webgpu" ? "./src/imgui/api/cpp/webgpu.cpp" : "",
         "./bindgen/jsimgui.cpp",
 
         "./third_party/imgui/imgui.cpp",
@@ -215,6 +219,8 @@ const buildWasm = (cfg: BuildConfig) => {
     ] as const;
 
     const includeDirs = [
+        "-I./src/imgui/api/cpp/",
+
         "-I./third_party/imgui/",
         "-I./third_party/imgui/backends",
         "-I./third_party/dear_bindings",

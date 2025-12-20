@@ -91,13 +91,13 @@
                                 "        obj.set(i, wrap_imvec4(self.Colors[i]));\n",
                                 "    };\n",
                                 "    return obj;\n",
-                                "}), rvp_ref(), allow_ptr())\n",
+                                "}), ReturnRef{}, AllowRawPtrs{})\n",
                                 "\n",
                                 ".function(\"set_Colors\", override([](ImGuiStyle& self, JsVal value){\n",
                                 "    for (auto i = 0; i < ImGuiCol_COUNT; i++) {\n",
                                 "        self.Colors[i] = get_imvec4(value[i].as<JsVal>());\n",
                                 "    };\n",
-                                "}), allow_ptr())\n",
+                                "}), AllowRawPtrs{})\n",
                                 "\n"
                             ]
                         }
@@ -152,7 +152,7 @@
                                 ".function(\"ImFontAtlas_AddFontFromFileTTF\", override([](ImFontAtlas* self, std::string filename, float size_pixels, const ImFontConfig* font_cfg, JsVal glyph_ranges) -> ImFont* {\n",
                                 "    auto _bind_glyph_ranges = ArrayParam<ImWchar>(glyph_ranges);\n",
                                 "    return ImFontAtlas_AddFontFromFileTTF(self, filename.c_str(), size_pixels, font_cfg, &_bind_glyph_ranges);\n",
-                                "}), rvp_ref(), allow_ptr())\n"
+                                "}), ReturnRef{}, AllowRawPtrs{})\n"
                             ]
                         }
                     },
@@ -200,7 +200,7 @@
                                 "    }\n"
                             ],
                             "cpp": [
-                                ".function(\"get_Data\", override([](const ImGuiPayload* self){ return std::string((char*)self->Data, self->DataSize); }), rvp_ref(), allow_ptr())\n"
+                                ".function(\"get_Data\", override([](const ImGuiPayload* self){ return std::string((char*)self->Data, self->DataSize); }), ReturnRef{}, AllowRawPtrs{})\n"
                             ]
                         }
                     },
@@ -212,7 +212,7 @@
                                 "    }\n"
                             ],
                             "cpp": [
-                                ".function(\"get_DataSize\", override([](const ImGuiPayload* self){ return self->DataSize; }), rvp_ref(), allow_ptr())\n"
+                                ".function(\"get_DataSize\", override([](const ImGuiPayload* self){ return self->DataSize; }), ReturnRef{}, AllowRawPtrs{})\n"
                             ]
                         }
                     }
