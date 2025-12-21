@@ -16,8 +16,8 @@ export const showJsimguiDemo = (context) => {
         context instanceof WebGLRenderingContext
             ? "WebGL"
             : context instanceof WebGL2RenderingContext
-              ? "WebGL2"
-              : "WebGPU";
+                ? "WebGL2"
+                : "WebGPU";
 
     // Run once
     if (!showJsimguiDemo.imgBackendId) {
@@ -35,7 +35,7 @@ export const showJsimguiDemo = (context) => {
         }
 
         imgBackend.onload = () => {
-            ImGuiImplWeb.LoadTexture(imgBackend, { id: showJsimguiDemo.imgBackendId });
+            showJsimguiDemo.imgBackendId = ImGuiImplWeb.LoadTexture(imgBackend, { id: showJsimguiDemo.imgBackendId });
         };
     }
 

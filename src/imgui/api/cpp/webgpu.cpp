@@ -4,18 +4,17 @@
 #include <dcimgui_impl_wgpu.h>
 
 #include <emscripten/bind.h>
-#include <emscripten/html5_webgpu.h>
 #include <webgpu/webgpu.h>
 #include <webgpu/webgpu_cpp.h>
 
 #include <cstdint>
 
 static auto const WEBGPU = Bindings([]() {
-    bind_fn("cImGui_ImplWGPU_Init", []() -> bool {
-        auto device = wgpu::Device::Acquire(emscripten_webgpu_get_device());
+    bind_fn("cImGui_ImplWGPU_Init", [](uintptr_t handle) -> bool {
+        auto const device = reinterpret_cast<WGPUDevice>(handle);
 
         auto init_info = ImGui_ImplWGPU_InitInfo{
-            .Device = device.MoveToCHandle(),
+            .Device = device,
             .NumFramesInFlight = 3,
             .RenderTargetFormat = WGPUTextureFormat_BGRA8Unorm,
             .DepthStencilFormat = WGPUTextureFormat_Undefined,
@@ -39,12 +38,10 @@ static auto const WEBGPU = Bindings([]() {
 
     bind_fn(
         "cImGui_ImplWGPU_RenderDrawData",
-        [](ImDrawData* draw_data, int handle) -> void {
-            auto pass_encoder = wgpu::RenderPassEncoder::Acquire(
-                emscripten_webgpu_import_render_pass_encoder(handle)
-            );
+        [](ImDrawData* draw_data, uintptr_t handle) -> void {
+            auto const pass_encoder = reinterpret_cast<WGPURenderPassEncoder>(handle);
 
-            cImGui_ImplWGPU_RenderDrawData(draw_data, pass_encoder.MoveToCHandle());
+            cImGui_ImplWGPU_RenderDrawData(draw_data, pass_encoder);
         },
         AllowRawPtrs{}
     );

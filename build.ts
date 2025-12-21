@@ -185,8 +185,8 @@ const buildWasm = (cfg: BuildConfig) => {
                 "./third_party/imgui/backends/imgui_impl_wgpu.cpp",
                 "./src/imgui/api/cpp/dcimgui_impl_wgpu.cpp",
             ],
-            flags: ["-sUSE_WEBGPU=1", "-DJSIMGUI_BACKEND_WEBGPU"],
-            exports: ["WebGPU", "JsValStore"],
+            flags: ["--use-port=emdawnwebgpu", "-DJSIMGUI_BACKEND_WEBGPU"],
+            exports: ["WebGPU"],
         },
     } as const;
 

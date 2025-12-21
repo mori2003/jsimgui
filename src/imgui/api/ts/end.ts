@@ -48,8 +48,8 @@ export const ImGuiImplWGPU = {
      *
      * @returns `true` if the backend initialized successfully, `false` otherwise.
      */
-    Init(): boolean {
-        return Mod.export.cImGui_ImplWGPU_Init();
+    Init(handle: number): boolean {
+        return Mod.export.cImGui_ImplWGPU_Init(handle);
     },
 
     /**
@@ -73,7 +73,7 @@ export const ImGuiImplWGPU = {
      * @param pass_encoder The pass encoder to use for rendering.
      */
     RenderDrawData(draw_data: ImDrawData, pass_encoder: GPURenderPassEncoder) {
-        const handle = Mod.export.JsValStore.add(pass_encoder);
+        const handle = Mod.export.WebGPU.importJsRenderPassEncoder(pass_encoder);
         Mod.export.cImGui_ImplWGPU_RenderDrawData(draw_data.ptr, handle);
     },
 };
@@ -724,19 +724,25 @@ const loadTextureWebGPU = (
         : processTexture();
 
     if (!options.id) {
-        Mod.export.WebGPU.mgrTexture.create(texture);
-        const newID = Mod.export.WebGPU.mgrTextureView.create(textureView);
+        Mod.export.WebGPU.importJsTexture(texture);
+        const newID = Mod.export.WebGPU.importJsTextureView(textureView);
+        // Mod.export.WebGPU.mgrTexture.create(texture);
+        // const newID = Mod.export.WebGPU.mgrTextureView.create(textureView);
         return newID;
     }
 
-    const id = options.id as unknown as number;
-    const textureWrapper = Mod.export.WebGPU.mgrTexture.objects[id];
-    const textureViewWrapper = Mod.export.WebGPU.mgrTextureView.objects[id];
+    Mod.export.WebGPU.importJsTexture(texture);
+    const newID = Mod.export.WebGPU.importJsTextureView(textureView, options.id as unknown as number);
 
-    if (textureWrapper) textureWrapper.object = texture;
-    if (textureViewWrapper) textureViewWrapper.object = textureView;
 
-    return options.id;
+    //console.log(Mod.export.WebGPU.getJsObject(id));
+    // const textureWrapper = Mod.export.WebGPU.mgrTexture.objects[id];
+    // const textureViewWrapper = Mod.export.WebGPU.mgrTextureView.objects[id];
+
+    // if (textureWrapper) textureWrapper.object = texture;
+    // if (textureViewWrapper) textureViewWrapper.object = textureView;
+
+    return newID;
 };
 
 /**
@@ -912,8 +918,11 @@ const initWebGPU = (canvas: HTMLCanvasElement, device: GPUDevice | undefined) =>
         throw new Error("jsimgui: WebGPU device is not provided.");
     }
 
-    Mod.export.preinitializedWebGPUDevice = device;
-    ImGuiImplWGPU.Init();
+    //console.log(Mod.export)
+    //Mod.export.preinitializedWebGPUDevice = device;
+    const handle = Mod.export.WebGPU.importJsDevice(device);
+    console.log(handle);
+    ImGuiImplWGPU.Init(handle);
 
     State.beginRenderFn = () => {
         ImGuiImplWGPU.NewFrame();
