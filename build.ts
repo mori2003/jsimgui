@@ -77,6 +77,7 @@ const buildData = () => {
                     "-Xclang",
                     "-iwithsysroot/include/fakesdl",
                     "-Xclang",
+                    "-std=c++26",
                     "-iwithsysroot/include/compat",
                     srcFile,
 
@@ -88,7 +89,7 @@ const buildData = () => {
                     "-DJSIMGUI_BACKEND_WEBGPU",
                 ],
                 directory: process.cwd(),
-                file: srcFile,
+                file: "",
             },
         ],
         null,
