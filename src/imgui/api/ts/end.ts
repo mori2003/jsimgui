@@ -732,8 +732,10 @@ const loadTextureWebGPU = (
     }
 
     Mod.export.WebGPU.importJsTexture(texture);
-    const newID = Mod.export.WebGPU.importJsTextureView(textureView, options.id as unknown as number);
-
+    const newID = Mod.export.WebGPU.importJsTextureView(
+        textureView,
+        options.id as unknown as number,
+    );
 
     //console.log(Mod.export.WebGPU.getJsObject(id));
     // const textureWrapper = Mod.export.WebGPU.mgrTexture.objects[id];
