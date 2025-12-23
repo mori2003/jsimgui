@@ -1,43 +1,55 @@
 import type { ImGuiConditional, ImGuiData } from "./interface.ts";
 
-function isInternalElement(element: any): boolean {
+interface FilterItem {
+    is_internal: boolean;
+    conditionals?: ImGuiConditional[];
+}
+
+/**
+ * Checks wether the item is internal. These items should ideally not be exposed to the end user,
+ * So they can be excluded to reduce file size.
+ */
+function isInternalItem(element: FilterItem): boolean {
     return element.is_internal;
 }
 
-function isObsoleteElement(element: any): boolean {
+/**
+ * Checks wether the item is obsolete. Some ImGui functions are marked as obsolete in the code.
+ * Ideally we exclude them to reduce file size.
+ */
+function isObsoleteItem(element: FilterItem): boolean {
     if (!element.conditionals) {
         return false;
     }
 
     return element.conditionals.some(
-        (cond: ImGuiConditional): boolean =>
+        (cond: ImGuiConditional) =>
             cond.condition === "ifndef" && cond.expression === "IMGUI_DISABLE_OBSOLETE_FUNCTIONS",
     );
 }
 
 /**
- * Filters out elements and subelements from the given data based on the filter function.
+ * Filters out elements and subelements from the given data based on .
  * Used to filter out internal and obsolete elements.
  */
-function filterElements(data: any, filterFunction: (element: any) => boolean): any {
+// biome-ignore lint/suspicious/noExplicitAny: _
+function filterElements(data: any, predicate: (element: any) => boolean): any {
     if (Array.isArray(data)) {
-        return data
-            .map((item) => filterElements(item, filterFunction))
-            .filter((item) => item !== null);
+        return data.map((item) => filterElements(item, predicate)).filter((item) => item !== null);
     }
 
     if (data !== null && typeof data === "object") {
-        if (filterFunction(data)) {
+        if (predicate(data)) {
             return null;
         }
 
         const newObj = {};
 
         for (const [key, value] of Object.entries(data)) {
-            const filteredValue = filterElements(value, filterFunction);
+            const filteredValue = filterElements(value, predicate);
 
             if (filteredValue !== null) {
-                newObj[key] = filteredValue;
+                (newObj as Record<string, unknown>)[key] = filteredValue;
             }
         }
         return newObj;
@@ -46,12 +58,15 @@ function filterElements(data: any, filterFunction: (element: any) => boolean): a
     return data;
 }
 
-/** Filters out internal and obsolete elements from the given ImGui data. */
-export function filterSkippables(data: ImGuiData, internal: boolean, obsolete: boolean): ImGuiData {
+/**
+ * Filters out internal and obsolete items from the ImGui data. We exclude these to reduce
+ * file size.
+ */
+export function filterData(data: ImGuiData, internal: boolean, obsolete: boolean): ImGuiData {
     let filteredJson = { ...data };
 
-    filteredJson = internal ? filterElements(filteredJson, isInternalElement) : filteredJson;
-    filteredJson = obsolete ? filterElements(filteredJson, isObsoleteElement) : filteredJson;
+    filteredJson = internal ? filterElements(filteredJson, isInternalItem) : filteredJson;
+    filteredJson = obsolete ? filterElements(filteredJson, isObsoleteItem) : filteredJson;
 
     return filteredJson;
 }
