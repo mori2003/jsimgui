@@ -28,11 +28,13 @@ jobs:
       with:
         node-version: lts/*
     - name: Install dependencies
-      run: npm ci tests/playwright
+      run: cd tests/playwright && npm install
+      run: pwd
+      run: ls -lah
     - name: Install Playwright Browsers
       run: npx playwright install chromium --with-deps --no-shell
     - name: Run Playwright tests
-      run: cd tests/playwright && npx playwright test
+      run: npx playwright test
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
