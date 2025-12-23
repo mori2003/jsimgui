@@ -28,9 +28,9 @@ jobs:
       with:
         node-version: lts/*
     - name: Install dependencies
-      run: npm ci
+      run: cd test/playwright && npm ci
     - name: Install Playwright Browsers
-      run: npx playwright install --with-deps --no-shell
+      run: npx playwright install chromium --with-deps --no-shell
     - name: Run Playwright tests
       run: npx playwright test
     - uses: actions/upload-artifact@v4
