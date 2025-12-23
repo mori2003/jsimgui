@@ -8,8 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     name: 'Biome'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
-          submodules: true
+          persist-credentials: false
       - uses: biomejs/setup-biome@v2
-      - run: biome check
+      - run: biome ci .
