@@ -130,13 +130,22 @@ export function getFunctionsCode(context: GeneratorContext): string {
         const preProcess = getPreProcess(function_);
 
         let returnType = function_.return_type.declaration;
-        if (returnType === "const char*") {
-            returnType = "std::string";
-        }
 
         const call = (() => {
             if (returnType === "void") {
                 return `    ${name}(${args});\n`;
+            }
+
+            if (returnType === "ImVec2") {
+                return `    return wrap_imvec2(${name}(${args}));\n`;
+            }
+
+            if (returnType === "ImVec4") {
+                return `    return wrap_imvec4(${name}(${args}));\n`;
+            }
+
+            if (returnType === "ImTextureRef") {
+                return `    return wrap_imtexture_ref(${name}(${args}));\n`;
             }
 
             if (returnType === "const char*") {
@@ -145,6 +154,22 @@ export function getFunctionsCode(context: GeneratorContext): string {
 
             return `    return ${name}(${args});\n`;
         })();
+
+        if (returnType === "const char*") {
+            returnType = "std::string";
+        }
+
+        if (returnType === "ImVec2") {
+            returnType = "JsVal";
+        }
+
+        if (returnType === "ImVec4") {
+            returnType = "JsVal";
+        }
+
+        if (returnType === "ImTextureRef") {
+            returnType = "JsVal";
+        }
 
         const policies = (() => {
             if (function_.return_type.declaration.includes("*")) {
