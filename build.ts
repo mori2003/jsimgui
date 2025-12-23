@@ -285,7 +285,7 @@ const buildWasm = (cfg: BuildConfig) => {
  */
 const buildTs = () => {
     const tscPath = joinPath("node_modules", ".bin", "tsc");
-    const cmd = `${tscPath} --project tsconfig.build.json`;
+    const cmd = `${tscPath} --project ./src/imgui/tsconfig.build.json`;
 
     if (argv.includes("--verbose")) {
         stdout.write("\n");
