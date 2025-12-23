@@ -16,7 +16,7 @@ const data = {
         z: [0],
     },
     showDemo: [false],
-}
+};
 
 const createScene = () => {
     const scene = new BABYLON.Scene(engine);
@@ -28,7 +28,11 @@ const createScene = () => {
     light.intensity = data.lightIntensity[0];
 
     const sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 2, segments: 32 }, scene);
-    sphere.position.set(data.spherePosition.x[0], data.spherePosition.y[0], data.spherePosition.z[0]);
+    sphere.position.set(
+        data.spherePosition.x[0],
+        data.spherePosition.y[0],
+        data.spherePosition.z[0],
+    );
 
     BABYLON.MeshBuilder.CreateGround("ground", { width: 6, height: 6 }, scene);
     return scene;
@@ -39,7 +43,11 @@ scene.detachControl();
 
 engine.runRenderLoop(() => {
     scene.lights[0].intensity = data.lightIntensity[0];
-    scene.meshes[0].position.set(data.spherePosition.x[0], data.spherePosition.y[0], data.spherePosition.z[0]);
+    scene.meshes[0].position.set(
+        data.spherePosition.x[0],
+        data.spherePosition.y[0],
+        data.spherePosition.z[0],
+    );
 
     ImGuiImplWeb.BeginRender();
 
