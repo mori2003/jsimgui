@@ -51,31 +51,25 @@ function getDefaultValue(param: ImGuiArgument): string {
 /**
  * Get the TypeScript code for the call arguments of a function.
  */
-export function getArguments(function_: ImGuiFunction, skipSelf: boolean = false): string {
-    /**
-     * Check if a parameter is a bound struct which is not a value object
-     * (ImVec2, ImVec4, ImTextureRef) and not some primitive pointer type.
-     */
-    const isNonValueObjectStruct = (arg: ImGuiArgument) => {
+export function getArguments(
+    context: GeneratorContext,
+    function_: ImGuiFunction,
+    skipSelf: boolean = false,
+): string {
+    const isReferenceStruct = (arg: ImGuiArgument) => {
         const type = arg.type;
 
-        // TODO: Refactor this mess!
-        return (
-            type?.description?.kind === "Pointer" &&
-            type?.description?.inner_type?.kind === "User" &&
-            type?.declaration !== "ImVec2" &&
-            type?.declaration !== "ImVec4" &&
-            type?.declaration !== "const ImVec2*" &&
-            type?.declaration !== "const ImVec4*" &&
-            type?.declaration !== "ImTextureRef" &&
-            type?.declaration !== "size_t*"
+        const struct = context.data.structs.find(
+            (s) => s.name === type?.description?.inner_type?.name,
         );
+
+        return struct?.by_value === false;
     };
 
     const code = function_.arguments
         .filter((arg) => !(skipSelf && arg.name === "self"))
         .map((arg) => {
-            if (isNonValueObjectStruct(arg)) {
+            if (isReferenceStruct(arg)) {
                 return `${arg.name}?.ptr ?? null`;
             }
 
@@ -127,7 +121,7 @@ export function getFunctionsCode(context: GeneratorContext): string {
         const returnType = getTsType(function_.return_type.declaration);
 
         const params = getParameters(function_);
-        const args = getArguments(function_);
+        const args = getArguments(context, function_);
 
         const call = (() => {
             const returnDecl = function_.return_type.declaration;

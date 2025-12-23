@@ -4,6 +4,10 @@ import { getMappedCode } from "../util.ts";
 import { getArguments, getParameters } from "./functions.ts";
 
 function getMethods(context: GeneratorContext, struct: ImGuiStruct): string {
+    if (struct.by_value) {
+        return "";
+    }
+
     const methods = context.data.functions.filter((f) => f.original_class === struct.name);
     const config = context.config.bindings?.structs?.[struct.name]?.methods;
 
@@ -39,25 +43,8 @@ function getFields(context: GeneratorContext, struct: ImGuiStruct): string {
     const fn = (field: StructField) => {
         const type = field.type.declaration;
 
-        // Handle Value Object wrappers (ImVec2, ImVec4, ImTextureRef)
-        // TODO: Refactor this mess!
-        if (type === "ImVec2") {
-            const getter =
-                `.function("get_${field.name}", override([](${struct.name} const* self){\n` +
-                `    return wrap_imvec2(self->${field.name});\n` +
-                `}), ReturnRef{}, AllowRawPtrs{})\n`;
-
-            const setter =
-                `.function("set_${field.name}", override([](${struct.name}* self, JsVal value){\n` +
-                `    self->${field.name} = get_imvec2(value);\n` +
-                `}), AllowRawPtrs{})\n`;
-
-            // biome-ignore format: _
-            return (
-                getter +
-                setter +
-                "\n"
-            );
+        if (struct.by_value) {
+            return `.field("${field.name}", &${struct.name}::${field.name})\n`;
         }
 
         const getter =
@@ -95,6 +82,15 @@ export function getStructsCode(context: GeneratorContext): string {
         const body = config?.[name]?.isOpaque
             ? ""
             : getFields(context, struct) + getMethods(context, struct);
+
+        if (struct.by_value) {
+            // biome-ignore format: _
+            return (
+                `emscripten::value_object<${name}>("${name}")\n` +
+                body +
+                ";\n"
+            )
+        }
 
         // biome-ignore format: _
         return (

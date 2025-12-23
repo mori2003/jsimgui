@@ -5,6 +5,10 @@ import { getJsDocComment } from "./comments.ts";
 import { getArguments, getParameters } from "./functions.ts";
 
 function getMethods(context: GeneratorContext, struct: ImGuiStruct): string {
+    if (struct.by_value) {
+        return "";
+    }
+
     const methods = context.data.functions.filter((f) => f.original_class === struct.name);
     const config = context.config.bindings?.structs?.[struct.name]?.methods;
 
@@ -17,7 +21,7 @@ function getMethods(context: GeneratorContext, struct: ImGuiStruct): string {
 
         // Get parameters and arguments without the first "self" parameter/argument.
         const params = getParameters(method, true);
-        const args = getArguments(method, true);
+        const args = getArguments(context, method, true);
 
         const call =
             method.return_type.declaration === "void"
@@ -48,6 +52,10 @@ function getFields(context: GeneratorContext, struct: ImGuiStruct): string {
         const name = field.name;
         const type = getTsType(field.type.declaration);
 
+        if (struct.by_value) {
+            return `    ${name}: ${type};\n`;
+        }
+
         // biome-ignore format: _
         const getter = (
             `    get ${name}(): ${type} {\n` +
@@ -72,6 +80,55 @@ function getFields(context: GeneratorContext, struct: ImGuiStruct): string {
     return code;
 }
 
+function getConstructors(context: GeneratorContext, struct: ImGuiStruct): string {
+    if (!struct.by_value) {
+        return "";
+    }
+
+    const config = context.config.bindings?.structs?.[struct.name];
+    const fields = config?.fields;
+
+    const name = struct.name;
+
+    const params = getMappedCode(
+        struct.fields,
+        fields,
+        (field) => `${field.name}: ${getTsType(field.type.declaration)}`,
+        "ts",
+        ", ",
+    );
+
+    const assigns = getMappedCode(
+        struct.fields,
+        fields,
+        (field) => `        this.${field.name} = ${field.name};\n`,
+        "ts",
+    );
+
+    const accesses = getMappedCode(
+        struct.fields,
+        fields,
+        (field) => `obj.${field.name}`,
+        "ts",
+        ", ",
+    );
+
+    // biome-ignore format: _
+    const code = (
+        "\n" +
+        `    constructor(${params}) {\n` +
+        "        super();\n" +
+        assigns +
+        `    }\n` +
+        "\n" +
+        `    static From(obj: { ${params} }): ${name} {\n` +
+        `        return new ${name}(${accesses});\n` +
+        `    }\n`
+    );
+
+    return code;
+}
+
 /**
  * Generates the TypeScript bindings code for the structs.
  */
@@ -82,15 +139,18 @@ export function getStructsCode(context: GeneratorContext): string {
     const fn = (struct: ImGuiStruct) => {
         const comment = getJsDocComment(struct);
         const name = struct.name;
+        const baseClass = struct.by_value ? "ValueStruct" : "ReferenceStruct";
 
         const body = config?.[name]?.isOpaque
             ? "    // Opaque\n"
-            : getFields(context, struct) + getMethods(context, struct);
+            : getFields(context, struct) +
+              getMethods(context, struct) +
+              getConstructors(context, struct);
 
         // biome-ignore format: _
         return (
             comment +
-            `export class ${name} extends StructBinding {\n` +
+            `export class ${name} extends ${baseClass} {\n` +
             body +
             `}\n` +
             "\n"

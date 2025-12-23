@@ -100,9 +100,15 @@ const Mod = {
 };
 
 /**
- * Base class for all struct bindings (except for ImVec2, ImVec4 and ImTextureRef).
+ * Base class for value structs (passed by value, no native pointer).
  */
-class StructBinding {
+class ValueStruct {}
+
+/**
+ * Base class for reference structs (carry native pointer/reference).
+ * These structs manage native memory and require explicit cleanup.
+ */
+class ReferenceStruct {
     /**
      * The native pointer to the struct.
      */
@@ -134,62 +140,6 @@ class StructBinding {
      */
     Drop(): void {
         this.ptr?.delete();
-    }
-}
-
-/**
- * 2D vector used to store positions, sizes etc.
- */
-export class ImVec2 {
-    x: number;
-    y: number;
-
-    constructor(x: number = 0, y: number = 0) {
-        this.x = x;
-        this.y = y;
-    }
-
-    static From(obj: { x: number; y: number }): ImVec2 {
-        return new ImVec2(obj.x, obj.y);
-    }
-}
-
-/**
- * 4D vector used to store clipping rectangles, colors etc.
- */
-export class ImVec4 {
-    x: number;
-    y: number;
-    z: number;
-    w: number;
-
-    constructor(x: number = 0, y: number = 0, z: number = 0, w: number = 0) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.w = w;
-    }
-
-    static From(obj: { x: number; y: number; z: number; w: number }): ImVec4 {
-        return new ImVec4(obj.x, obj.y, obj.z, obj.w);
-    }
-}
-
-/**
- * ImTextureRef = higher-level identifier for a texture.
- * The identifier is valid even before the texture has been uploaded to the GPU/graphics system.
- * This is what gets passed to functions such as ImGui::Image(), ImDrawList::AddImage().
- * This is what gets stored in draw commands (ImDrawCmd) to identify a texture during rendering.
- */
-export class ImTextureRef {
-    _TexID: ImTextureID;
-
-    constructor(id: ImTextureID) {
-        this._TexID = id;
-    }
-
-    static From(obj: { _TexID: ImTextureID }): ImTextureRef {
-        return new ImTextureRef(obj._TexID);
     }
 }
 

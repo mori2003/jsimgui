@@ -57,6 +57,7 @@ export interface TypeDescription {
 export interface ImGuiStruct {
     name: string;
     original_fully_qualified_name: string;
+    by_value: boolean;
     forward_declaration: boolean;
     fields: StructField[];
     comments?: ImGuiComment;

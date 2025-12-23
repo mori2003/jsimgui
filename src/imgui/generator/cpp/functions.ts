@@ -25,11 +25,6 @@ function isPrimitivePointer(arg: ImGuiArgument): boolean {
     return primitivePointers.includes(arg.type?.declaration);
 }
 
-function isValueObject(arg: ImGuiArgument): boolean {
-    const valueObjects = ["ImVec2", "ImVec4", "ImTextureRef"];
-    return valueObjects.includes(arg.type?.declaration);
-}
-
 function getPreProcess(function_: ImGuiFunction): string {
     const pointerMap = {
         "bool*": "bool",
@@ -73,19 +68,6 @@ export function getArguments(function_: ImGuiFunction): string {
                 return `${arg.name}.c_str()`;
             }
 
-            // TODO: Refactor
-            if (arg.type?.declaration === "ImVec2") {
-                return `get_imvec2(${arg.name})`;
-            }
-
-            if (arg.type?.declaration === "ImVec4") {
-                return `get_imvec4(${arg.name})`;
-            }
-
-            if (arg.type?.declaration === "ImTextureRef") {
-                return `get_imtexture_ref(${arg.name})`;
-            }
-
             if (isPrimitivePointer(arg)) {
                 return `&_bind_${arg.name}`;
             }
@@ -104,7 +86,7 @@ export function getParameters(function_: ImGuiFunction): string {
                 return `std::string ${arg.name}`;
             }
 
-            if (isPrimitivePointer(arg) || isValueObject(arg)) {
+            if (isPrimitivePointer(arg)) {
                 return `JsVal ${arg.name}`;
             }
 
@@ -130,22 +112,13 @@ export function getFunctionsCode(context: GeneratorContext): string {
         const preProcess = getPreProcess(function_);
 
         let returnType = function_.return_type.declaration;
+        if (returnType === "const char*") {
+            returnType = "std::string";
+        }
 
         const call = (() => {
             if (returnType === "void") {
                 return `    ${name}(${args});\n`;
-            }
-
-            if (returnType === "ImVec2") {
-                return `    return wrap_imvec2(${name}(${args}));\n`;
-            }
-
-            if (returnType === "ImVec4") {
-                return `    return wrap_imvec4(${name}(${args}));\n`;
-            }
-
-            if (returnType === "ImTextureRef") {
-                return `    return wrap_imtexture_ref(${name}(${args}));\n`;
             }
 
             if (returnType === "const char*") {
@@ -154,22 +127,6 @@ export function getFunctionsCode(context: GeneratorContext): string {
 
             return `    return ${name}(${args});\n`;
         })();
-
-        if (returnType === "const char*") {
-            returnType = "std::string";
-        }
-
-        if (returnType === "ImVec2") {
-            returnType = "JsVal";
-        }
-
-        if (returnType === "ImVec4") {
-            returnType = "JsVal";
-        }
-
-        if (returnType === "ImTextureRef") {
-            returnType = "JsVal";
-        }
 
         const policies = (() => {
             if (function_.return_type.declaration.includes("*")) {
