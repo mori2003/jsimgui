@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { fixCommentforJsDoc, generateJsDocComment } from "../../src/generator/bindings/comment.ts";
+import { fixCommentforJsDoc, getJsDocComment } from "../../src/imgui/generator/ts/comments.ts";
 
-describe("fixCommentforJsDoc", () => {
+describe(`${fixCommentforJsDoc.name}`, () => {
     it("returns empty string", () => {
         const actual = fixCommentforJsDoc("");
         const expected = "";
@@ -22,11 +22,11 @@ describe("fixCommentforJsDoc", () => {
     });
 });
 
-describe("generateJsDocComment", () => {
+describe(`${getJsDocComment.name}`, () => {
     it("returns empty string", () => {
         const item = {};
 
-        const actual = generateJsDocComment(item);
+        const actual = getJsDocComment(item);
         const expected = "";
 
         assert.strictEqual(actual, expected);
@@ -39,7 +39,7 @@ describe("generateJsDocComment", () => {
             },
         };
 
-        const actual = generateJsDocComment(item);
+        const actual = getJsDocComment(item);
         const expected = "/**\n * Flags for ImGui::Selectable()\n */\n";
 
         assert.strictEqual(actual, expected);
@@ -55,7 +55,7 @@ describe("generateJsDocComment", () => {
             },
         };
 
-        const actual = generateJsDocComment(item);
+        const actual = getJsDocComment(item);
         const expected = [
             "/**\n",
             " * Tooltips mode\n",
@@ -73,7 +73,7 @@ describe("generateJsDocComment", () => {
             },
         };
 
-        const actual = generateJsDocComment(item);
+        const actual = getJsDocComment(item);
         const expected = "/**\n * Pressing TAB input a '\\t' character into the text field\n */\n";
 
         assert.strictEqual(actual, expected);
@@ -87,7 +87,7 @@ describe("generateJsDocComment", () => {
             },
         };
 
-        const actual = generateJsDocComment(item);
+        const actual = getJsDocComment(item);
         const expected = [
             "\n",
             "// Inputs\n",
@@ -113,7 +113,7 @@ describe("generateJsDocComment", () => {
             },
         };
 
-        const actual = generateJsDocComment(item);
+        const actual = getJsDocComment(item);
         const expected = [
             "\n",
             "// (Advanced) Mouse Hovering delays.\n",

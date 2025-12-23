@@ -8,7 +8,7 @@ interface CommentItem {
 /**
  * Removes the leading "// " from a comment and escapes slashes so they don't break JsDoc comments.
  */
-function fixCommentforJsDoc(comment: string): string {
+export function fixCommentforJsDoc(comment: string): string {
     const newComment = comment.replace(/\//g, "\\/");
     return comment.startsWith("//") ? newComment.slice(5) : newComment;
 }
