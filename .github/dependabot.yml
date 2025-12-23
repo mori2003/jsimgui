@@ -4,11 +4,14 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    open-pull-requests-limit: 0
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "daily"
+    open-pull-requests-limit: 0
   - package-ecosystem: "gitsubmodule"
     directory: "/"
     schedule:
       interval: "daily"
+    open-pull-requests-limit: 0
