@@ -948,6 +948,8 @@ export const ImGuiImplWeb = {
      *
      * @returns The emscripten exports object.
      */
+
+    // biome-ignore lint/suspicious/noExplicitAny: _
     GetEmscriptenExports(): any {
         return Mod.export;
     },
