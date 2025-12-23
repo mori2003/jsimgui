@@ -7,8 +7,12 @@ on:
   workflow_dispatch:
 
 jobs:
+  lint:
+    uses: ./.github/workflows/lint.yml
+
   build:
     uses: ./.github/workflows/build.yml
+    needs: lint
 
   test:
     uses: ./.github/workflows/test.yml
