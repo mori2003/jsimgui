@@ -32,7 +32,7 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install chromium --with-deps --no-shell
     - name: Run Playwright tests
-      run: npx playwright test
+      run: cd tests/playwright && npx playwright test
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
