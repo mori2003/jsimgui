@@ -28,9 +28,11 @@
             "ImWchar": { "isExcluded": true }
         },
         "structs": {
-            "ImVec2": { "isExcluded": true },
-            "ImVec4": { "isExcluded": true },
-            "ImTextureRef": { "isExcluded": true },
+            "ImTextureRef": {
+                "fields": {
+                    "_TexData": { "isExcluded": true }
+                }
+            },
             "__anonymous_type0": { "isExcluded": true },
             "ImVector_ImGuiTextRange": { "isExcluded": true },
             "ImVector_char": { "isExcluded": true },
@@ -63,7 +65,6 @@
             "ImDrawCmdHeader": { "isExcluded": true },
             "ImDrawVert": { "isExcluded": true },
             "ImGuiSelectionExternalStorage": { "isExcluded": true },
-            "ImColor": { "isExcluded": true },
             "ImGuiSelectionBasicStorage": { "isExcluded": true },
             "ImDrawData": { "isOpaque": true },
             "ImGuiStyle": {
@@ -84,14 +85,14 @@
                                 ".function(\"get_Colors\", override([](const ImGuiStyle& self){ \n",
                                 "    auto obj = emscripten::val::array();\n",
                                 "    for (auto i = 0; i < ImGuiCol_COUNT; i++) {\n",
-                                "        obj.set(i, wrap_imvec4(self.Colors[i]));\n",
+                                "        obj.set(i, self.Colors[i]);\n",
                                 "    };\n",
                                 "    return obj;\n",
                                 "}), ReturnRef{}, AllowRawPtrs{})\n",
                                 "\n",
                                 ".function(\"set_Colors\", override([](ImGuiStyle& self, JsVal value){\n",
                                 "    for (auto i = 0; i < ImGuiCol_COUNT; i++) {\n",
-                                "        self.Colors[i] = get_imvec4(value[i].as<JsVal>());\n",
+                                "        self.Colors[i] = value[i].as<ImVec4>();\n",
                                 "    };\n",
                                 "}), AllowRawPtrs{})\n",
                                 "\n"
@@ -241,8 +242,8 @@
                         "    },\n"
                     ],
                     "cpp": [
-                        "bind_fn(\"ImGui_TextColored\", [](JsVal col, std::string fmt){\n",
-                        "    ImGui_TextColored(get_imvec4(col), \"%s\", fmt.c_str());\n",
+                        "bind_fn(\"ImGui_TextColored\", [](ImVec4 col, std::string fmt){\n",
+                        "    ImGui_TextColored(col, \"%s\", fmt.c_str());\n",
                         "});\n"
                     ]
                 }
@@ -386,10 +387,10 @@
                         "    },\n"
                     ],
                     "cpp": [
-                        "bind_fn(\"ImGui_InputTextMultiline\", [](std::string label, JsVal buf, size_t buf_size, JsVal size, ImGuiInputTextFlags flags){\n",
+                        "bind_fn(\"ImGui_InputTextMultiline\", [](std::string label, JsVal buf, size_t buf_size, ImVec2 size, ImGuiInputTextFlags flags){\n",
                         "    auto _bind_buf = buf[0].as<std::string>();\n",
                         "    _bind_buf.reserve(buf_size);\n",
-                        "    auto const ret = ImGui_InputTextMultiline(label.c_str(), _bind_buf.data(), buf_size, get_imvec2(size), flags, nullptr, nullptr);\n",
+                        "    auto const ret = ImGui_InputTextMultiline(label.c_str(), _bind_buf.data(), buf_size, size, flags, nullptr, nullptr);\n",
                         "    buf.set(0, std::string(_bind_buf.data()));\n",
                         "    return ret;\n",
                         "});\n"
@@ -422,8 +423,8 @@
                         "    },\n"
                     ],
                     "cpp": [
-                        "bind_fn(\"ImGui_SetNextWindowSizeConstraints\", [](JsVal min, JsVal max){\n",
-                        "    ImGui_SetNextWindowSizeConstraints(get_imvec2(min), get_imvec2(max), nullptr, nullptr);\n",
+                        "bind_fn(\"ImGui_SetNextWindowSizeConstraints\", [](ImVec2 min, ImVec2 max){\n",
+                        "    ImGui_SetNextWindowSizeConstraints(min, max, nullptr, nullptr);\n",
                         "});\n"
                     ]
                 }

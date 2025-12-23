@@ -16,6 +16,7 @@ export function getMappedCode<T extends { name: string }>(
     configMap: Record<string, ConfigItem> | undefined,
     fn: (data: T) => string,
     language: "ts" | "cpp",
+    separator: string = "",
 ) {
     return items
         .map((item) => {
@@ -32,7 +33,8 @@ export function getMappedCode<T extends { name: string }>(
 
             return fn(item);
         })
-        .join("");
+        .filter((item) => item !== "")
+        .join(separator);
 }
 
 /**
