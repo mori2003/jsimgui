@@ -36,7 +36,12 @@ export default defineConfig({
     projects: [
         {
             name: "chromium",
-            use: { ...devices["Desktop Chrome"], headless: true, channel: "chromium" },
+            use: {
+                ...devices["Desktop Chrome"],
+                headless: true,
+                channel: "chromium",
+                launchOptions: { args: ["--enable-unsafe-webgpu", "--enable-features=Vulkan"] },
+            },
         },
     ],
 
