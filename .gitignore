@@ -1,6 +1,7 @@
 .em_cache/
 .cache/
 .venv/
+.vscode/
 build/
 bindgen/
 node_modules/

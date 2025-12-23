@@ -2,13 +2,14 @@
     "$schema": "https://biomejs.dev/schemas/2.3.10/schema.json",
 
     "vcs": {
-        "enabled": false,
+        "enabled": true,
         "clientKind": "git",
-        "useIgnoreFile": false
+        "useIgnoreFile": true
     },
     "files": {
         "ignoreUnknown": false,
-        "maxSize": 4048576
+        "maxSize": 4048576,
+        "includes": ["**", "!third_party"]
     },
     "formatter": {
         "enabled": true,
