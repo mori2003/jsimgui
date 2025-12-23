@@ -1,10 +1,16 @@
+import type { ImGuiTypedef } from "../interface.ts";
 import type { GeneratorContext } from "../main.ts";
-import { generateJsDocComment } from "./comments.ts";
+import { getMappedCode } from "../util.ts";
+import { getJsDocComment } from "./comments.ts";
 
-export const generateTypedefs = (ctx: GeneratorContext): string => {
-    let code = "";
+/**
+ * Generates the TypeScript bindings code for the typedefs.
+ */
+export function getTypedefsCode(context: GeneratorContext): string {
+    const typedefs = context.data.typedefs;
+    const config = context.config.bindings?.typedefs;
 
-    // biome-ignore format: ...
+    // biome-ignore format: _
     const typeMap = {
         "unsigned short": "number",
         "int": "number",
@@ -17,36 +23,30 @@ export const generateTypedefs = (ctx: GeneratorContext): string => {
         "unsigned long long": "bigint",
     };
 
-    for (const typedefData of ctx.data.typedefs) {
-        const config = ctx.config.bindings?.typedefs;
-        if (config?.[typedefData.name]?.isExcluded) {
-            continue;
-        }
+    const fn = (typedef: ImGuiTypedef) => {
+        const comment = getJsDocComment(typedef);
 
-        const comment = generateJsDocComment(typedefData);
-
-        const overrideImpl = config?.[typedefData.name]?.overrideImpl;
-        if (overrideImpl?.ts) {
-            code += comment;
-            code += overrideImpl.ts.join("");
-            continue;
-        }
-
-        const name = typedefData.name;
-        const declaration = typedefData.type?.declaration;
+        const name = typedef.name;
+        const declaration = typedef.type?.declaration;
         const type =
             declaration && declaration in typeMap
                 ? typeMap[declaration as keyof typeof typeMap]
                 : declaration;
 
-        code += comment;
-        code += `export type ${name} = ${type};\n`;
-    }
+        // biome-ignore format: _
+        return (
+            comment +
+            `export type ${name} = ${type};\n`
+        );
+    };
 
-    // TODO: Handle the special cases.
-    code += "export type ImWchar = number;\n";
-    code += "export type ImTextureFormat = number;\n";
-    code += "export type ImGuiFreeTypeLoaderFlags = number;\n";
+    const code = getMappedCode(typedefs, config, fn, "ts");
 
-    return code;
-};
+    return (
+        code +
+        "\n" +
+        "export type ImWchar = number;\n" +
+        "export type ImTextureFormat = number;\n" +
+        "export type ImGuiFreeTypeLoaderFlags = number;\n"
+    );
+}
