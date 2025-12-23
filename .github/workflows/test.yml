@@ -28,7 +28,7 @@ jobs:
       with:
         node-version: lts/*
     - name: Install dependencies
-      run: cd test/playwright && npm ci
+      run: cd tests/playwright && npm ci
     - name: Install Playwright Browsers
       run: npx playwright install chromium --with-deps --no-shell
     - name: Run Playwright tests
