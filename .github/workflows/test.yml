@@ -4,9 +4,6 @@ on:
   workflow_call:
 
 jobs:
-  build:
-    uses: ./.github/workflows/build.yml
-
   test-generator:
     runs-on: ubuntu-latest
     name: 'Generator Tests'
