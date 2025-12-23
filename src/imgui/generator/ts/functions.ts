@@ -1,4 +1,4 @@
-import type { ImGuiArgument, ImGuiFunction } from "../interface";
+import type { ImGuiArgument, ImGuiFunction } from "../interface.ts";
 import type { GeneratorContext } from "../main.ts";
 import { getMappedCode, getTsType, isStructType } from "../util.ts";
 import { getJsDocComment } from "./comments.ts";

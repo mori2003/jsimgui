@@ -1,6 +1,6 @@
 import type { ImGuiArgument, ImGuiFunction } from "../interface.ts";
 import type { GeneratorContext } from "../main.ts";
-import { getMappedCode } from "../util";
+import { getMappedCode } from "../util.ts";
 
 function isPrimitivePointer(arg: ImGuiArgument): boolean {
     const primitivePointers = [
