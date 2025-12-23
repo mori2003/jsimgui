@@ -1,9 +1,6 @@
 name: '📦 Build'
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
   workflow_call:
 
 env:
@@ -54,4 +51,3 @@ jobs:
           name: jsimgui-${{ matrix.backend }}-${{ matrix.font-loader }}${{ matrix.demos && '-demos' || '' }}
           path: build/
           retention-days: 7
-      
