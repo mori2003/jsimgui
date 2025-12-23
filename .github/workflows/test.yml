@@ -29,8 +29,8 @@ jobs:
         node-version: lts/*
     - name: Install dependencies
       run: cd tests/playwright && npm install
-      run: pwd
-      run: ls -lah
+    - run: pwd
+    - run: ls -lah
     - name: Install Playwright Browsers
       run: npx playwright install chromium --with-deps --no-shell
     - name: Run Playwright tests
