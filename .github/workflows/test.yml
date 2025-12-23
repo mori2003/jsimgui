@@ -1,0 +1,22 @@
+name: '📦 Test'
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_call:
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+
+  generator-tests:
+    runs-on: ubuntu-latest
+    name: 'Generator Tests'
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: denoland/setup-deno@v2
+      - run: deno test
