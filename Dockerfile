@@ -10,7 +10,7 @@ RUN uv python install 3.14.2 --default \
     && uv pip install --system --break-system-packages ply
 
 ENV PATH="$PATH:/emsdk/upstream/emscripten:/emsdk/"
-COPY --from=docker.io/emscripten/emsdk:4.0.17 /emsdk /emsdk/
+COPY --from=docker.io/emscripten/emsdk:4.0.22 /emsdk /emsdk/
 
 ENV NVM_DIR="/root/.nvm"
 ENV PATH="$PATH:$NVM_DIR/versions/node/v25.2.1/bin"
