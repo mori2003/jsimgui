@@ -4,9 +4,6 @@ on:
   workflow_call:
 
 jobs:
-  build:
-    uses: ./.github/workflows/build.yml
-
   test-generator:
     runs-on: ubuntu-latest
     name: 'Generator Tests'
@@ -20,7 +17,6 @@ jobs:
   test-publishing:
     runs-on: ubuntu-latest
     name: 'Release Tests'
-    needs: build
     permissions:
       contents: read
       id-token: write
