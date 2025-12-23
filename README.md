@@ -111,7 +111,7 @@ cd jsimgui
 
 #### Using Docker Image
 ```bash
-docker build -t jsimgui .
+docker build -t jsimgui -f .github/Dockerfile .
 docker run -v "$PWD:/workspace" jsimgui bash -c "npm install && node build.ts"
 ```
 #### Manually
