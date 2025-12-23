@@ -11,6 +11,6 @@
         "declaration": true,
         "strict": true,
         "erasableSyntaxOnly": true,
-        "verbatimModuleSyntax": true,
+        "verbatimModuleSyntax": true
     }
 }
