@@ -5,52 +5,70 @@ interface CommentItem {
     };
 }
 
-const fixCommentforJsDoc = (comment: string): string => {
+/**
+ * Removes the leading "// " from a comment and escapes slashes so they don't break JsDoc comments.
+ */
+function fixCommentforJsDoc(comment: string): string {
     const newComment = comment.replace(/\//g, "\\/");
     return comment.startsWith("//") ? newComment.slice(5) : newComment;
-};
+}
 
-const createBanner = (item: CommentItem): string => {
+/**
+ * Creates a comment banner if the item has preceding and attached comments.
+ */
+function getBanner(item: CommentItem): string {
     if (!item.comments?.preceding || !item.comments?.attached) {
         return "";
     }
 
-    let lines = "";
-    lines += "\n";
+    const lines = item.comments.preceding
+        .map((line) => {
+            return `// ${fixCommentforJsDoc(line.trim())}\n`;
+        })
+        .join("");
 
-    for (const line of item.comments.preceding) {
-        lines += `// ${fixCommentforJsDoc(line.trim())}\n`;
-    }
+    // biome-ignore format: _
+    return (
+        "\n" +
+        lines +
+        "\n"
+    );
+}
 
-    lines += "\n";
-    return lines;
-};
-
-const createComment = (item: CommentItem): string => {
+/**
+ * Creates a comment body from an item.
+ */
+function getCommentBody(item: CommentItem): string {
     if (item.comments?.attached) {
         return ` * ${fixCommentforJsDoc(item.comments.attached.trim())}\n`;
     }
 
     if (item.comments?.preceding) {
-        let lines = "";
-        for (const line of item.comments.preceding) {
-            lines += ` * ${fixCommentforJsDoc(line.trim())}\n`;
-        }
+        const lines = item.comments.preceding
+            .map((line) => {
+                return ` * ${fixCommentforJsDoc(line.trim())}\n`;
+            })
+            .join("");
+
         return lines;
     }
 
     return "";
-};
+}
 
-export const generateJsDocComment = (item: CommentItem): string => {
+/**
+ * Creates a JsDoc comment for an item.
+ */
+export function getJsDocComment(item: CommentItem): string {
     if (!item.comments?.attached && !item.comments?.preceding) {
         return "";
     }
 
-    let lines = "";
-    lines += createBanner(item);
-    lines += "/**\n";
-    lines += createComment(item);
-    lines += " */\n";
-    return lines;
-};
+    // biome-ignore format: _
+    return (
+        getBanner(item) +
+        "/**\n" +
+        getCommentBody(item) +
+        " */\n"
+    );
+}
