@@ -304,8 +304,8 @@ const buildTs = () => {
 const buildFmt = (cfg: BuildConfig) => {
     const outputPath = getOutputPath(cfg);
     const biomePath = joinPath("node_modules", ".bin", "biome");
-    const cmd = `${biomePath} format --write ${outputPath}`;
-    const cmd2 = `${biomePath} format --write ./build/mod.js`;
+    const cmd = `${biomePath} format --write --vcs-use-ignore-file=false ${outputPath}`;
+    const cmd2 = `${biomePath} format --write --vcs-use-ignore-file=false ./build/mod.js`;
 
     if (argv.includes("--verbose")) {
         stdout.write("\n");
