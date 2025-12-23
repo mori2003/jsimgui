@@ -1,7 +1,7 @@
 import type { ImGuiArgument, ImGuiFunction } from "../interface";
 import type { GeneratorContext } from "../main.ts";
-import { getJsDocComment } from "./comments.ts";
 import { getMappedCode, getTsType, isStructType } from "../util.ts";
+import { getJsDocComment } from "./comments.ts";
 
 /**
  * Get the TypeScript code for the default value of a parameter.

@@ -1,8 +1,7 @@
 import type { ImGuiFunction, ImGuiStruct, StructField } from "../interface";
 import type { GeneratorContext } from "../main.ts";
 import { getMappedCode } from "../util.ts";
-import { getParameters } from "./functions.ts";
-import { getArguments } from "./functions.ts";
+import { getArguments, getParameters } from "./functions.ts";
 
 function getMethods(context: GeneratorContext, struct: ImGuiStruct): string {
     const methods = context.data.functions.filter((f) => f.original_class === struct.name);
