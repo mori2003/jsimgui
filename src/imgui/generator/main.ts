@@ -1,42 +1,76 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import type { GeneratorConfig } from "./config.ts";
-import { filterSkippables } from "./filter.ts";
-import { generateCppBindings } from "./generate-cpp.ts";
-import { generateTypeScriptBindings } from "./generate-ts.ts";
+import { getFunctionsCode as getFunctionsCodeCpp } from "./cpp/functions.ts";
+import { getStructsCode as getStructsCodeCpp } from "./cpp/structs.ts";
+import { filterData } from "./filter.ts";
 import type { ImGuiData } from "./interface.ts";
+import { getEnumsCode as getEnumsCodeTs } from "./ts/enums.ts";
+import { getFunctionsCode as getFunctionsCodeTs } from "./ts/functions.ts";
+import { getStructsCode as getStructsCodeTs } from "./ts/structs.ts";
+import { getTypedefsCode as getTypedefsCodeTs } from "./ts/typedefs.ts";
+
+const PATHS = {
+    CONFIG: "./src/imgui/config.json",
+    DATA: "./third_party/dear_bindings/dcimgui.json",
+    OUTPUT_MOD: "./bindgen/mod.ts",
+    OUTPUT_CPP: "./bindgen/jsimgui.cpp",
+    BEGIN_TS: "./src/imgui/api/ts/begin.ts",
+    END_TS: "./src/imgui/api/ts/end.ts",
+};
 
 export interface GeneratorContext {
     config: GeneratorConfig;
     data: ImGuiData;
-    stats?: {
-        defines?: {
-            total: number;
-            bound: number;
-        };
-        // ...
-    };
 }
 
-export const runGenerator = () => {
-    const configData = JSON.parse(readFileSync("./src/imgui/config.json", "utf-8"));
+/**
+ * Generates the TypeScript and C++ bindings code.
+ */
+function getBindings(context: GeneratorContext): [string, string] {
+    const begin = readFileSync(PATHS.BEGIN_TS, "utf-8");
+    const end = readFileSync(PATHS.END_TS, "utf-8");
+    const ts =
+        begin +
+        getTypedefsCodeTs(context) +
+        getStructsCodeTs(context) +
+        "\n" +
+        "export const ImGui = {\n" +
+        getEnumsCodeTs(context) +
+        getFunctionsCodeTs(context) +
+        "};\n" +
+        end;
 
-    // Filters out internal & obsolete functions, structs, enums... which we don't need.
-    const fileData = readFileSync(
-        configData.inputPathJson ?? "./third_party/dear_bindings/dcimgui.json",
-        "utf-8",
-    );
-    const data = filterSkippables(JSON.parse(fileData), true, true);
+    const cpp =
+        "#include <util.hpp>\n" +
+        "#include <wrappers.hpp>\n" +
+        "\n" +
+        "#include <dcimgui.h>\n" +
+        "#include <dcimgui_internal.h>\n" +
+        "\n" +
+        "#include <emscripten/bind.h>\n" +
+        "\n" +
+        "static auto const IMGUI = Bindings([]() {\n" +
+        getStructsCodeCpp(context) +
+        getFunctionsCodeCpp(context) +
+        "});\n";
 
-    const ctx: GeneratorContext = {
-        config: configData,
-        data,
-        stats: {},
-    };
+    return [ts, cpp];
+}
 
-    const tsCode = generateTypeScriptBindings(ctx);
-    const cppCode = generateCppBindings(ctx);
+/**
+ * Main entry point for the bindings generator.
+ */
+export function runGenerator(): void {
+    const configFile = readFileSync(PATHS.CONFIG, "utf-8");
+    const dataFile = readFileSync(PATHS.DATA, "utf-8");
+
+    const config = JSON.parse(configFile) as GeneratorConfig;
+    const data = filterData(JSON.parse(dataFile), true, true) as ImGuiData;
+
+    const context: GeneratorContext = { config, data };
+    const [ts, cpp] = getBindings(context);
 
     mkdirSync("./bindgen", { recursive: true });
-    writeFileSync(ctx.config.outputPathTs ?? "./bindgen/mod.ts", tsCode);
-    writeFileSync(ctx.config.outputPathCpp ?? "./bindgen/jsimgui.cpp", cppCode);
-};
+    writeFileSync(PATHS.OUTPUT_MOD, ts);
+    writeFileSync(PATHS.OUTPUT_CPP, cpp);
+}
