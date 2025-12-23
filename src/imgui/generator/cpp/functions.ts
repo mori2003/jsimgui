@@ -1,69 +1,79 @@
-import type { ImGuiFunction } from "../interface.ts";
+import type { ImGuiArgument, ImGuiFunction } from "../interface.ts";
 import type { GeneratorContext } from "../main.ts";
+import { getMappedCode } from "../util";
 
-export const getPreProcess = (functionData: ImGuiFunction) => {
-    let code = "";
+function isPrimitivePointer(arg: ImGuiArgument): boolean {
+    const primitivePointers = [
+        "bool*",
+        "float*",
+        "size_t*",
+        "const float*",
+        "double*",
+        "int*",
+        "unsigned int*",
+        "float[2]",
+        "float[3]",
+        "float[4]",
+        "int[2]",
+        "int[3]",
+        "int[4]",
+        "double[2]",
+        "double[3]",
+        "double[4]",
+    ];
 
-    // TODO: Refactor!
-    code += functionData.arguments
+    return primitivePointers.includes(arg.type?.declaration);
+}
+
+function isValueObject(arg: ImGuiArgument): boolean {
+    const valueObjects = ["ImVec2", "ImVec4", "ImTextureRef"];
+    return valueObjects.includes(arg.type?.declaration);
+}
+
+function getPreProcess(function_: ImGuiFunction): string {
+    const pointerMap = {
+        "bool*": "bool",
+        "size_t*": "size_t",
+        "float*": "float",
+        "const float*": "float",
+        "float[2]": "float",
+        "float[3]": "float",
+        "float[4]": "float",
+        "double*": "double",
+        "double[2]": "double",
+        "double[3]": "double",
+        "double[4]": "double",
+        "int*": "int",
+        "int[2]": "int",
+        "int[3]": "int",
+        "int[4]": "int",
+        "unsigned int*": "unsigned int",
+    };
+
+    const code = function_.arguments
         .map((arg) => {
-            if (arg.type?.declaration === "bool*") {
-                return `    auto _bind_${arg.name} = ArrayParam<bool>(${arg.name});\n`;
+            const type = pointerMap[arg.type?.declaration as keyof typeof pointerMap];
+
+            if (!type) {
+                return "";
             }
 
-            if (arg.type?.declaration === "size_t*") {
-                return `    auto _bind_${arg.name} = ArrayParam<size_t>(${arg.name});\n`;
-            }
-
-            if (
-                arg.type?.declaration === "float*" ||
-                arg.type?.declaration === "const float*" ||
-                arg.type?.declaration === "float[2]" ||
-                arg.type?.declaration === "float[3]" ||
-                arg.type?.declaration === "float[4]"
-            ) {
-                return `    auto _bind_${arg.name} = ArrayParam<float>(${arg.name});\n`;
-            }
-
-            if (
-                arg.type?.declaration === "double*" ||
-                arg.type?.declaration === "double[2]" ||
-                arg.type?.declaration === "double[3]" ||
-                arg.type?.declaration === "double[4]"
-            ) {
-                return `    auto _bind_${arg.name} = ArrayParam<double>(${arg.name});\n`;
-            }
-
-            if (
-                arg.type?.declaration === "int*" ||
-                arg.type?.declaration === "int[2]" ||
-                arg.type?.declaration === "int[3]" ||
-                arg.type?.declaration === "int[4]"
-            ) {
-                return `    auto _bind_${arg.name} = ArrayParam<int>(${arg.name});\n`;
-            }
-
-            if (arg.type?.declaration === "unsigned int*") {
-                return `    auto _bind_${arg.name} = ArrayParam<unsigned int>(${arg.name});\n`;
-            }
-
-            return "";
+            return `    auto _bind_${arg.name} = ArrayParam<${type}>(${arg.name});\n`;
         })
+        .filter((line) => line !== "")
         .join("");
 
     return code;
-};
+}
 
-export const getArguments = (functionData: ImGuiFunction) => {
-    let code = "";
-
-    // TODO: Refactor!
-    code += functionData.arguments
+export function getArguments(function_: ImGuiFunction): string {
+    const code = function_.arguments
         .map((arg) => {
             if (arg.type?.declaration === "const char*") {
                 return `${arg.name}.c_str()`;
             }
 
+            // TODO: Refactor
             if (arg.type?.declaration === "ImVec2") {
                 return `get_imvec2(${arg.name})`;
             }
@@ -76,24 +86,7 @@ export const getArguments = (functionData: ImGuiFunction) => {
                 return `get_imtexture_ref(${arg.name})`;
             }
 
-            if (
-                arg.type?.declaration === "bool*" ||
-                arg.type?.declaration === "float*" ||
-                arg.type?.declaration === "const float*" ||
-                arg.type?.declaration === "size_t*" ||
-                arg.type?.declaration === "double*" ||
-                arg.type?.declaration === "int*" ||
-                arg.type?.declaration === "unsigned int*" ||
-                arg.type?.declaration === "float[2]" ||
-                arg.type?.declaration === "float[3]" ||
-                arg.type?.declaration === "float[4]" ||
-                arg.type?.declaration === "int[2]" ||
-                arg.type?.declaration === "int[3]" ||
-                arg.type?.declaration === "int[4]" ||
-                arg.type?.declaration === "double[2]" ||
-                arg.type?.declaration === "double[3]" ||
-                arg.type?.declaration === "double[4]"
-            ) {
+            if (isPrimitivePointer(arg)) {
                 return `&_bind_${arg.name}`;
             }
 
@@ -102,44 +95,16 @@ export const getArguments = (functionData: ImGuiFunction) => {
         .join(", ");
 
     return code;
-};
+}
 
-export const getParameters = (functionData: ImGuiFunction) => {
-    let code = "";
-
-    // TODO: Refactor!
-    code += functionData.arguments
+export function getParameters(function_: ImGuiFunction): string {
+    const code = function_.arguments
         .map((arg) => {
             if (arg.type?.declaration === "const char*") {
                 return `std::string ${arg.name}`;
             }
 
-            if (
-                arg.type?.declaration === "bool*" ||
-                arg.type?.declaration === "float*" ||
-                arg.type?.declaration === "size_t*" ||
-                arg.type?.declaration === "const float*" ||
-                arg.type?.declaration === "double*" ||
-                arg.type?.declaration === "int*" ||
-                arg.type?.declaration === "unsigned int*" ||
-                arg.type?.declaration === "float[2]" ||
-                arg.type?.declaration === "float[3]" ||
-                arg.type?.declaration === "float[4]" ||
-                arg.type?.declaration === "int[2]" ||
-                arg.type?.declaration === "int[3]" ||
-                arg.type?.declaration === "int[4]" ||
-                arg.type?.declaration === "double[2]" ||
-                arg.type?.declaration === "double[3]" ||
-                arg.type?.declaration === "double[4]"
-            ) {
-                return `JsVal ${arg.name}`;
-            }
-
-            if (
-                arg.type?.declaration === "ImVec2" ||
-                arg.type?.declaration === "ImVec4" ||
-                arg.type?.declaration === "ImTextureRef"
-            ) {
+            if (isPrimitivePointer(arg) || isValueObject(arg)) {
                 return `JsVal ${arg.name}`;
             }
 
@@ -148,65 +113,62 @@ export const getParameters = (functionData: ImGuiFunction) => {
         .join(", ");
 
     return code;
-};
+}
 
-export const generateFunctions = (ctx: GeneratorContext): string => {
-    let code = "";
+/**
+ * Generates the C++ bindings code for the functions.
+ */
+export function getFunctionsCode(context: GeneratorContext): string {
+    // Only use functions prefixed with "ImGui_" (functions in ImGui namespace)
+    const functions = context.data.functions.filter((f) => f.name.startsWith("ImGui_"));
+    const config = context.config.bindings?.functions;
 
-    const functions = ctx.data.functions.filter((f) => f.name.startsWith("ImGui_"));
+    const fn = (function_: ImGuiFunction) => {
+        const name = function_.name;
+        const parameters = getParameters(function_);
+        const args = getArguments(function_);
+        const preProcess = getPreProcess(function_);
 
-    for (const functionData of functions) {
-        const config = ctx.config.bindings?.functions;
-        if (config?.[functionData.name]?.isExcluded) {
-            continue;
-        }
-
-        let policies = "";
-        let allowedPtr = false;
-
-        if (functionData.return_type.declaration.includes("*")) {
-            policies = ", ReturnRef{}, AllowRawPtrs{}";
-            allowedPtr = true;
-        }
-
-        if (
-            !allowedPtr &&
-            functionData.arguments.some((arg) => arg.type?.declaration.includes("*"))
-        ) {
-            policies = ", AllowRawPtrs{}";
-        }
-
-        const overrideImpl = config?.[functionData.name]?.overrideImpl;
-        if (overrideImpl?.cpp) {
-            code += overrideImpl.cpp.join("");
-            continue;
-        }
-
-        const name = functionData.name;
-        let returnType = functionData.return_type.declaration;
-        const parameters = getParameters(functionData);
-        const args = getArguments(functionData);
-
-        const preProcess = getPreProcess(functionData);
-
+        let returnType = function_.return_type.declaration;
         if (returnType === "const char*") {
             returnType = "std::string";
         }
 
-        code += `bind_fn("${name}", [](${parameters}) -> ${returnType} {\n`;
-        code += preProcess;
+        const call = (() => {
+            if (returnType === "void") {
+                return `    ${name}(${args});\n`;
+            }
 
-        if (returnType === "void") {
-            code += `    ${name}(${args});\n`;
-        } else if (returnType === "const char*") {
-            code += `    return std::string(${name}(${args}));\n`;
-        } else {
-            code += `    return ${name}(${args});\n`;
-        }
+            if (returnType === "const char*") {
+                return `    return std::string(${name}(${args}));\n`;
+            }
 
-        code += `}${policies});\n`;
-        code += "\n";
-    }
+            return `    return ${name}(${args});\n`;
+        })();
+
+        const policies = (() => {
+            if (function_.return_type.declaration.includes("*")) {
+                return ", ReturnRef{}, AllowRawPtrs{}";
+            }
+
+            if (function_.arguments.some((arg) => arg.type?.declaration.includes("*"))) {
+                return ", AllowRawPtrs{}";
+            }
+
+            return "";
+        })();
+
+        // biome-ignore format: _
+        return (
+            `bind_fn("${name}", [](${parameters}) -> ${returnType} {\n` +
+            preProcess +
+            call +
+            `}${policies});\n` +
+            "\n"
+        );
+    };
+
+    const code = getMappedCode(functions, config, fn, "cpp");
 
     return code;
-};
+}
