@@ -18,6 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     name: 'Playwright Tests'
     timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: tests/playwright
     steps:
     - uses: actions/checkout@v4
     - uses: actions/download-artifact@v4
@@ -28,9 +31,7 @@ jobs:
       with:
         node-version: lts/*
     - name: Install dependencies
-      run: cd tests/playwright && npm install
-    - run: pwd
-    - run: ls -lah
+      run: npm ci
     - name: Install Playwright Browsers
       run: npx playwright install chromium --with-deps --no-shell
     - name: Run Playwright tests
