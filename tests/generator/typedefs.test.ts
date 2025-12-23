@@ -1,18 +1,17 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { tsGenerateTypedefs } from "../../src/generator/bindings/typedef.ts";
+import { getTypedefsCode } from "../../src/imgui/generator/ts/typedefs.ts";
 
-describe("tsGenerateTypedefs", () => {
+describe(`${getTypedefsCode.name}`, () => {
     it("doesn't generate excluded typedefs", () => {
         const ctx = {
             config: {
                 bindings: {
-                    typedefs: [
-                        {
-                            name: "ImGuiID",
+                    typedefs: {
+                        ImGuiID: {
                             isExcluded: true,
                         },
-                    ],
+                    },
                 },
             },
             data: {
@@ -44,7 +43,7 @@ describe("tsGenerateTypedefs", () => {
             },
         };
 
-        const actual = tsGenerateTypedefs(ctx);
+        const actual = getTypedefsCode(ctx);
         const expected = "";
         assert.strictEqual(actual, expected);
     });
@@ -81,7 +80,7 @@ describe("tsGenerateTypedefs", () => {
             },
         };
 
-        const actual = tsGenerateTypedefs(ctx);
+        const actual = getTypedefsCode(ctx);
         const expected =
             "\n// Scalar data types\n\n/**\n * A unique ID used by widgets (typically the result of hashing a stack of string)\n */\nexport type ImGuiID = number;\n";
         assert.strictEqual(actual, expected);

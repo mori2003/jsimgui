@@ -7,7 +7,7 @@ import type { ImGuiData } from "./interface.ts";
 import { getEnumsCode as getEnumsCodeTs, getFreeTypeLoaderEnum } from "./ts/enums.ts";
 import { getFunctionsCode as getFunctionsCodeTs } from "./ts/functions.ts";
 import { getStructsCode as getStructsCodeTs } from "./ts/structs.ts";
-import { getTypedefsCode as getTypedefsCodeTs } from "./ts/typedefs.ts";
+import { getExtraTypedefs, getTypedefsCode as getTypedefsCodeTs } from "./ts/typedefs.ts";
 
 const PATHS = {
     CONFIG: "./src/imgui/config.json",
@@ -32,6 +32,7 @@ function getBindings(context: GeneratorContext): [string, string] {
     const ts =
         begin +
         getTypedefsCodeTs(context) +
+        getExtraTypedefs() +
         getStructsCodeTs(context) +
         "\n" +
         "export const ImGui = {\n" +

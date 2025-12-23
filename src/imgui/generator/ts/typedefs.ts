@@ -3,6 +3,14 @@ import type { GeneratorContext } from "../main.ts";
 import { getMappedCode } from "../util.ts";
 import { getJsDocComment } from "./comments.ts";
 
+export function getExtraTypedefs(): string {
+    return (
+        "export type ImWchar = number;\n" +
+        "export type ImTextureFormat = number;\n" +
+        "export type ImGuiFreeTypeLoaderFlags = number;\n"
+    );
+}
+
 /**
  * Generates the TypeScript bindings code for the typedefs.
  */
@@ -42,11 +50,5 @@ export function getTypedefsCode(context: GeneratorContext): string {
 
     const code = getMappedCode(typedefs, config, fn, "ts");
 
-    return (
-        code +
-        "\n" +
-        "export type ImWchar = number;\n" +
-        "export type ImTextureFormat = number;\n" +
-        "export type ImGuiFreeTypeLoaderFlags = number;\n"
-    );
+    return code;
 }
