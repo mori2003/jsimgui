@@ -1,8 +1,4 @@
 {
-    "inputPathJson": "./third_party/dear_bindings/dcimgui.json",
-    "outputPathTs": "./bindgen/mod.ts",
-    "outputPathCpp": "./bindgen/jsimgui.cpp",
-    "outputPathInfo": "./bindgen/generator-info.txt",
     "bindings": {
         "typedefs": {
             "ImGuiInputTextCallback": {
