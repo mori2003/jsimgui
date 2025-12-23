@@ -66,3 +66,7 @@ declare const ImGui: {
     SaveIniSettingsToMemory(): string;
     LoadIniSettingsFromMemory(ini_data: string, ini_size: number): void;
 };
+
+declare const Mod: {
+    export: any;
+};
