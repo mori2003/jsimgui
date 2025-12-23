@@ -1,106 +1,112 @@
-import type { ImGuiStruct } from "../interface";
+import type { ImGuiFunction, ImGuiStruct, StructField } from "../interface";
 import type { GeneratorContext } from "../main.ts";
-
+import { getMappedCode } from "../util.ts";
 import { getParameters } from "./functions.ts";
 import { getArguments } from "./functions.ts";
 
-const generateMethods = (structData: ImGuiStruct, ctx: GeneratorContext): string => {
-    let code = "";
+function getMethods(context: GeneratorContext, struct: ImGuiStruct): string {
+    const methods = context.data.functions.filter((f) => f.original_class === struct.name);
+    const config = context.config.bindings?.structs?.[struct.name]?.methods;
 
-    const structMethods = ctx.data.functions.filter((f) => f.original_class === structData.name);
+    const fn = (method: ImGuiFunction) => {
+        const name = method.name;
+        const returnType = method.return_type.declaration;
+        const parameters = getParameters(method);
+        const args = getArguments(method);
 
-    for (const methodData of structMethods) {
-        const config = ctx.config.bindings?.structs?.[structData.name];
-        if (config?.methods?.[methodData.name]?.isExcluded) {
-            continue;
-        }
+        const call =
+            method.return_type.declaration === "void"
+                ? `    ${name}(${args});\n`
+                : `    return ${name}(${args});\n`;
 
-        const overrideImpl = config?.methods?.[methodData.name]?.overrideImpl;
-        if (overrideImpl?.cpp) {
-            code += overrideImpl.cpp.join("");
-            continue;
-        }
+        // biome-ignore format: _
+        return (
+            `.function("${name}", override([](${parameters}) -> ${returnType} {\n` +
+            call +
+            `}), AllowRawPtrs{})\n` +
+            "\n"
+        );
+    };
 
-        const name = methodData.name;
-        const returnType = methodData.return_type.declaration;
-        const parameters = getParameters(methodData);
-        const args = getArguments(methodData);
-
-        code += `.function("${name}", override([](${parameters}) -> ${returnType} {\n`;
-
-        if (returnType === "void") {
-            code += `    ${name}(${args});\n`;
-        } else {
-            code += `    return ${name}(${args});\n`;
-        }
-
-        code += `}), AllowRawPtrs{})\n`;
-
-        code += "\n";
-    }
+    const code = getMappedCode(methods, config, fn, "cpp");
 
     return code;
-};
+}
 
-const generateFields = (structData: ImGuiStruct, ctx: GeneratorContext): string => {
-    let code = "";
+function getFields(context: GeneratorContext, struct: ImGuiStruct): string {
+    const fields = struct.fields;
+    const config = context.config.bindings?.structs?.[struct.name]?.fields;
 
-    for (const field of structData.fields) {
-        const config = ctx.config.bindings?.structs;
-        if (config?.[structData.name]?.fields?.[field.name]?.isExcluded) {
-            continue;
+    const fn = (field: StructField) => {
+        const type = field.type.declaration;
+
+        // Handle Value Object wrappers (ImVec2, ImVec4, ImTextureRef)
+        // TODO: Refactor this mess!
+        if (type === "ImVec2") {
+            const getter =
+                `.function("get_${field.name}", override([](${struct.name} const* self){\n` +
+                `    return wrap_imvec2(self->${field.name});\n` +
+                `}), ReturnRef{}, AllowRawPtrs{})\n`;
+
+            const setter =
+                `.function("set_${field.name}", override([](${struct.name}* self, JsVal value){\n` +
+                `    self->${field.name} = get_imvec2(value);\n` +
+                `}), AllowRawPtrs{})\n`;
+
+            // biome-ignore format: _
+            return (
+                getter +
+                setter +
+                "\n"
+            );
         }
 
-        const overrideImpl = config?.[structData.name]?.fields?.[field.name]?.overrideImpl;
-        if (overrideImpl?.cpp) {
-            code += overrideImpl.cpp.join("");
-            continue;
-        }
+        const getter =
+            `.function("get_${field.name}", override([](${struct.name} const* self){\n` +
+            `    return self->${field.name};\n` +
+            `}), ReturnRef{}, AllowRawPtrs{})\n`;
 
-        // TODO: Refactor!
-        if (field.type.declaration === "ImVec2") {
-            code += `.function("get_${field.name}", override([](const ${structData.name}& self){ return wrap_imvec2(self.${field.name}); }), ReturnRef{}, AllowRawPtrs{})\n`;
-            code += `.function("set_${field.name}", override([](${structData.name}& self, JsVal value){ self.${field.name} = get_imvec2(value); }), AllowRawPtrs{})\n`;
-            code += "\n";
-            continue;
-        }
+        const setter =
+            `.function("set_${field.name}", override([](${struct.name}* self, ${type} value){\n` +
+            `    self->${field.name} = value;\n` +
+            `}), AllowRawPtrs{})\n`;
 
-        code += `.function("get_${field.name}", override([](const ${structData.name}& self){ return self.${field.name}; }), ReturnRef{}, AllowRawPtrs{})\n`;
+        // biome-ignore format: _
+        return (
+            getter +
+            setter +
+            "\n"
+        );
+    };
 
-        code += `.function("set_${field.name}", override([](${structData.name}& self, ${field.type.declaration} value){ self.${field.name} = value; }), AllowRawPtrs{})\n`;
-
-        code += "\n";
-    }
+    const code = getMappedCode(fields, config, fn, "cpp");
 
     return code;
-};
+}
 
-const generateBody = (structData: ImGuiStruct, ctx: GeneratorContext): string => {
-    let code = "";
+/**
+ * Generates the C++ bindings code for the structs.
+ */
+export function getStructsCode(context: GeneratorContext): string {
+    const structs = context.data.structs;
+    const config = context.config.bindings?.structs;
 
-    code += generateFields(structData, ctx);
-    code += generateMethods(structData, ctx);
+    const fn = (struct: ImGuiStruct) => {
+        const name = struct.name;
+        const body = config?.[name]?.isOpaque
+            ? ""
+            : getFields(context, struct) + getMethods(context, struct);
 
-    return code;
-};
+        // biome-ignore format: _
+        return (
+            `bind_struct<${name}>("${name}")\n` +
+            ".constructor<>()\n" +
+            body +
+            ";\n"
+        );
+    };
 
-export const generateStructs = (ctx: GeneratorContext): string => {
-    let code = "";
-
-    for (const structData of ctx.data.structs) {
-        const config = ctx.config.bindings?.structs;
-        if (config?.[structData.name]?.isExcluded) {
-            continue;
-        }
-
-        const name = structData.name;
-        const structBody = config?.[structData.name]?.isOpaque ? "" : generateBody(structData, ctx);
-
-        code += `bind_struct<${name}>("${name}")\n`;
-        code += ".constructor<>()\n";
-        code += structBody;
-        code += ";\n";
-    }
+    const code = getMappedCode(structs, config, fn, "cpp");
 
     return code;
-};
+}

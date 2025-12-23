@@ -1,164 +1,103 @@
-import type { ImGuiStruct } from "../interface.ts";
+import type { ImGuiFunction, ImGuiStruct, StructField } from "../interface.ts";
 import type { GeneratorContext } from "../main.ts";
-import { generateJsDocComment } from "./comments.ts";
+import { getMappedCode, getTsType, isStructType } from "../util.ts";
+import { getJsDocComment } from "./comments.ts";
 import { getArguments, getParameters } from "./functions.ts";
 
-export const getTsType = (declaration: string) => {
-    // TODO: Refactor!
+function getMethods(context: GeneratorContext, struct: ImGuiStruct): string {
+    const methods = context.data.functions.filter((f) => f.original_class === struct.name);
+    const config = context.config.bindings?.structs?.[struct.name]?.methods;
 
-    // biome-ignore format: ...
-    const typeMap = {
-        "int": "number",
-        "float": "number",
-        "double": "number",
-        "unsigned int": "number",
-        "bool": "boolean",
-        "void*": "any",
-        "char*": "string",
-        "const char*": "string",
-        "size_t": "number",
-        "unsigned short": "number",
+    const fn = (method: ImGuiFunction) => {
+        const comment = getJsDocComment(method);
 
-        "bool*": "[boolean]",
-        "int*": "[number]",
-        "size_t*": "[number]",
-        "unsigned int*": "[number]",
-        "float*": "[number]",
-        "const float*": "number[]",
-        "double*": "[number]",
-        "float[2]": "[number, number]",
-        "float[3]": "[number, number, number]",
-        "float[4]": "[number, number, number, number]",
-        "int[2]": "[number, number]",
-        "int[3]": "[number, number, number]",
-        "int[4]": "[number, number, number, number]",
-        "double[2]": "[number, number]",
-        "double[3]": "[number, number, number]",
-        "double[4]": "[number, number, number, number]",
-    }
+        // Slice off the "<struct_name>_": ImGui_Begin() -> Begin().
+        const name = method.name.slice(struct.name.length + 1);
+        const returnType = getTsType(method.return_type.declaration);
 
-    if (declaration in typeMap) {
-        return typeMap[declaration as keyof typeof typeMap];
-    }
+        // Get parameters and arguments without the first "self" parameter/argument.
+        const params = getParameters(method, true);
+        const args = getArguments(method, true);
 
-    declaration = declaration.replace("const ", "");
-    declaration = declaration.replace("*", "");
+        const call =
+            method.return_type.declaration === "void"
+                ? `        this.ptr.${method.name}(${args});\n`
+                : `        return this.ptr.${method.name}(${args});\n`;
 
-    return declaration;
-};
+        // biome-ignore format: _
+        return (
+            comment +
+            `    ${name}(${params}): ${returnType} {\n` +
+            call +
+            `    }\n` +
+            "\n"
+        );
+    };
 
-export const isStructType = (type: string, ctx: GeneratorContext): boolean => {
-    return ctx.data.structs.some((s) => s.name === type);
-};
-
-const generateMethods = (structData: ImGuiStruct, ctx: GeneratorContext): string => {
-    let code = "";
-
-    const structMethods = ctx.data.functions.filter((f) => f.original_class === structData.name);
-
-    for (const methodData of structMethods) {
-        const config = ctx.config.bindings?.structs?.[structData.name];
-        if (config?.methods?.[methodData.name]?.isExcluded) {
-            continue;
-        }
-
-        const overrideImpl = config?.methods?.[methodData.name]?.overrideImpl;
-        if (overrideImpl?.ts) {
-            code += overrideImpl.ts.join("");
-            continue;
-        }
-
-        const comment = generateJsDocComment(methodData);
-        const name = methodData.name.slice(structData.name.length + 1);
-        const type = getTsType(methodData.return_type.declaration);
-
-        const parameters = getParameters(methodData, true);
-        const args = getArguments(methodData, true);
-
-        code += comment;
-        code += `    ${name}(${parameters}): ${type} {\n`;
-
-        if (methodData.return_type.declaration === "void") {
-            code += `        this.ptr.${methodData.name}(${args});\n`;
-        } else {
-            code += `        return this.ptr.${methodData.name}(${args});\n`;
-        }
-
-        code += `    }\n`;
-        code += "\n";
-    }
+    const code = getMappedCode(methods, config, fn, "ts");
 
     return code;
-};
+}
 
-const generateFields = (structData: ImGuiStruct, ctx: GeneratorContext): string => {
-    let code = "";
+function getFields(context: GeneratorContext, struct: ImGuiStruct): string {
+    const fields = struct.fields;
+    const config = context.config.bindings?.structs?.[struct.name]?.fields;
 
-    for (const field of structData.fields) {
-        const config = ctx.config.bindings?.structs;
-        if (config?.[structData.name]?.fields?.[field.name]?.isExcluded) {
-            continue;
-        }
-
-        const overrideImpl = config?.[structData.name]?.fields?.[field.name]?.overrideImpl;
-        if (overrideImpl?.ts) {
-            code += overrideImpl.ts.join("");
-            continue;
-        }
-
-        const comment = generateJsDocComment(field);
+    const fn = (field: StructField) => {
+        const comment = getJsDocComment(field);
         const name = field.name;
         const type = getTsType(field.type.declaration);
 
-        code += comment;
-        code += `    get ${name}(): ${type} {\n`;
+        // biome-ignore format: _
+        const getter = (
+            `    get ${name}(): ${type} {\n` +
+            (isStructType(context, type) ?
+            `        return ${type}.From(this.ptr.get_${name}());\n` :
+            `        return this.ptr.get_${name}();\n`) +
+            `    }\n`
+        );
 
-        if (isStructType(type, ctx)) {
-            code += `        return ${type}.From(this.ptr.get_${name}());\n`;
-        } else {
-            code += `        return this.ptr.get_${name}();\n`;
-        }
+        // biome-ignore format: _
+        const setter = (
+            `    set ${name}(v: ${type}) {\n` +
+            `        this.ptr.set_${name}(v);\n` +
+            `    }\n`
+        );
 
-        code += `    }\n`;
-        code += `    set ${name}(v: ${type}) {\n`;
-        code += `        this.ptr.set_${name}(v);\n`;
-        code += `    }\n`;
-        code += "\n";
-    }
+        return comment + getter + setter;
+    };
 
-    return code;
-};
-
-const generateBody = (structData: ImGuiStruct, ctx: GeneratorContext): string => {
-    let code = "";
-
-    code += generateFields(structData, ctx);
-    code += generateMethods(structData, ctx);
+    const code = getMappedCode(fields, config, fn, "ts");
 
     return code;
-};
+}
 
-export const generateStructs = (ctx: GeneratorContext): string => {
-    let code = "";
+/**
+ * Generates the TypeScript bindings code for the structs.
+ */
+export function getStructsCode(context: GeneratorContext): string {
+    const structs = context.data.structs;
+    const config = context.config.bindings?.structs;
 
-    for (const structData of ctx.data.structs) {
-        const config = ctx.config.bindings?.structs;
-        if (config?.[structData.name]?.isExcluded) {
-            continue;
-        }
+    const fn = (struct: ImGuiStruct) => {
+        const comment = getJsDocComment(struct);
+        const name = struct.name;
 
-        const comment = generateJsDocComment(structData);
-        const name = structData.name;
-        const structBody = config?.[structData.name]?.isOpaque
-            ? "\n"
-            : generateBody(structData, ctx);
+        const body = config?.[name]?.isOpaque
+            ? "    // Opaque\n"
+            : getFields(context, struct) + getMethods(context, struct);
 
-        code += comment;
-        code += `export class ${name} extends StructBinding {\n`;
-        code += structBody;
-        code += `}\n`;
-        code += "\n";
-    }
+        // biome-ignore format: _
+        return (
+            comment +
+            `export class ${name} extends StructBinding {\n` +
+            body +
+            `}\n` +
+            "\n"
+        );
+    };
+
+    const code = getMappedCode(structs, config, fn, "ts");
 
     return code;
-};
+}
