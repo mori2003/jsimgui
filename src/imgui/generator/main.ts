@@ -4,7 +4,7 @@ import { getFunctionsCode as getFunctionsCodeCpp } from "./cpp/functions.ts";
 import { getStructsCode as getStructsCodeCpp } from "./cpp/structs.ts";
 import { filterData } from "./filter.ts";
 import type { ImGuiData } from "./interface.ts";
-import { getEnumsCode as getEnumsCodeTs } from "./ts/enums.ts";
+import { getEnumsCode as getEnumsCodeTs, getFreeTypeLoaderEnum } from "./ts/enums.ts";
 import { getFunctionsCode as getFunctionsCodeTs } from "./ts/functions.ts";
 import { getStructsCode as getStructsCodeTs } from "./ts/structs.ts";
 import { getTypedefsCode as getTypedefsCodeTs } from "./ts/typedefs.ts";
@@ -36,6 +36,7 @@ function getBindings(context: GeneratorContext): [string, string] {
         "\n" +
         "export const ImGui = {\n" +
         getEnumsCodeTs(context) +
+        getFreeTypeLoaderEnum() +
         getFunctionsCodeTs(context) +
         "};\n" +
         end;

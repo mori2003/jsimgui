@@ -1,38 +1,33 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import {
-    tsGenerateEnums,
-    tsTrimEnumName,
-    tsTrimFieldName,
-} from "../../src/generator/bindings/enum.ts";
+import { getEnumsCode, trimEnumName, trimFieldName } from "../../src/imgui/generator/ts/enums.ts";
 
-describe("tsTrimFieldName", () => {
+describe(`${trimFieldName.name}`, () => {
     it("trims the enum name prefix from the field name", () => {
-        const actual = tsTrimFieldName("ImGuiWindowFlags_NoTitleBar", "ImGuiWindowFlags_");
+        const actual = trimFieldName("ImGuiWindowFlags_NoTitleBar", "ImGuiWindowFlags_");
         const expected = "NoTitleBar";
         assert.strictEqual(actual, expected);
     });
 });
 
-describe("tsTrimEnumName", () => {
+describe(`${trimEnumName.name}`, () => {
     it("trims the 'ImGui' prefix and '_' suffix from the enum name", () => {
-        const actual = tsTrimEnumName("ImGuiWindowFlags_");
+        const actual = trimEnumName("ImGuiWindowFlags_");
         const expected = "WindowFlags";
         assert.strictEqual(actual, expected);
     });
 });
 
-describe("tsGenerateEnums", () => {
+describe(`${getEnumsCode.name}`, () => {
     it("doesn't generate excluded enums", () => {
         const ctx = {
             config: {
                 bindings: {
-                    enums: [
-                        {
-                            name: "ImGuiWindowFlags_",
+                    enums: {
+                        ImGuiWindowFlags_: {
                             isExcluded: true,
                         },
-                    ],
+                    },
                 },
             },
             data: {
@@ -64,7 +59,7 @@ describe("tsGenerateEnums", () => {
             },
         };
 
-        const actual = tsGenerateEnums(ctx);
+        const actual = getEnumsCode(ctx);
         const expected = "";
         assert.strictEqual(actual, expected);
     });
@@ -101,7 +96,7 @@ describe("tsGenerateEnums", () => {
             },
         };
 
-        const actual = tsGenerateEnums(ctx);
+        const actual = getEnumsCode(ctx);
         const expected = "WindowFlags: {\nNone: 0,\n},\n";
         assert.strictEqual(actual, expected);
     });

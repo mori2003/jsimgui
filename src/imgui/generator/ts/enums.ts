@@ -7,7 +7,7 @@ import { getJsDocComment } from "./comments.ts";
  * Trims the enum name prefix from the field name.
  * Example: "ImGuiWindowFlags_NoTitleBar" -> "NoTitleBar"
  */
-function trimFieldName(field: string, enumName: string): string {
+export function trimFieldName(field: string, enumName: string): string {
     return field.startsWith(enumName) ? field.slice(enumName.length) : field;
 }
 
@@ -15,49 +15,13 @@ function trimFieldName(field: string, enumName: string): string {
  * Trims the "ImGui" prefix and "_" suffix from the enum name.
  * Example: "ImGuiWindowFlags_" -> "WindowFlags"
  */
-function trimEnumName(enumName: string): string {
+export function trimEnumName(enumName: string): string {
     const trimmed = enumName.endsWith("_") ? enumName.slice(0, -1) : enumName;
     return trimmed.startsWith("ImGui") ? trimmed.slice(5) : trimmed;
 }
 
-/**
- * Generates the TypeScript bindings code for the enums.
- */
-export function getEnumsCode(context: GeneratorContext): string {
-    const enums = context.data.enums;
-    const config = context.config.bindings?.enums;
-
-    const fn = (enum_: ImGuiEnum) => {
-        const comment = getJsDocComment(enum_);
-        const name = trimEnumName(enum_.name);
-
-        const body = enum_.elements
-            .map((field) => {
-                const fieldComment = getJsDocComment(field);
-                const fieldName = trimFieldName(field.name, enum_.name);
-
-                // biome-ignore format: _
-                return (
-                    fieldComment +
-                    `${fieldName}: ${field.value},\n`
-                );
-            })
-            .join("");
-
-        // biome-ignore format: _
-        return (
-            comment +
-            `${name}: {\n` +
-            body +
-            "},\n" +
-            "\n"
-        );
-    };
-
-    const code = getMappedCode(enums, config, fn, "ts");
-
+export function getFreeTypeLoaderEnum(): string {
     return (
-        code +
         // NOTE: Extra FreeTypeLoaderFlags added manually since they are not in dear_bindings data.
         // See: https://github.com/ocornut/imgui/blob/master/misc/freetype/imgui_freetype.h#L29
 
@@ -113,4 +77,42 @@ export function getEnumsCode(context: GeneratorContext): string {
         "Bitmap: 512,\n" +
         "},\n"
     );
+}
+
+/**
+ * Generates the TypeScript bindings code for the enums.
+ */
+export function getEnumsCode(context: GeneratorContext): string {
+    const enums = context.data.enums;
+    const config = context.config.bindings?.enums;
+
+    const fn = (enum_: ImGuiEnum) => {
+        const comment = getJsDocComment(enum_);
+        const name = trimEnumName(enum_.name);
+
+        const body = enum_.elements
+            .map((field) => {
+                const fieldComment = getJsDocComment(field);
+                const fieldName = trimFieldName(field.name, enum_.name);
+
+                // biome-ignore format: _
+                return (
+                    fieldComment +
+                    `${fieldName}: ${field.value},\n`
+                );
+            })
+            .join("");
+
+        // biome-ignore format: _
+        return (
+            comment +
+            `${name}: {\n` +
+            body +
+            "},\n"
+        );
+    };
+
+    const code = getMappedCode(enums, config, fn, "ts");
+
+    return code;
 }
