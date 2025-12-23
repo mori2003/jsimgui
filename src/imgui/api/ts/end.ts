@@ -700,7 +700,7 @@ const loadTextureWebGPU = (
         if (data instanceof Uint8Array) {
             device.queue.writeTexture(
                 { texture, mipLevel: 0, origin: { x: 0, y: 0, z: 0 }, aspect: "all" },
-                data,
+                data.buffer,
                 {},
                 { width, height, depthOrArrayLayers: 1 },
             );
