@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body {
+                margin: 0;
+            }
+
+            canvas {
+                display: block;
+                width: 100vw;
+                height: 100vh;
+            }
+        </style>
+        <script type="importmap">
+            {
+                "imports": {
+                    "@mori2003/jsimgui": "../../../build/mod.js"
+                }
+            }
+        </script>
+        <script type="module">
+            import { ImGui, ImGuiImplWeb } from "@mori2003/jsimgui";
+
+            const canvas = document.querySelector("#render-canvas");
+
+            await ImGuiImplWeb.Init({
+                canvas: canvas,
+                enableDemos: true,
+                backend: "webgl2",
+            });
+
+            function render() {
+                canvas.width = canvas.clientWidth;
+                canvas.height = canvas.clientHeight;
+
+                ImGuiImplWeb.BeginRender();
+
+                ImGui.Begin("New Window");
+                ImGui.Text("Lorem ipsum");
+                ImGui.End();
+
+                ImGuiImplWeb.EndRender();
+
+                console.log("render complete");
+
+                requestAnimationFrame(render);
+            }
+            requestAnimationFrame(render);
+        </script>
+    </head>
+    <body>
+        <canvas id="render-canvas"></canvas>
+    </body>
+</html>

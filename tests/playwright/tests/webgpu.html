@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body {
+                margin: 0;
+            }
+
+            canvas {
+                display: block;
+                width: 100vw;
+                height: 100vh;
+            }
+        </style>
+        <script type="importmap">
+            {
+                "imports": {
+                    "@mori2003/jsimgui": "../../../build/mod.js"
+                }
+            }
+        </script>
+        <script type="module">
+            import { ImGui, ImGuiImplWeb } from "@mori2003/jsimgui";
+
+            const canvas = document.querySelector("#render-canvas");
+            const context = canvas.getContext("webgpu");
+
+            const adapter = await navigator.gpu.requestAdapter();
+            const device = await adapter.requestDevice();
+
+            context.configure({
+                device,
+                format: navigator.gpu.getPreferredCanvasFormat(),
+            });
+
+            await ImGuiImplWeb.Init({
+                canvas,
+                device,
+                enableDemos: true,
+                backend: "webgpu",
+            });
+
+            const frame = () => {
+                canvas.width = canvas.clientWidth;
+                canvas.height = canvas.clientHeight;
+
+                ImGuiImplWeb.BeginRender();
+
+                ImGui.Begin("New Window");
+                ImGui.Text("Lorem ipsum");
+                ImGui.End();
+
+                const commandEncoder = device.createCommandEncoder();
+                const textureView = context.getCurrentTexture().createView();
+
+                const renderPassDescriptor = {
+                    colorAttachments: [
+                        {
+                            view: textureView,
+                            clearValue: { r: 0.2, g: 0.4, b: 0.6, a: 1.0 },
+                            loadOp: "clear",
+                            storeOp: "store",
+                        },
+                    ],
+                };
+
+                const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+
+                ImGuiImplWeb.EndRender(passEncoder);
+
+                passEncoder.end();
+
+                device.queue.submit([commandEncoder.finish()]);
+
+                console.log("render complete");
+
+                requestAnimationFrame(frame);
+            };
+            requestAnimationFrame(frame);
+        </script>
+    </head>
+    <body>
+        <canvas id="render-canvas"></canvas>
+    </body>
+</html>
