@@ -3,6 +3,8 @@
 // linter warnings and errors.
 // -------------------------------------------------------------------------------------------------
 
+/** biome-ignore-all lint/suspicious/noExplicitAny: _ */
+
 declare type ImTextureID = bigint | number;
 declare type ImGuiBackendFlags = number;
 declare type ImGuiKey = number;
@@ -10,11 +12,11 @@ declare type ImGuiMouseButton = number;
 declare type ImGuiMouseCursor = number;
 
 declare class StructBinding {
-    _ptr: number;
+    ptr: number;
 }
 
 declare class ImDrawData {
-    _ptr: number;
+    ptr: number;
 }
 
 declare class ImVec2 {
@@ -69,4 +71,5 @@ declare const ImGui: {
 
 declare const Mod: {
     export: any;
+    init(loaderPath: string, customLoaderPath: string | undefined): Promise<void>;
 };
