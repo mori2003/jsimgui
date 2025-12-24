@@ -63,7 +63,6 @@ const getOutputPath = (cfg: BuildConfig): string => {
  */
 const buildData = () => {
     const emsdkRoot = process.env.EMSDK || "";
-    const srcFile = "./src/templates/cpp/header.cpp";
 
     const compileCommandsJson = JSON.stringify(
         [
@@ -79,8 +78,9 @@ const buildData = () => {
                     "-Xclang",
                     "-std=c++26",
                     "-iwithsysroot/include/compat",
-                    srcFile,
+                    "./src/imgui/api/cpp/web.cpp",
 
+                    "-I./src/imgui/api/cpp/",
                     "-I./third_party/imgui/",
                     "-I./third_party/imgui/backends",
                     "-I./third_party/dear_bindings",
