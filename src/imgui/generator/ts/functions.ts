@@ -69,11 +69,17 @@ export function getArguments(
     const code = function_.arguments
         .filter((arg) => !(skipSelf && arg.name === "self"))
         .map((arg) => {
-            if (isReferenceStruct(arg)) {
-                return `${arg.name}?.ptr ?? null`;
+            // "in" is a reserved keyword
+            let name = arg.name;
+            if (arg.name === "in") {
+                name = "in_";
             }
 
-            return arg.name;
+            if (isReferenceStruct(arg)) {
+                return `${name}?.ptr ?? null`;
+            }
+
+            return name;
         })
         .join(", ");
 
@@ -90,6 +96,12 @@ export function getParameters(function_: ImGuiFunction, skipSelf: boolean = fals
             let type = getTsType(param.type?.declaration ?? "any");
             const defaultValue = getDefaultValue(param);
 
+            // "in" is a reserved keyword
+            let name = param.name;
+            if (param.name === "in") {
+                name = "in_";
+            }
+
             // Add nullability to the type if the default value is null.
             // Used for pointer parameters.
             // Example: "bool* p_open = NULL" -> "[boolean] | null = null"
@@ -98,7 +110,7 @@ export function getParameters(function_: ImGuiFunction, skipSelf: boolean = fals
             }
 
             const defaultPart = defaultValue ? ` = ${defaultValue}` : "";
-            return `${param.name}: ${type}${defaultPart}`;
+            return `${name}: ${type}${defaultPart}`;
         })
         .join(", ");
 
