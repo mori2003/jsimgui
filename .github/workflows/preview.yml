@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [ feat/preview-releases ] # TODO: change to main
+    branches: [ main ]
 
 jobs:
   build:
@@ -22,6 +22,7 @@ jobs:
         with:
           path: build
           merge-multiple: true
+      # TODO: change version numbers to include commit hash and tag with next?
       - run: npm publish --provenance --access public --dry-run
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
