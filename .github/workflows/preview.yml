@@ -23,7 +23,9 @@ jobs:
         with:
           path: build
           merge-multiple: true
-      - run: npm version 0.0.0-${{ github.head_ref }}-${{ github.sha }}
+      - run: |
+          NEW_VERSION=$(npm version minor --no-git-tag-version)
+          npm version $NEW_VERSION-next-${{ github.sha }} --no-git-tag-version
       - run: npm publish --provenance --access public --tag next
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
