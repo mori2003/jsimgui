@@ -23,6 +23,6 @@ jobs:
           path: build
           merge-multiple: true
       # TODO: change version numbers to include commit hash and tag with next?
-      - run: npm publish --provenance --access public --dry-run
+      - run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
