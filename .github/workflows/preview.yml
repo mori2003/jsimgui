@@ -23,7 +23,7 @@ jobs:
         with:
           path: build
           merge-multiple: true
-      # TODO: change version numbers to include commit hash and tag with next?
-      - run: npm publish --provenance --access public
+      - run: npm version 0.0.0-${{ github.head_ref }}-${{ github.sha }}
+      - run: npm publish --provenance --access public --tag next
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
