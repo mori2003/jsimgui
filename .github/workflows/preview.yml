@@ -1,0 +1,26 @@
+on:
+  push:
+    branches: [ feat/preview-releases ] # TODO: change to main
+
+jobs:
+  build:
+    uses: .github/workflows/build.yml
+
+  publish-gpr:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+          registry-url: https://npm.pkg.github.com/
+      - uses: actions/download-artifact@v4
+        with:
+          path: build
+          merge-multiple: true
+      - run: npm publish --provenance --access public --dry-run
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
