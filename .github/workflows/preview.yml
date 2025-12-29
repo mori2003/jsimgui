@@ -11,6 +11,7 @@ jobs:
     permissions:
       packages: write
       contents: read
+    needs: build
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
