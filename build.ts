@@ -32,27 +32,15 @@ const runCommand = (cmd: string, failCb?: () => void) => {
     }
 };
 
-const BACKENDS = ["webgl", "webgl2", "webgpu"] as const;
 const FONT_LOADERS = ["truetype", "freetype"] as const;
-
-const DEFAULT_BACKEND = "webgl2";
 const DEFAULT_FONT_LOADER = "truetype";
-const DEFAULT_INCLUDE_DEMOS = false;
 
 interface BuildConfig {
-    readonly backend: (typeof BACKENDS)[number];
     readonly fontLoader: (typeof FONT_LOADERS)[number];
-    readonly includeDemos: boolean;
 }
 
 const getOutputPath = (cfg: BuildConfig): string => {
-    const buildTags = [
-        cfg.backend,
-        cfg.fontLoader === "truetype" ? "tt" : "ft",
-        cfg.includeDemos ? "demos" : "",
-    ].filter(Boolean);
-
-    return `build/jsimgui-${buildTags.join("-")}.js`;
+    return cfg.fontLoader === "truetype" ? "build/jsimgui.em.js" : "build/jsimgui-freetype.em.js";
 };
 
 /**
@@ -164,33 +152,6 @@ const buildBindgen = () => {
  * Step 3: Uses emscripten to compile the .cpp file to a .wasm and a .js loader file.
  */
 const buildWasm = (cfg: BuildConfig) => {
-    const backendConfigs = {
-        webgl: {
-            sources: [
-                "./third_party/imgui/backends/imgui_impl_opengl3.cpp",
-                "./src/imgui/api/cpp/dcimgui_impl_opengl3.cpp",
-            ],
-            flags: ["-sMIN_WEBGL_VERSION=1", "-sMAX_WEBGL_VERSION=1", "-DJSIMGUI_BACKEND_WEBGL"],
-            exports: ["GL"],
-        },
-        webgl2: {
-            sources: [
-                "./third_party/imgui/backends/imgui_impl_opengl3.cpp",
-                "./src/imgui/api/cpp/dcimgui_impl_opengl3.cpp",
-            ],
-            flags: ["-sMIN_WEBGL_VERSION=2", "-sMAX_WEBGL_VERSION=2", "-DJSIMGUI_BACKEND_WEBGL"],
-            exports: ["GL"],
-        },
-        webgpu: {
-            sources: [
-                "./third_party/imgui/backends/imgui_impl_wgpu.cpp",
-                "./src/imgui/api/cpp/dcimgui_impl_wgpu.cpp",
-            ],
-            flags: ["--use-port=emdawnwebgpu", "-DJSIMGUI_BACKEND_WEBGPU"],
-            exports: ["WebGPU"],
-        },
-    } as const;
-
     const fontLoaderConfigs = {
         truetype: {
             sources: [],
@@ -203,10 +164,9 @@ const buildWasm = (cfg: BuildConfig) => {
     } as const;
 
     const sourceFiles = [
-        //"./bindgen/jsimgui.cpp",
         "./src/imgui/api/cpp/web.cpp",
-        cfg.backend === "webgl2" || cfg.backend === "webgl" ? "./src/imgui/api/cpp/webgl.cpp" : "",
-        cfg.backend === "webgpu" ? "./src/imgui/api/cpp/webgpu.cpp" : "",
+        "./src/imgui/api/cpp/webgl.cpp",
+        "./src/imgui/api/cpp/webgpu.cpp",
         "./bindgen/jsimgui.cpp",
 
         "./third_party/imgui/imgui.cpp",
@@ -214,6 +174,11 @@ const buildWasm = (cfg: BuildConfig) => {
         "./third_party/imgui/imgui_draw.cpp",
         "./third_party/imgui/imgui_tables.cpp",
         "./third_party/imgui/imgui_widgets.cpp",
+
+        "./third_party/imgui/backends/imgui_impl_opengl3.cpp",
+        "./src/imgui/api/cpp/dcimgui_impl_opengl3.cpp",
+        "./third_party/imgui/backends/imgui_impl_wgpu.cpp",
+        "./src/imgui/api/cpp/dcimgui_impl_wgpu.cpp",
 
         "./third_party/dear_bindings/dcimgui.cpp",
         "./third_party/dear_bindings/dcimgui_internal.cpp",
@@ -232,9 +197,15 @@ const buildWasm = (cfg: BuildConfig) => {
         "-std=c++26",
 
         "-lembind",
-        `-sEXPORTED_RUNTIME_METHODS=FS,MEMFS,${backendConfigs[cfg.backend].exports?.join(",")}`,
+        `-sEXPORTED_RUNTIME_METHODS=FS,MEMFS,GL,WebGPU`,
         "-sENVIRONMENT=web",
         "-sWASM_BIGINT",
+
+        "-sMIN_WEBGL_VERSION=1",
+        "-sMAX_WEBGL_VERSION=2",
+        "-DJSIMGUI_BACKEND_WEBGL",
+        "-DJSIMGUI_BACKEND_WEBGPU",
+        "--use-port=emdawnwebgpu",
 
         "-sMODULARIZE=1",
         "-sSINGLE_FILE",
@@ -242,7 +213,6 @@ const buildWasm = (cfg: BuildConfig) => {
         "-sEXPORT_NAME=MainExport",
 
         "-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS=1",
-        ...(cfg.includeDemos ? [] : ["-DIMGUI_DISABLE_DEMO_WINDOWS=1"]),
         "-Oz",
         "-flto",
         "-sMALLOC=emmalloc",
@@ -251,16 +221,11 @@ const buildWasm = (cfg: BuildConfig) => {
     ] as const;
 
     const buildCmd = (): string[] => {
-        const allSources = [
-            ...sourceFiles,
-            ...backendConfigs[cfg.backend].sources,
-            ...fontLoaderConfigs[cfg.fontLoader].sources,
-        ];
+        const allSources = [...sourceFiles, ...fontLoaderConfigs[cfg.fontLoader].sources];
 
         const allFlags = [
             ...includeDirs,
             ...compilerFlags,
-            ...backendConfigs[cfg.backend].flags,
             ...fontLoaderConfigs[cfg.fontLoader].flags,
         ].filter(Boolean);
 
@@ -302,21 +267,17 @@ const buildTs = () => {
 /**
  * Step 5: Formats the final output files for readability.
  */
-const buildFmt = (cfg: BuildConfig) => {
-    const outputPath = getOutputPath(cfg);
+const buildFmt = (_cfg: BuildConfig) => {
     const biomePath = joinPath("node_modules", ".bin", "biome");
-    const cmd = `${biomePath} format --write --vcs-use-ignore-file=false ${outputPath}`;
-    const cmd2 = `${biomePath} format --write --vcs-use-ignore-file=false ./build/mod.js`;
+    const cmd = `${biomePath} format --write --vcs-use-ignore-file=false ./build/mod.js`;
 
     if (argv.includes("--verbose")) {
         stdout.write("\n");
         stdout.write(styleText("yellow", cmd));
-        stdout.write(styleText("yellow", cmd2));
         stdout.write("\n");
     }
 
     runCommand(cmd);
-    runCommand(cmd2);
 };
 
 const getStepSkips = (): string[] => {
@@ -354,14 +315,10 @@ const getBuildConfig = (): BuildConfig => {
         return defaultValue;
     };
 
-    const backend = parseArgument("backend", BACKENDS, DEFAULT_BACKEND);
     const fontLoader = parseArgument("font-loader", FONT_LOADERS, DEFAULT_FONT_LOADER);
-    const includeDemos = args.includes("--demos") || DEFAULT_INCLUDE_DEMOS;
 
     return {
-        backend,
         fontLoader,
-        includeDemos,
     };
 };
 
@@ -467,15 +424,8 @@ const checkHelp = () => {
     stdout.write("  Show verbose output.\n");
     stdout.write("\n");
 
-    stdout.write(styleText(["bold", "cyan"], "  --backend=[webgl|webgl2|webgpu]  "));
-    stdout.write("  Choose the rendering backend for ImGui. Default is webgl2.\n");
-
     stdout.write(styleText(["bold", "cyan"], "  --font-loader=[truetype|freetype]"));
     stdout.write("  Choose the font loader for ImGui. Default is truetype (stb_truetype).\n");
-
-    stdout.write(styleText(["bold", "cyan"], "  --demos                          "));
-    stdout.write("  Includes the ImGui demos in the build. Default is false.\n");
-    stdout.write("\n");
 
     stdout.write(styleText(["bold", "cyan"], "  --skip=data,bindgen,wasm,ts,fmt  "));
     stdout.write("  Skip certain build steps. Default is none.\n");

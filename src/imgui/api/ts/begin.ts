@@ -29,53 +29,13 @@ const Mod = {
             MainExport = await import(`${customLoaderPath}`);
         } else {
             switch (loaderPath) {
-                case "./jsimgui-webgl-tt.js":
+                case "./jsimgui.em.js":
                     // @ts-expect-error
-                    MainExport = await import("./jsimgui-webgl-tt.js");
+                    MainExport = await import("./jsimgui.em.js");
                     break;
-                case "./jsimgui-webgl-tt-demos.js":
+                case "./jsimgui-freetype.em.js":
                     // @ts-expect-error
-                    MainExport = await import("./jsimgui-webgl-tt-demos.js");
-                    break;
-                case "./jsimgui-webgl-ft.js":
-                    // @ts-expect-error
-                    MainExport = await import("./jsimgui-webgl-ft.js");
-                    break;
-                case "./jsimgui-webgl-ft-demos.js":
-                    // @ts-expect-error
-                    MainExport = await import("./jsimgui-webgl-ft-demos.js");
-                    break;
-                case "./jsimgui-webgl2-tt.js":
-                    // @ts-expect-error
-                    MainExport = await import("./jsimgui-webgl2-tt.js");
-                    break;
-                case "./jsimgui-webgl2-tt-demos.js":
-                    // @ts-expect-error
-                    MainExport = await import("./jsimgui-webgl2-tt-demos.js");
-                    break;
-                case "./jsimgui-webgl2-ft.js":
-                    // @ts-expect-error
-                    MainExport = await import("./jsimgui-webgl2-ft.js");
-                    break;
-                case "./jsimgui-webgl2-ft-demos.js":
-                    // @ts-expect-error
-                    MainExport = await import("./jsimgui-webgl2-ft-demos.js");
-                    break;
-                case "./jsimgui-webgpu-tt.js":
-                    // @ts-expect-error
-                    MainExport = await import("./jsimgui-webgpu-tt.js");
-                    break;
-                case "./jsimgui-webgpu-tt-demos.js":
-                    // @ts-expect-error
-                    MainExport = await import("./jsimgui-webgpu-tt-demos.js");
-                    break;
-                case "./jsimgui-webgpu-ft.js":
-                    // @ts-expect-error
-                    MainExport = await import("./jsimgui-webgpu-ft.js");
-                    break;
-                case "./jsimgui-webgpu-ft-demos.js":
-                    // @ts-expect-error
-                    MainExport = await import("./jsimgui-webgpu-ft-demos.js");
+                    MainExport = await import("./jsimgui-freetype.em.js");
                     break;
             }
         }

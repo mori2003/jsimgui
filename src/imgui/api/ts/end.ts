@@ -808,14 +808,6 @@ export interface InitOptions {
     fontLoader?: "truetype" | "freetype";
 
     /**
-     * Whether to include the Dear ImGui demo windows: `ImGui.ShowDemoWindow()`. Note that this
-     * will load an increased WASM file (+200kb).
-     *
-     * Default is `false`.
-     */
-    enableDemos?: boolean;
-
-    /**
      * Custom path to the emscripten loader script. If not provided, will be constructed
      * automatically. If you use jsimgui via a package manager or CDN, you will most likely not
      * need to worry about this.
@@ -858,25 +850,6 @@ const getUsedBackend = (
     }
 
     return "webgl2";
-};
-
-/**
- * This constructs the path to the emscripten loader script. If a custom loader path is provided,
- * it will be used instead.
- *
- * @param backend The backend to use.
- * @param fontLoader The font loader to use.
- * @param enableDemos Whether to include the Dear ImGui demo windows.
- * @param loaderPath Custom path which will be used if provided.
- * @returns The path to the emscripten loader script.
- */
-const getUsedLoaderPath = (
-    backend: "webgl" | "webgl2" | "webgpu",
-    fontLoader: "truetype" | "freetype",
-    enableDemos: boolean,
-): string => {
-    const fontLoaderShort = fontLoader === "truetype" ? "tt" : "ft";
-    return `./jsimgui-${backend}-${fontLoaderShort}${enableDemos ? "-demos" : ""}.js`;
 };
 
 /**
@@ -1043,19 +1016,13 @@ export const ImGuiImplWeb = {
      *
      * @param options The initialization options: {@linkcode InitOptions}.
      */
-    async Init(options: InitOptions) {
-        const {
-            canvas,
-            device,
-            backend,
-            fontLoader = "truetype",
-            enableDemos = false,
-            loaderPath,
-        } = options;
+    async Init(options: InitOptions): Promise<void> {
+        const { canvas, device, backend, fontLoader = "truetype", loaderPath } = options;
         const usedBackend = getUsedBackend(canvas, device, backend);
         State.backend = usedBackend;
 
-        const usedLoaderPath = getUsedLoaderPath(usedBackend, fontLoader, enableDemos);
+        const usedLoaderPath =
+            fontLoader === "truetype" ? "./jsimgui.em.js" : "./jsimgui-freetype.em.js";
         await Mod.init(usedLoaderPath, loaderPath);
 
         Mod.export.FS.mount(Mod.export.MEMFS, { root: "." }, ".");
