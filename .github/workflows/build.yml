@@ -11,12 +11,7 @@ env:
 jobs:
   build-matrix:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        backend: [ webgl, webgl2, webgpu ]
-        font-loader: [ truetype, freetype ]
-        demos: [ false, true ]
-    name: "Build Matrix (${{ matrix.backend }}-${{ matrix.font-loader }}${{ matrix.demos && '-demos' || '' }})"
+    name: "Build"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -39,15 +34,12 @@ jobs:
         with:
           version: ${{ env.EMSDK_VERSION }}
           actions-cache-folder: 'emsdk-cache'
-      - uses: actions/cache/@v4
-        with:
-          path: .em_cache
-          key: "${{ runner.os }}-${{ env.EMSDK_VERSION }}-${{ matrix.backend }}-${{ matrix.font-loader }}-${{ matrix.demos }}"
       - run: |
           source .venv/bin/activate
-          node build.ts --backend=${{ matrix.backend }} --font-loader=${{ matrix.font-loader }} ${{ matrix.demos && '--demos' || '' }}
+          node build.ts
+          node build.ts --font-loader=freetype
       - uses: actions/upload-artifact@v4
         with:
-          name: jsimgui-${{ matrix.backend }}-${{ matrix.font-loader }}${{ matrix.demos && '-demos' || '' }}
+          name: jsimgui
           path: build/
           retention-days: 7
