@@ -123,16 +123,14 @@ docker run -v "$PWD:/workspace" jsimgui bash -c "npm install && node build.ts"
 npm install
 ```
 
-This will build the default library configuration: WebGL2, truetype font loader, no demos.
-
 ```bash
 node build.ts
 ```
 
-You can specify what configuration to build like so:
+To build with freetype font loader:
 
 ```bash
-node build.ts --backend=webgpu --font-loader=freetype --demos
+node build.ts --font-loader=freetype
 
 node build.ts --help # To see all options
 ```
