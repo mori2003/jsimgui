@@ -549,6 +549,11 @@ export const State = {
  */
 export interface TextureOptions {
     /**
+     * The texture reference to update. Only required if you want to update an existing texture.
+     */
+    ref?: ImTextureRef;
+
+    /**
      * The width of the texture. This needs to be specified if the texture is loaded
      * from a `Uint8Array`.
      */
@@ -584,7 +589,7 @@ export interface TextureOptions {
 const loadTextureWebGL = (
     data?: HTMLImageElement | Uint8Array,
     options: TextureOptions = {},
-): ImTextureID => {
+): ImTextureRef => {
     const gl = State.canvas?.getContext(State.backend as "webgl" | "webgl2") as
         | WebGLRenderingContext
         | WebGL2RenderingContext;
@@ -632,7 +637,13 @@ const loadTextureWebGL = (
 
     const id = Mod.export.GL.getNewId(Mod.export.GL.textures);
     Mod.export.GL.textures[id] = texture;
-    return id;
+
+    if (options.ref) {
+        options.ref._TexID = id;
+        return options.ref;
+    }
+
+    return new ImTextureRef(id);
 };
 
 /**
@@ -645,7 +656,7 @@ const loadTextureWebGL = (
 const loadTextureWebGPU = (
     data?: HTMLImageElement | Uint8Array,
     options: TextureOptions = {},
-): ImTextureID => {
+): ImTextureRef => {
     const device = State.device as GPUDevice;
 
     const width = data instanceof HTMLImageElement ? data.width : (options.width ?? 1);
@@ -710,7 +721,13 @@ const loadTextureWebGPU = (
 
     Mod.export.WebGPU.importJsTexture(texture);
     const id = Mod.export.WebGPU.importJsTextureView(textureView);
-    return id;
+
+    if (options.ref) {
+        options.ref._TexID = id;
+        return options.ref;
+    }
+
+    return new ImTextureRef(id);
 };
 
 /**
@@ -929,9 +946,9 @@ export const ImGuiImplWeb = {
      *
      * @param data The image or image data to load.
      * @param options The options for loading the texture.
-     * @returns The ImTextureID of the loaded texture.
+     * @returns The ImTextureRef of the loaded texture.
      */
-    LoadTexture(data?: HTMLImageElement | Uint8Array, options: TextureOptions = {}): ImTextureID {
+    LoadTexture(data?: HTMLImageElement | Uint8Array, options: TextureOptions = {}): ImTextureRef {
         return State.backend === "webgpu"
             ? loadTextureWebGPU(data, options)
             : loadTextureWebGL(data, options);

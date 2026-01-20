@@ -18,8 +18,8 @@ export const showJsimguiDemo = (context) => {
               : "WebGPU";
 
     // Run once
-    if (!showJsimguiDemo.imgBackendId) {
-        showJsimguiDemo.imgBackendId = ImGuiImplWeb.LoadTexture();
+    if (!showJsimguiDemo.imgBackendRef) {
+        showJsimguiDemo.imgBackendRef = ImGuiImplWeb.LoadTexture();
         const imgBackend = new Image();
         imgBackend.crossOrigin = "anonymous";
 
@@ -33,14 +33,14 @@ export const showJsimguiDemo = (context) => {
         }
 
         imgBackend.onload = () => {
-            showJsimguiDemo.imgBackendId = ImGuiImplWeb.LoadTexture(imgBackend, {
-                id: showJsimguiDemo.imgBackendId,
+            showJsimguiDemo.imgBackendRef = ImGuiImplWeb.LoadTexture(imgBackend, {
+                ref: showJsimguiDemo.imgBackendRef,
             });
         };
     }
 
-    const imgBackendId = showJsimguiDemo.imgBackendId;
-    ImGui.Image(new ImTextureRef(imgBackendId), new ImVec2(120, backend === "WebGPU" ? 100 : 50));
+    const imgBackendRef = showJsimguiDemo.imgBackendRef;
+    ImGui.Image(imgBackendRef, new ImVec2(120, backend === "WebGPU" ? 100 : 50));
     ImGui.Text(`Using ${backend} backend`);
 
     ImGui.End();
