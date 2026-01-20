@@ -549,12 +549,6 @@ export const State = {
  */
 export interface TextureOptions {
     /**
-     * The id of the old texture to load the new texture into. If not provided, a new texture
-     * will be created.
-     */
-    id?: ImTextureID;
-
-    /**
      * The width of the texture. This needs to be specified if the texture is loaded
      * from a `Uint8Array`.
      */
@@ -595,13 +589,8 @@ const loadTextureWebGL = (
         | WebGLRenderingContext
         | WebGL2RenderingContext;
 
-    const textureId = options.id as unknown as number;
-
     const processTexture = () => {
-        const texture =
-            textureId !== undefined
-                ? (Mod.export.GL.textures[textureId] as WebGLTexture)
-                : gl.createTexture();
+        const texture = gl.createTexture();
 
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
@@ -641,13 +630,9 @@ const loadTextureWebGL = (
         ? (options.processFn(data, options) as WebGLTexture)
         : processTexture();
 
-    if (!options.id) {
-        const newID = Mod.export.GL.getNewId(Mod.export.GL.textures);
-        Mod.export.GL.textures[newID] = texture;
-        return newID;
-    }
-
-    return options.id;
+    const id = Mod.export.GL.getNewId(Mod.export.GL.textures);
+    Mod.export.GL.textures[id] = texture;
+    return id;
 };
 
 /**
@@ -723,28 +708,9 @@ const loadTextureWebGPU = (
         ? (options.processFn(data, options) as [GPUTexture, GPUTextureView])
         : processTexture();
 
-    if (!options.id) {
-        Mod.export.WebGPU.importJsTexture(texture);
-        const newID = Mod.export.WebGPU.importJsTextureView(textureView);
-        // Mod.export.WebGPU.mgrTexture.create(texture);
-        // const newID = Mod.export.WebGPU.mgrTextureView.create(textureView);
-        return newID;
-    }
-
     Mod.export.WebGPU.importJsTexture(texture);
-    const newID = Mod.export.WebGPU.importJsTextureView(
-        textureView,
-        options.id as unknown as number,
-    );
-
-    //console.log(Mod.export.WebGPU.getJsObject(id));
-    // const textureWrapper = Mod.export.WebGPU.mgrTexture.objects[id];
-    // const textureViewWrapper = Mod.export.WebGPU.mgrTextureView.objects[id];
-
-    // if (textureWrapper) textureWrapper.object = texture;
-    // if (textureViewWrapper) textureViewWrapper.object = textureView;
-
-    return newID;
+    const id = Mod.export.WebGPU.importJsTextureView(textureView);
+    return id;
 };
 
 /**
@@ -893,10 +859,7 @@ const initWebGPU = (canvas: HTMLCanvasElement, device: GPUDevice | undefined) =>
         throw new Error("jsimgui: WebGPU device is not provided.");
     }
 
-    //console.log(Mod.export)
-    //Mod.export.preinitializedWebGPUDevice = device;
     const handle = Mod.export.WebGPU.importJsDevice(device);
-    console.log(handle);
     ImGuiImplWGPU.Init(handle);
 
     State.beginRenderFn = () => {
