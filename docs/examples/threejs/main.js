@@ -59,10 +59,7 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-await ImGuiImplWeb.Init({
-    canvas,
-    enableDemos: true,
-});
+await ImGuiImplWeb.Init({ canvas });
 
 const showDemo = [false];
 const docking = [false];
