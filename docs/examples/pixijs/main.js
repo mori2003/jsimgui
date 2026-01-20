@@ -6,10 +6,7 @@ await app.init({ background: "#1099bb", resizeTo: window });
 
 document.querySelector("main").appendChild(app.canvas);
 
-await ImGuiImplWeb.Init({
-    canvas: app.canvas,
-    enableDemos: true,
-});
+await ImGuiImplWeb.Init({ canvas: app.canvas });
 
 const texture = await PIXI.Assets.load("bunny.png");
 const bunny = new PIXI.Sprite(texture);

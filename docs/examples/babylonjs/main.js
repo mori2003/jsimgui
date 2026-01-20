@@ -3,10 +3,7 @@ import { ImGui, ImGuiImplWeb, ImVec2 } from "@mori2003/jsimgui";
 const canvas = document.getElementById("render-canvas");
 const engine = new BABYLON.Engine(canvas, true);
 
-await ImGuiImplWeb.Init({
-    canvas,
-    enableDemos: true,
-});
+await ImGuiImplWeb.Init({ canvas });
 
 const data = {
     lightIntensity: [0.7],

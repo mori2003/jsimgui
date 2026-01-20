@@ -12,11 +12,7 @@ context.configure({
     format: navigator.gpu.getPreferredCanvasFormat(),
 });
 
-await ImGuiImplWeb.Init({
-    canvas,
-    device,
-    enableDemos: true,
-});
+await ImGuiImplWeb.Init({ canvas, device });
 
 const frame = () => {
     canvas.width = canvas.clientWidth;

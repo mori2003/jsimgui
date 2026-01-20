@@ -68,10 +68,7 @@ For more information, see the [wiki](https://github.com/mori2003/jsimgui/wiki).
 
             const canvas = document.querySelector("#render-canvas");
 
-            await ImGuiImplWeb.Init({
-                canvas: canvas,
-                enableDemos: true,
-            });
+            await ImGuiImplWeb.Init({ canvas: canvas });
 
             function render() {
                 canvas.width = canvas.clientWidth;
