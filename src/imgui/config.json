@@ -88,13 +88,13 @@
                                 "        obj.set(i, self.Colors[i]);\n",
                                 "    };\n",
                                 "    return obj;\n",
-                                "}), ReturnRef{}, AllowRawPtrs{})\n",
+                                "}), rvp_ref{}, allow_raw_ptrs{})\n",
                                 "\n",
-                                ".function(\"set_Colors\", override([](ImGuiStyle& self, JsVal value){\n",
+                                ".function(\"set_Colors\", override([](ImGuiStyle& self, js_val value){\n",
                                 "    for (auto i = 0; i < ImGuiCol_COUNT; i++) {\n",
                                 "        self.Colors[i] = value[i].as<ImVec4>();\n",
                                 "    };\n",
-                                "}), AllowRawPtrs{})\n",
+                                "}), allow_raw_ptrs{})\n",
                                 "\n"
                             ]
                         }
@@ -146,10 +146,12 @@
                                 "    }\n"
                             ],
                             "cpp": [
-                                ".function(\"ImFontAtlas_AddFontFromFileTTF\", override([](ImFontAtlas* self, std::string filename, float size_pixels, const ImFontConfig* font_cfg, JsVal glyph_ranges) -> ImFont* {\n",
-                                "    auto _bind_glyph_ranges = ArrayParam<ImWchar>(glyph_ranges);\n",
-                                "    return ImFontAtlas_AddFontFromFileTTF(self, filename.c_str(), size_pixels, font_cfg, &_bind_glyph_ranges);\n",
-                                "}), ReturnRef{}, AllowRawPtrs{})\n"
+                                ".function(\"ImFontAtlas_AddFontFromFileTTF\", override([](ImFontAtlas* self, std::string filename, float size_pixels, const ImFontConfig* font_cfg, js_val glyph_ranges) -> ImFont* {\n",
+                                "    auto param_glyph_ranges = get_vector_param<ImWchar>(glyph_ranges);\n",
+                                "    auto const ret = ImFontAtlas_AddFontFromFileTTF(self, filename.c_str(), size_pixels, font_cfg, param_glyph_ranges.ptr);\n",
+                                "    write_back_vector_param(param_glyph_ranges, glyph_ranges);\n",
+                                "    return ret;\n",
+                                "}), rvp_ref{}, allow_raw_ptrs{})\n"
                             ]
                         }
                     },
@@ -197,7 +199,7 @@
                                 "    }\n"
                             ],
                             "cpp": [
-                                ".function(\"get_Data\", override([](const ImGuiPayload* self){ return std::string((char*)self->Data, self->DataSize); }), ReturnRef{}, AllowRawPtrs{})\n"
+                                ".function(\"get_Data\", override([](const ImGuiPayload* self){ return std::string((char*)self->Data, self->DataSize); }), rvp_ref{}, allow_raw_ptrs{})\n"
                             ]
                         }
                     },
@@ -209,7 +211,7 @@
                                 "    }\n"
                             ],
                             "cpp": [
-                                ".function(\"get_DataSize\", override([](const ImGuiPayload* self){ return self->DataSize; }), ReturnRef{}, AllowRawPtrs{})\n"
+                                ".function(\"get_DataSize\", override([](const ImGuiPayload* self){ return self->DataSize; }), rvp_ref{}, allow_raw_ptrs{})\n"
                             ]
                         }
                     }
@@ -369,7 +371,7 @@
                         "    },\n"
                     ],
                     "cpp": [
-                        "bind_fn(\"ImGui_InputText\", [](std::string label, JsVal buf, size_t buf_size, ImGuiInputTextFlags flags){\n",
+                        "bind_fn(\"ImGui_InputText\", [](std::string label, js_val buf, size_t buf_size, ImGuiInputTextFlags flags){\n",
                         "    auto _bind_buf = buf[0].as<std::string>();\n",
                         "    _bind_buf.reserve(buf_size);\n",
                         "    auto const ret = ImGui_InputText(label.c_str(), _bind_buf.data(), buf_size, flags, nullptr, nullptr);\n",
@@ -387,7 +389,7 @@
                         "    },\n"
                     ],
                     "cpp": [
-                        "bind_fn(\"ImGui_InputTextMultiline\", [](std::string label, JsVal buf, size_t buf_size, ImVec2 size, ImGuiInputTextFlags flags){\n",
+                        "bind_fn(\"ImGui_InputTextMultiline\", [](std::string label, js_val buf, size_t buf_size, ImVec2 size, ImGuiInputTextFlags flags){\n",
                         "    auto _bind_buf = buf[0].as<std::string>();\n",
                         "    _bind_buf.reserve(buf_size);\n",
                         "    auto const ret = ImGui_InputTextMultiline(label.c_str(), _bind_buf.data(), buf_size, size, flags, nullptr, nullptr);\n",
@@ -405,7 +407,7 @@
                         "    },\n"
                     ],
                     "cpp": [
-                        "bind_fn(\"ImGui_InputTextWithHint\", [](std::string label, std::string hint, JsVal buf, size_t buf_size, ImGuiInputTextFlags flags){\n",
+                        "bind_fn(\"ImGui_InputTextWithHint\", [](std::string label, std::string hint, js_val buf, size_t buf_size, ImGuiInputTextFlags flags){\n",
                         "    auto _bind_buf = buf[0].as<std::string>();\n",
                         "    _bind_buf.reserve(buf_size);\n",
                         "    auto const ret = ImGui_InputTextWithHint(label.c_str(), hint.c_str(), _bind_buf.data(), buf_size, flags, nullptr, nullptr);\n",

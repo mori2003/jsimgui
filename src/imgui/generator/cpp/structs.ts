@@ -26,7 +26,7 @@ function getMethods(context: GeneratorContext, struct: ImGuiStruct): string {
         return (
             `.function("${name}", override([](${parameters}) -> ${returnType} {\n` +
             call +
-            `}), AllowRawPtrs{})\n` +
+            `}), allow_raw_ptrs{})\n` +
             "\n"
         );
     };
@@ -50,12 +50,12 @@ function getFields(context: GeneratorContext, struct: ImGuiStruct): string {
         const getter =
             `.function("get_${field.name}", override([](${struct.name} const* self){\n` +
             `    return self->${field.name};\n` +
-            `}), ReturnRef{}, AllowRawPtrs{})\n`;
+            `}), rvp_ref{}, allow_raw_ptrs{})\n`;
 
         const setter =
             `.function("set_${field.name}", override([](${struct.name}* self, ${type} value){\n` +
             `    self->${field.name} = value;\n` +
-            `}), AllowRawPtrs{})\n`;
+            `}), allow_raw_ptrs{})\n`;
 
         // biome-ignore format: _
         return (
