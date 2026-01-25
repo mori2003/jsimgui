@@ -2,49 +2,30 @@ import type { ImGuiArgument, ImGuiFunction } from "../interface.ts";
 import type { GeneratorContext } from "../main.ts";
 import { getMappedCode } from "../util.ts";
 
-function isPrimitivePointer(arg: ImGuiArgument): boolean {
-    const primitivePointers = [
-        "bool*",
-        "float*",
-        "size_t*",
-        "const float*",
-        "double*",
-        "int*",
-        "unsigned int*",
-        "float[2]",
-        "float[3]",
-        "float[4]",
-        "int[2]",
-        "int[3]",
-        "int[4]",
-        "double[2]",
-        "double[3]",
-        "double[4]",
-    ];
+const pointerMap = {
+    "bool*": "bool",
+    "size_t*": "size_t",
+    "float*": "float",
+    "const float*": "float",
+    "float[2]": "float",
+    "float[3]": "float",
+    "float[4]": "float",
+    "double*": "double",
+    "double[2]": "double",
+    "double[3]": "double",
+    "double[4]": "double",
+    "int*": "int",
+    "int[2]": "int",
+    "int[3]": "int",
+    "int[4]": "int",
+    "unsigned int*": "unsigned int",
+};
 
-    return primitivePointers.includes(arg.type?.declaration);
+function isPrimitivePointer(arg: ImGuiArgument): boolean {
+    return Object.keys(pointerMap).includes(arg.type?.declaration);
 }
 
 function getPreProcess(function_: ImGuiFunction): string {
-    const pointerMap = {
-        "bool*": "bool",
-        "size_t*": "size_t",
-        "float*": "float",
-        "const float*": "float",
-        "float[2]": "float",
-        "float[3]": "float",
-        "float[4]": "float",
-        "double*": "double",
-        "double[2]": "double",
-        "double[3]": "double",
-        "double[4]": "double",
-        "int*": "int",
-        "int[2]": "int",
-        "int[3]": "int",
-        "int[4]": "int",
-        "unsigned int*": "unsigned int",
-    };
-
     const code = function_.arguments
         .map((arg) => {
             const type = pointerMap[arg.type?.declaration as keyof typeof pointerMap];
@@ -53,7 +34,24 @@ function getPreProcess(function_: ImGuiFunction): string {
                 return "";
             }
 
-            return `    auto _bind_${arg.name} = ArrayParam<${type}>(${arg.name});\n`;
+            const size = arg.array_bounds ? `${arg.array_bounds}` : "1";
+
+            return `    auto param_${arg.name} = get_array_param<${type}, ${size}>(${arg.name});\n`;
+        })
+        .filter((line) => line !== "")
+        .join("");
+
+    return code;
+}
+
+function getPostprocess(function_: ImGuiFunction): string {
+    const code = function_.arguments
+        .map((arg) => {
+            if (!isPrimitivePointer(arg)) {
+                return "";
+            }
+
+            return `    write_back_array_param(param_${arg.name}, ${arg.name});\n`;
         })
         .filter((line) => line !== "")
         .join("");
@@ -69,7 +67,7 @@ export function getArguments(function_: ImGuiFunction): string {
             }
 
             if (isPrimitivePointer(arg)) {
-                return `&_bind_${arg.name}`;
+                return `param_${arg.name}.ptr`;
             }
 
             return arg.name;
@@ -87,7 +85,7 @@ export function getParameters(function_: ImGuiFunction): string {
             }
 
             if (isPrimitivePointer(arg)) {
-                return `JsVal ${arg.name}`;
+                return `js_val ${arg.name}`;
             }
 
             return `${arg.type?.declaration} ${arg.name}`;
@@ -110,6 +108,7 @@ export function getFunctionsCode(context: GeneratorContext): string {
         const parameters = getParameters(function_);
         const args = getArguments(function_);
         const preProcess = getPreProcess(function_);
+        const postProcess = getPostprocess(function_);
 
         let returnType = function_.return_type.declaration;
         if (returnType === "const char*") {
@@ -122,7 +121,15 @@ export function getFunctionsCode(context: GeneratorContext): string {
             }
 
             if (returnType === "const char*") {
+                if (postProcess) {
+                    return `    auto const ret = std::string(${name}(${args}));\n`;
+                }
+
                 return `    return std::string(${name}(${args}));\n`;
+            }
+
+            if (postProcess) {
+                return `    auto const ret = ${name}(${args});\n`;
             }
 
             return `    return ${name}(${args});\n`;
@@ -130,21 +137,25 @@ export function getFunctionsCode(context: GeneratorContext): string {
 
         const policies = (() => {
             if (function_.return_type.declaration.includes("*")) {
-                return ", ReturnRef{}, AllowRawPtrs{}";
+                return ", rvp_ref{}, allow_raw_ptrs{}";
             }
 
             if (function_.arguments.some((arg) => arg.type?.declaration.includes("*"))) {
-                return ", AllowRawPtrs{}";
+                return ", allow_raw_ptrs{}";
             }
 
             return "";
         })();
+
+        const ret = postProcess && returnType !== "void" ? "    return ret;\n" : "";
 
         // biome-ignore format: _
         return (
             `bind_fn("${name}", [](${parameters}) -> ${returnType} {\n` +
             preProcess +
             call +
+            postProcess +
+            ret +
             `}${policies});\n` +
             "\n"
         );

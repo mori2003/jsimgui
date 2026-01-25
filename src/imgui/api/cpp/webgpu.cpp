@@ -9,7 +9,7 @@
 
 #include <cstdint>
 
-static auto const WEBGPU = Bindings([]() {
+static auto const WEBGPU = bindings([]() {
     bind_fn("cImGui_ImplWGPU_Init", [](uintptr_t handle) -> bool {
         auto const device = reinterpret_cast<WGPUDevice>(handle);
 
@@ -43,6 +43,6 @@ static auto const WEBGPU = Bindings([]() {
 
             cImGui_ImplWGPU_RenderDrawData(draw_data, pass_encoder);
         },
-        AllowRawPtrs{}
+        allow_raw_ptrs{}
     );
 });

@@ -5,7 +5,7 @@
 
 #include <emscripten/bind.h>
 
-static auto const WEBGL = Bindings([]() {
+static auto const WEBGL = bindings([]() {
     bind_fn("cImGui_ImplOpenGL3_Init", []() -> bool {
         return cImGui_ImplOpenGL3_Init();
     });
@@ -23,6 +23,6 @@ static auto const WEBGL = Bindings([]() {
         [](ImDrawData* draw_data) -> void {
             cImGui_ImplOpenGL3_RenderDrawData(draw_data);
         },
-        AllowRawPtrs{}
+        allow_raw_ptrs{}
     );
 });

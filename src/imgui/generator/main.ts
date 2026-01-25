@@ -44,14 +44,13 @@ function getBindings(context: GeneratorContext): [string, string] {
 
     const cpp =
         "#include <util.hpp>\n" +
-        "#include <wrappers.hpp>\n" +
         "\n" +
         "#include <dcimgui.h>\n" +
         "#include <dcimgui_internal.h>\n" +
         "\n" +
         "#include <emscripten/bind.h>\n" +
         "\n" +
-        "static auto const IMGUI = Bindings([]() {\n" +
+        "static auto const IMGUI = bindings([]() {\n" +
         getStructsCodeCpp(context) +
         getFunctionsCodeCpp(context) +
         "});\n";

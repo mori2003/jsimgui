@@ -86,6 +86,7 @@ export interface ImGuiArgument {
     name: string;
     type: TypeDescription;
     default_value?: string;
+    array_bounds?: string;
 }
 
 export interface ImGuiComment {
