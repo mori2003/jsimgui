@@ -344,15 +344,15 @@ const setupMouseIO = (canvas: HTMLCanvasElement) => {
     const io = ImGui.GetIO();
     const scrollSpeed = 0.01;
 
-    canvas.addEventListener("mousemove", (e) => {
+    canvas.addEventListener("pointermove", (e) => {
         const rect = canvas.getBoundingClientRect();
         io.AddMousePosEvent(e.clientX - rect.left, e.clientY - rect.top);
 
         canvas.style.cursor = MOUSE_CURSOR_MAP[ImGui.GetMouseCursor()];
     });
 
-    canvas.addEventListener("mousedown", (e) => handleMouseButtonEvent(e, true, io));
-    canvas.addEventListener("mouseup", (e) => handleMouseButtonEvent(e, false, io));
+    canvas.addEventListener("pointerdown", (e) => handleMouseButtonEvent(e, true, io));
+    canvas.addEventListener("pointerup", (e) => handleMouseButtonEvent(e, false, io));
     canvas.addEventListener("wheel", (e) =>
         io.AddMouseWheelEvent(-e.deltaX * scrollSpeed, -e.deltaY * scrollSpeed),
     );
