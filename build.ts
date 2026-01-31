@@ -40,7 +40,9 @@ interface BuildConfig {
 }
 
 const getOutputPath = (cfg: BuildConfig): string => {
-    return cfg.fontLoader === "truetype" ? "build/jsimgui.em.js" : "build/jsimgui-freetype.em.js";
+    return cfg.fontLoader === "truetype"
+        ? "build/wasm/loader.em.js"
+        : "build/wasm/loader-freetype.em.js";
 };
 
 /**
@@ -167,7 +169,8 @@ const buildWasm = (cfg: BuildConfig) => {
         "./src/imgui/api/cpp/web.cpp",
         "./src/imgui/api/cpp/webgl.cpp",
         "./src/imgui/api/cpp/webgpu.cpp",
-        "./bindgen/jsimgui.cpp",
+
+        "./bindgen/cpp/imgui.cpp",
 
         "./third_party/imgui/imgui.cpp",
         "./third_party/imgui/imgui_demo.cpp",
@@ -243,6 +246,7 @@ const buildWasm = (cfg: BuildConfig) => {
     }
 
     mkdirSync("build", { recursive: true });
+    mkdirSync("build/wasm", { recursive: true });
     runCommand(cmd.join(" "));
 };
 

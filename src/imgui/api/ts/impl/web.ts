@@ -1,86 +1,7 @@
-/**
- * Object containing functions for initializing and rendering the WebGL/WebGL2 (OpenGL3) backend.
- * As a user you most likely will not need to use this object directly. {@linkcode ImGuiImplWeb}
- * will call the appropriate functions for you.
- */
-export const ImGuiImplOpenGL3 = {
-    /**
-     * Initializes the WebGL/WebGL2 (OpenGL3) backend.
-     *
-     * @returns `true` if the backend initialized successfully, `false` otherwise.
-     */
-    Init(): boolean {
-        return Mod.export.cImGui_ImplOpenGL3_Init();
-    },
-
-    /**
-     * Shuts down the WebGL/WebGL2 (OpenGL3) backend.
-     */
-    Shutdown() {
-        Mod.export.cImGui_ImplOpenGL3_Shutdown();
-    },
-
-    /**
-     * Starts a new WebGL/WebGL2 (OpenGL3) frame.
-     */
-    NewFrame() {
-        Mod.export.cImGui_ImplOpenGL3_NewFrame();
-    },
-
-    /**
-     * Renders the WebGL/WebGL2 (OpenGL3) frame.
-     *
-     * @param draw_data The draw data to render.
-     */
-    RenderDrawData(draw_data: ImDrawData): void {
-        Mod.export.cImGui_ImplOpenGL3_RenderDrawData(draw_data.ptr);
-    },
-};
-
-/**
- * Object containing functions for initializing and rendering the WebGPU backend. As a user you
- * most likely will not need to use this object directly. {@linkcode ImGuiImplWeb} will call the
- * appropriate functions for you.
- */
-export const ImGuiImplWGPU = {
-    /**
-     * Initializes the WebGPU backend.
-     *
-     * @returns `true` if the backend initialized successfully, `false` otherwise.
-     */
-    Init(handle: number): boolean {
-        return Mod.export.cImGui_ImplWGPU_Init(handle);
-    },
-
-    /**
-     * Shuts down the WebGPU backend.
-     */
-    Shutdown() {
-        Mod.export.cImGui_ImplWGPU_Shutdown();
-    },
-
-    /**
-     * Starts a new WebGPU frame.
-     */
-    NewFrame() {
-        Mod.export.cImGui_ImplWGPU_NewFrame();
-    },
-
-    /**
-     * Renders the WebGPU frame.
-     *
-     * @param draw_data The draw data to render.
-     * @param pass_encoder The pass encoder to use for rendering.
-     */
-    RenderDrawData(draw_data: ImDrawData, pass_encoder: GPURenderPassEncoder) {
-        const handle = Mod.export.WebGPU.importJsRenderPassEncoder(pass_encoder);
-        Mod.export.cImGui_ImplWGPU_RenderDrawData(draw_data.ptr, handle);
-    },
-};
-
-// -------------------------------------------------------------------------------------------------
-// [6.] Web Implementation
-// -------------------------------------------------------------------------------------------------
+import { Mod } from "../core.js";
+import { ImGui, type ImGuiIO, type ImTextureRef, ImVec2 } from "../imgui.js";
+import { ImGuiImplOpenGL3, loadTextureWebGL } from "./webgl.js";
+import { ImGuiImplWGPU, loadTextureWebGPU } from "./wgpu.js";
 
 /**
  * Map of browser mouse button values to ImGui mouse button enums.
@@ -580,157 +501,6 @@ export interface TextureOptions {
 }
 
 /**
- * Loads a WebGL/WebGL2 texture.
- *
- * @param data The image data to load. If not provided will load a fully transparent texture.
- * @param options The options for loading the texture.
- * @returns The ImTextureID of the loaded texture.
- */
-const loadTextureWebGL = (
-    data?: HTMLImageElement | Uint8Array,
-    options: TextureOptions = {},
-): ImTextureRef => {
-    const gl = State.canvas?.getContext(State.backend as "webgl" | "webgl2") as
-        | WebGLRenderingContext
-        | WebGL2RenderingContext;
-
-    const processTexture = () => {
-        const texture = gl.createTexture();
-
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-        if (!data) {
-            const data = new Uint8Array([0, 0, 0, 0]);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
-        }
-
-        if (data instanceof HTMLImageElement) {
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, data);
-        }
-
-        if (data instanceof Uint8Array) {
-            const width = options.width ?? 1;
-            const height = options.height ?? 1;
-            gl.texImage2D(
-                gl.TEXTURE_2D,
-                0,
-                gl.RGBA,
-                width,
-                height,
-                0,
-                gl.RGBA,
-                gl.UNSIGNED_BYTE,
-                data,
-            );
-        }
-
-        return texture;
-    };
-
-    const texture = options.processFn
-        ? (options.processFn(data, options) as WebGLTexture)
-        : processTexture();
-
-    const id = Mod.export.GL.getNewId(Mod.export.GL.textures);
-    Mod.export.GL.textures[id] = texture;
-
-    if (options.ref) {
-        options.ref._TexID = id;
-        return options.ref;
-    }
-
-    return new ImTextureRef(id);
-};
-
-/**
- * Loads a WebGPU texture.
- *
- * @param data The image data to load. If not provided will load a fully transparent texture.
- * @param options The options for loading the texture.
- * @returns The ImTextureID of the loaded texture.
- */
-const loadTextureWebGPU = (
-    data?: HTMLImageElement | Uint8Array,
-    options: TextureOptions = {},
-): ImTextureRef => {
-    const device = State.device as GPUDevice;
-
-    const width = data instanceof HTMLImageElement ? data.width : (options.width ?? 1);
-    const height = data instanceof HTMLImageElement ? data.height : (options.height ?? 1);
-
-    const processTexture = () => {
-        const texture = device.createTexture({
-            usage:
-                GPUTextureUsage.COPY_DST |
-                GPUTextureUsage.TEXTURE_BINDING |
-                GPUTextureUsage.RENDER_ATTACHMENT,
-            dimension: "2d",
-            size: { width, height, depthOrArrayLayers: 1 },
-            format: "rgba8unorm",
-            mipLevelCount: 1,
-            sampleCount: 1,
-        });
-
-        if (!data) {
-            const data = new Uint8Array([0, 0, 0, 0]);
-            device.queue.writeTexture(
-                { texture, mipLevel: 0, origin: { x: 0, y: 0, z: 0 }, aspect: "all" },
-                data,
-                {},
-                { width, height, depthOrArrayLayers: 1 },
-            );
-        }
-
-        if (data instanceof HTMLImageElement) {
-            device.queue.copyExternalImageToTexture(
-                { source: data },
-                { texture, mipLevel: 0, origin: { x: 0, y: 0, z: 0 }, aspect: "all" },
-                { width: data.width, height: data.height, depthOrArrayLayers: 1 },
-            );
-        }
-
-        if (data instanceof Uint8Array) {
-            device.queue.writeTexture(
-                { texture, mipLevel: 0, origin: { x: 0, y: 0, z: 0 }, aspect: "all" },
-                data.buffer,
-                {},
-                { width, height, depthOrArrayLayers: 1 },
-            );
-        }
-
-        const textureView = texture.createView({
-            format: "rgba8unorm",
-            dimension: "2d",
-            baseMipLevel: 0,
-            mipLevelCount: 1,
-            baseArrayLayer: 0,
-            arrayLayerCount: 1,
-            aspect: "all",
-        });
-
-        return [texture, textureView];
-    };
-
-    const [texture, textureView] = options.processFn
-        ? (options.processFn(data, options) as [GPUTexture, GPUTextureView])
-        : processTexture();
-
-    Mod.export.WebGPU.importJsTexture(texture);
-    const id = Mod.export.WebGPU.importJsTextureView(textureView);
-
-    if (options.ref) {
-        options.ref._TexID = id;
-        return options.ref;
-    }
-
-    return new ImTextureRef(id);
-};
-
-/**
  * Object containing memory information of the WASM heap, mallinfo and stack.
  */
 interface MemoryInfo {
@@ -876,8 +646,7 @@ const initWebGPU = (canvas: HTMLCanvasElement, device: GPUDevice | undefined) =>
         throw new Error("jsimgui: WebGPU device is not provided.");
     }
 
-    const handle = Mod.export.WebGPU.importJsDevice(device);
-    ImGuiImplWGPU.Init(handle);
+    ImGuiImplWGPU.Init(device);
 
     State.beginRenderFn = () => {
         ImGuiImplWGPU.NewFrame();
@@ -950,8 +719,14 @@ export const ImGuiImplWeb = {
      */
     LoadTexture(data?: HTMLImageElement | Uint8Array, options: TextureOptions = {}): ImTextureRef {
         return State.backend === "webgpu"
-            ? loadTextureWebGPU(data, options)
-            : loadTextureWebGL(data, options);
+            ? loadTextureWebGPU(State.device as GPUDevice, data, options)
+            : loadTextureWebGL(
+                  State.canvas?.getContext(State.backend as "webgl" | "webgl2") as
+                      | WebGLRenderingContext
+                      | WebGL2RenderingContext,
+                  data,
+                  options,
+              );
     },
 
     /**
@@ -1001,9 +776,7 @@ export const ImGuiImplWeb = {
         const usedBackend = getUsedBackend(canvas, device, backend);
         State.backend = usedBackend;
 
-        const usedLoaderPath =
-            fontLoader === "truetype" ? "./jsimgui.em.js" : "./jsimgui-freetype.em.js";
-        await Mod.init(usedLoaderPath, loaderPath);
+        await Mod.init(fontLoader === "freetype", loaderPath);
 
         Mod.export.FS.mount(Mod.export.MEMFS, { root: "." }, ".");
 

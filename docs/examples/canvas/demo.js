@@ -1,4 +1,4 @@
-import { ImGui, ImGuiImplWeb, ImTextureRef, ImVec2 } from "@mori2003/jsimgui";
+import { ImGui, ImGuiImplWeb, ImVec2 } from "@mori2003/jsimgui";
 
 export const showJsimguiDemo = (context) => {
     ImGui.SetNextWindowPos(new ImVec2(225, 50), ImGui.Cond.Once);
