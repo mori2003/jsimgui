@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync, cpSync } from "node:fs";
+import { cpSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import type { GeneratorConfig } from "./config.ts";
 import { getFunctionsCode as getFunctionsCodeCpp } from "./cpp/functions.ts";
 import { getStructsCode as getStructsCodeCpp } from "./cpp/structs.ts";
