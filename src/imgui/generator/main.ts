@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync, cpSync } from "node:fs";
 import type { GeneratorConfig } from "./config.ts";
 import { getFunctionsCode as getFunctionsCodeCpp } from "./cpp/functions.ts";
 import { getStructsCode as getStructsCodeCpp } from "./cpp/structs.ts";
@@ -12,8 +12,8 @@ import { getExtraTypedefs, getTypedefsCode as getTypedefsCodeTs } from "./ts/typ
 const PATHS = {
     CONFIG: "./src/imgui/config.json",
     DATA: "./third_party/dear_bindings/dcimgui.json",
-    OUTPUT_MOD: "./bindgen/mod.ts",
-    OUTPUT_CPP: "./bindgen/jsimgui.cpp",
+    OUTPUT_MOD: "./bindgen/ts/imgui.ts",
+    OUTPUT_CPP: "./bindgen/cpp/imgui.cpp",
     BEGIN_TS: "./src/imgui/api/ts/begin.ts",
     END_TS: "./src/imgui/api/ts/end.ts",
 };
@@ -27,10 +27,11 @@ export interface GeneratorContext {
  * Generates the TypeScript and C++ bindings code.
  */
 function getBindings(context: GeneratorContext): [string, string] {
-    const begin = readFileSync(PATHS.BEGIN_TS, "utf-8");
-    const end = readFileSync(PATHS.END_TS, "utf-8");
     const ts =
-        begin +
+        "import { Mod, ValueStruct, ReferenceStruct } from './core.js';\n" +
+        "\n" +
+        "const IM_COL32_WHITE = 0xffffffff;\n" +
+        "\n" +
         getTypedefsCodeTs(context) +
         getExtraTypedefs() +
         getStructsCodeTs(context) +
@@ -39,8 +40,7 @@ function getBindings(context: GeneratorContext): [string, string] {
         getEnumsCodeTs(context) +
         getFreeTypeLoaderEnum() +
         getFunctionsCodeTs(context) +
-        "};\n" +
-        end;
+        "};\n";
 
     const cpp =
         "#include <util.hpp>\n" +
@@ -71,7 +71,9 @@ export function runGenerator(): void {
     const context: GeneratorContext = { config, data };
     const [ts, cpp] = getBindings(context);
 
-    mkdirSync("./bindgen", { recursive: true });
+    cpSync("./src/imgui/api/ts", "./bindgen/ts", { recursive: true });
+    mkdirSync("./bindgen/ts", { recursive: true });
+    mkdirSync("./bindgen/cpp", { recursive: true });
     writeFileSync(PATHS.OUTPUT_MOD, ts);
     writeFileSync(PATHS.OUTPUT_CPP, cpp);
 }
