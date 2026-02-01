@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import type { GeneratorConfig, GeneratorContext } from "../generator/config.ts";
 import { getEnumCodeTs } from "../generator/enum.ts";
 import { getFunctionCodeTs } from "../generator/function.ts";
@@ -157,6 +157,7 @@ export function generateImGuiBindings(): void {
         "\n",
     ].join("");
 
+    cpSync("./src/imgui/api/ts", "./bindgen/ts", { recursive: true });
     mkdirSync("./bindgen/ts", { recursive: true });
     mkdirSync("./bindgen/cpp", { recursive: true });
     writeFileSync("./bindgen/ts/imgui.ts", ts);
