@@ -1,37 +1,28 @@
-import type { ImGuiConditional, ImGuiData } from "./interface.ts";
+import type {
+    DearBindingsConditional,
+    DearBindingsData,
+} from "../generator/provider/dear-bindings.ts";
 
 interface FilterItem {
     is_internal: boolean;
-    conditionals?: ImGuiConditional[];
+    conditionals?: DearBindingsConditional[];
 }
 
-/**
- * Checks wether the item is internal. These items should ideally not be exposed to the end user,
- * So they can be excluded to reduce file size.
- */
 function isInternalItem(element: FilterItem): boolean {
     return element.is_internal;
 }
 
-/**
- * Checks wether the item is obsolete. Some ImGui functions are marked as obsolete in the code.
- * Ideally we exclude them to reduce file size.
- */
 function isObsoleteItem(element: FilterItem): boolean {
     if (!element.conditionals) {
         return false;
     }
 
     return element.conditionals.some(
-        (cond: ImGuiConditional) =>
+        (cond: DearBindingsConditional) =>
             cond.condition === "ifndef" && cond.expression === "IMGUI_DISABLE_OBSOLETE_FUNCTIONS",
     );
 }
 
-/**
- * Filters out elements and subelements from the given data based on .
- * Used to filter out internal and obsolete elements.
- */
 // biome-ignore lint/suspicious/noExplicitAny: _
 function filterElements(data: any, predicate: (element: any) => boolean): any {
     if (Array.isArray(data)) {
@@ -58,11 +49,11 @@ function filterElements(data: any, predicate: (element: any) => boolean): any {
     return data;
 }
 
-/**
- * Filters out internal and obsolete items from the ImGui data. We exclude these to reduce
- * file size.
- */
-export function filterData(data: ImGuiData, internal: boolean, obsolete: boolean): ImGuiData {
+export function filterData(
+    data: DearBindingsData,
+    internal: boolean,
+    obsolete: boolean,
+): DearBindingsData {
     let filteredJson = { ...data };
 
     filteredJson = internal ? filterElements(filteredJson, isInternalItem) : filteredJson;

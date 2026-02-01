@@ -10,7 +10,7 @@ import { existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
 import { join as joinPath } from "node:path";
 import { argv, exit, stdout } from "node:process";
 import { styleText } from "node:util";
-import { runGenerator } from "./src/imgui/generator/main.ts";
+import { generateImGuiBindings } from "./src/imgui/main.ts";
 
 const runCommand = (cmd: string, failCb?: () => void) => {
     const [command, ...args] = cmd.split(" ");
@@ -147,7 +147,7 @@ const buildData = () => {
  * - .ts file with the final bindings which are then transpiled to a .js and .d.ts file.
  */
 const buildBindgen = () => {
-    runGenerator();
+    generateImGuiBindings();
 };
 
 /**
@@ -255,7 +255,7 @@ const buildWasm = (cfg: BuildConfig) => {
  */
 const buildTs = () => {
     const tscPath = joinPath("node_modules", ".bin", "tsc");
-    const cmd = `${tscPath} --project ./src/imgui/tsconfig.build.json`;
+    const cmd = `${tscPath} --project ./src/tsconfig.build.json`;
 
     if (argv.includes("--verbose")) {
         stdout.write("\n");
