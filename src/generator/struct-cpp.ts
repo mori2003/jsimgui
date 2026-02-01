@@ -1,6 +1,6 @@
-import type { GeneratorContext } from "./config";
-import { getFunctionCodeCpp } from "./function-cpp";
-import type { StructBinding } from "./struct";
+import type { GeneratorContext } from "./config.ts";
+import { getFunctionCodeCpp } from "./function-cpp.ts";
+import type { StructBinding } from "./struct.ts";
 
 function getMethods(context: GeneratorContext, struct: StructBinding): string {
     return struct.methods

@@ -1,8 +1,8 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import type { GeneratorConfig, GeneratorContext } from "../generator/config";
-import { getEnumCodeTs } from "../generator/enum";
-import { getFunctionCodeTs } from "../generator/function";
-import { getFunctionCodeCpp } from "../generator/function-cpp";
+import type { GeneratorConfig, GeneratorContext } from "../generator/config.ts";
+import { getEnumCodeTs } from "../generator/enum.ts";
+import { getFunctionCodeTs } from "../generator/function.ts";
+import { getFunctionCodeCpp } from "../generator/function-cpp.ts";
 import {
     type DearBindingsData,
     mapEnums,
@@ -10,9 +10,9 @@ import {
     mapStructs,
     mapTypedefs,
 } from "../generator/provider/dear-bindings.ts";
-import { getStructCodeTs } from "../generator/struct";
-import { getStructCodeCpp } from "../generator/struct-cpp";
-import { getTypedefCodeTs } from "../generator/typedef";
+import { getStructCodeTs } from "../generator/struct.ts";
+import { getStructCodeCpp } from "../generator/struct-cpp.ts";
+import { getTypedefCodeTs } from "../generator/typedef.ts";
 import { filterData } from "./filter.ts";
 
 function getFreeTypeEnumTs(): string {

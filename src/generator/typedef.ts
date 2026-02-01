@@ -1,5 +1,5 @@
-import { type CommentBinding, getJsDocComment } from "./comment";
-import type { GeneratorContext } from "./config";
+import { type CommentBinding, getJsDocComment } from "./comment.ts";
+import type { GeneratorContext } from "./config.ts";
 
 export type TypedefBinding = {
     name: string;

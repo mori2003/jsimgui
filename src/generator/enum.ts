@@ -1,5 +1,5 @@
 import { type CommentBinding, getJsDocComment } from "./comment.ts";
-import type { GeneratorContext } from "./config";
+import type { GeneratorContext } from "./config.ts";
 
 type EnumField = {
     name: string;

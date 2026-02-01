@@ -1,5 +1,5 @@
 import type { EnumBinding } from "../enum.ts";
-import type { FunctionBinding } from "../function";
+import type { FunctionBinding } from "../function.ts";
 import type { StructBinding } from "../struct.ts";
 import type { TypedefBinding } from "../typedef.ts";
 

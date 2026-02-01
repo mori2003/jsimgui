@@ -1,6 +1,6 @@
-import { getJsDocComment } from "./comment";
 import type { CommentBinding } from "./comment.ts";
-import type { GeneratorContext } from "./config";
+import { getJsDocComment } from "./comment.ts";
+import type { GeneratorContext } from "./config.ts";
 import { getTsType, isReferenceStruct, isStructType } from "./util.ts";
 
 type FunctionArgument = {
