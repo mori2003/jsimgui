@@ -1,9 +1,9 @@
 {
     "$schema": "https://json.schemastore.org/tsconfig.json",
 
-    "include": ["../../bindgen/ts/"],
+    "include": ["../bindgen/ts/"],
     "compilerOptions": {
-        "outDir": "../../build",
+        "outDir": "../build",
         "target": "ESNext",
         "module": "ESNext",
         "lib": ["ESNext", "DOM"],
