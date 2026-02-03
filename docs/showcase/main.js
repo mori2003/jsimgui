@@ -2,7 +2,6 @@
 
 import { ImGui, ImGuiImplWeb, ImNodes, ImVec2, ImVec4 } from "@mori2003/jsimgui";
 
-
 const canvas = document.querySelector("#render-canvas");
 const context = canvas.getContext("webgl2");
 
@@ -10,7 +9,6 @@ await ImGuiImplWeb.Init({
     canvas,
     extensions: true,
 });
-
 
 ImNodes.CreateContext();
 
@@ -37,7 +35,7 @@ const imnodesData = {
     miniMapOffset: [imnodesStyle.MiniMapOffset],
     flags: [imnodesStyle.Flags],
     colors: [imnodesStyle.Colors],
-}
+};
 
 const imnodesLinks = [];
 
@@ -91,7 +89,12 @@ function frame() {
         }
 
         // LinkLineSegmentsPerLength
-        if (ImGui.InputFloat("style.LinkLineSegmentsPerLength", imnodesData.linkLineSegmentsPerLength)) {
+        if (
+            ImGui.InputFloat(
+                "style.LinkLineSegmentsPerLength",
+                imnodesData.linkLineSegmentsPerLength,
+            )
+        ) {
             imnodesStyle.LinkLineSegmentsPerLength = imnodesData.linkLineSegmentsPerLength[0];
         }
 
@@ -147,16 +150,16 @@ function frame() {
             imnodesStyle.Flags = imnodesData.flags[0];
         }
 
-
         // Colors
     }
-
-
 
     ImGui.SeparatorText("Editor");
     ImNodes.BeginNodeEditor();
 
-    ImNodes.PushColorStyle(ImNodes.Col.TitleBar, ImGui.ColorConvertFloat4ToU32(new ImVec4(1.0, 0.0, 0.0, 1.0)));
+    ImNodes.PushColorStyle(
+        ImNodes.Col.TitleBar,
+        ImGui.ColorConvertFloat4ToU32(new ImVec4(1.0, 0.0, 0.0, 1.0)),
+    );
     ImNodes.BeginNode(1);
     ImNodes.BeginNodeTitleBar();
     ImGui.Text("Node 1");
@@ -201,5 +204,5 @@ function frame() {
     ImGuiImplWeb.EndRender();
 
     requestAnimationFrame(frame);
-};
+}
 requestAnimationFrame(frame);
