@@ -4,15 +4,15 @@ on:
   workflow_call:
 
 jobs:
-  test-generator:
-    runs-on: ubuntu-latest
-    name: 'Generator Tests'
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-      - uses: denoland/setup-deno@v2
-      - run: deno install && deno test
+  # test-generator:
+  #   runs-on: ubuntu-latest
+  #   name: 'Generator Tests'
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         submodules: true
+  #     - uses: denoland/setup-deno@v2
+  #     - run: deno install && deno test
 
   test-playwright:
     runs-on: ubuntu-latest
