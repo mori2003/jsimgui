@@ -561,6 +561,11 @@ export interface InitOptions {
     fontLoader?: "truetype" | "freetype";
 
     /**
+     * Whether to enable Dear ImGui extensions (imnodes, implot, ...).
+     */
+    extensions?: boolean;
+
+    /**
      * Custom path to the emscripten loader script. If not provided, will be constructed
      * automatically. If you use jsimgui via a package manager or CDN, you will most likely not
      * need to worry about this.
@@ -772,11 +777,19 @@ export const ImGuiImplWeb = {
      * @param options The initialization options: {@linkcode InitOptions}.
      */
     async Init(options: InitOptions): Promise<void> {
-        const { canvas, device, backend, fontLoader = "truetype", loaderPath } = options;
+        const {
+            canvas,
+            device,
+            backend,
+            fontLoader = "truetype",
+            loaderPath,
+            extensions = false,
+        } = options;
+
         const usedBackend = getUsedBackend(canvas, device, backend);
         State.backend = usedBackend;
 
-        await Mod.init(fontLoader === "freetype", loaderPath);
+        await Mod.init(fontLoader === "freetype", extensions, loaderPath);
 
         Mod.export.FS.mount(Mod.export.MEMFS, { root: "." }, ".");
 

@@ -37,12 +37,15 @@ const DEFAULT_FONT_LOADER = "truetype";
 
 interface BuildConfig {
     readonly fontLoader: (typeof FONT_LOADERS)[number];
+    readonly extensions: boolean;
 }
 
 const getOutputPath = (cfg: BuildConfig): string => {
+    const extensions = cfg.extensions ? "-extensions" : "";
+
     return cfg.fontLoader === "truetype"
-        ? "build/wasm/loader.em.js"
-        : "build/wasm/loader-freetype.em.js";
+        ? `build/wasm/loader${extensions}.em.js`
+        : `build/wasm/loader-freetype${extensions}.em.js`;
 };
 
 /**
@@ -74,6 +77,7 @@ const buildData = () => {
                     "-I./third_party/imgui/",
                     "-I./third_party/imgui/backends",
                     "-I./third_party/dear_bindings",
+                    "-I./third_party/imnodes",
 
                     "-DJSIMGUI_BACKEND_WEBGL",
                     "-DJSIMGUI_BACKEND_WEBGPU",
@@ -185,6 +189,9 @@ const buildWasm = (cfg: BuildConfig) => {
 
         "./third_party/dear_bindings/dcimgui.cpp",
         "./third_party/dear_bindings/dcimgui_internal.cpp",
+
+        cfg.extensions ? "./src/imnodes/imnodes.cpp" : "",
+        cfg.extensions ? "./third_party/imnodes/imnodes.cpp" : "",
     ] as const;
 
     const includeDirs = [
@@ -193,6 +200,7 @@ const buildWasm = (cfg: BuildConfig) => {
         "-I./third_party/imgui/",
         "-I./third_party/imgui/backends",
         "-I./third_party/dear_bindings",
+        "-I./third_party/imnodes",
     ] as const;
 
     const compilerFlags = [
@@ -320,9 +328,11 @@ const getBuildConfig = (): BuildConfig => {
     };
 
     const fontLoader = parseArgument("font-loader", FONT_LOADERS, DEFAULT_FONT_LOADER);
+    const extensions = args.includes("--extensions");
 
     return {
         fontLoader,
+        extensions,
     };
 };
 
