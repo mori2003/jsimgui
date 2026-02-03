@@ -4,3 +4,6 @@
 [submodule "third_party/dear_bindings"]
 	path = third_party/dear_bindings
 	url = https://github.com/dearimgui/dear_bindings.git
+[submodule "third_party/imnodes"]
+	path = third_party/imnodes
+	url = https://github.com/Nelarius/imnodes.git
