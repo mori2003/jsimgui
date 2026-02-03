@@ -2,18 +2,24 @@ export const Mod = {
     // biome-ignore lint/suspicious/noExplicitAny: _
     export: null as any,
 
-    async init(enableFreeType: boolean, loaderPath?: string): Promise<void> {
+    async init(enableFreeType: boolean, extensions: boolean, loaderPath?: string): Promise<void> {
         // biome-ignore lint/suspicious/noExplicitAny: _
         let MainExport: any;
 
         if (loaderPath) {
             MainExport = await import(loaderPath);
         } else if (enableFreeType) {
-            // @ts-expect-error
-            MainExport = await import("./wasm/loader-freetype.em.js");
+            MainExport = extensions
+                ? // @ts-expect-error
+                  await import("./wasm/loader-freetype-extensions.em.js")
+                : // @ts-expect-error
+                  await import("./wasm/loader-freetype.em.js");
         } else {
-            // @ts-expect-error
-            MainExport = await import("./wasm/loader.em.js");
+            MainExport = extensions
+                ? // @ts-expect-error
+                  await import("./wasm/loader-extensions.em.js")
+                : // @ts-expect-error
+                  await import("./wasm/loader.em.js");
         }
 
         Mod.export = await MainExport.default();
