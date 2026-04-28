@@ -1,7 +1,252 @@
-import { Mod } from "../core.js";
-import { ImGui, type ImGuiIO, type ImTextureRef, ImVec2 } from "../imgui.js";
-import { ImGuiImplOpenGL3, loadTextureWebGL } from "./webgl.js";
-import { ImGuiImplWGPU, loadTextureWebGPU } from "./wgpu.js";
+export const Mod = {
+    // biome-ignore lint/suspicious/noExplicitAny: _
+    export: null as any,
+
+    async init(enableFreeType: boolean, extensions: boolean, loaderPath?: string): Promise<void> {
+        // biome-ignore lint/suspicious/noExplicitAny: _
+        let MainExport: any;
+
+        if (loaderPath) {
+            MainExport = await import(loaderPath);
+        } else if (enableFreeType) {
+            MainExport = extensions
+                ? // @ts-expect-error
+                  await import("./wasm/loader-freetype-extensions.em.js")
+                : // @ts-expect-error
+                  await import("./wasm/loader-freetype.em.js");
+        } else {
+            MainExport = extensions
+                ? // @ts-expect-error
+                  await import("./wasm/loader-extensions.em.js")
+                : // @ts-expect-error
+                  await import("./wasm/loader.em.js");
+        }
+
+        Mod.export = await MainExport.default();
+    },
+};
+
+/**
+ * Base class for value structs (passed by value, no native pointer).
+ */
+export class ValueStruct {}
+
+/**
+ * Base class for reference structs (carry native pointer/reference).
+ * These structs manage native memory and require explicit cleanup.
+ */
+export class ReferenceStruct {
+    /**
+     * The native pointer to the struct.
+     */
+    // biome-ignore lint/suspicious/noExplicitAny: _
+    ptr: any = null;
+
+    /**
+     * Construct a new JavaScript class instance and allocate native memory.
+     */
+    // biome-ignore lint/suspicious/noExplicitAny: _
+    static New(): any {
+        // biome-ignore lint/complexity/noThisInStatic: ...
+        const obj = new this();
+        // biome-ignore lint/complexity/noThisInStatic: ...
+        obj.ptr = new Mod.export[this.name]();
+        return obj;
+    }
+
+    /**
+     * Create a JavaScript class instance from a native pointer.
+     */
+    // biome-ignore lint/suspicious/noExplicitAny: _
+    static From(ptr: any): any {
+        // biome-ignore lint/complexity/noThisInStatic: ...
+        const obj = new this();
+        obj.ptr = ptr;
+        return obj;
+    }
+
+    /**
+     * Free the struct's native allocated memory.
+     */
+    Drop(): void {
+        this.ptr?.delete();
+    }
+}
+
+// MARKER: Generated ImGui bindings will be inserted here.
+
+export const ImGuiImplOpenGL3 = {
+    Init(): boolean {
+        return Mod.export.cImGui_ImplOpenGL3_Init();
+    },
+
+    Shutdown(): void {
+        Mod.export.cImGui_ImplOpenGL3_Shutdown();
+    },
+
+    NewFrame(): void {
+        Mod.export.cImGui_ImplOpenGL3_NewFrame();
+    },
+
+    RenderDrawData(draw_data: ImDrawData): void {
+        Mod.export.cImGui_ImplOpenGL3_RenderDrawData(draw_data.ptr);
+    },
+};
+
+export function loadTextureWebGL(
+    glContext: WebGLRenderingContext | WebGL2RenderingContext,
+    data?: HTMLImageElement | Uint8Array,
+    options: TextureOptions = {},
+): ImTextureRef {
+    const gl = glContext;
+
+    const processTexture = () => {
+        const texture = gl.createTexture();
+
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        if (!data) {
+            const data = new Uint8Array([0, 0, 0, 0]);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+        }
+
+        if (data instanceof HTMLImageElement) {
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, data);
+        }
+
+        if (data instanceof Uint8Array) {
+            const width = options.width ?? 1;
+            const height = options.height ?? 1;
+            gl.texImage2D(
+                gl.TEXTURE_2D,
+                0,
+                gl.RGBA,
+                width,
+                height,
+                0,
+                gl.RGBA,
+                gl.UNSIGNED_BYTE,
+                data,
+            );
+        }
+
+        return texture;
+    };
+
+    const texture = options.processFn
+        ? (options.processFn(data, options) as WebGLTexture)
+        : processTexture();
+
+    const id = Mod.export.GL.getNewId(Mod.export.GL.textures);
+    Mod.export.GL.textures[id] = texture;
+
+    if (options.ref) {
+        options.ref._TexID = id;
+        return options.ref;
+    }
+
+    return new ImTextureRef(id);
+}
+
+export const ImGuiImplWGPU = {
+    Init(device: GPUDevice): boolean {
+        const handle = Mod.export.WebGPU.importJsDevice(device);
+        return Mod.export.cImGui_ImplWGPU_Init(handle);
+    },
+
+    Shutdown(): void {
+        Mod.export.cImGui_ImplWGPU_Shutdown();
+    },
+
+    NewFrame(): void {
+        Mod.export.cImGui_ImplWGPU_NewFrame();
+    },
+
+    RenderDrawData(draw_data: ImDrawData, pass_encoder: GPURenderPassEncoder): void {
+        const handle = Mod.export.WebGPU.importJsRenderPassEncoder(pass_encoder);
+        Mod.export.cImGui_ImplWGPU_RenderDrawData(draw_data.ptr, handle);
+    },
+};
+
+export function loadTextureWebGPU(
+    device: GPUDevice,
+    data?: HTMLImageElement | Uint8Array,
+    options: TextureOptions = {},
+): ImTextureRef {
+    const width = data instanceof HTMLImageElement ? data.width : (options.width ?? 1);
+    const height = data instanceof HTMLImageElement ? data.height : (options.height ?? 1);
+
+    const processTexture = () => {
+        const texture = device.createTexture({
+            usage:
+                GPUTextureUsage.COPY_DST |
+                GPUTextureUsage.TEXTURE_BINDING |
+                GPUTextureUsage.RENDER_ATTACHMENT,
+            dimension: "2d",
+            size: { width, height, depthOrArrayLayers: 1 },
+            format: "rgba8unorm",
+            mipLevelCount: 1,
+            sampleCount: 1,
+        });
+
+        if (!data) {
+            const data = new Uint8Array([0, 0, 0, 0]);
+            device.queue.writeTexture(
+                { texture, mipLevel: 0, origin: { x: 0, y: 0, z: 0 }, aspect: "all" },
+                data,
+                {},
+                { width, height, depthOrArrayLayers: 1 },
+            );
+        }
+
+        if (data instanceof HTMLImageElement) {
+            device.queue.copyExternalImageToTexture(
+                { source: data },
+                { texture, mipLevel: 0, origin: { x: 0, y: 0, z: 0 }, aspect: "all" },
+                { width: data.width, height: data.height, depthOrArrayLayers: 1 },
+            );
+        }
+
+        if (data instanceof Uint8Array) {
+            device.queue.writeTexture(
+                { texture, mipLevel: 0, origin: { x: 0, y: 0, z: 0 }, aspect: "all" },
+                data.buffer,
+                {},
+                { width, height, depthOrArrayLayers: 1 },
+            );
+        }
+
+        const textureView = texture.createView({
+            format: "rgba8unorm",
+            dimension: "2d",
+            baseMipLevel: 0,
+            mipLevelCount: 1,
+            baseArrayLayer: 0,
+            arrayLayerCount: 1,
+            aspect: "all",
+        });
+
+        return [texture, textureView];
+    };
+
+    const [texture, textureView] = options.processFn
+        ? (options.processFn(data, options) as [GPUTexture, GPUTextureView])
+        : processTexture();
+
+    Mod.export.WebGPU.importJsTexture(texture);
+    const id = Mod.export.WebGPU.importJsTextureView(textureView);
+
+    if (options.ref) {
+        options.ref._TexID = id;
+        return options.ref;
+    }
+
+    return new ImTextureRef(id);
+}
 
 /**
  * Map of browser mouse button values to ImGui mouse button enums.

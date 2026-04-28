@@ -120,8 +120,11 @@ export function generateImGuiBindings(): void {
         .map((function_) => getFunctionCodeTs(context, function_, "ImGui_", false))
         .join("");
 
+    const tsTemplate = readFileSync("src/imgui/imgui.ts", "utf-8");
+    const [tsBegin, tsEnd] = tsTemplate.split("// MARKER: Generated ImGui bindings will be inserted here.");
+
     const ts = [
-        "import { Mod, ValueStruct, ReferenceStruct } from './core.js';\n",
+        tsBegin,
         typedefCodeTs,
         "export type ImWchar = number;\n",
         "const IM_COL32_WHITE = 0xFFFFFFFF;\n",
@@ -133,6 +136,7 @@ export function generateImGuiBindings(): void {
         getFreeTypeEnumTs(),
         functionsCodeTs,
         "};\n",
+        tsEnd,
     ].join("");
 
     const structsCodeCpp = structs.map((struct) => getStructCodeCpp(context, struct)).join("");
@@ -157,10 +161,8 @@ export function generateImGuiBindings(): void {
         "\n",
     ].join("");
 
-    cpSync("./src/imgui/api/ts", "./bindgen/ts", { recursive: true });
-    cpSync("./src/imnodes/imnodes.ts", "./bindgen/ts/imnodes.ts");
-    mkdirSync("./bindgen/ts", { recursive: true });
-    mkdirSync("./bindgen/cpp", { recursive: true });
-    writeFileSync("./bindgen/ts/imgui.ts", ts);
-    writeFileSync("./bindgen/cpp/imgui.cpp", cpp);
+    mkdirSync("src/imgui/gen", { recursive: true });
+    mkdirSync("src/imgui/gen", { recursive: true });
+    writeFileSync("src/imgui/gen/imgui.ts", ts);
+    writeFileSync("src/imgui/gen/imgui.cpp", cpp);
 }
