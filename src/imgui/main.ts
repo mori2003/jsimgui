@@ -145,11 +145,11 @@ export function generateImGuiBindings(): void {
         .map((function_) => getFunctionCodeCpp(context, function_, false))
         .join("");
 
+    const cppTemplate = readFileSync("src/imgui/imgui.cpp", "utf-8");
+    const [cppBegin, _] = cppTemplate.split("// MARKER: Generated ImGui bindings will be inserted here.");
+
     const cpp = [
-        "#include <util.hpp>\n",
-        "\n",
-        "#include <dcimgui.h>\n",
-        "#include <dcimgui_internal.h>\n",
+        cppBegin,
         "\n",
         "static auto const IMGUI = bindings([]() {\n",
         getValueStructsCpp(),
