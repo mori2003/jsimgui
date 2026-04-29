@@ -31,12 +31,6 @@ template <typename... Ts>
 consteval auto unused(Ts&&...) -> void {};
 
 template <typename Fn>
- requires std::is_invocable_v<Fn> && std::is_same_v<std::invoke_result_t<Fn>, void>
-struct bindings : emscripten::internal::InitFunc {
-    explicit bindings(Fn&& fn) : InitFunc(std::forward<Fn>(std::move(fn))) {}
-};
-
-template <typename Fn>
 constexpr auto override(Fn&& fn) {
     return emscripten::optional_override(std::forward<Fn>(fn));
 }
@@ -143,7 +137,7 @@ static auto set_clipboard_text(ImGuiContext* ctx, const char* text) -> void {
     set_clipboard_fn(std::string(text));
 };
 
-static auto const WEB = bindings([]() {
+EMSCRIPTEN_BINDINGS(web) {
     bind_fn("SetupIniSettings", []() -> void {
         auto const& io = ImGui_GetIO();
         io->IniFilename = nullptr;
@@ -197,9 +191,9 @@ static auto const WEB = bindings([]() {
 
         return obj;
     });
-});
+}
 
-static auto const WEBGL = bindings([]() {
+EMSCRIPTEN_BINDINGS(webgl) {
     bind_fn("cImGui_ImplOpenGL3_Init", []() -> bool {
         return cImGui_ImplOpenGL3_Init();
     });
@@ -219,9 +213,9 @@ static auto const WEBGL = bindings([]() {
         },
         allow_raw_ptrs{}
     );
-});
+}
 
-static auto const WEBGPU = bindings([]() {
+EMSCRIPTEN_BINDINGS(webgpu) {
     bind_fn("cImGui_ImplWGPU_Init", [](uintptr_t handle) -> bool {
         auto const device = reinterpret_cast<WGPUDevice>(handle);
 
@@ -257,6 +251,6 @@ static auto const WEBGPU = bindings([]() {
         },
         allow_raw_ptrs{}
     );
-});
+}
 
 // MARKER: Generated ImGui bindings will be inserted here.

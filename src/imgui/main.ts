@@ -155,13 +155,13 @@ export function generateImGuiBindings(): void {
   const cpp = [
     cppBegin,
     "\n",
-    "static auto const IMGUI = bindings([]() {\n",
+    "EMSCRIPTEN_BINDINGS(imgui) {\n",
     getValueStructsCpp(),
     "\n",
     structsCodeCpp,
     "\n",
     functionsCodeCpp,
-    "});\n",
+    "}\n",
     "\n",
   ].join("");
 
