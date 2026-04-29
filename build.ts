@@ -1,6 +1,6 @@
 import { argv, exit, stdout } from "node:process";
 import { execSync } from "node:child_process";
-import { statSync, mkdirSync } from "node:fs";
+import { statSync, mkdirSync, rmSync } from "node:fs";
 import { generateImGuiBindings } from "./src/imgui/main.ts";
 
 const args = argv.slice(2);
@@ -21,10 +21,18 @@ if (cfg.help) {
 if (cfg.generateData) {
   stdout.write("Generating required metadata...\n");
   const script = "python third_party/dear_bindings/dear_bindings.py";
-  stdout.write(execSync(`${script} --nogeneratedefaultargfunctions -o third_party/dear_bindings/dcimgui third_party/imgui/imgui.h`));
-  stdout.write(execSync(`${script} -o third_party/dear_bindings/dcimgui_internal --include third_party/imgui/imgui.h third_party/imgui/imgui_internal.h`));
-  stdout.write(execSync(`${script} -o third_party/dear_bindings/dcimgui_impl_opengl3 --backend third_party/imgui/backends/imgui_impl_opengl3.h`));
-  stdout.write(execSync(`${script} -o third_party/dear_bindings/dcimgui_impl_wgpu --backend third_party/imgui/backends/imgui_impl_wgpu.h`));
+  stdout.write(execSync(`${script} --nogeneratedefaultargfunctions -o src/imgui/data/dcimgui third_party/imgui/imgui.h`));
+  stdout.write(execSync(`${script} -o src/imgui/data/dcimgui_internal --include third_party/imgui/imgui.h third_party/imgui/imgui_internal.h`));
+  stdout.write(execSync(`${script} -o src/imgui/data/dcimgui_impl_opengl3 --backend third_party/imgui/backends/imgui_impl_opengl3.h`));
+  stdout.write(execSync(`${script} -o src/imgui/data/dcimgui_impl_wgpu --backend third_party/imgui/backends/imgui_impl_wgpu.h`));
+  rmSync("src/imgui/data/dcimgui_imconfig.json", { force: true });
+  rmSync("src/imgui/data/dcimgui_internal.json", { force: true });
+  rmSync("src/imgui/data/dcimgui_internal_imconfig.json", { force: true });
+  rmSync("src/imgui/data/dcimgui_internal_imgui.json", { force: true });
+  rmSync("src/imgui/data/dcimgui_impl_opengl3.json", { force: true });
+  rmSync("src/imgui/data/dcimgui_impl_opengl3_imconfig.json", { force: true });
+  rmSync("src/imgui/data/dcimgui_impl_wgpu.json", { force: true });
+  rmSync("src/imgui/data/dcimgui_impl_wgpu_imconfig.json", { force: true });
   stdout.write("Done.\n");
   exit(0);
 }
@@ -32,8 +40,10 @@ if (cfg.generateData) {
 const emccConfig = {
   sources: [
     "src/imgui/gen/imgui.cpp",
-    "src/imgui/dcimgui_impl_opengl3.cpp",
-    "src/imgui/dcimgui_impl_wgpu.cpp",
+    "src/imgui/data/dcimgui.cpp",
+    "src/imgui/data/dcimgui_internal.cpp",
+    "src/imgui/data/dcimgui_impl_opengl3_fix.cpp",
+    "src/imgui/data/dcimgui_impl_wgpu_fix.cpp",
     "third_party/imgui/imgui.cpp",
     "third_party/imgui/imgui_demo.cpp",
     "third_party/imgui/imgui_draw.cpp",
@@ -41,13 +51,11 @@ const emccConfig = {
     "third_party/imgui/imgui_widgets.cpp",
     "third_party/imgui/backends/imgui_impl_opengl3.cpp",
     "third_party/imgui/backends/imgui_impl_wgpu.cpp",
-    "third_party/dear_bindings/dcimgui.cpp",
-    "third_party/dear_bindings/dcimgui_internal.cpp",
   ],
   includes: [
+    "src/imgui/data",
     "third_party/imgui/",
     "third_party/imgui/backends",
-    "third_party/dear_bindings",
   ],
   flags: [
     "--cache=./.em_cache",
