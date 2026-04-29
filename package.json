@@ -24,7 +24,7 @@
         "./build/"
     ],
     "devDependencies": {
-        "@biomejs/biome": "latest",
+    "@types/node": "latest",
         "@types/node": "latest",
         "@webgpu/types": "latest",
         "oxfmt": "0.47.0",
