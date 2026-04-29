@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import type { GeneratorConfig, GeneratorContext } from "../generator/config.ts";
 import { getEnumCodeTs } from "../generator/enum.ts";
 import { getFunctionCodeTs } from "../generator/function.ts";
