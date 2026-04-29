@@ -1,14 +1,4 @@
 .em_cache/
-.cache/
-.venv/
-.vscode/
-cov_profile/
 build/
-bindgen/
 node_modules/
 compile_commands.json
-deno.lock
-bun.lock
-
-dev/
-docs/examples/dev/
