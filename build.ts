@@ -21,10 +21,26 @@ if (cfg.help) {
 if (cfg.generateData) {
   stdout.write("Generating required metadata...\n");
   const script = "python third_party/dear_bindings/dear_bindings.py";
-  stdout.write(execSync(`${script} --nogeneratedefaultargfunctions -o src/imgui/data/dcimgui third_party/imgui/imgui.h`));
-  stdout.write(execSync(`${script} -o src/imgui/data/dcimgui_internal --include third_party/imgui/imgui.h third_party/imgui/imgui_internal.h`));
-  stdout.write(execSync(`${script} -o src/imgui/data/dcimgui_impl_opengl3 --backend third_party/imgui/backends/imgui_impl_opengl3.h`));
-  stdout.write(execSync(`${script} -o src/imgui/data/dcimgui_impl_wgpu --backend third_party/imgui/backends/imgui_impl_wgpu.h`));
+  stdout.write(
+    execSync(
+      `${script} --nogeneratedefaultargfunctions -o src/imgui/data/dcimgui third_party/imgui/imgui.h`,
+    ),
+  );
+  stdout.write(
+    execSync(
+      `${script} -o src/imgui/data/dcimgui_internal --include third_party/imgui/imgui.h third_party/imgui/imgui_internal.h`,
+    ),
+  );
+  stdout.write(
+    execSync(
+      `${script} -o src/imgui/data/dcimgui_impl_opengl3 --backend third_party/imgui/backends/imgui_impl_opengl3.h`,
+    ),
+  );
+  stdout.write(
+    execSync(
+      `${script} -o src/imgui/data/dcimgui_impl_wgpu --backend third_party/imgui/backends/imgui_impl_wgpu.h`,
+    ),
+  );
   rmSync("src/imgui/data/dcimgui_imconfig.json", { force: true });
   rmSync("src/imgui/data/dcimgui_internal.json", { force: true });
   rmSync("src/imgui/data/dcimgui_internal_imconfig.json", { force: true });
@@ -52,11 +68,7 @@ const emccConfig = {
     "third_party/imgui/backends/imgui_impl_opengl3.cpp",
     "third_party/imgui/backends/imgui_impl_wgpu.cpp",
   ],
-  includes: [
-    "src/imgui/data",
-    "third_party/imgui/",
-    "third_party/imgui/backends",
-  ],
+  includes: ["src/imgui/data", "third_party/imgui/", "third_party/imgui/backends"],
   flags: [
     "--cache=./.em_cache",
     "-std=c++26",

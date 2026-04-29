@@ -1,4 +1,4 @@
-name: '🌐 Deploy GitHub Pages'
+name: "🌐 Deploy GitHub Pages"
 
 on:
   workflow_dispatch:
@@ -23,6 +23,6 @@ jobs:
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-            path: '.'
+          path: "."
       - uses: actions/deploy-pages@v4
         id: deployment

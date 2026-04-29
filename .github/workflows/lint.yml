@@ -1,4 +1,4 @@
-name: 'Lint'
+name: "Lint"
 
 on:
   workflow_call:
@@ -6,7 +6,7 @@ on:
 jobs:
   biome:
     runs-on: ubuntu-latest
-    name: 'Biome'
+    name: "Biome"
     steps:
       - uses: actions/checkout@v5
         with:

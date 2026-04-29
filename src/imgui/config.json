@@ -1,495 +1,493 @@
 {
-    "typedefs": {
-        "ImGuiInputTextCallback": {
-            "override": {
-                "ts": [
-                    "export type ImGuiInputTextCallback = (data: ImGuiInputTextCallbackData) => number;\n"
-                ]
-            }
-        },
-        "ImGuiSizeCallback": {
-            "override": {
-                "ts": ["export type ImGuiSizeCallback = (data: ImGuiSizeCallbackData) => void;\n"]
-            }
-        },
-        "ImDrawCallback": {
-            "override": {
-                "ts": [
-                    "export type ImDrawCallback = (parent_list: ImDrawList, cmd: ImDrawCmd) => void;\n"
-                ]
-            }
-        },
-        "ImGuiMemAllocFunc": { "exclude": true },
-        "ImGuiMemFreeFunc": { "exclude": true },
-        "ImWchar": { "exclude": true }
+  "typedefs": {
+    "ImGuiInputTextCallback": {
+      "override": {
+        "ts": [
+          "export type ImGuiInputTextCallback = (data: ImGuiInputTextCallbackData) => number;\n"
+        ]
+      }
     },
-    "structs": {
-        "ImVec2": { "exclude": true },
-        "ImVec4": { "exclude": true },
-        "ImTextureRef": { "exclude": true },
-
-        "__anonymous_type0": { "exclude": true },
-        "ImVector_ImGuiTextRange": { "exclude": true },
-        "ImVector_char": { "exclude": true },
-        "ImVector_ImGuiStoragePair": { "exclude": true },
-        "ImVector_ImGuiSelectionRequest": { "exclude": true },
-        "ImVector_ImDrawChannel": { "exclude": true },
-        "ImVector_ImDrawCmd": { "exclude": true },
-        "ImVector_ImDrawIdx": { "exclude": true },
-        "ImVector_ImDrawVert": { "exclude": true },
-        "ImVector_ImVec2": { "exclude": true },
-        "ImVector_ImVec4": { "exclude": true },
-        "ImVector_ImTextureRef": { "exclude": true },
-        "ImVector_ImU8": { "exclude": true },
-        "ImVector_ImDrawListPtr": { "exclude": true },
-        "ImVector_ImTextureRect": { "exclude": true },
-        "ImVector_ImU32": { "exclude": true },
-        "ImVector_ImWchar": { "exclude": true },
-        "ImVector_ImFontPtr": { "exclude": true },
-        "ImVector_ImFontConfig": { "exclude": true },
-        "ImVector_ImDrawListSharedDataPtr": { "exclude": true },
-        "ImVector_float": { "exclude": true },
-        "ImVector_ImU16": { "exclude": true },
-        "ImVector_ImFontGlyph": { "exclude": true },
-        "ImVector_ImFontConfigPtr": { "exclude": true },
-        "ImVector_ImGuiPlatformMonitor": { "exclude": true },
-        "ImVector_ImTextureDataPtr": { "exclude": true },
-        "ImVector_ImGuiViewportPtr": { "exclude": true },
-
-        "ImGuiTextFilter_ImGuiTextRange": { "exclude": true },
-        "ImDrawCmdHeader": { "exclude": true },
-        "ImDrawVert": { "exclude": true },
-        "ImGuiSelectionExternalStorage": { "exclude": true },
-        "ImGuiSelectionBasicStorage": { "exclude": true },
-        "ImDrawData": { "opaque": true },
-        "ImGuiStyle": {
-            "fields": {
-                "Colors": {
-                    "override": {
-                        "ts": [
-                            "    get Colors(): ImVec4[] {\n",
-                            "        return this.ptr.get_Colors();\n",
-                            "    }\n",
-                            "\n",
-                            "    set Colors(v: ImVec4[]) {\n",
-                            "        this.ptr.set_Colors(v);\n",
-                            "    }\n",
-                            "\n"
-                        ],
-                        "cpp": [
-                            ".function(\"get_Colors\", override([](const ImGuiStyle& self){ \n",
-                            "    auto obj = emscripten::val::array();\n",
-                            "    for (auto i = 0; i < ImGuiCol_COUNT; i++) {\n",
-                            "        obj.set(i, self.Colors[i]);\n",
-                            "    };\n",
-                            "    return obj;\n",
-                            "}), rvp_ref{}, allow_raw_ptrs{})\n",
-                            "\n",
-                            ".function(\"set_Colors\", override([](ImGuiStyle& self, js_val value){\n",
-                            "    for (auto i = 0; i < ImGuiCol_COUNT; i++) {\n",
-                            "        self.Colors[i] = value[i].as<ImVec4>();\n",
-                            "    };\n",
-                            "}), allow_raw_ptrs{})\n",
-                            "\n"
-                        ]
-                    }
-                }
-            }
-        },
-        "ImGuiIO": {
-            "fields": {
-                "MouseDown": { "exclude": true },
-                "KeysData": { "exclude": true },
-                "MouseClickedPos": { "exclude": true },
-                "MouseClickedTime": { "exclude": true },
-                "MouseClicked": { "exclude": true },
-                "MouseClickedCount": { "exclude": true },
-                "MouseDoubleClicked": { "exclude": true },
-                "MouseDoubleClickedTime": { "exclude": true },
-                "MouseClickedLastCount": { "exclude": true },
-                "MouseReleased": { "exclude": true },
-                "MouseReleasedTime": { "exclude": true },
-                "MouseDownOwned": { "exclude": true },
-                "MouseDownOwnedUnlessPopupClose": { "exclude": true },
-                "MouseDownDuration": { "exclude": true },
-                "MouseDownDurationPrev": { "exclude": true },
-                "MouseDragMaxDistanceAbs": { "exclude": true },
-                "MouseDragMaxDistanceSqr": { "exclude": true },
-                "InputQueueCharacters": { "exclude": true }
-            }
-        },
-        "ImGuiMultiSelectIO": { "opaque": true },
-        "ImGuiSelectionRequest": { "exclude": true },
-        "ImGuiPlatformImeData": { "exclude": true },
-        "ImGuiPlatformMonitor": { "exclude": true },
-        "ImGuiPlatformIO": { "opaque": true },
-        "ImGuiViewport": { "exclude": false },
-        "ImFont": { "opaque": true },
-        "ImFontBaked": { "opaque": true },
-        "ImFontAtlas": {
-            "fields": {
-                "TexData": {
-                    "exclude": true
-                },
-                "TexDesiredFormat": {
-                    "exclude": true
-                }
-            },
-            "methods": {
-                "ImFontAtlas_AddFontFromFileTTF": {
-                    "override": {
-                        "ts": [
-                            "    AddFontFromFileTTF(filename: string, size_pixels: number = 0.0, font_cfg: ImFontConfig | null = null, glyph_ranges: ImWchar[] | null = null): ImFont {\n",
-                            "        return this.ptr.ImFontAtlas_AddFontFromFileTTF(filename, size_pixels, font_cfg?.ptr || null, glyph_ranges);\n",
-                            "    }\n"
-                        ],
-                        "cpp": [
-                            ".function(\"ImFontAtlas_AddFontFromFileTTF\", override([](ImFontAtlas* self, std::string filename, float size_pixels, const ImFontConfig* font_cfg, js_val glyph_ranges) -> ImFont* {\n",
-                            "    auto param_glyph_ranges = get_vector_param<ImWchar>(glyph_ranges);\n",
-                            "    auto const ret = ImFontAtlas_AddFontFromFileTTF(self, filename.c_str(), size_pixels, font_cfg, param_glyph_ranges.ptr);\n",
-                            "    write_back_vector_param(param_glyph_ranges, glyph_ranges);\n",
-                            "    return ret;\n",
-                            "}), rvp_ref{}, allow_raw_ptrs{})\n"
-                        ]
-                    }
-                },
-                "ImFontAtlas_AddFontFromMemoryTTF": { "exclude": true },
-                "ImFontAtlas_AddFontFromMemoryCompressedTTF": { "exclude": true },
-                "ImFontAtlas_AddFontFromMemoryCompressedBase85TTF": { "exclude": true }
-            }
-        },
-        "ImFontAtlasRect": { "exclude": false },
-        "ImFontGlyphRangesBuilder": { "exclude": true },
-        "ImFontGlyph": { "exclude": true },
-        "ImFontConfig": {
-            "fields": {
-                "Name": { "exclude": true }
-            }
-        },
-        "ImTextureData": { "exclude": true },
-        "ImTextureRect": { "exclude": true },
-        "ImDrawList": {
-            "fields": {
-                "CmdBuffer": { "exclude": true },
-                "IdxBuffer": { "exclude": true },
-                "VtxBuffer": { "exclude": true },
-                "_VtxCurrentIdx": { "exclude": true },
-                "_Data": { "exclude": true },
-                "_VtxWritePtr": { "exclude": true },
-                "_IdxWritePtr": { "exclude": true },
-                "_Path": { "exclude": true },
-                "_CmdHeader": { "exclude": true },
-                "_Splitter": { "exclude": true },
-                "_ClipRectStack": { "exclude": true },
-                "_TextureStack": { "exclude": true },
-                "_CallbacksDataBuf": { "exclude": true },
-                "_FringeScale": { "exclude": true },
-                "_OwnerName": { "exclude": true }
-            }
-        },
-        "ImGuiPayload": {
-            "fields": {
-                "Data": {
-                    "override": {
-                        "ts": [
-                            "    get Data(): string {\n",
-                            "        return this.ptr.get_Data();\n",
-                            "    }\n"
-                        ],
-                        "cpp": [
-                            ".function(\"get_Data\", override([](const ImGuiPayload* self){ return std::string((char*)self->Data, self->DataSize); }), rvp_ref{}, allow_raw_ptrs{})\n"
-                        ]
-                    }
-                },
-                "DataSize": {
-                    "override": {
-                        "ts": [
-                            "    get DataSize(): number {\n",
-                            "        return this.ptr.get_DataSize();\n",
-                            "    }\n"
-                        ],
-                        "cpp": [
-                            ".function(\"get_DataSize\", override([](const ImGuiPayload* self){ return self->DataSize; }), rvp_ref{}, allow_raw_ptrs{})\n"
-                        ]
-                    }
-                }
-            }
-        },
-        "ImDrawListSplitter": { "exclude": true },
-        "ImGuiTextBuffer": { "exclude": true },
-        "ImGuiStorage": { "exclude": true }
+    "ImGuiSizeCallback": {
+      "override": {
+        "ts": ["export type ImGuiSizeCallback = (data: ImGuiSizeCallbackData) => void;\n"]
+      }
     },
-    "functions": {
-        "ImGui_Text": {
-            "override": {
-                "ts": [
-                    "    Text(fmt: string): void {\n",
-                    "        Mod.export.ImGui_Text(fmt);\n",
-                    "    },\n"
-                ],
-                "cpp": [
-                    "bind_fn(\"ImGui_Text\", [](std::string fmt){\n",
-                    "    ImGui_TextUnformatted(fmt.c_str(), nullptr);\n",
-                    "});\n"
-                ]
-            }
-        },
-        "ImGui_TextColored": {
-            "override": {
-                "ts": [
-                    "    TextColored(col: ImVec4, fmt: string): void {\n",
-                    "        Mod.export.ImGui_TextColored(col, fmt);\n",
-                    "    },\n"
-                ],
-                "cpp": [
-                    "bind_fn(\"ImGui_TextColored\", [](ImVec4 col, std::string fmt){\n",
-                    "    ImGui_TextColored(col, \"%s\", fmt.c_str());\n",
-                    "});\n"
-                ]
-            }
-        },
-        "ImGui_TextDisabled": {
-            "override": {
-                "ts": [
-                    "    TextDisabled(fmt: string): void {\n",
-                    "        Mod.export.ImGui_TextDisabled(fmt);\n",
-                    "    },\n"
-                ],
-                "cpp": [
-                    "bind_fn(\"ImGui_TextDisabled\", [](std::string fmt){\n",
-                    "    ImGui_TextDisabled(\"%s\", fmt.c_str());\n",
-                    "});\n"
-                ]
-            }
-        },
-        "ImGui_TextWrapped": {
-            "override": {
-                "ts": [
-                    "    TextWrapped(fmt: string): void {\n",
-                    "        Mod.export.ImGui_TextWrapped(fmt);\n",
-                    "    },\n"
-                ],
-                "cpp": [
-                    "bind_fn(\"ImGui_TextWrapped\", [](std::string fmt){\n",
-                    "    ImGui_TextWrapped(\"%s\", fmt.c_str());\n",
-                    "});\n"
-                ]
-            }
-        },
-        "ImGui_LabelText": {
-            "override": {
-                "ts": [
-                    "    LabelText(label: string, fmt: string): void {\n",
-                    "        Mod.export.ImGui_LabelText(label, fmt);\n",
-                    "    },\n"
-                ],
-                "cpp": [
-                    "bind_fn(\"ImGui_LabelText\", [](std::string label, std::string fmt){\n",
-                    "    ImGui_LabelText(label.c_str(), \"%s\", fmt.c_str());\n",
-                    "});\n"
-                ]
-            }
-        },
-        "ImGui_BulletText": {
-            "override": {
-                "ts": [
-                    "    BulletText(fmt: string): void {\n",
-                    "        Mod.export.ImGui_BulletText(fmt);\n",
-                    "    },\n"
-                ],
-                "cpp": [
-                    "bind_fn(\"ImGui_BulletText\", [](std::string fmt){\n",
-                    "    ImGui_BulletText(\"%s\", fmt.c_str());\n",
-                    "});\n"
-                ]
-            }
-        },
-        "ImGui_DebugLog": {
-            "override": {
-                "ts": [
-                    "    DebugLog(fmt: string): void {\n",
-                    "        Mod.export.ImGui_DebugLog(fmt);\n",
-                    "    },\n"
-                ],
-                "cpp": [
-                    "bind_fn(\"ImGui_DebugLog\", [](std::string fmt){\n",
-                    "    ImGui_DebugLog(\"%s\", fmt.c_str());\n",
-                    "});\n"
-                ]
-            }
-        },
-        "ImGui_LogText": {
-            "override": {
-                "ts": [
-                    "    LogText(fmt: string): void {\n",
-                    "        Mod.export.ImGui_LogText(fmt);\n",
-                    "    },\n"
-                ],
-                "cpp": [
-                    "bind_fn(\"ImGui_LogText\", [](std::string fmt){\n",
-                    "    ImGui_LogText(\"%s\", fmt.c_str());\n",
-                    "});\n"
-                ]
-            }
-        },
-        "ImGui_SetTooltip": {
-            "override": {
-                "ts": [
-                    "    SetTooltip(fmt: string): void {\n",
-                    "        Mod.export.ImGui_SetTooltip(fmt);\n",
-                    "    },\n"
-                ],
-                "cpp": [
-                    "bind_fn(\"ImGui_SetTooltip\", [](std::string fmt){\n",
-                    "    ImGui_SetTooltip(\"%s\", fmt.c_str());\n",
-                    "});\n"
-                ]
-            }
-        },
-        "ImGui_SetItemTooltip": {
-            "override": {
-                "ts": [
-                    "    SetItemTooltip(fmt: string): void {\n",
-                    "        Mod.export.ImGui_SetItemTooltip(fmt);\n",
-                    "    },\n"
-                ],
-                "cpp": [
-                    "bind_fn(\"ImGui_SetItemTooltip\", [](std::string fmt){\n",
-                    "    ImGui_SetItemTooltip(\"%s\", fmt.c_str());\n",
-                    "});\n"
-                ]
-            }
-        },
+    "ImDrawCallback": {
+      "override": {
+        "ts": ["export type ImDrawCallback = (parent_list: ImDrawList, cmd: ImDrawCmd) => void;\n"]
+      }
+    },
+    "ImGuiMemAllocFunc": { "exclude": true },
+    "ImGuiMemFreeFunc": { "exclude": true },
+    "ImWchar": { "exclude": true }
+  },
+  "structs": {
+    "ImVec2": { "exclude": true },
+    "ImVec4": { "exclude": true },
+    "ImTextureRef": { "exclude": true },
 
-        "ImGui_InputText": {
-            "override": {
-                "ts": [
-                    "    InputText(label: string, buf: [string], buf_size: number, flags: ImGuiInputTextFlags = 0): boolean {\n",
-                    "        return Mod.export.ImGui_InputText(label, buf, buf_size, flags);\n",
-                    "    },\n"
-                ],
-                "cpp": [
-                    "bind_fn(\"ImGui_InputText\", [](std::string label, js_val buf, size_t buf_size, ImGuiInputTextFlags flags){\n",
-                    "    auto _bind_buf = buf[0].as<std::string>();\n",
-                    "    _bind_buf.reserve(buf_size);\n",
-                    "    auto const ret = ImGui_InputText(label.c_str(), _bind_buf.data(), buf_size, flags, nullptr, nullptr);\n",
-                    "    buf.set(0, std::string(_bind_buf.data()));\n",
-                    "    return ret;\n",
-                    "});\n"
-                ]
-            }
-        },
-        "ImGui_InputTextMultiline": {
-            "override": {
-                "ts": [
-                    "    InputTextMultiline(label: string, buf: [string], buf_size: number, size: ImVec2 = new ImVec2(0, 0), flags: ImGuiInputTextFlags = 0): boolean {\n",
-                    "        return Mod.export.ImGui_InputTextMultiline(label, buf, buf_size, size, flags);\n",
-                    "    },\n"
-                ],
-                "cpp": [
-                    "bind_fn(\"ImGui_InputTextMultiline\", [](std::string label, js_val buf, size_t buf_size, ImVec2 size, ImGuiInputTextFlags flags){\n",
-                    "    auto _bind_buf = buf[0].as<std::string>();\n",
-                    "    _bind_buf.reserve(buf_size);\n",
-                    "    auto const ret = ImGui_InputTextMultiline(label.c_str(), _bind_buf.data(), buf_size, size, flags, nullptr, nullptr);\n",
-                    "    buf.set(0, std::string(_bind_buf.data()));\n",
-                    "    return ret;\n",
-                    "});\n"
-                ]
-            }
-        },
-        "ImGui_InputTextWithHint": {
-            "override": {
-                "ts": [
-                    "    InputTextWithHint(label: string, hint: string, buf: [string], buf_size: number, flags: ImGuiInputTextFlags = 0): boolean {\n",
-                    "        return Mod.export.ImGui_InputTextWithHint(label, hint, buf, buf_size, flags);\n",
-                    "    },\n"
-                ],
-                "cpp": [
-                    "bind_fn(\"ImGui_InputTextWithHint\", [](std::string label, std::string hint, js_val buf, size_t buf_size, ImGuiInputTextFlags flags){\n",
-                    "    auto _bind_buf = buf[0].as<std::string>();\n",
-                    "    _bind_buf.reserve(buf_size);\n",
-                    "    auto const ret = ImGui_InputTextWithHint(label.c_str(), hint.c_str(), _bind_buf.data(), buf_size, flags, nullptr, nullptr);\n",
-                    "    buf.set(0, std::string(_bind_buf.data()));\n",
-                    "    return ret;\n",
-                    "});\n"
-                ]
-            }
-        },
-        "ImGui_SetNextWindowSizeConstraints": {
-            "override": {
-                "ts": [
-                    "    SetNextWindowSizeConstraints(min: ImVec2, max: ImVec2): void {\n",
-                    "        Mod.export.ImGui_SetNextWindowSizeConstraints(min, max);\n",
-                    "    },\n"
-                ],
-                "cpp": [
-                    "bind_fn(\"ImGui_SetNextWindowSizeConstraints\", [](ImVec2 min, ImVec2 max){\n",
-                    "    ImGui_SetNextWindowSizeConstraints(min, max, nullptr, nullptr);\n",
-                    "});\n"
-                ]
-            }
-        },
-        "ImGui_ComboChar": { "exclude": true },
-        "ImGui_ComboCallback": { "exclude": true },
-        "ImGui_ListBox": { "exclude": true },
-        "ImGui_ListBoxCallback": { "exclude": true },
-        "ImGui_PlotLinesCallback": { "exclude": true },
-        "ImGui_PlotHistogramCallback": { "exclude": true },
-        "ImGui_SetDragDropPayload": {
-            "override": {
-                "ts": [
-                    "    SetDragDropPayload(type: string, data: string, sz: number, cond: ImGuiCond): boolean {\n",
-                    "        return Mod.export.ImGui_SetDragDropPayload(type, data, sz, cond);\n",
-                    "    },\n"
-                ],
-                "cpp": [
-                    "bind_fn(\"ImGui_SetDragDropPayload\", [](std::string type, std::string data, size_t sz, ImGuiCond cond){\n",
-                    "    return ImGui_SetDragDropPayload(type.c_str(), data.data(), sz, cond);\n",
-                    "});\n"
-                ]
-            }
-        },
+    "__anonymous_type0": { "exclude": true },
+    "ImVector_ImGuiTextRange": { "exclude": true },
+    "ImVector_char": { "exclude": true },
+    "ImVector_ImGuiStoragePair": { "exclude": true },
+    "ImVector_ImGuiSelectionRequest": { "exclude": true },
+    "ImVector_ImDrawChannel": { "exclude": true },
+    "ImVector_ImDrawCmd": { "exclude": true },
+    "ImVector_ImDrawIdx": { "exclude": true },
+    "ImVector_ImDrawVert": { "exclude": true },
+    "ImVector_ImVec2": { "exclude": true },
+    "ImVector_ImVec4": { "exclude": true },
+    "ImVector_ImTextureRef": { "exclude": true },
+    "ImVector_ImU8": { "exclude": true },
+    "ImVector_ImDrawListPtr": { "exclude": true },
+    "ImVector_ImTextureRect": { "exclude": true },
+    "ImVector_ImU32": { "exclude": true },
+    "ImVector_ImWchar": { "exclude": true },
+    "ImVector_ImFontPtr": { "exclude": true },
+    "ImVector_ImFontConfig": { "exclude": true },
+    "ImVector_ImDrawListSharedDataPtr": { "exclude": true },
+    "ImVector_float": { "exclude": true },
+    "ImVector_ImU16": { "exclude": true },
+    "ImVector_ImFontGlyph": { "exclude": true },
+    "ImVector_ImFontConfigPtr": { "exclude": true },
+    "ImVector_ImGuiPlatformMonitor": { "exclude": true },
+    "ImVector_ImTextureDataPtr": { "exclude": true },
+    "ImVector_ImGuiViewportPtr": { "exclude": true },
 
-        "ImGui_TextV": { "exclude": true },
-        "ImGui_TextUnformatted": { "exclude": true },
-        "ImGui_TextColoredV": { "exclude": true },
-        "ImGui_TextDisabledV": { "exclude": true },
-        "ImGui_TextWrappedV": { "exclude": true },
-        "ImGui_LabelTextV": { "exclude": true },
-        "ImGui_BulletTextV": { "exclude": true },
-        "ImGui_DebugLogV": { "exclude": true },
-        "ImGui_LogTextV": { "exclude": true },
-        "ImGui_SetTooltipV": { "exclude": true },
-        "ImGui_SetItemTooltipV": { "exclude": true },
-        "ImGui_LoadIniSettingsFromDisk": { "exclude": true },
-        "ImGui_SaveIniSettingsToDisk": { "exclude": true },
-        "ImGui_TreeNodeStr": { "exclude": true },
-        "ImGui_TreeNodePtr": { "exclude": true },
-        "ImGui_TreeNodeV": { "exclude": true },
-        "ImGui_TreeNodeVPtr": { "exclude": true },
-        "ImGui_TreeNodeExStr": { "exclude": true },
-        "ImGui_TreeNodeExPtr": { "exclude": true },
-        "ImGui_TreeNodeExV": { "exclude": true },
-        "ImGui_TreeNodeExVPtr": { "exclude": true },
-        "ImGui_TreePushPtr": { "exclude": true },
-        "ImGui_PushIDPtr": { "exclude": true },
-        "ImGui_PushIDStr": { "exclude": true },
-        "ImGui_GetIDStr": { "exclude": true },
-        "ImGui_GetIDPtr": { "exclude": true },
-        "ImGui_DragScalar": { "exclude": true },
-        "ImGui_DragScalarN": { "exclude": true },
-        "ImGui_SliderScalar": { "exclude": true },
-        "ImGui_SliderScalarN": { "exclude": true },
-        "ImGui_InputScalar": { "exclude": true },
-        "ImGui_InputScalarN": { "exclude": true },
-        "ImGui_VSliderFloat": { "exclude": true },
-        "ImGui_VSliderInt": { "exclude": true },
-        "ImGui_VSliderScalar": { "exclude": true },
-        "ImGui_SetStateStorage": { "exclude": true },
-        "ImGui_GetStateStorage": { "exclude": true },
-        "ImGui_SetAllocatorFunctions": { "exclude": true },
-        "ImGui_GetAllocatorFunctions": { "exclude": true },
-        "ImGui_MemAlloc": { "exclude": true },
-        "ImGui_MemFree": { "exclude": true }
-    }
+    "ImGuiTextFilter_ImGuiTextRange": { "exclude": true },
+    "ImDrawCmdHeader": { "exclude": true },
+    "ImDrawVert": { "exclude": true },
+    "ImGuiSelectionExternalStorage": { "exclude": true },
+    "ImGuiSelectionBasicStorage": { "exclude": true },
+    "ImDrawData": { "opaque": true },
+    "ImGuiStyle": {
+      "fields": {
+        "Colors": {
+          "override": {
+            "ts": [
+              "    get Colors(): ImVec4[] {\n",
+              "        return this.ptr.get_Colors();\n",
+              "    }\n",
+              "\n",
+              "    set Colors(v: ImVec4[]) {\n",
+              "        this.ptr.set_Colors(v);\n",
+              "    }\n",
+              "\n"
+            ],
+            "cpp": [
+              ".function(\"get_Colors\", override([](const ImGuiStyle& self){ \n",
+              "    auto obj = emscripten::val::array();\n",
+              "    for (auto i = 0; i < ImGuiCol_COUNT; i++) {\n",
+              "        obj.set(i, self.Colors[i]);\n",
+              "    };\n",
+              "    return obj;\n",
+              "}), rvp_ref{}, allow_raw_ptrs{})\n",
+              "\n",
+              ".function(\"set_Colors\", override([](ImGuiStyle& self, js_val value){\n",
+              "    for (auto i = 0; i < ImGuiCol_COUNT; i++) {\n",
+              "        self.Colors[i] = value[i].as<ImVec4>();\n",
+              "    };\n",
+              "}), allow_raw_ptrs{})\n",
+              "\n"
+            ]
+          }
+        }
+      }
+    },
+    "ImGuiIO": {
+      "fields": {
+        "MouseDown": { "exclude": true },
+        "KeysData": { "exclude": true },
+        "MouseClickedPos": { "exclude": true },
+        "MouseClickedTime": { "exclude": true },
+        "MouseClicked": { "exclude": true },
+        "MouseClickedCount": { "exclude": true },
+        "MouseDoubleClicked": { "exclude": true },
+        "MouseDoubleClickedTime": { "exclude": true },
+        "MouseClickedLastCount": { "exclude": true },
+        "MouseReleased": { "exclude": true },
+        "MouseReleasedTime": { "exclude": true },
+        "MouseDownOwned": { "exclude": true },
+        "MouseDownOwnedUnlessPopupClose": { "exclude": true },
+        "MouseDownDuration": { "exclude": true },
+        "MouseDownDurationPrev": { "exclude": true },
+        "MouseDragMaxDistanceAbs": { "exclude": true },
+        "MouseDragMaxDistanceSqr": { "exclude": true },
+        "InputQueueCharacters": { "exclude": true }
+      }
+    },
+    "ImGuiMultiSelectIO": { "opaque": true },
+    "ImGuiSelectionRequest": { "exclude": true },
+    "ImGuiPlatformImeData": { "exclude": true },
+    "ImGuiPlatformMonitor": { "exclude": true },
+    "ImGuiPlatformIO": { "opaque": true },
+    "ImGuiViewport": { "exclude": false },
+    "ImFont": { "opaque": true },
+    "ImFontBaked": { "opaque": true },
+    "ImFontAtlas": {
+      "fields": {
+        "TexData": {
+          "exclude": true
+        },
+        "TexDesiredFormat": {
+          "exclude": true
+        }
+      },
+      "methods": {
+        "ImFontAtlas_AddFontFromFileTTF": {
+          "override": {
+            "ts": [
+              "    AddFontFromFileTTF(filename: string, size_pixels: number = 0.0, font_cfg: ImFontConfig | null = null, glyph_ranges: ImWchar[] | null = null): ImFont {\n",
+              "        return this.ptr.ImFontAtlas_AddFontFromFileTTF(filename, size_pixels, font_cfg?.ptr || null, glyph_ranges);\n",
+              "    }\n"
+            ],
+            "cpp": [
+              ".function(\"ImFontAtlas_AddFontFromFileTTF\", override([](ImFontAtlas* self, std::string filename, float size_pixels, const ImFontConfig* font_cfg, js_val glyph_ranges) -> ImFont* {\n",
+              "    auto param_glyph_ranges = get_vector_param<ImWchar>(glyph_ranges);\n",
+              "    auto const ret = ImFontAtlas_AddFontFromFileTTF(self, filename.c_str(), size_pixels, font_cfg, param_glyph_ranges.ptr);\n",
+              "    write_back_vector_param(param_glyph_ranges, glyph_ranges);\n",
+              "    return ret;\n",
+              "}), rvp_ref{}, allow_raw_ptrs{})\n"
+            ]
+          }
+        },
+        "ImFontAtlas_AddFontFromMemoryTTF": { "exclude": true },
+        "ImFontAtlas_AddFontFromMemoryCompressedTTF": { "exclude": true },
+        "ImFontAtlas_AddFontFromMemoryCompressedBase85TTF": { "exclude": true }
+      }
+    },
+    "ImFontAtlasRect": { "exclude": false },
+    "ImFontGlyphRangesBuilder": { "exclude": true },
+    "ImFontGlyph": { "exclude": true },
+    "ImFontConfig": {
+      "fields": {
+        "Name": { "exclude": true }
+      }
+    },
+    "ImTextureData": { "exclude": true },
+    "ImTextureRect": { "exclude": true },
+    "ImDrawList": {
+      "fields": {
+        "CmdBuffer": { "exclude": true },
+        "IdxBuffer": { "exclude": true },
+        "VtxBuffer": { "exclude": true },
+        "_VtxCurrentIdx": { "exclude": true },
+        "_Data": { "exclude": true },
+        "_VtxWritePtr": { "exclude": true },
+        "_IdxWritePtr": { "exclude": true },
+        "_Path": { "exclude": true },
+        "_CmdHeader": { "exclude": true },
+        "_Splitter": { "exclude": true },
+        "_ClipRectStack": { "exclude": true },
+        "_TextureStack": { "exclude": true },
+        "_CallbacksDataBuf": { "exclude": true },
+        "_FringeScale": { "exclude": true },
+        "_OwnerName": { "exclude": true }
+      }
+    },
+    "ImGuiPayload": {
+      "fields": {
+        "Data": {
+          "override": {
+            "ts": [
+              "    get Data(): string {\n",
+              "        return this.ptr.get_Data();\n",
+              "    }\n"
+            ],
+            "cpp": [
+              ".function(\"get_Data\", override([](const ImGuiPayload* self){ return std::string((char*)self->Data, self->DataSize); }), rvp_ref{}, allow_raw_ptrs{})\n"
+            ]
+          }
+        },
+        "DataSize": {
+          "override": {
+            "ts": [
+              "    get DataSize(): number {\n",
+              "        return this.ptr.get_DataSize();\n",
+              "    }\n"
+            ],
+            "cpp": [
+              ".function(\"get_DataSize\", override([](const ImGuiPayload* self){ return self->DataSize; }), rvp_ref{}, allow_raw_ptrs{})\n"
+            ]
+          }
+        }
+      }
+    },
+    "ImDrawListSplitter": { "exclude": true },
+    "ImGuiTextBuffer": { "exclude": true },
+    "ImGuiStorage": { "exclude": true }
+  },
+  "functions": {
+    "ImGui_Text": {
+      "override": {
+        "ts": [
+          "    Text(fmt: string): void {\n",
+          "        Mod.export.ImGui_Text(fmt);\n",
+          "    },\n"
+        ],
+        "cpp": [
+          "bind_fn(\"ImGui_Text\", [](std::string fmt){\n",
+          "    ImGui_TextUnformatted(fmt.c_str(), nullptr);\n",
+          "});\n"
+        ]
+      }
+    },
+    "ImGui_TextColored": {
+      "override": {
+        "ts": [
+          "    TextColored(col: ImVec4, fmt: string): void {\n",
+          "        Mod.export.ImGui_TextColored(col, fmt);\n",
+          "    },\n"
+        ],
+        "cpp": [
+          "bind_fn(\"ImGui_TextColored\", [](ImVec4 col, std::string fmt){\n",
+          "    ImGui_TextColored(col, \"%s\", fmt.c_str());\n",
+          "});\n"
+        ]
+      }
+    },
+    "ImGui_TextDisabled": {
+      "override": {
+        "ts": [
+          "    TextDisabled(fmt: string): void {\n",
+          "        Mod.export.ImGui_TextDisabled(fmt);\n",
+          "    },\n"
+        ],
+        "cpp": [
+          "bind_fn(\"ImGui_TextDisabled\", [](std::string fmt){\n",
+          "    ImGui_TextDisabled(\"%s\", fmt.c_str());\n",
+          "});\n"
+        ]
+      }
+    },
+    "ImGui_TextWrapped": {
+      "override": {
+        "ts": [
+          "    TextWrapped(fmt: string): void {\n",
+          "        Mod.export.ImGui_TextWrapped(fmt);\n",
+          "    },\n"
+        ],
+        "cpp": [
+          "bind_fn(\"ImGui_TextWrapped\", [](std::string fmt){\n",
+          "    ImGui_TextWrapped(\"%s\", fmt.c_str());\n",
+          "});\n"
+        ]
+      }
+    },
+    "ImGui_LabelText": {
+      "override": {
+        "ts": [
+          "    LabelText(label: string, fmt: string): void {\n",
+          "        Mod.export.ImGui_LabelText(label, fmt);\n",
+          "    },\n"
+        ],
+        "cpp": [
+          "bind_fn(\"ImGui_LabelText\", [](std::string label, std::string fmt){\n",
+          "    ImGui_LabelText(label.c_str(), \"%s\", fmt.c_str());\n",
+          "});\n"
+        ]
+      }
+    },
+    "ImGui_BulletText": {
+      "override": {
+        "ts": [
+          "    BulletText(fmt: string): void {\n",
+          "        Mod.export.ImGui_BulletText(fmt);\n",
+          "    },\n"
+        ],
+        "cpp": [
+          "bind_fn(\"ImGui_BulletText\", [](std::string fmt){\n",
+          "    ImGui_BulletText(\"%s\", fmt.c_str());\n",
+          "});\n"
+        ]
+      }
+    },
+    "ImGui_DebugLog": {
+      "override": {
+        "ts": [
+          "    DebugLog(fmt: string): void {\n",
+          "        Mod.export.ImGui_DebugLog(fmt);\n",
+          "    },\n"
+        ],
+        "cpp": [
+          "bind_fn(\"ImGui_DebugLog\", [](std::string fmt){\n",
+          "    ImGui_DebugLog(\"%s\", fmt.c_str());\n",
+          "});\n"
+        ]
+      }
+    },
+    "ImGui_LogText": {
+      "override": {
+        "ts": [
+          "    LogText(fmt: string): void {\n",
+          "        Mod.export.ImGui_LogText(fmt);\n",
+          "    },\n"
+        ],
+        "cpp": [
+          "bind_fn(\"ImGui_LogText\", [](std::string fmt){\n",
+          "    ImGui_LogText(\"%s\", fmt.c_str());\n",
+          "});\n"
+        ]
+      }
+    },
+    "ImGui_SetTooltip": {
+      "override": {
+        "ts": [
+          "    SetTooltip(fmt: string): void {\n",
+          "        Mod.export.ImGui_SetTooltip(fmt);\n",
+          "    },\n"
+        ],
+        "cpp": [
+          "bind_fn(\"ImGui_SetTooltip\", [](std::string fmt){\n",
+          "    ImGui_SetTooltip(\"%s\", fmt.c_str());\n",
+          "});\n"
+        ]
+      }
+    },
+    "ImGui_SetItemTooltip": {
+      "override": {
+        "ts": [
+          "    SetItemTooltip(fmt: string): void {\n",
+          "        Mod.export.ImGui_SetItemTooltip(fmt);\n",
+          "    },\n"
+        ],
+        "cpp": [
+          "bind_fn(\"ImGui_SetItemTooltip\", [](std::string fmt){\n",
+          "    ImGui_SetItemTooltip(\"%s\", fmt.c_str());\n",
+          "});\n"
+        ]
+      }
+    },
+
+    "ImGui_InputText": {
+      "override": {
+        "ts": [
+          "    InputText(label: string, buf: [string], buf_size: number, flags: ImGuiInputTextFlags = 0): boolean {\n",
+          "        return Mod.export.ImGui_InputText(label, buf, buf_size, flags);\n",
+          "    },\n"
+        ],
+        "cpp": [
+          "bind_fn(\"ImGui_InputText\", [](std::string label, js_val buf, size_t buf_size, ImGuiInputTextFlags flags){\n",
+          "    auto _bind_buf = buf[0].as<std::string>();\n",
+          "    _bind_buf.reserve(buf_size);\n",
+          "    auto const ret = ImGui_InputText(label.c_str(), _bind_buf.data(), buf_size, flags, nullptr, nullptr);\n",
+          "    buf.set(0, std::string(_bind_buf.data()));\n",
+          "    return ret;\n",
+          "});\n"
+        ]
+      }
+    },
+    "ImGui_InputTextMultiline": {
+      "override": {
+        "ts": [
+          "    InputTextMultiline(label: string, buf: [string], buf_size: number, size: ImVec2 = new ImVec2(0, 0), flags: ImGuiInputTextFlags = 0): boolean {\n",
+          "        return Mod.export.ImGui_InputTextMultiline(label, buf, buf_size, size, flags);\n",
+          "    },\n"
+        ],
+        "cpp": [
+          "bind_fn(\"ImGui_InputTextMultiline\", [](std::string label, js_val buf, size_t buf_size, ImVec2 size, ImGuiInputTextFlags flags){\n",
+          "    auto _bind_buf = buf[0].as<std::string>();\n",
+          "    _bind_buf.reserve(buf_size);\n",
+          "    auto const ret = ImGui_InputTextMultiline(label.c_str(), _bind_buf.data(), buf_size, size, flags, nullptr, nullptr);\n",
+          "    buf.set(0, std::string(_bind_buf.data()));\n",
+          "    return ret;\n",
+          "});\n"
+        ]
+      }
+    },
+    "ImGui_InputTextWithHint": {
+      "override": {
+        "ts": [
+          "    InputTextWithHint(label: string, hint: string, buf: [string], buf_size: number, flags: ImGuiInputTextFlags = 0): boolean {\n",
+          "        return Mod.export.ImGui_InputTextWithHint(label, hint, buf, buf_size, flags);\n",
+          "    },\n"
+        ],
+        "cpp": [
+          "bind_fn(\"ImGui_InputTextWithHint\", [](std::string label, std::string hint, js_val buf, size_t buf_size, ImGuiInputTextFlags flags){\n",
+          "    auto _bind_buf = buf[0].as<std::string>();\n",
+          "    _bind_buf.reserve(buf_size);\n",
+          "    auto const ret = ImGui_InputTextWithHint(label.c_str(), hint.c_str(), _bind_buf.data(), buf_size, flags, nullptr, nullptr);\n",
+          "    buf.set(0, std::string(_bind_buf.data()));\n",
+          "    return ret;\n",
+          "});\n"
+        ]
+      }
+    },
+    "ImGui_SetNextWindowSizeConstraints": {
+      "override": {
+        "ts": [
+          "    SetNextWindowSizeConstraints(min: ImVec2, max: ImVec2): void {\n",
+          "        Mod.export.ImGui_SetNextWindowSizeConstraints(min, max);\n",
+          "    },\n"
+        ],
+        "cpp": [
+          "bind_fn(\"ImGui_SetNextWindowSizeConstraints\", [](ImVec2 min, ImVec2 max){\n",
+          "    ImGui_SetNextWindowSizeConstraints(min, max, nullptr, nullptr);\n",
+          "});\n"
+        ]
+      }
+    },
+    "ImGui_ComboChar": { "exclude": true },
+    "ImGui_ComboCallback": { "exclude": true },
+    "ImGui_ListBox": { "exclude": true },
+    "ImGui_ListBoxCallback": { "exclude": true },
+    "ImGui_PlotLinesCallback": { "exclude": true },
+    "ImGui_PlotHistogramCallback": { "exclude": true },
+    "ImGui_SetDragDropPayload": {
+      "override": {
+        "ts": [
+          "    SetDragDropPayload(type: string, data: string, sz: number, cond: ImGuiCond): boolean {\n",
+          "        return Mod.export.ImGui_SetDragDropPayload(type, data, sz, cond);\n",
+          "    },\n"
+        ],
+        "cpp": [
+          "bind_fn(\"ImGui_SetDragDropPayload\", [](std::string type, std::string data, size_t sz, ImGuiCond cond){\n",
+          "    return ImGui_SetDragDropPayload(type.c_str(), data.data(), sz, cond);\n",
+          "});\n"
+        ]
+      }
+    },
+
+    "ImGui_TextV": { "exclude": true },
+    "ImGui_TextUnformatted": { "exclude": true },
+    "ImGui_TextColoredV": { "exclude": true },
+    "ImGui_TextDisabledV": { "exclude": true },
+    "ImGui_TextWrappedV": { "exclude": true },
+    "ImGui_LabelTextV": { "exclude": true },
+    "ImGui_BulletTextV": { "exclude": true },
+    "ImGui_DebugLogV": { "exclude": true },
+    "ImGui_LogTextV": { "exclude": true },
+    "ImGui_SetTooltipV": { "exclude": true },
+    "ImGui_SetItemTooltipV": { "exclude": true },
+    "ImGui_LoadIniSettingsFromDisk": { "exclude": true },
+    "ImGui_SaveIniSettingsToDisk": { "exclude": true },
+    "ImGui_TreeNodeStr": { "exclude": true },
+    "ImGui_TreeNodePtr": { "exclude": true },
+    "ImGui_TreeNodeV": { "exclude": true },
+    "ImGui_TreeNodeVPtr": { "exclude": true },
+    "ImGui_TreeNodeExStr": { "exclude": true },
+    "ImGui_TreeNodeExPtr": { "exclude": true },
+    "ImGui_TreeNodeExV": { "exclude": true },
+    "ImGui_TreeNodeExVPtr": { "exclude": true },
+    "ImGui_TreePushPtr": { "exclude": true },
+    "ImGui_PushIDPtr": { "exclude": true },
+    "ImGui_PushIDStr": { "exclude": true },
+    "ImGui_GetIDStr": { "exclude": true },
+    "ImGui_GetIDPtr": { "exclude": true },
+    "ImGui_DragScalar": { "exclude": true },
+    "ImGui_DragScalarN": { "exclude": true },
+    "ImGui_SliderScalar": { "exclude": true },
+    "ImGui_SliderScalarN": { "exclude": true },
+    "ImGui_InputScalar": { "exclude": true },
+    "ImGui_InputScalarN": { "exclude": true },
+    "ImGui_VSliderFloat": { "exclude": true },
+    "ImGui_VSliderInt": { "exclude": true },
+    "ImGui_VSliderScalar": { "exclude": true },
+    "ImGui_SetStateStorage": { "exclude": true },
+    "ImGui_GetStateStorage": { "exclude": true },
+    "ImGui_SetAllocatorFunctions": { "exclude": true },
+    "ImGui_GetAllocatorFunctions": { "exclude": true },
+    "ImGui_MemAlloc": { "exclude": true },
+    "ImGui_MemFree": { "exclude": true }
+  }
 }

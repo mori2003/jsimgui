@@ -1,12 +1,12 @@
-name: '📦 Build'
+name: "📦 Build"
 
 on:
   workflow_call:
 
 env:
-  NODE_VERSION: '24.5.0'
-  EMSDK_VERSION: '4.0.13'
-  PYTHON_VERSION: '3.13'
+  NODE_VERSION: "24.5.0"
+  EMSDK_VERSION: "4.0.13"
+  PYTHON_VERSION: "3.13"
 
 jobs:
   build-matrix:
@@ -19,12 +19,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
       - run: npm ci
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
-          version: 'latest'
+          version: "latest"
           python-version: ${{ env.PYTHON_VERSION }}
       - run: |
           uv venv
@@ -33,7 +33,7 @@ jobs:
       - uses: pyodide/setup-emsdk@v15
         with:
           version: ${{ env.EMSDK_VERSION }}
-          actions-cache-folder: 'emsdk-cache'
+          actions-cache-folder: "emsdk-cache"
       - run: |
           source .venv/bin/activate
           node build.ts

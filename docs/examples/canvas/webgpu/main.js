@@ -8,48 +8,48 @@ const adapter = await navigator.gpu.requestAdapter();
 const device = await adapter.requestDevice();
 
 context.configure({
-    device,
-    format: navigator.gpu.getPreferredCanvasFormat(),
+  device,
+  format: navigator.gpu.getPreferredCanvasFormat(),
 });
 
 await ImGuiImplWeb.Init({ canvas, device });
 
 const frame = () => {
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
+  canvas.width = canvas.clientWidth;
+  canvas.height = canvas.clientHeight;
 
-    ImGuiImplWeb.BeginRender();
+  ImGuiImplWeb.BeginRender();
 
-    ImGui.Begin("New Window");
-    ImGui.Text("Hello, world!");
-    ImGui.End();
+  ImGui.Begin("New Window");
+  ImGui.Text("Hello, world!");
+  ImGui.End();
 
-    showJsimguiDemo(context);
+  showJsimguiDemo(context);
 
-    ImGui.ShowDemoWindow();
+  ImGui.ShowDemoWindow();
 
-    const commandEncoder = device.createCommandEncoder();
-    const textureView = context.getCurrentTexture().createView();
+  const commandEncoder = device.createCommandEncoder();
+  const textureView = context.getCurrentTexture().createView();
 
-    const renderPassDescriptor = {
-        colorAttachments: [
-            {
-                view: textureView,
-                clearValue: { r: 0.2, g: 0.4, b: 0.6, a: 1.0 },
-                loadOp: "clear",
-                storeOp: "store",
-            },
-        ],
-    };
+  const renderPassDescriptor = {
+    colorAttachments: [
+      {
+        view: textureView,
+        clearValue: { r: 0.2, g: 0.4, b: 0.6, a: 1.0 },
+        loadOp: "clear",
+        storeOp: "store",
+      },
+    ],
+  };
 
-    const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+  const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
 
-    ImGuiImplWeb.EndRender(passEncoder);
+  ImGuiImplWeb.EndRender(passEncoder);
 
-    passEncoder.end();
+  passEncoder.end();
 
-    device.queue.submit([commandEncoder.finish()]);
+  device.queue.submit([commandEncoder.finish()]);
 
-    requestAnimationFrame(frame);
+  requestAnimationFrame(frame);
 };
 requestAnimationFrame(frame);

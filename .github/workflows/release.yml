@@ -1,4 +1,4 @@
-name: '🚀 Publish Release'
+name: "🚀 Publish Release"
 
 on:
   push:
@@ -11,7 +11,7 @@ jobs:
 
   publish-npmjs:
     runs-on: ubuntu-latest
-    name: 'Publish to npmjs'
+    name: "Publish to npmjs"
     needs: build
     permissions:
       contents: read
@@ -24,16 +24,16 @@ jobs:
           merge-multiple: true
       - uses: actions/setup-node@v4
         with:
-          node-version: 'latest'
-          cache: 'npm'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: "latest"
+          cache: "npm"
+          registry-url: "https://registry.npmjs.org"
       - run: npm ci && npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   publish-jsr:
     runs-on: ubuntu-latest
-    name: 'Publish to JSR'
+    name: "Publish to JSR"
     needs: build
     permissions:
       contents: read
@@ -46,8 +46,8 @@ jobs:
           merge-multiple: true
       - uses: actions/setup-node@v4
         with:
-          node-version: 'latest'
-          cache: 'npm'
+          node-version: "latest"
+          cache: "npm"
       - run: npx jsr publish
 
   publish-gpr:
@@ -61,7 +61,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 'latest'
+          node-version: "latest"
           registry-url: https://npm.pkg.github.com/
       - uses: actions/download-artifact@v4
         with:
@@ -87,6 +87,6 @@ jobs:
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-            path: '.'
+          path: "."
       - uses: actions/deploy-pages@v4
         id: deployment

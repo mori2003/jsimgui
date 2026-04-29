@@ -40,6 +40,7 @@ JavaScript/TypeScript bindings for the [Dear ImGui](https://github.com/ocornut/i
 - **Babylon.js** - [View Example](https://mori2003.github.io/jsimgui/docs/examples/babylonjs/)
 
 ## Todo
+
 The library should be somewhat usable, but expect bugs and missing features! (Custom font support, INI settings, etc.) Please open an issue if you find something.
 
 ## Quick Start
@@ -47,53 +48,50 @@ The library should be somewhat usable, but expect bugs and missing features! (Cu
 Dear ImGui is rendered to a `<canvas>` element. Here is a short single-file example (also on [CodePen](https://codepen.io/mori2003/pen/xbwVaQg)).
 For more information, see the [wiki](https://github.com/mori2003/jsimgui/wiki).
 
-
 ```html
 <!DOCTYPE html>
 <html>
-    <head>
-        <style>
-            body {
-                margin: 0;
-            }
+  <head>
+    <style>
+      body {
+        margin: 0;
+      }
 
-            canvas {
-                display: block;
-                width: 100vw;
-                height: 100vh;
-            }
-        </style>
-        <script type="module">
-            import { ImGui, ImGuiImplWeb } from "https://esm.sh/@mori2003/jsimgui";
+      canvas {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+      }
+    </style>
+    <script type="module">
+      import { ImGui, ImGuiImplWeb } from "https://esm.sh/@mori2003/jsimgui";
 
-            const canvas = document.querySelector("#render-canvas");
+      const canvas = document.querySelector("#render-canvas");
 
-            await ImGuiImplWeb.Init({ canvas: canvas });
+      await ImGuiImplWeb.Init({ canvas: canvas });
 
-            function render() {
-                canvas.width = canvas.clientWidth;
-                canvas.height = canvas.clientHeight;
+      function render() {
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
 
-                ImGuiImplWeb.BeginRender();
+        ImGuiImplWeb.BeginRender();
 
-                ImGui.Begin("New Window");
-                ImGui.Text("Hello, World!");
-                ImGui.End();
-                ImGui.ShowDemoWindow();
+        ImGui.Begin("New Window");
+        ImGui.Text("Hello, World!");
+        ImGui.End();
+        ImGui.ShowDemoWindow();
 
-                ImGuiImplWeb.EndRender();
-                requestAnimationFrame(render);
-            }
-            requestAnimationFrame(render);
-        </script>
-    </head>
-    <body>
-        <canvas id="render-canvas"></canvas>
-    </body>
+        ImGuiImplWeb.EndRender();
+        requestAnimationFrame(render);
+      }
+      requestAnimationFrame(render);
+    </script>
+  </head>
+  <body>
+    <canvas id="render-canvas"></canvas>
+  </body>
 </html>
 ```
-
-
 
 ## Building
 
@@ -107,10 +105,12 @@ cd jsimgui
 ### 2. Build
 
 #### Using Docker Image
+
 ```bash
 docker build -t jsimgui -f .github/Dockerfile .
 docker run -v "$PWD:/workspace" jsimgui bash -c "npm install && node build.ts"
 ```
+
 #### Manually
 
 **Prerequisites**
