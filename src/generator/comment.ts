@@ -4,10 +4,8 @@ export type CommentBinding = {
 };
 
 function sanitize(text: string): string {
-  // Replace all forward slashes with escaped forward slashes to not break
-  // JsDoc comments. Also remove the leading "// " if it exists.
-  const escaped = text.replaceAll("/", "\\/");
-  return escaped.startsWith("//") ? escaped.slice(5) : escaped;
+  const escaped = text.replaceAll("*/", "* /");
+  return escaped.slice(3);
 }
 
 function toJsDocLine(text: string): string {
