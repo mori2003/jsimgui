@@ -100,7 +100,7 @@ function getValueStructsCpp(): string {
 
 export function generateImGuiBindings(): void {
     const configFile = readFileSync("./src/imgui/config.json", "utf-8");
-    const dataFile = readFileSync("./third_party/dear_bindings/dcimgui.json", "utf-8");
+    const dataFile = readFileSync("./src/imgui/data/dcimgui.json", "utf-8");
 
     const config = JSON.parse(configFile) as GeneratorConfig;
     const data = filterData(JSON.parse(dataFile), true, true) as DearBindingsData;
