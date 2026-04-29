@@ -13,7 +13,7 @@ import {
 import { getStructCodeTs } from "../generator/struct.ts";
 import { getStructCodeCpp } from "../generator/struct-cpp.ts";
 import { getTypedefCodeTs } from "../generator/typedef.ts";
-import { filterData } from "./filter.ts";
+import { filterData } from "../generator/filter.ts";
 
 function getFreeTypeEnumTs(): string {
     return (
