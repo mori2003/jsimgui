@@ -25,9 +25,8 @@
   "exports": "./build/imgui.js",
   "devDependencies": {
     "@types/node": "latest",
-    "@webgpu/types": "latest",
+    "@typescript/native-preview": "7.0.0-dev.20260421.2",
     "oxfmt": "0.47.0",
-    "oxlint": "1.62.0",
-    "typescript": "latest"
+    "oxlint": "1.62.0"
   }
 }
