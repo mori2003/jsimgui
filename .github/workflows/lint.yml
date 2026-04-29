@@ -16,5 +16,5 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
       - run: npm ci
-      - run: node_modules/.bin/oxlint --check
+      - run: node_modules/.bin/oxlint --format=github
       - run: node_modules/.bin/oxfmt --check
