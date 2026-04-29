@@ -4,7 +4,7 @@
   "name": "@mori2003/jsimgui",
   "version": "0.13.0",
   "license": "MIT",
-  "exports": "./build/mod.js",
+  "exports": "./build/imgui.js",
   "publish": {
     "include": ["LICENSE", "README.md", "./build/"]
   }

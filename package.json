@@ -21,8 +21,8 @@
     "./build/"
   ],
   "type": "module",
-  "types": "./build/mod.d.ts",
-  "exports": "./build/mod.js",
+  "types": "./build/imgui.d.ts",
+  "exports": "./build/imgui.js",
   "devDependencies": {
     "@types/node": "latest",
     "@webgpu/types": "latest",
