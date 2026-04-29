@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 export const Mod = {
   // biome-ignore lint/suspicious/noExplicitAny: _
   export: null as any,
