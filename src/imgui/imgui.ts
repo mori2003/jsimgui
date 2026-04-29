@@ -11,15 +11,15 @@ export const Mod = {
         } else if (enableFreeType) {
             MainExport = extensions
                 ? // @ts-expect-error
-                  await import("./wasm/loader-freetype-extensions.em.js")
+                  await import("./loader-freetype-extensions.js")
                 : // @ts-expect-error
-                  await import("./wasm/loader-freetype.em.js");
+                  await import("./loader-freetype.js");
         } else {
             MainExport = extensions
                 ? // @ts-expect-error
-                  await import("./wasm/loader-extensions.em.js")
+                  await import("./loader-extensions.js")
                 : // @ts-expect-error
-                  await import("./wasm/loader.em.js");
+                  await import("./loader.js");
         }
 
         Mod.export = await MainExport.default();
@@ -183,9 +183,9 @@ export function loadTextureWebGPU(
     const processTexture = () => {
         const texture = device.createTexture({
             usage:
-                GPUTextureUsage.COPY_DST |
-                GPUTextureUsage.TEXTURE_BINDING |
-                GPUTextureUsage.RENDER_ATTACHMENT,
+                0x02 |
+                0x04 |
+                0x10,
             dimension: "2d",
             size: { width, height, depthOrArrayLayers: 1 },
             format: "rgba8unorm",
