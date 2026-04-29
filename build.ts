@@ -123,8 +123,8 @@ stdout.write(execSync(cmd).toString());
 stdout.write("Compiling TS...\n");
 stdout.write(execSync("node_modules/.bin/tsc --project src/tsconfig.build.json").toString());
 
-//stdout.write("Formatting Files...\n");
-//stdout.write(execSync("node_modules/.bin/oxfmt").toString());
+stdout.write("Formatting Files...\n");
+stdout.write(execSync("node_modules/.bin/oxfmt").toString());
 
 stdout.write("Done.\n");
 
