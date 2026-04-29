@@ -38,8 +38,8 @@ jobs:
           source .venv/bin/activate
           node build.ts
           node build.ts --extensions
-          node build.ts --font-loader=freetype
-          node build.ts --font-loader=freetype --extensions
+          node build.ts --freetype
+          node build.ts --extensions --freetype
       - uses: actions/upload-artifact@v4
         with:
           name: jsimgui
