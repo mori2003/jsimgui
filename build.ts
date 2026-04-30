@@ -102,6 +102,12 @@ if (cfg.extensions) {
   emccConfig.sources.push("src/imnodes/imnodes.cpp");
   emccConfig.sources.push("third_party/imnodes/imnodes.cpp");
   emccConfig.includes.push("third_party/imnodes/");
+
+  emccConfig.sources.push("src/implot/implot.cpp");
+  emccConfig.sources.push("third_party/implot/implot.cpp");
+  emccConfig.sources.push("third_party/implot/implot_items.cpp");
+  emccConfig.sources.push("third_party/implot/implot_demo.cpp");
+  emccConfig.includes.push("third_party/implot/");
 }
 
 const outPath = `build/loader${cfg.extensions ? "-extensions" : ""}${cfg.freetype ? "-freetype" : ""}.js`;
@@ -127,7 +133,13 @@ renameSync("src/imgui/gen/imgui.js", "build/imgui.js");
 renameSync("src/imgui/gen/imgui.d.ts", "build/imgui.d.ts");
 renameSync("src/imnodes/imnodes.js", "build/imnodes.js");
 renameSync("src/imnodes/imnodes.d.ts", "build/imnodes.d.ts");
-const content = `export * from "./imgui.js";\nexport * from "./imnodes.js";\n`;
+renameSync("src/implot/implot.js", "build/implot.js");
+renameSync("src/implot/implot.d.ts", "build/implot.d.ts");
+const content = [
+  'export * from "./imgui.js";',
+  'export * from "./imnodes.js";',
+  'export * from "./implot.js";',
+].join("\n");
 writeFileSync("build/mod.js", content);
 
 stdout.write("Formatting Files...\n");
