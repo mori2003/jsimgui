@@ -1,8 +1,7 @@
 {
-  "include": ["imgui/gen/imgui.ts"],
+  "include": ["imgui/gen/imgui.ts", "imnodes/imnodes.ts"],
   "compilerOptions": {
-    "outDir": "../build",
-    "rootDir": "imgui/gen",
+    "rootDir": "src",
     "declaration": true,
     "erasableSyntaxOnly": true
   }

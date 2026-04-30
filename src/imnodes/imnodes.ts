@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { Mod, ReferenceStruct } from "./core.js";
-import { ImVec2 } from "./imgui.js";
+
+import { Mod, ReferenceStruct, ImVec2 } from "./imgui.js";
 
 export type ImNodesCol = number;
 export type ImNodesStyleVar = number;

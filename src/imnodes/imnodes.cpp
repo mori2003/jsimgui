@@ -1,13 +1,11 @@
 #include <util.hpp>
 
 #include <imnodes_internal.h>
-
 #include <imnodes.h>
 
 #include <string>
 
-// clang-format off
-static auto const IMNODES = bindings([]() {
+EMSCRIPTEN_BINDINGS(imnodes) {
 
 emscripten::value_object<ImVec2>("ImVec2")
     .field("x", &ImVec2::x)
@@ -449,5 +447,4 @@ bind_fn("ImNodes_LoadEditorStateFromIniString", [](ImNodesEditorContext* editor,
     ImNodes::LoadEditorStateFromIniString(editor, data.c_str(), data.size());
 }, allow_raw_ptrs{});
 
-});
-// clang-format on
+}

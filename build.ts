@@ -1,6 +1,6 @@
 import { argv, exit, stdout } from "node:process";
 import { execSync } from "node:child_process";
-import { statSync, mkdirSync, rmSync } from "node:fs";
+import { statSync, mkdirSync, rmSync, renameSync, writeFileSync } from "node:fs";
 import { generateImGuiBindings } from "./src/imgui/main.ts";
 
 const args = argv.slice(2);
@@ -68,7 +68,7 @@ const emccConfig = {
     "third_party/imgui/backends/imgui_impl_opengl3.cpp",
     "third_party/imgui/backends/imgui_impl_wgpu.cpp",
   ],
-  includes: ["src/imgui/data", "third_party/imgui/", "third_party/imgui/backends"],
+  includes: ["src/imgui/", "src/imgui/data", "third_party/imgui/", "third_party/imgui/backends"],
   flags: [
     "--cache=./.em_cache",
     "-std=c++26",
@@ -99,6 +99,7 @@ if (cfg.freetype) {
 }
 
 if (cfg.extensions) {
+  emccConfig.sources.push("src/imnodes/imnodes.cpp");
   emccConfig.sources.push("third_party/imnodes/imnodes.cpp");
   emccConfig.includes.push("third_party/imnodes/");
 }
@@ -122,6 +123,12 @@ stdout.write(execSync(cmd).toString());
 
 stdout.write("Compiling TS...\n");
 stdout.write(execSync("node_modules/.bin/tsgo --project src/tsconfig.build.json").toString());
+renameSync("src/imgui/gen/imgui.js", "build/imgui.js");
+renameSync("src/imgui/gen/imgui.d.ts", "build/imgui.d.ts");
+renameSync("src/imnodes/imnodes.js", "build/imnodes.js");
+renameSync("src/imnodes/imnodes.d.ts", "build/imnodes.d.ts");
+const content = `export * from "./imgui.js";\nexport * from "./imnodes.js";\n`;
+writeFileSync("build/mod.js", content);
 
 stdout.write("Formatting Files...\n");
 stdout.write(execSync("node_modules/.bin/oxfmt").toString());
