@@ -26,7 +26,7 @@ function getFields(context: GeneratorContext, struct: StructBinding): string {
       const getter =
         `.function("get_${field.name}", override([](${struct.name} const* self){\n` +
         `    return self->${field.name};\n` +
-        `}), rvp_ref{}, allow_raw_ptrs{})\n`;
+        `})${type.includes("*") ? ", rvp_ref{}" : ""}, allow_raw_ptrs{})\n`;
 
       const setter =
         `.function("set_${field.name}", override([](${struct.name}* self, ${type} value){\n` +

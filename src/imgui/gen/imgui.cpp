@@ -291,14 +291,14 @@ bind_struct<ImGuiTableSortSpecs>("ImGuiTableSortSpecs")
 
 .function("get_SpecsCount", override([](ImGuiTableSortSpecs const* self){
     return self->SpecsCount;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_SpecsCount", override([](ImGuiTableSortSpecs* self, int value){
     self->SpecsCount = value;
 }), allow_raw_ptrs{})
 
 .function("get_SpecsDirty", override([](ImGuiTableSortSpecs const* self){
     return self->SpecsDirty;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_SpecsDirty", override([](ImGuiTableSortSpecs* self, bool value){
     self->SpecsDirty = value;
 }), allow_raw_ptrs{})
@@ -308,28 +308,28 @@ bind_struct<ImGuiTableColumnSortSpecs>("ImGuiTableColumnSortSpecs")
 .constructor<>()
 .function("get_ColumnUserID", override([](ImGuiTableColumnSortSpecs const* self){
     return self->ColumnUserID;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ColumnUserID", override([](ImGuiTableColumnSortSpecs* self, ImGuiID value){
     self->ColumnUserID = value;
 }), allow_raw_ptrs{})
 
 .function("get_ColumnIndex", override([](ImGuiTableColumnSortSpecs const* self){
     return self->ColumnIndex;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ColumnIndex", override([](ImGuiTableColumnSortSpecs* self, ImS16 value){
     self->ColumnIndex = value;
 }), allow_raw_ptrs{})
 
 .function("get_SortOrder", override([](ImGuiTableColumnSortSpecs const* self){
     return self->SortOrder;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_SortOrder", override([](ImGuiTableColumnSortSpecs* self, ImS16 value){
     self->SortOrder = value;
 }), allow_raw_ptrs{})
 
 .function("get_SortDirection", override([](ImGuiTableColumnSortSpecs const* self){
     return self->SortDirection;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_SortDirection", override([](ImGuiTableColumnSortSpecs* self, ImGuiSortDirection value){
     self->SortDirection = value;
 }), allow_raw_ptrs{})
@@ -339,469 +339,469 @@ bind_struct<ImGuiStyle>("ImGuiStyle")
 .constructor<>()
 .function("get_FontSizeBase", override([](ImGuiStyle const* self){
     return self->FontSizeBase;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_FontSizeBase", override([](ImGuiStyle* self, float value){
     self->FontSizeBase = value;
 }), allow_raw_ptrs{})
 
 .function("get_FontScaleMain", override([](ImGuiStyle const* self){
     return self->FontScaleMain;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_FontScaleMain", override([](ImGuiStyle* self, float value){
     self->FontScaleMain = value;
 }), allow_raw_ptrs{})
 
 .function("get_FontScaleDpi", override([](ImGuiStyle const* self){
     return self->FontScaleDpi;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_FontScaleDpi", override([](ImGuiStyle* self, float value){
     self->FontScaleDpi = value;
 }), allow_raw_ptrs{})
 
 .function("get_Alpha", override([](ImGuiStyle const* self){
     return self->Alpha;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_Alpha", override([](ImGuiStyle* self, float value){
     self->Alpha = value;
 }), allow_raw_ptrs{})
 
 .function("get_DisabledAlpha", override([](ImGuiStyle const* self){
     return self->DisabledAlpha;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_DisabledAlpha", override([](ImGuiStyle* self, float value){
     self->DisabledAlpha = value;
 }), allow_raw_ptrs{})
 
 .function("get_WindowPadding", override([](ImGuiStyle const* self){
     return self->WindowPadding;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_WindowPadding", override([](ImGuiStyle* self, ImVec2 value){
     self->WindowPadding = value;
 }), allow_raw_ptrs{})
 
 .function("get_WindowRounding", override([](ImGuiStyle const* self){
     return self->WindowRounding;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_WindowRounding", override([](ImGuiStyle* self, float value){
     self->WindowRounding = value;
 }), allow_raw_ptrs{})
 
 .function("get_WindowBorderSize", override([](ImGuiStyle const* self){
     return self->WindowBorderSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_WindowBorderSize", override([](ImGuiStyle* self, float value){
     self->WindowBorderSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_WindowBorderHoverPadding", override([](ImGuiStyle const* self){
     return self->WindowBorderHoverPadding;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_WindowBorderHoverPadding", override([](ImGuiStyle* self, float value){
     self->WindowBorderHoverPadding = value;
 }), allow_raw_ptrs{})
 
 .function("get_WindowMinSize", override([](ImGuiStyle const* self){
     return self->WindowMinSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_WindowMinSize", override([](ImGuiStyle* self, ImVec2 value){
     self->WindowMinSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_WindowTitleAlign", override([](ImGuiStyle const* self){
     return self->WindowTitleAlign;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_WindowTitleAlign", override([](ImGuiStyle* self, ImVec2 value){
     self->WindowTitleAlign = value;
 }), allow_raw_ptrs{})
 
 .function("get_WindowMenuButtonPosition", override([](ImGuiStyle const* self){
     return self->WindowMenuButtonPosition;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_WindowMenuButtonPosition", override([](ImGuiStyle* self, ImGuiDir value){
     self->WindowMenuButtonPosition = value;
 }), allow_raw_ptrs{})
 
 .function("get_ChildRounding", override([](ImGuiStyle const* self){
     return self->ChildRounding;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ChildRounding", override([](ImGuiStyle* self, float value){
     self->ChildRounding = value;
 }), allow_raw_ptrs{})
 
 .function("get_ChildBorderSize", override([](ImGuiStyle const* self){
     return self->ChildBorderSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ChildBorderSize", override([](ImGuiStyle* self, float value){
     self->ChildBorderSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_PopupRounding", override([](ImGuiStyle const* self){
     return self->PopupRounding;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_PopupRounding", override([](ImGuiStyle* self, float value){
     self->PopupRounding = value;
 }), allow_raw_ptrs{})
 
 .function("get_PopupBorderSize", override([](ImGuiStyle const* self){
     return self->PopupBorderSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_PopupBorderSize", override([](ImGuiStyle* self, float value){
     self->PopupBorderSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_FramePadding", override([](ImGuiStyle const* self){
     return self->FramePadding;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_FramePadding", override([](ImGuiStyle* self, ImVec2 value){
     self->FramePadding = value;
 }), allow_raw_ptrs{})
 
 .function("get_FrameRounding", override([](ImGuiStyle const* self){
     return self->FrameRounding;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_FrameRounding", override([](ImGuiStyle* self, float value){
     self->FrameRounding = value;
 }), allow_raw_ptrs{})
 
 .function("get_FrameBorderSize", override([](ImGuiStyle const* self){
     return self->FrameBorderSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_FrameBorderSize", override([](ImGuiStyle* self, float value){
     self->FrameBorderSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_ItemSpacing", override([](ImGuiStyle const* self){
     return self->ItemSpacing;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ItemSpacing", override([](ImGuiStyle* self, ImVec2 value){
     self->ItemSpacing = value;
 }), allow_raw_ptrs{})
 
 .function("get_ItemInnerSpacing", override([](ImGuiStyle const* self){
     return self->ItemInnerSpacing;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ItemInnerSpacing", override([](ImGuiStyle* self, ImVec2 value){
     self->ItemInnerSpacing = value;
 }), allow_raw_ptrs{})
 
 .function("get_CellPadding", override([](ImGuiStyle const* self){
     return self->CellPadding;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_CellPadding", override([](ImGuiStyle* self, ImVec2 value){
     self->CellPadding = value;
 }), allow_raw_ptrs{})
 
 .function("get_TouchExtraPadding", override([](ImGuiStyle const* self){
     return self->TouchExtraPadding;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TouchExtraPadding", override([](ImGuiStyle* self, ImVec2 value){
     self->TouchExtraPadding = value;
 }), allow_raw_ptrs{})
 
 .function("get_IndentSpacing", override([](ImGuiStyle const* self){
     return self->IndentSpacing;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_IndentSpacing", override([](ImGuiStyle* self, float value){
     self->IndentSpacing = value;
 }), allow_raw_ptrs{})
 
 .function("get_ColumnsMinSpacing", override([](ImGuiStyle const* self){
     return self->ColumnsMinSpacing;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ColumnsMinSpacing", override([](ImGuiStyle* self, float value){
     self->ColumnsMinSpacing = value;
 }), allow_raw_ptrs{})
 
 .function("get_ScrollbarSize", override([](ImGuiStyle const* self){
     return self->ScrollbarSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ScrollbarSize", override([](ImGuiStyle* self, float value){
     self->ScrollbarSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_ScrollbarRounding", override([](ImGuiStyle const* self){
     return self->ScrollbarRounding;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ScrollbarRounding", override([](ImGuiStyle* self, float value){
     self->ScrollbarRounding = value;
 }), allow_raw_ptrs{})
 
 .function("get_ScrollbarPadding", override([](ImGuiStyle const* self){
     return self->ScrollbarPadding;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ScrollbarPadding", override([](ImGuiStyle* self, float value){
     self->ScrollbarPadding = value;
 }), allow_raw_ptrs{})
 
 .function("get_GrabMinSize", override([](ImGuiStyle const* self){
     return self->GrabMinSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_GrabMinSize", override([](ImGuiStyle* self, float value){
     self->GrabMinSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_GrabRounding", override([](ImGuiStyle const* self){
     return self->GrabRounding;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_GrabRounding", override([](ImGuiStyle* self, float value){
     self->GrabRounding = value;
 }), allow_raw_ptrs{})
 
 .function("get_LogSliderDeadzone", override([](ImGuiStyle const* self){
     return self->LogSliderDeadzone;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_LogSliderDeadzone", override([](ImGuiStyle* self, float value){
     self->LogSliderDeadzone = value;
 }), allow_raw_ptrs{})
 
 .function("get_ImageRounding", override([](ImGuiStyle const* self){
     return self->ImageRounding;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ImageRounding", override([](ImGuiStyle* self, float value){
     self->ImageRounding = value;
 }), allow_raw_ptrs{})
 
 .function("get_ImageBorderSize", override([](ImGuiStyle const* self){
     return self->ImageBorderSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ImageBorderSize", override([](ImGuiStyle* self, float value){
     self->ImageBorderSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_TabRounding", override([](ImGuiStyle const* self){
     return self->TabRounding;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TabRounding", override([](ImGuiStyle* self, float value){
     self->TabRounding = value;
 }), allow_raw_ptrs{})
 
 .function("get_TabBorderSize", override([](ImGuiStyle const* self){
     return self->TabBorderSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TabBorderSize", override([](ImGuiStyle* self, float value){
     self->TabBorderSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_TabMinWidthBase", override([](ImGuiStyle const* self){
     return self->TabMinWidthBase;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TabMinWidthBase", override([](ImGuiStyle* self, float value){
     self->TabMinWidthBase = value;
 }), allow_raw_ptrs{})
 
 .function("get_TabMinWidthShrink", override([](ImGuiStyle const* self){
     return self->TabMinWidthShrink;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TabMinWidthShrink", override([](ImGuiStyle* self, float value){
     self->TabMinWidthShrink = value;
 }), allow_raw_ptrs{})
 
 .function("get_TabCloseButtonMinWidthSelected", override([](ImGuiStyle const* self){
     return self->TabCloseButtonMinWidthSelected;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TabCloseButtonMinWidthSelected", override([](ImGuiStyle* self, float value){
     self->TabCloseButtonMinWidthSelected = value;
 }), allow_raw_ptrs{})
 
 .function("get_TabCloseButtonMinWidthUnselected", override([](ImGuiStyle const* self){
     return self->TabCloseButtonMinWidthUnselected;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TabCloseButtonMinWidthUnselected", override([](ImGuiStyle* self, float value){
     self->TabCloseButtonMinWidthUnselected = value;
 }), allow_raw_ptrs{})
 
 .function("get_TabBarBorderSize", override([](ImGuiStyle const* self){
     return self->TabBarBorderSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TabBarBorderSize", override([](ImGuiStyle* self, float value){
     self->TabBarBorderSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_TabBarOverlineSize", override([](ImGuiStyle const* self){
     return self->TabBarOverlineSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TabBarOverlineSize", override([](ImGuiStyle* self, float value){
     self->TabBarOverlineSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_TableAngledHeadersAngle", override([](ImGuiStyle const* self){
     return self->TableAngledHeadersAngle;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TableAngledHeadersAngle", override([](ImGuiStyle* self, float value){
     self->TableAngledHeadersAngle = value;
 }), allow_raw_ptrs{})
 
 .function("get_TableAngledHeadersTextAlign", override([](ImGuiStyle const* self){
     return self->TableAngledHeadersTextAlign;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TableAngledHeadersTextAlign", override([](ImGuiStyle* self, ImVec2 value){
     self->TableAngledHeadersTextAlign = value;
 }), allow_raw_ptrs{})
 
 .function("get_TreeLinesFlags", override([](ImGuiStyle const* self){
     return self->TreeLinesFlags;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TreeLinesFlags", override([](ImGuiStyle* self, ImGuiTreeNodeFlags value){
     self->TreeLinesFlags = value;
 }), allow_raw_ptrs{})
 
 .function("get_TreeLinesSize", override([](ImGuiStyle const* self){
     return self->TreeLinesSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TreeLinesSize", override([](ImGuiStyle* self, float value){
     self->TreeLinesSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_TreeLinesRounding", override([](ImGuiStyle const* self){
     return self->TreeLinesRounding;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TreeLinesRounding", override([](ImGuiStyle* self, float value){
     self->TreeLinesRounding = value;
 }), allow_raw_ptrs{})
 
 .function("get_DragDropTargetRounding", override([](ImGuiStyle const* self){
     return self->DragDropTargetRounding;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_DragDropTargetRounding", override([](ImGuiStyle* self, float value){
     self->DragDropTargetRounding = value;
 }), allow_raw_ptrs{})
 
 .function("get_DragDropTargetBorderSize", override([](ImGuiStyle const* self){
     return self->DragDropTargetBorderSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_DragDropTargetBorderSize", override([](ImGuiStyle* self, float value){
     self->DragDropTargetBorderSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_DragDropTargetPadding", override([](ImGuiStyle const* self){
     return self->DragDropTargetPadding;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_DragDropTargetPadding", override([](ImGuiStyle* self, float value){
     self->DragDropTargetPadding = value;
 }), allow_raw_ptrs{})
 
 .function("get_ColorMarkerSize", override([](ImGuiStyle const* self){
     return self->ColorMarkerSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ColorMarkerSize", override([](ImGuiStyle* self, float value){
     self->ColorMarkerSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_ColorButtonPosition", override([](ImGuiStyle const* self){
     return self->ColorButtonPosition;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ColorButtonPosition", override([](ImGuiStyle* self, ImGuiDir value){
     self->ColorButtonPosition = value;
 }), allow_raw_ptrs{})
 
 .function("get_ButtonTextAlign", override([](ImGuiStyle const* self){
     return self->ButtonTextAlign;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ButtonTextAlign", override([](ImGuiStyle* self, ImVec2 value){
     self->ButtonTextAlign = value;
 }), allow_raw_ptrs{})
 
 .function("get_SelectableTextAlign", override([](ImGuiStyle const* self){
     return self->SelectableTextAlign;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_SelectableTextAlign", override([](ImGuiStyle* self, ImVec2 value){
     self->SelectableTextAlign = value;
 }), allow_raw_ptrs{})
 
 .function("get_SeparatorSize", override([](ImGuiStyle const* self){
     return self->SeparatorSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_SeparatorSize", override([](ImGuiStyle* self, float value){
     self->SeparatorSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_SeparatorTextBorderSize", override([](ImGuiStyle const* self){
     return self->SeparatorTextBorderSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_SeparatorTextBorderSize", override([](ImGuiStyle* self, float value){
     self->SeparatorTextBorderSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_SeparatorTextAlign", override([](ImGuiStyle const* self){
     return self->SeparatorTextAlign;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_SeparatorTextAlign", override([](ImGuiStyle* self, ImVec2 value){
     self->SeparatorTextAlign = value;
 }), allow_raw_ptrs{})
 
 .function("get_SeparatorTextPadding", override([](ImGuiStyle const* self){
     return self->SeparatorTextPadding;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_SeparatorTextPadding", override([](ImGuiStyle* self, ImVec2 value){
     self->SeparatorTextPadding = value;
 }), allow_raw_ptrs{})
 
 .function("get_DisplayWindowPadding", override([](ImGuiStyle const* self){
     return self->DisplayWindowPadding;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_DisplayWindowPadding", override([](ImGuiStyle* self, ImVec2 value){
     self->DisplayWindowPadding = value;
 }), allow_raw_ptrs{})
 
 .function("get_DisplaySafeAreaPadding", override([](ImGuiStyle const* self){
     return self->DisplaySafeAreaPadding;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_DisplaySafeAreaPadding", override([](ImGuiStyle* self, ImVec2 value){
     self->DisplaySafeAreaPadding = value;
 }), allow_raw_ptrs{})
 
 .function("get_DockingNodeHasCloseButton", override([](ImGuiStyle const* self){
     return self->DockingNodeHasCloseButton;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_DockingNodeHasCloseButton", override([](ImGuiStyle* self, bool value){
     self->DockingNodeHasCloseButton = value;
 }), allow_raw_ptrs{})
 
 .function("get_DockingSeparatorSize", override([](ImGuiStyle const* self){
     return self->DockingSeparatorSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_DockingSeparatorSize", override([](ImGuiStyle* self, float value){
     self->DockingSeparatorSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_MouseCursorScale", override([](ImGuiStyle const* self){
     return self->MouseCursorScale;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_MouseCursorScale", override([](ImGuiStyle* self, float value){
     self->MouseCursorScale = value;
 }), allow_raw_ptrs{})
 
 .function("get_AntiAliasedLines", override([](ImGuiStyle const* self){
     return self->AntiAliasedLines;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_AntiAliasedLines", override([](ImGuiStyle* self, bool value){
     self->AntiAliasedLines = value;
 }), allow_raw_ptrs{})
 
 .function("get_AntiAliasedLinesUseTex", override([](ImGuiStyle const* self){
     return self->AntiAliasedLinesUseTex;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_AntiAliasedLinesUseTex", override([](ImGuiStyle* self, bool value){
     self->AntiAliasedLinesUseTex = value;
 }), allow_raw_ptrs{})
 
 .function("get_AntiAliasedFill", override([](ImGuiStyle const* self){
     return self->AntiAliasedFill;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_AntiAliasedFill", override([](ImGuiStyle* self, bool value){
     self->AntiAliasedFill = value;
 }), allow_raw_ptrs{})
 
 .function("get_CurveTessellationTol", override([](ImGuiStyle const* self){
     return self->CurveTessellationTol;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_CurveTessellationTol", override([](ImGuiStyle* self, float value){
     self->CurveTessellationTol = value;
 }), allow_raw_ptrs{})
 
 .function("get_CircleTessellationMaxError", override([](ImGuiStyle const* self){
     return self->CircleTessellationMaxError;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_CircleTessellationMaxError", override([](ImGuiStyle* self, float value){
     self->CircleTessellationMaxError = value;
 }), allow_raw_ptrs{})
@@ -822,35 +822,35 @@ bind_struct<ImGuiStyle>("ImGuiStyle")
 
 .function("get_HoverStationaryDelay", override([](ImGuiStyle const* self){
     return self->HoverStationaryDelay;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_HoverStationaryDelay", override([](ImGuiStyle* self, float value){
     self->HoverStationaryDelay = value;
 }), allow_raw_ptrs{})
 
 .function("get_HoverDelayShort", override([](ImGuiStyle const* self){
     return self->HoverDelayShort;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_HoverDelayShort", override([](ImGuiStyle* self, float value){
     self->HoverDelayShort = value;
 }), allow_raw_ptrs{})
 
 .function("get_HoverDelayNormal", override([](ImGuiStyle const* self){
     return self->HoverDelayNormal;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_HoverDelayNormal", override([](ImGuiStyle* self, float value){
     self->HoverDelayNormal = value;
 }), allow_raw_ptrs{})
 
 .function("get_HoverFlagsForTooltipMouse", override([](ImGuiStyle const* self){
     return self->HoverFlagsForTooltipMouse;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_HoverFlagsForTooltipMouse", override([](ImGuiStyle* self, ImGuiHoveredFlags value){
     self->HoverFlagsForTooltipMouse = value;
 }), allow_raw_ptrs{})
 
 .function("get_HoverFlagsForTooltipNav", override([](ImGuiStyle const* self){
     return self->HoverFlagsForTooltipNav;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_HoverFlagsForTooltipNav", override([](ImGuiStyle* self, ImGuiHoveredFlags value){
     self->HoverFlagsForTooltipNav = value;
 }), allow_raw_ptrs{})
@@ -864,42 +864,42 @@ bind_struct<ImGuiIO>("ImGuiIO")
 .constructor<>()
 .function("get_ConfigFlags", override([](ImGuiIO const* self){
     return self->ConfigFlags;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigFlags", override([](ImGuiIO* self, ImGuiConfigFlags value){
     self->ConfigFlags = value;
 }), allow_raw_ptrs{})
 
 .function("get_BackendFlags", override([](ImGuiIO const* self){
     return self->BackendFlags;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_BackendFlags", override([](ImGuiIO* self, ImGuiBackendFlags value){
     self->BackendFlags = value;
 }), allow_raw_ptrs{})
 
 .function("get_DisplaySize", override([](ImGuiIO const* self){
     return self->DisplaySize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_DisplaySize", override([](ImGuiIO* self, ImVec2 value){
     self->DisplaySize = value;
 }), allow_raw_ptrs{})
 
 .function("get_DisplayFramebufferScale", override([](ImGuiIO const* self){
     return self->DisplayFramebufferScale;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_DisplayFramebufferScale", override([](ImGuiIO* self, ImVec2 value){
     self->DisplayFramebufferScale = value;
 }), allow_raw_ptrs{})
 
 .function("get_DeltaTime", override([](ImGuiIO const* self){
     return self->DeltaTime;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_DeltaTime", override([](ImGuiIO* self, float value){
     self->DeltaTime = value;
 }), allow_raw_ptrs{})
 
 .function("get_IniSavingRate", override([](ImGuiIO const* self){
     return self->IniSavingRate;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_IniSavingRate", override([](ImGuiIO* self, float value){
     self->IniSavingRate = value;
 }), allow_raw_ptrs{})
@@ -941,329 +941,329 @@ bind_struct<ImGuiIO>("ImGuiIO")
 
 .function("get_FontAllowUserScaling", override([](ImGuiIO const* self){
     return self->FontAllowUserScaling;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_FontAllowUserScaling", override([](ImGuiIO* self, bool value){
     self->FontAllowUserScaling = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigNavSwapGamepadButtons", override([](ImGuiIO const* self){
     return self->ConfigNavSwapGamepadButtons;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigNavSwapGamepadButtons", override([](ImGuiIO* self, bool value){
     self->ConfigNavSwapGamepadButtons = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigNavMoveSetMousePos", override([](ImGuiIO const* self){
     return self->ConfigNavMoveSetMousePos;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigNavMoveSetMousePos", override([](ImGuiIO* self, bool value){
     self->ConfigNavMoveSetMousePos = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigNavCaptureKeyboard", override([](ImGuiIO const* self){
     return self->ConfigNavCaptureKeyboard;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigNavCaptureKeyboard", override([](ImGuiIO* self, bool value){
     self->ConfigNavCaptureKeyboard = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigNavEscapeClearFocusItem", override([](ImGuiIO const* self){
     return self->ConfigNavEscapeClearFocusItem;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigNavEscapeClearFocusItem", override([](ImGuiIO* self, bool value){
     self->ConfigNavEscapeClearFocusItem = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigNavEscapeClearFocusWindow", override([](ImGuiIO const* self){
     return self->ConfigNavEscapeClearFocusWindow;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigNavEscapeClearFocusWindow", override([](ImGuiIO* self, bool value){
     self->ConfigNavEscapeClearFocusWindow = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigNavCursorVisibleAuto", override([](ImGuiIO const* self){
     return self->ConfigNavCursorVisibleAuto;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigNavCursorVisibleAuto", override([](ImGuiIO* self, bool value){
     self->ConfigNavCursorVisibleAuto = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigNavCursorVisibleAlways", override([](ImGuiIO const* self){
     return self->ConfigNavCursorVisibleAlways;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigNavCursorVisibleAlways", override([](ImGuiIO* self, bool value){
     self->ConfigNavCursorVisibleAlways = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigDockingNoSplit", override([](ImGuiIO const* self){
     return self->ConfigDockingNoSplit;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigDockingNoSplit", override([](ImGuiIO* self, bool value){
     self->ConfigDockingNoSplit = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigDockingNoDockingOver", override([](ImGuiIO const* self){
     return self->ConfigDockingNoDockingOver;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigDockingNoDockingOver", override([](ImGuiIO* self, bool value){
     self->ConfigDockingNoDockingOver = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigDockingWithShift", override([](ImGuiIO const* self){
     return self->ConfigDockingWithShift;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigDockingWithShift", override([](ImGuiIO* self, bool value){
     self->ConfigDockingWithShift = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigDockingAlwaysTabBar", override([](ImGuiIO const* self){
     return self->ConfigDockingAlwaysTabBar;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigDockingAlwaysTabBar", override([](ImGuiIO* self, bool value){
     self->ConfigDockingAlwaysTabBar = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigDockingTransparentPayload", override([](ImGuiIO const* self){
     return self->ConfigDockingTransparentPayload;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigDockingTransparentPayload", override([](ImGuiIO* self, bool value){
     self->ConfigDockingTransparentPayload = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigViewportsNoAutoMerge", override([](ImGuiIO const* self){
     return self->ConfigViewportsNoAutoMerge;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigViewportsNoAutoMerge", override([](ImGuiIO* self, bool value){
     self->ConfigViewportsNoAutoMerge = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigViewportsNoTaskBarIcon", override([](ImGuiIO const* self){
     return self->ConfigViewportsNoTaskBarIcon;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigViewportsNoTaskBarIcon", override([](ImGuiIO* self, bool value){
     self->ConfigViewportsNoTaskBarIcon = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigViewportsNoDecoration", override([](ImGuiIO const* self){
     return self->ConfigViewportsNoDecoration;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigViewportsNoDecoration", override([](ImGuiIO* self, bool value){
     self->ConfigViewportsNoDecoration = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigViewportsNoDefaultParent", override([](ImGuiIO const* self){
     return self->ConfigViewportsNoDefaultParent;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigViewportsNoDefaultParent", override([](ImGuiIO* self, bool value){
     self->ConfigViewportsNoDefaultParent = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigViewportsPlatformFocusSetsImGuiFocus", override([](ImGuiIO const* self){
     return self->ConfigViewportsPlatformFocusSetsImGuiFocus;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigViewportsPlatformFocusSetsImGuiFocus", override([](ImGuiIO* self, bool value){
     self->ConfigViewportsPlatformFocusSetsImGuiFocus = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigDpiScaleFonts", override([](ImGuiIO const* self){
     return self->ConfigDpiScaleFonts;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigDpiScaleFonts", override([](ImGuiIO* self, bool value){
     self->ConfigDpiScaleFonts = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigDpiScaleViewports", override([](ImGuiIO const* self){
     return self->ConfigDpiScaleViewports;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigDpiScaleViewports", override([](ImGuiIO* self, bool value){
     self->ConfigDpiScaleViewports = value;
 }), allow_raw_ptrs{})
 
 .function("get_MouseDrawCursor", override([](ImGuiIO const* self){
     return self->MouseDrawCursor;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_MouseDrawCursor", override([](ImGuiIO* self, bool value){
     self->MouseDrawCursor = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigMacOSXBehaviors", override([](ImGuiIO const* self){
     return self->ConfigMacOSXBehaviors;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigMacOSXBehaviors", override([](ImGuiIO* self, bool value){
     self->ConfigMacOSXBehaviors = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigInputTrickleEventQueue", override([](ImGuiIO const* self){
     return self->ConfigInputTrickleEventQueue;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigInputTrickleEventQueue", override([](ImGuiIO* self, bool value){
     self->ConfigInputTrickleEventQueue = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigInputTextCursorBlink", override([](ImGuiIO const* self){
     return self->ConfigInputTextCursorBlink;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigInputTextCursorBlink", override([](ImGuiIO* self, bool value){
     self->ConfigInputTextCursorBlink = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigInputTextEnterKeepActive", override([](ImGuiIO const* self){
     return self->ConfigInputTextEnterKeepActive;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigInputTextEnterKeepActive", override([](ImGuiIO* self, bool value){
     self->ConfigInputTextEnterKeepActive = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigDragClickToInputText", override([](ImGuiIO const* self){
     return self->ConfigDragClickToInputText;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigDragClickToInputText", override([](ImGuiIO* self, bool value){
     self->ConfigDragClickToInputText = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigWindowsResizeFromEdges", override([](ImGuiIO const* self){
     return self->ConfigWindowsResizeFromEdges;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigWindowsResizeFromEdges", override([](ImGuiIO* self, bool value){
     self->ConfigWindowsResizeFromEdges = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigWindowsMoveFromTitleBarOnly", override([](ImGuiIO const* self){
     return self->ConfigWindowsMoveFromTitleBarOnly;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigWindowsMoveFromTitleBarOnly", override([](ImGuiIO* self, bool value){
     self->ConfigWindowsMoveFromTitleBarOnly = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigWindowsCopyContentsWithCtrlC", override([](ImGuiIO const* self){
     return self->ConfigWindowsCopyContentsWithCtrlC;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigWindowsCopyContentsWithCtrlC", override([](ImGuiIO* self, bool value){
     self->ConfigWindowsCopyContentsWithCtrlC = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigScrollbarScrollByPage", override([](ImGuiIO const* self){
     return self->ConfigScrollbarScrollByPage;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigScrollbarScrollByPage", override([](ImGuiIO* self, bool value){
     self->ConfigScrollbarScrollByPage = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigMemoryCompactTimer", override([](ImGuiIO const* self){
     return self->ConfigMemoryCompactTimer;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigMemoryCompactTimer", override([](ImGuiIO* self, float value){
     self->ConfigMemoryCompactTimer = value;
 }), allow_raw_ptrs{})
 
 .function("get_MouseDoubleClickTime", override([](ImGuiIO const* self){
     return self->MouseDoubleClickTime;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_MouseDoubleClickTime", override([](ImGuiIO* self, float value){
     self->MouseDoubleClickTime = value;
 }), allow_raw_ptrs{})
 
 .function("get_MouseDoubleClickMaxDist", override([](ImGuiIO const* self){
     return self->MouseDoubleClickMaxDist;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_MouseDoubleClickMaxDist", override([](ImGuiIO* self, float value){
     self->MouseDoubleClickMaxDist = value;
 }), allow_raw_ptrs{})
 
 .function("get_MouseDragThreshold", override([](ImGuiIO const* self){
     return self->MouseDragThreshold;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_MouseDragThreshold", override([](ImGuiIO* self, float value){
     self->MouseDragThreshold = value;
 }), allow_raw_ptrs{})
 
 .function("get_KeyRepeatDelay", override([](ImGuiIO const* self){
     return self->KeyRepeatDelay;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_KeyRepeatDelay", override([](ImGuiIO* self, float value){
     self->KeyRepeatDelay = value;
 }), allow_raw_ptrs{})
 
 .function("get_KeyRepeatRate", override([](ImGuiIO const* self){
     return self->KeyRepeatRate;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_KeyRepeatRate", override([](ImGuiIO* self, float value){
     self->KeyRepeatRate = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigErrorRecovery", override([](ImGuiIO const* self){
     return self->ConfigErrorRecovery;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigErrorRecovery", override([](ImGuiIO* self, bool value){
     self->ConfigErrorRecovery = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigErrorRecoveryEnableAssert", override([](ImGuiIO const* self){
     return self->ConfigErrorRecoveryEnableAssert;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigErrorRecoveryEnableAssert", override([](ImGuiIO* self, bool value){
     self->ConfigErrorRecoveryEnableAssert = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigErrorRecoveryEnableDebugLog", override([](ImGuiIO const* self){
     return self->ConfigErrorRecoveryEnableDebugLog;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigErrorRecoveryEnableDebugLog", override([](ImGuiIO* self, bool value){
     self->ConfigErrorRecoveryEnableDebugLog = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigErrorRecoveryEnableTooltip", override([](ImGuiIO const* self){
     return self->ConfigErrorRecoveryEnableTooltip;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigErrorRecoveryEnableTooltip", override([](ImGuiIO* self, bool value){
     self->ConfigErrorRecoveryEnableTooltip = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigDebugIsDebuggerPresent", override([](ImGuiIO const* self){
     return self->ConfigDebugIsDebuggerPresent;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigDebugIsDebuggerPresent", override([](ImGuiIO* self, bool value){
     self->ConfigDebugIsDebuggerPresent = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigDebugHighlightIdConflicts", override([](ImGuiIO const* self){
     return self->ConfigDebugHighlightIdConflicts;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigDebugHighlightIdConflicts", override([](ImGuiIO* self, bool value){
     self->ConfigDebugHighlightIdConflicts = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigDebugHighlightIdConflictsShowItemPicker", override([](ImGuiIO const* self){
     return self->ConfigDebugHighlightIdConflictsShowItemPicker;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigDebugHighlightIdConflictsShowItemPicker", override([](ImGuiIO* self, bool value){
     self->ConfigDebugHighlightIdConflictsShowItemPicker = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigDebugBeginReturnValueOnce", override([](ImGuiIO const* self){
     return self->ConfigDebugBeginReturnValueOnce;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigDebugBeginReturnValueOnce", override([](ImGuiIO* self, bool value){
     self->ConfigDebugBeginReturnValueOnce = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigDebugBeginReturnValueLoop", override([](ImGuiIO const* self){
     return self->ConfigDebugBeginReturnValueLoop;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigDebugBeginReturnValueLoop", override([](ImGuiIO* self, bool value){
     self->ConfigDebugBeginReturnValueLoop = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigDebugIgnoreFocusLoss", override([](ImGuiIO const* self){
     return self->ConfigDebugIgnoreFocusLoss;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigDebugIgnoreFocusLoss", override([](ImGuiIO* self, bool value){
     self->ConfigDebugIgnoreFocusLoss = value;
 }), allow_raw_ptrs{})
 
 .function("get_ConfigDebugIniSettings", override([](ImGuiIO const* self){
     return self->ConfigDebugIniSettings;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ConfigDebugIniSettings", override([](ImGuiIO* self, bool value){
     self->ConfigDebugIniSettings = value;
 }), allow_raw_ptrs{})
@@ -1305,91 +1305,91 @@ bind_struct<ImGuiIO>("ImGuiIO")
 
 .function("get_WantCaptureMouse", override([](ImGuiIO const* self){
     return self->WantCaptureMouse;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_WantCaptureMouse", override([](ImGuiIO* self, bool value){
     self->WantCaptureMouse = value;
 }), allow_raw_ptrs{})
 
 .function("get_WantCaptureKeyboard", override([](ImGuiIO const* self){
     return self->WantCaptureKeyboard;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_WantCaptureKeyboard", override([](ImGuiIO* self, bool value){
     self->WantCaptureKeyboard = value;
 }), allow_raw_ptrs{})
 
 .function("get_WantTextInput", override([](ImGuiIO const* self){
     return self->WantTextInput;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_WantTextInput", override([](ImGuiIO* self, bool value){
     self->WantTextInput = value;
 }), allow_raw_ptrs{})
 
 .function("get_WantSetMousePos", override([](ImGuiIO const* self){
     return self->WantSetMousePos;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_WantSetMousePos", override([](ImGuiIO* self, bool value){
     self->WantSetMousePos = value;
 }), allow_raw_ptrs{})
 
 .function("get_WantSaveIniSettings", override([](ImGuiIO const* self){
     return self->WantSaveIniSettings;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_WantSaveIniSettings", override([](ImGuiIO* self, bool value){
     self->WantSaveIniSettings = value;
 }), allow_raw_ptrs{})
 
 .function("get_NavActive", override([](ImGuiIO const* self){
     return self->NavActive;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_NavActive", override([](ImGuiIO* self, bool value){
     self->NavActive = value;
 }), allow_raw_ptrs{})
 
 .function("get_NavVisible", override([](ImGuiIO const* self){
     return self->NavVisible;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_NavVisible", override([](ImGuiIO* self, bool value){
     self->NavVisible = value;
 }), allow_raw_ptrs{})
 
 .function("get_Framerate", override([](ImGuiIO const* self){
     return self->Framerate;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_Framerate", override([](ImGuiIO* self, float value){
     self->Framerate = value;
 }), allow_raw_ptrs{})
 
 .function("get_MetricsRenderVertices", override([](ImGuiIO const* self){
     return self->MetricsRenderVertices;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_MetricsRenderVertices", override([](ImGuiIO* self, int value){
     self->MetricsRenderVertices = value;
 }), allow_raw_ptrs{})
 
 .function("get_MetricsRenderIndices", override([](ImGuiIO const* self){
     return self->MetricsRenderIndices;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_MetricsRenderIndices", override([](ImGuiIO* self, int value){
     self->MetricsRenderIndices = value;
 }), allow_raw_ptrs{})
 
 .function("get_MetricsRenderWindows", override([](ImGuiIO const* self){
     return self->MetricsRenderWindows;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_MetricsRenderWindows", override([](ImGuiIO* self, int value){
     self->MetricsRenderWindows = value;
 }), allow_raw_ptrs{})
 
 .function("get_MetricsActiveWindows", override([](ImGuiIO const* self){
     return self->MetricsActiveWindows;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_MetricsActiveWindows", override([](ImGuiIO* self, int value){
     self->MetricsActiveWindows = value;
 }), allow_raw_ptrs{})
 
 .function("get_MouseDelta", override([](ImGuiIO const* self){
     return self->MouseDelta;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_MouseDelta", override([](ImGuiIO* self, ImVec2 value){
     self->MouseDelta = value;
 }), allow_raw_ptrs{})
@@ -1403,126 +1403,126 @@ bind_struct<ImGuiIO>("ImGuiIO")
 
 .function("get_MousePos", override([](ImGuiIO const* self){
     return self->MousePos;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_MousePos", override([](ImGuiIO* self, ImVec2 value){
     self->MousePos = value;
 }), allow_raw_ptrs{})
 
 .function("get_MouseWheel", override([](ImGuiIO const* self){
     return self->MouseWheel;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_MouseWheel", override([](ImGuiIO* self, float value){
     self->MouseWheel = value;
 }), allow_raw_ptrs{})
 
 .function("get_MouseWheelH", override([](ImGuiIO const* self){
     return self->MouseWheelH;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_MouseWheelH", override([](ImGuiIO* self, float value){
     self->MouseWheelH = value;
 }), allow_raw_ptrs{})
 
 .function("get_MouseSource", override([](ImGuiIO const* self){
     return self->MouseSource;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_MouseSource", override([](ImGuiIO* self, ImGuiMouseSource value){
     self->MouseSource = value;
 }), allow_raw_ptrs{})
 
 .function("get_MouseHoveredViewport", override([](ImGuiIO const* self){
     return self->MouseHoveredViewport;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_MouseHoveredViewport", override([](ImGuiIO* self, ImGuiID value){
     self->MouseHoveredViewport = value;
 }), allow_raw_ptrs{})
 
 .function("get_KeyCtrl", override([](ImGuiIO const* self){
     return self->KeyCtrl;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_KeyCtrl", override([](ImGuiIO* self, bool value){
     self->KeyCtrl = value;
 }), allow_raw_ptrs{})
 
 .function("get_KeyShift", override([](ImGuiIO const* self){
     return self->KeyShift;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_KeyShift", override([](ImGuiIO* self, bool value){
     self->KeyShift = value;
 }), allow_raw_ptrs{})
 
 .function("get_KeyAlt", override([](ImGuiIO const* self){
     return self->KeyAlt;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_KeyAlt", override([](ImGuiIO* self, bool value){
     self->KeyAlt = value;
 }), allow_raw_ptrs{})
 
 .function("get_KeySuper", override([](ImGuiIO const* self){
     return self->KeySuper;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_KeySuper", override([](ImGuiIO* self, bool value){
     self->KeySuper = value;
 }), allow_raw_ptrs{})
 
 .function("get_KeyMods", override([](ImGuiIO const* self){
     return self->KeyMods;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_KeyMods", override([](ImGuiIO* self, ImGuiKeyChord value){
     self->KeyMods = value;
 }), allow_raw_ptrs{})
 
 .function("get_WantCaptureMouseUnlessPopupClose", override([](ImGuiIO const* self){
     return self->WantCaptureMouseUnlessPopupClose;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_WantCaptureMouseUnlessPopupClose", override([](ImGuiIO* self, bool value){
     self->WantCaptureMouseUnlessPopupClose = value;
 }), allow_raw_ptrs{})
 
 .function("get_MousePosPrev", override([](ImGuiIO const* self){
     return self->MousePosPrev;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_MousePosPrev", override([](ImGuiIO* self, ImVec2 value){
     self->MousePosPrev = value;
 }), allow_raw_ptrs{})
 
 .function("get_MouseWheelRequestAxisSwap", override([](ImGuiIO const* self){
     return self->MouseWheelRequestAxisSwap;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_MouseWheelRequestAxisSwap", override([](ImGuiIO* self, bool value){
     self->MouseWheelRequestAxisSwap = value;
 }), allow_raw_ptrs{})
 
 .function("get_MouseCtrlLeftAsRightClick", override([](ImGuiIO const* self){
     return self->MouseCtrlLeftAsRightClick;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_MouseCtrlLeftAsRightClick", override([](ImGuiIO* self, bool value){
     self->MouseCtrlLeftAsRightClick = value;
 }), allow_raw_ptrs{})
 
 .function("get_PenPressure", override([](ImGuiIO const* self){
     return self->PenPressure;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_PenPressure", override([](ImGuiIO* self, float value){
     self->PenPressure = value;
 }), allow_raw_ptrs{})
 
 .function("get_AppFocusLost", override([](ImGuiIO const* self){
     return self->AppFocusLost;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_AppFocusLost", override([](ImGuiIO* self, bool value){
     self->AppFocusLost = value;
 }), allow_raw_ptrs{})
 
 .function("get_AppAcceptingEvents", override([](ImGuiIO const* self){
     return self->AppAcceptingEvents;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_AppAcceptingEvents", override([](ImGuiIO* self, bool value){
     self->AppAcceptingEvents = value;
 }), allow_raw_ptrs{})
 
 .function("get_InputQueueSurrogate", override([](ImGuiIO const* self){
     return self->InputQueueSurrogate;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_InputQueueSurrogate", override([](ImGuiIO* self, ImWchar16 value){
     self->InputQueueSurrogate = value;
 }), allow_raw_ptrs{})
@@ -1603,14 +1603,14 @@ bind_struct<ImGuiInputTextCallbackData>("ImGuiInputTextCallbackData")
 
 .function("get_EventFlag", override([](ImGuiInputTextCallbackData const* self){
     return self->EventFlag;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_EventFlag", override([](ImGuiInputTextCallbackData* self, ImGuiInputTextFlags value){
     self->EventFlag = value;
 }), allow_raw_ptrs{})
 
 .function("get_Flags", override([](ImGuiInputTextCallbackData const* self){
     return self->Flags;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_Flags", override([](ImGuiInputTextCallbackData* self, ImGuiInputTextFlags value){
     self->Flags = value;
 }), allow_raw_ptrs{})
@@ -1624,35 +1624,35 @@ bind_struct<ImGuiInputTextCallbackData>("ImGuiInputTextCallbackData")
 
 .function("get_ID", override([](ImGuiInputTextCallbackData const* self){
     return self->ID;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ID", override([](ImGuiInputTextCallbackData* self, ImGuiID value){
     self->ID = value;
 }), allow_raw_ptrs{})
 
 .function("get_EventKey", override([](ImGuiInputTextCallbackData const* self){
     return self->EventKey;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_EventKey", override([](ImGuiInputTextCallbackData* self, ImGuiKey value){
     self->EventKey = value;
 }), allow_raw_ptrs{})
 
 .function("get_EventChar", override([](ImGuiInputTextCallbackData const* self){
     return self->EventChar;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_EventChar", override([](ImGuiInputTextCallbackData* self, ImWchar value){
     self->EventChar = value;
 }), allow_raw_ptrs{})
 
 .function("get_EventActivated", override([](ImGuiInputTextCallbackData const* self){
     return self->EventActivated;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_EventActivated", override([](ImGuiInputTextCallbackData* self, bool value){
     self->EventActivated = value;
 }), allow_raw_ptrs{})
 
 .function("get_BufDirty", override([](ImGuiInputTextCallbackData const* self){
     return self->BufDirty;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_BufDirty", override([](ImGuiInputTextCallbackData* self, bool value){
     self->BufDirty = value;
 }), allow_raw_ptrs{})
@@ -1666,35 +1666,35 @@ bind_struct<ImGuiInputTextCallbackData>("ImGuiInputTextCallbackData")
 
 .function("get_BufTextLen", override([](ImGuiInputTextCallbackData const* self){
     return self->BufTextLen;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_BufTextLen", override([](ImGuiInputTextCallbackData* self, int value){
     self->BufTextLen = value;
 }), allow_raw_ptrs{})
 
 .function("get_BufSize", override([](ImGuiInputTextCallbackData const* self){
     return self->BufSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_BufSize", override([](ImGuiInputTextCallbackData* self, int value){
     self->BufSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_CursorPos", override([](ImGuiInputTextCallbackData const* self){
     return self->CursorPos;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_CursorPos", override([](ImGuiInputTextCallbackData* self, int value){
     self->CursorPos = value;
 }), allow_raw_ptrs{})
 
 .function("get_SelectionStart", override([](ImGuiInputTextCallbackData const* self){
     return self->SelectionStart;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_SelectionStart", override([](ImGuiInputTextCallbackData* self, int value){
     self->SelectionStart = value;
 }), allow_raw_ptrs{})
 
 .function("get_SelectionEnd", override([](ImGuiInputTextCallbackData const* self){
     return self->SelectionEnd;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_SelectionEnd", override([](ImGuiInputTextCallbackData* self, int value){
     self->SelectionEnd = value;
 }), allow_raw_ptrs{})
@@ -1735,21 +1735,21 @@ bind_struct<ImGuiSizeCallbackData>("ImGuiSizeCallbackData")
 
 .function("get_Pos", override([](ImGuiSizeCallbackData const* self){
     return self->Pos;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_Pos", override([](ImGuiSizeCallbackData* self, ImVec2 value){
     self->Pos = value;
 }), allow_raw_ptrs{})
 
 .function("get_CurrentSize", override([](ImGuiSizeCallbackData const* self){
     return self->CurrentSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_CurrentSize", override([](ImGuiSizeCallbackData* self, ImVec2 value){
     self->CurrentSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_DesiredSize", override([](ImGuiSizeCallbackData const* self){
     return self->DesiredSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_DesiredSize", override([](ImGuiSizeCallbackData* self, ImVec2 value){
     self->DesiredSize = value;
 }), allow_raw_ptrs{})
@@ -1759,63 +1759,63 @@ bind_struct<ImGuiWindowClass>("ImGuiWindowClass")
 .constructor<>()
 .function("get_ClassId", override([](ImGuiWindowClass const* self){
     return self->ClassId;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ClassId", override([](ImGuiWindowClass* self, ImGuiID value){
     self->ClassId = value;
 }), allow_raw_ptrs{})
 
 .function("get_ParentViewportId", override([](ImGuiWindowClass const* self){
     return self->ParentViewportId;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ParentViewportId", override([](ImGuiWindowClass* self, ImGuiID value){
     self->ParentViewportId = value;
 }), allow_raw_ptrs{})
 
 .function("get_FocusRouteParentWindowId", override([](ImGuiWindowClass const* self){
     return self->FocusRouteParentWindowId;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_FocusRouteParentWindowId", override([](ImGuiWindowClass* self, ImGuiID value){
     self->FocusRouteParentWindowId = value;
 }), allow_raw_ptrs{})
 
 .function("get_ViewportFlagsOverrideSet", override([](ImGuiWindowClass const* self){
     return self->ViewportFlagsOverrideSet;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ViewportFlagsOverrideSet", override([](ImGuiWindowClass* self, ImGuiViewportFlags value){
     self->ViewportFlagsOverrideSet = value;
 }), allow_raw_ptrs{})
 
 .function("get_ViewportFlagsOverrideClear", override([](ImGuiWindowClass const* self){
     return self->ViewportFlagsOverrideClear;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ViewportFlagsOverrideClear", override([](ImGuiWindowClass* self, ImGuiViewportFlags value){
     self->ViewportFlagsOverrideClear = value;
 }), allow_raw_ptrs{})
 
 .function("get_TabItemFlagsOverrideSet", override([](ImGuiWindowClass const* self){
     return self->TabItemFlagsOverrideSet;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TabItemFlagsOverrideSet", override([](ImGuiWindowClass* self, ImGuiTabItemFlags value){
     self->TabItemFlagsOverrideSet = value;
 }), allow_raw_ptrs{})
 
 .function("get_DockNodeFlagsOverrideSet", override([](ImGuiWindowClass const* self){
     return self->DockNodeFlagsOverrideSet;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_DockNodeFlagsOverrideSet", override([](ImGuiWindowClass* self, ImGuiDockNodeFlags value){
     self->DockNodeFlagsOverrideSet = value;
 }), allow_raw_ptrs{})
 
 .function("get_DockingAlwaysTabBar", override([](ImGuiWindowClass const* self){
     return self->DockingAlwaysTabBar;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_DockingAlwaysTabBar", override([](ImGuiWindowClass* self, bool value){
     self->DockingAlwaysTabBar = value;
 }), allow_raw_ptrs{})
 
 .function("get_DockingAllowUnclassed", override([](ImGuiWindowClass const* self){
     return self->DockingAllowUnclassed;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_DockingAllowUnclassed", override([](ImGuiWindowClass* self, bool value){
     self->DockingAllowUnclassed = value;
 }), allow_raw_ptrs{})
@@ -1846,56 +1846,56 @@ bind_struct<ImGuiListClipper>("ImGuiListClipper")
 .constructor<>()
 .function("get_DisplayStart", override([](ImGuiListClipper const* self){
     return self->DisplayStart;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_DisplayStart", override([](ImGuiListClipper* self, int value){
     self->DisplayStart = value;
 }), allow_raw_ptrs{})
 
 .function("get_DisplayEnd", override([](ImGuiListClipper const* self){
     return self->DisplayEnd;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_DisplayEnd", override([](ImGuiListClipper* self, int value){
     self->DisplayEnd = value;
 }), allow_raw_ptrs{})
 
 .function("get_UserIndex", override([](ImGuiListClipper const* self){
     return self->UserIndex;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_UserIndex", override([](ImGuiListClipper* self, int value){
     self->UserIndex = value;
 }), allow_raw_ptrs{})
 
 .function("get_ItemsCount", override([](ImGuiListClipper const* self){
     return self->ItemsCount;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ItemsCount", override([](ImGuiListClipper* self, int value){
     self->ItemsCount = value;
 }), allow_raw_ptrs{})
 
 .function("get_ItemsHeight", override([](ImGuiListClipper const* self){
     return self->ItemsHeight;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ItemsHeight", override([](ImGuiListClipper* self, float value){
     self->ItemsHeight = value;
 }), allow_raw_ptrs{})
 
 .function("get_Flags", override([](ImGuiListClipper const* self){
     return self->Flags;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_Flags", override([](ImGuiListClipper* self, ImGuiListClipperFlags value){
     self->Flags = value;
 }), allow_raw_ptrs{})
 
 .function("get_StartPosY", override([](ImGuiListClipper const* self){
     return self->StartPosY;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_StartPosY", override([](ImGuiListClipper* self, double value){
     self->StartPosY = value;
 }), allow_raw_ptrs{})
 
 .function("get_StartSeekOffsetY", override([](ImGuiListClipper const* self){
     return self->StartSeekOffsetY;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_StartSeekOffsetY", override([](ImGuiListClipper* self, double value){
     self->StartSeekOffsetY = value;
 }), allow_raw_ptrs{})
@@ -1943,7 +1943,7 @@ bind_struct<ImColor>("ImColor")
 .constructor<>()
 .function("get_Value", override([](ImColor const* self){
     return self->Value;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_Value", override([](ImColor* self, ImVec4 value){
     self->Value = value;
 }), allow_raw_ptrs{})
@@ -1964,42 +1964,42 @@ bind_struct<ImDrawCmd>("ImDrawCmd")
 .constructor<>()
 .function("get_ClipRect", override([](ImDrawCmd const* self){
     return self->ClipRect;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ClipRect", override([](ImDrawCmd* self, ImVec4 value){
     self->ClipRect = value;
 }), allow_raw_ptrs{})
 
 .function("get_TexRef", override([](ImDrawCmd const* self){
     return self->TexRef;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TexRef", override([](ImDrawCmd* self, ImTextureRef value){
     self->TexRef = value;
 }), allow_raw_ptrs{})
 
 .function("get_VtxOffset", override([](ImDrawCmd const* self){
     return self->VtxOffset;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_VtxOffset", override([](ImDrawCmd* self, unsigned int value){
     self->VtxOffset = value;
 }), allow_raw_ptrs{})
 
 .function("get_IdxOffset", override([](ImDrawCmd const* self){
     return self->IdxOffset;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_IdxOffset", override([](ImDrawCmd* self, unsigned int value){
     self->IdxOffset = value;
 }), allow_raw_ptrs{})
 
 .function("get_ElemCount", override([](ImDrawCmd const* self){
     return self->ElemCount;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ElemCount", override([](ImDrawCmd* self, unsigned int value){
     self->ElemCount = value;
 }), allow_raw_ptrs{})
 
 .function("get_UserCallback", override([](ImDrawCmd const* self){
     return self->UserCallback;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_UserCallback", override([](ImDrawCmd* self, ImDrawCallback value){
     self->UserCallback = value;
 }), allow_raw_ptrs{})
@@ -2013,14 +2013,14 @@ bind_struct<ImDrawCmd>("ImDrawCmd")
 
 .function("get_UserCallbackDataSize", override([](ImDrawCmd const* self){
     return self->UserCallbackDataSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_UserCallbackDataSize", override([](ImDrawCmd* self, int value){
     self->UserCallbackDataSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_UserCallbackDataOffset", override([](ImDrawCmd const* self){
     return self->UserCallbackDataOffset;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_UserCallbackDataOffset", override([](ImDrawCmd* self, int value){
     self->UserCallbackDataOffset = value;
 }), allow_raw_ptrs{})
@@ -2034,7 +2034,7 @@ bind_struct<ImDrawList>("ImDrawList")
 .constructor<>()
 .function("get_Flags", override([](ImDrawList const* self){
     return self->Flags;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_Flags", override([](ImDrawList* self, ImDrawListFlags value){
     self->Flags = value;
 }), allow_raw_ptrs{})
@@ -2330,56 +2330,56 @@ bind_struct<ImFontConfig>("ImFontConfig")
 
 .function("get_FontDataSize", override([](ImFontConfig const* self){
     return self->FontDataSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_FontDataSize", override([](ImFontConfig* self, int value){
     self->FontDataSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_FontDataOwnedByAtlas", override([](ImFontConfig const* self){
     return self->FontDataOwnedByAtlas;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_FontDataOwnedByAtlas", override([](ImFontConfig* self, bool value){
     self->FontDataOwnedByAtlas = value;
 }), allow_raw_ptrs{})
 
 .function("get_MergeMode", override([](ImFontConfig const* self){
     return self->MergeMode;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_MergeMode", override([](ImFontConfig* self, bool value){
     self->MergeMode = value;
 }), allow_raw_ptrs{})
 
 .function("get_PixelSnapH", override([](ImFontConfig const* self){
     return self->PixelSnapH;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_PixelSnapH", override([](ImFontConfig* self, bool value){
     self->PixelSnapH = value;
 }), allow_raw_ptrs{})
 
 .function("get_OversampleH", override([](ImFontConfig const* self){
     return self->OversampleH;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_OversampleH", override([](ImFontConfig* self, ImS8 value){
     self->OversampleH = value;
 }), allow_raw_ptrs{})
 
 .function("get_OversampleV", override([](ImFontConfig const* self){
     return self->OversampleV;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_OversampleV", override([](ImFontConfig* self, ImS8 value){
     self->OversampleV = value;
 }), allow_raw_ptrs{})
 
 .function("get_EllipsisChar", override([](ImFontConfig const* self){
     return self->EllipsisChar;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_EllipsisChar", override([](ImFontConfig* self, ImWchar value){
     self->EllipsisChar = value;
 }), allow_raw_ptrs{})
 
 .function("get_SizePixels", override([](ImFontConfig const* self){
     return self->SizePixels;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_SizePixels", override([](ImFontConfig* self, float value){
     self->SizePixels = value;
 }), allow_raw_ptrs{})
@@ -2400,63 +2400,63 @@ bind_struct<ImFontConfig>("ImFontConfig")
 
 .function("get_GlyphOffset", override([](ImFontConfig const* self){
     return self->GlyphOffset;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_GlyphOffset", override([](ImFontConfig* self, ImVec2 value){
     self->GlyphOffset = value;
 }), allow_raw_ptrs{})
 
 .function("get_GlyphMinAdvanceX", override([](ImFontConfig const* self){
     return self->GlyphMinAdvanceX;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_GlyphMinAdvanceX", override([](ImFontConfig* self, float value){
     self->GlyphMinAdvanceX = value;
 }), allow_raw_ptrs{})
 
 .function("get_GlyphMaxAdvanceX", override([](ImFontConfig const* self){
     return self->GlyphMaxAdvanceX;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_GlyphMaxAdvanceX", override([](ImFontConfig* self, float value){
     self->GlyphMaxAdvanceX = value;
 }), allow_raw_ptrs{})
 
 .function("get_GlyphExtraAdvanceX", override([](ImFontConfig const* self){
     return self->GlyphExtraAdvanceX;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_GlyphExtraAdvanceX", override([](ImFontConfig* self, float value){
     self->GlyphExtraAdvanceX = value;
 }), allow_raw_ptrs{})
 
 .function("get_FontNo", override([](ImFontConfig const* self){
     return self->FontNo;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_FontNo", override([](ImFontConfig* self, ImU32 value){
     self->FontNo = value;
 }), allow_raw_ptrs{})
 
 .function("get_FontLoaderFlags", override([](ImFontConfig const* self){
     return self->FontLoaderFlags;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_FontLoaderFlags", override([](ImFontConfig* self, unsigned int value){
     self->FontLoaderFlags = value;
 }), allow_raw_ptrs{})
 
 .function("get_RasterizerMultiply", override([](ImFontConfig const* self){
     return self->RasterizerMultiply;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_RasterizerMultiply", override([](ImFontConfig* self, float value){
     self->RasterizerMultiply = value;
 }), allow_raw_ptrs{})
 
 .function("get_RasterizerDensity", override([](ImFontConfig const* self){
     return self->RasterizerDensity;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_RasterizerDensity", override([](ImFontConfig* self, float value){
     self->RasterizerDensity = value;
 }), allow_raw_ptrs{})
 
 .function("get_ExtraSizeScale", override([](ImFontConfig const* self){
     return self->ExtraSizeScale;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ExtraSizeScale", override([](ImFontConfig* self, float value){
     self->ExtraSizeScale = value;
 }), allow_raw_ptrs{})
@@ -2466,42 +2466,42 @@ bind_struct<ImFontAtlasRect>("ImFontAtlasRect")
 .constructor<>()
 .function("get_x", override([](ImFontAtlasRect const* self){
     return self->x;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_x", override([](ImFontAtlasRect* self, unsigned short value){
     self->x = value;
 }), allow_raw_ptrs{})
 
 .function("get_y", override([](ImFontAtlasRect const* self){
     return self->y;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_y", override([](ImFontAtlasRect* self, unsigned short value){
     self->y = value;
 }), allow_raw_ptrs{})
 
 .function("get_w", override([](ImFontAtlasRect const* self){
     return self->w;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_w", override([](ImFontAtlasRect* self, unsigned short value){
     self->w = value;
 }), allow_raw_ptrs{})
 
 .function("get_h", override([](ImFontAtlasRect const* self){
     return self->h;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_h", override([](ImFontAtlasRect* self, unsigned short value){
     self->h = value;
 }), allow_raw_ptrs{})
 
 .function("get_uv0", override([](ImFontAtlasRect const* self){
     return self->uv0;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_uv0", override([](ImFontAtlasRect* self, ImVec2 value){
     self->uv0 = value;
 }), allow_raw_ptrs{})
 
 .function("get_uv1", override([](ImFontAtlasRect const* self){
     return self->uv1;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_uv1", override([](ImFontAtlasRect* self, ImVec2 value){
     self->uv1 = value;
 }), allow_raw_ptrs{})
@@ -2511,42 +2511,42 @@ bind_struct<ImFontAtlas>("ImFontAtlas")
 .constructor<>()
 .function("get_Flags", override([](ImFontAtlas const* self){
     return self->Flags;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_Flags", override([](ImFontAtlas* self, ImFontAtlasFlags value){
     self->Flags = value;
 }), allow_raw_ptrs{})
 
 .function("get_TexGlyphPadding", override([](ImFontAtlas const* self){
     return self->TexGlyphPadding;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TexGlyphPadding", override([](ImFontAtlas* self, int value){
     self->TexGlyphPadding = value;
 }), allow_raw_ptrs{})
 
 .function("get_TexMinWidth", override([](ImFontAtlas const* self){
     return self->TexMinWidth;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TexMinWidth", override([](ImFontAtlas* self, int value){
     self->TexMinWidth = value;
 }), allow_raw_ptrs{})
 
 .function("get_TexMinHeight", override([](ImFontAtlas const* self){
     return self->TexMinHeight;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TexMinHeight", override([](ImFontAtlas* self, int value){
     self->TexMinHeight = value;
 }), allow_raw_ptrs{})
 
 .function("get_TexMaxWidth", override([](ImFontAtlas const* self){
     return self->TexMaxWidth;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TexMaxWidth", override([](ImFontAtlas* self, int value){
     self->TexMaxWidth = value;
 }), allow_raw_ptrs{})
 
 .function("get_TexMaxHeight", override([](ImFontAtlas const* self){
     return self->TexMaxHeight;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TexMaxHeight", override([](ImFontAtlas* self, int value){
     self->TexMaxHeight = value;
 }), allow_raw_ptrs{})
@@ -2560,7 +2560,7 @@ bind_struct<ImFontAtlas>("ImFontAtlas")
 
 .function("get_TexRef", override([](ImFontAtlas const* self){
     return self->TexRef;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_TexRef", override([](ImFontAtlas* self, ImTextureRef value){
     self->TexRef = value;
 }), allow_raw_ptrs{})
@@ -2642,63 +2642,63 @@ bind_struct<ImGuiViewport>("ImGuiViewport")
 .constructor<>()
 .function("get_ID", override([](ImGuiViewport const* self){
     return self->ID;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ID", override([](ImGuiViewport* self, ImGuiID value){
     self->ID = value;
 }), allow_raw_ptrs{})
 
 .function("get_Flags", override([](ImGuiViewport const* self){
     return self->Flags;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_Flags", override([](ImGuiViewport* self, ImGuiViewportFlags value){
     self->Flags = value;
 }), allow_raw_ptrs{})
 
 .function("get_Pos", override([](ImGuiViewport const* self){
     return self->Pos;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_Pos", override([](ImGuiViewport* self, ImVec2 value){
     self->Pos = value;
 }), allow_raw_ptrs{})
 
 .function("get_Size", override([](ImGuiViewport const* self){
     return self->Size;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_Size", override([](ImGuiViewport* self, ImVec2 value){
     self->Size = value;
 }), allow_raw_ptrs{})
 
 .function("get_FramebufferScale", override([](ImGuiViewport const* self){
     return self->FramebufferScale;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_FramebufferScale", override([](ImGuiViewport* self, ImVec2 value){
     self->FramebufferScale = value;
 }), allow_raw_ptrs{})
 
 .function("get_WorkPos", override([](ImGuiViewport const* self){
     return self->WorkPos;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_WorkPos", override([](ImGuiViewport* self, ImVec2 value){
     self->WorkPos = value;
 }), allow_raw_ptrs{})
 
 .function("get_WorkSize", override([](ImGuiViewport const* self){
     return self->WorkSize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_WorkSize", override([](ImGuiViewport* self, ImVec2 value){
     self->WorkSize = value;
 }), allow_raw_ptrs{})
 
 .function("get_DpiScale", override([](ImGuiViewport const* self){
     return self->DpiScale;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_DpiScale", override([](ImGuiViewport* self, float value){
     self->DpiScale = value;
 }), allow_raw_ptrs{})
 
 .function("get_ParentViewportId", override([](ImGuiViewport const* self){
     return self->ParentViewportId;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_ParentViewportId", override([](ImGuiViewport* self, ImGuiID value){
     self->ParentViewportId = value;
 }), allow_raw_ptrs{})
@@ -2747,28 +2747,28 @@ bind_struct<ImGuiViewport>("ImGuiViewport")
 
 .function("get_PlatformWindowCreated", override([](ImGuiViewport const* self){
     return self->PlatformWindowCreated;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_PlatformWindowCreated", override([](ImGuiViewport* self, bool value){
     self->PlatformWindowCreated = value;
 }), allow_raw_ptrs{})
 
 .function("get_PlatformRequestMove", override([](ImGuiViewport const* self){
     return self->PlatformRequestMove;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_PlatformRequestMove", override([](ImGuiViewport* self, bool value){
     self->PlatformRequestMove = value;
 }), allow_raw_ptrs{})
 
 .function("get_PlatformRequestResize", override([](ImGuiViewport const* self){
     return self->PlatformRequestResize;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_PlatformRequestResize", override([](ImGuiViewport* self, bool value){
     self->PlatformRequestResize = value;
 }), allow_raw_ptrs{})
 
 .function("get_PlatformRequestClose", override([](ImGuiViewport const* self){
     return self->PlatformRequestClose;
-}), rvp_ref{}, allow_raw_ptrs{})
+}), allow_raw_ptrs{})
 .function("set_PlatformRequestClose", override([](ImGuiViewport* self, bool value){
     self->PlatformRequestClose = value;
 }), allow_raw_ptrs{})
