@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build-time JSX ImGui Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #1e1e1e;
+            color: white;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            height: 80vh;
+        }
+        .left, .right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .status.success { background: #2d5a2d; color: #90ee90; }
+        .status.error { background: #5a2d2d; color: #ff6b6b; }
+        .status.info { background: #2d4a5a; color: #87ceeb; }
+        canvas {
+            background: #1a1a1a;
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            width: 100%;
+            height: 100%;
+        }
+        .console {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            color: white;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .info-panel {
+            background: #2d2d2d;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Build-time JSX ImGui Demo</h1>
+    <div class="container">
+        <div class="left">
+            <div class="info-panel">
+                <h3>Build-time JSX Compilation</h3>
+                <p>This demo shows JSX compiled at build time (not runtime Babel).</p>
+                <p>The JSX is pre-compiled to TXML during the build process.</p>
+                <p>No runtime Babel dependency - production ready!</p>
+            </div>
+            
+            <div>
+                <label for="backendSelect">Backend:</label>
+                <select id="backendSelect">
+                    <option value="webgl2" selected>WebGL2</option>
+                    <option value="webgpu">WebGPU</option>
+                </select>
+                <button id="renderBtn">Render Build-time JSX</button>
+                <button id="resetBtn">Reset</button>
+                <div id="status" class="status info">Ready to render</div>
+            </div>
+        </div>
+        
+        <div class="right">
+            <h3>ImGui Canvas:</h3>
+            <canvas id="canvas" width="600" height="400"></canvas>
+            
+            <h3>Console Output:</h3>
+            <div id="consoleOutput" class="console">Console output will appear here...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        let ImGui = null;
+        let ImGuiImplWeb = null;
+        let isRendering = false;
+        let animationId = null;
+        let context = null;
+        let isInited = false;
+        let frameCount = 0;
+        let backend = 'webgl2';
+        let buildTimeTXML = null;
+        let buildTimeTSS = null;
+        let buildTimeRenderer = null;
+        
+        // Console output
+        const consoleOutput = document.getElementById('consoleOutput');
+        const originalLog = console.log;
+        console.log = (...args) => {
+            originalLog(...args);
+            consoleOutput.textContent += args.join(' ') + '\n';
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        };
+        
+        // Load build-time compiled JSX demo
+        async function loadBuildTimeDemo() {
+            try {
+                const { initJSXDemo } = await import('./jsx-demo.js');
+                console.log('Build-time JSX demo loaded successfully');
+                return initJSXDemo;
+            } catch (error) {
+                console.error('Failed to load build-time JSX demo:', error);
+                console.error('Error details:', error.message);
+                return null;
+            }
+        }
+        
+        // ImGui initialization
+        async function initImGui() {
+            try {
+                if (isInited) {
+                    console.log('ImGui already initialized; skipping re-init');
+                    isRendering = true;
+                    return true;
+                }
+                
+                console.log('Loading jsimgui...');
+                const jsimgui = await import('https://esm.sh/@mori2003/jsimgui');
+                ImGui = jsimgui.ImGui;
+                ImGuiImplWeb = jsimgui.ImGuiImplWeb;
+                console.log('jsimgui loaded successfully');
+                
+                const canvas = document.getElementById('canvas');
+                console.log('Canvas element:', canvas);
+                
+                // Set canvas dimensions
+                canvas.width = 600;
+                canvas.height = 400;
+                console.log('Canvas dimensions set to:', canvas.width, 'x', canvas.height);
+                
+                // Get selected backend
+                const backendEl = document.getElementById('backendSelect');
+                backend = backendEl && 'value' in backendEl ? backendEl.value : 'webgl2';
+                
+                let device = null;
+                
+                if (backend === 'webgpu') {
+                    // Check WebGPU support
+                    if (!navigator.gpu) {
+                        throw new Error('WebGPU not supported in this browser');
+                    }
+                    
+                    // Get WebGPU context
+                    context = canvas.getContext('webgpu');
+                    if (!context) {
+                        throw new Error('WebGPU context not supported');
+                    }
+                    
+                    // Request WebGPU adapter and device
+                    const adapter = await navigator.gpu.requestAdapter();
+                    if (!adapter) {
+                        throw new Error('WebGPU adapter not available');
+                    }
+                    
+                    device = await adapter.requestDevice();
+                    
+                    // Configure WebGPU context
+                    context.configure({
+                        device,
+                        format: navigator.gpu.getPreferredCanvasFormat(),
+                    });
+                    
+                    console.log('WebGPU context created and configured');
+                } else {
+                    // WebGL2 backend
+                    context = canvas.getContext('webgl2');
+                    if (!context) {
+                        throw new Error('WebGL2 not supported');
+                    }
+                    console.log('WebGL2 context created');
+                }
+                
+                // Initialize ImGui with proper backend configuration
+                console.log('Initializing ImGui...');
+                if (backend === 'webgpu') {
+                    await ImGuiImplWeb.Init({
+                        canvas,
+                        device,
+                        enableDemos: true,
+                        backend: 'webgpu'
+                    });
+                } else {
+                    await ImGuiImplWeb.Init({
+                        canvas,
+                        context,
+                        enableDemos: true,
+                        backend: 'webgl2'
+                    });
+                }
+                console.log('ImGuiImplWeb.Init() completed');
+                
+                // Wait for ImGui to be properly initialized
+                console.log('Waiting for ImGui to be fully initialized...');
+                await new Promise(resolve => setTimeout(resolve, 500));
+                console.log('ImGui initialization wait completed');
+                
+                // Load build-time JSX demo
+                console.log('Loading build-time JSX demo...');
+                const initDemo = await loadBuildTimeDemo();
+                if (initDemo) {
+                    console.log('Calling initJSXDemo...');
+                    const { txml, tssStyles } = await initDemo();
+                    buildTimeTXML = txml;
+                    buildTimeTSS = tssStyles;
+                    console.log('Build-time JSX TXML:', txml);
+                    console.log('Build-time JSX TSS:', tssStyles);
+                    
+                    // Create renderer for build-time JSX (but don't set ImGui yet)
+                    const { TXMLTSSRenderer, DefaultConsoleLogger } = await import('../dist/index.js');
+                    const logger = new DefaultConsoleLogger();
+                    buildTimeRenderer = new TXMLTSSRenderer(logger);
+                    
+                    // Register event handlers
+                    buildTimeRenderer.registerEventHandler('incrementCount', () => {
+                        console.log('Count incremented via build-time JSX!');
+                    });
+                    
+                    buildTimeRenderer.registerEventHandler('greenClick', () => {
+                        console.log('Green button clicked! Build-time JSX working!');
+                    });
+                    
+                    console.log('Build-time content and renderer loaded successfully!');
+                } else {
+                    console.error('Failed to load build-time JSX demo');
+                }
+                
+                // Set up render loop
+                async function frame() {
+                    if (!isRendering) return;
+                    
+                    try {
+                        ImGuiImplWeb.BeginRender();
+                        
+                        // DEBUG: Check frame state
+                        frameCount++;
+                        console.log(`Frame ${frameCount}: Starting render (no NewFrame needed)`);
+                        
+                        // Render our build-time JSX content instead of default demo
+                        if (buildTimeTXML && buildTimeTSS && buildTimeRenderer) {
+                            try {
+                                console.log('Rendering build-time JSX content...');
+                                // Set ImGui and ImGuiImplWeb on the renderer before rendering
+                                buildTimeRenderer.setImGui(ImGui, ImGuiImplWeb);
+                                buildTimeRenderer.render(buildTimeTXML, buildTimeTSS);
+                                console.log('Build-time JSX rendered successfully');
+                                
+                            } catch (error) {
+                                console.error('Error rendering build-time JSX:', error);
+                                console.error('Error stack:', error.stack);
+                                // Fallback to default demo
+                                ImGui.ShowDemoWindow();
+                            }
+                        } else {
+                            console.log('No build-time content available, showing default demo');
+                            // Fallback to default demo if no build-time content
+                            ImGui.ShowDemoWindow();
+                        }
+                        
+                        // Clear the canvas if we are webgl; webgpu handles this for us
+                        if (backend === 'webgl2') {
+                            context.clearColor(0.1, 0.3, 0.1, 1.0);
+                            context.clear(context.COLOR_BUFFER_BIT);
+                        }
+                        
+                        // EndRender with proper parameters for WebGPU
+                        if (backend === 'webgpu') {
+                            // For WebGPU, we need to create a render pass
+                            const commandEncoder = device.createCommandEncoder();
+                            const textureView = context.getCurrentTexture().createView();
+                            
+                            const renderPassDescriptor = {
+                                colorAttachments: [{
+                                    view: textureView,
+                                    clearValue: { r: 0.1, g: 0.3, b: 0.1, a: 1.0 },
+                                    loadOp: 'clear',
+                                    storeOp: 'store',
+                                }],
+                            };
+                            
+                            const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+                            ImGuiImplWeb.EndRender(passEncoder);
+                            passEncoder.end();
+                            
+                            device.queue.submit([commandEncoder.finish()]);
+                        } else {
+                            ImGuiImplWeb.EndRender();
+                        }
+                        
+                        console.log('Build-time JSX ImGui rendered successfully');
+                    } catch (error) {
+                        console.error('Render loop error:', error.message);
+                        isRendering = false;
+                        if (animationId) {
+                            cancelAnimationFrame(animationId);
+                            animationId = null;
+                        }
+                    }
+                    
+                    if (isRendering) {
+                        animationId = requestAnimationFrame(frame);
+                    }
+                }
+                
+                // Start render loop
+                isRendering = true;
+                frame();
+                
+                console.log('Build-time JSX ImGui initialized successfully');
+                isInited = true;
+                return true;
+                
+            } catch (error) {
+                console.error('ImGui initialization failed:', error);
+                isRendering = false;
+                throw error;
+            }
+        }
+        
+        function teardownImGui() {
+            try {
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+                isRendering = false;
+                try { ImGuiImplWeb && ImGuiImplWeb.Shutdown && ImGuiImplWeb.Shutdown(); } catch {}
+                try { ImGui && ImGui.DestroyContext && ImGui.DestroyContext(); } catch {}
+            } finally {
+                isInited = false;
+                ImGui = null;
+                ImGuiImplWeb = null;
+                context = null;
+            }
+        }
+        
+        // Event listeners
+        document.getElementById('renderBtn').addEventListener('click', async () => {
+            try {
+                document.getElementById('status').textContent = 'Initializing...';
+                document.getElementById('status').className = 'status info';
+                
+                await initImGui();
+                
+                document.getElementById('status').textContent = 'Rendering build-time JSX...';
+                document.getElementById('status').className = 'status success';
+                
+            } catch (error) {
+                console.error('Render failed:', error);
+                document.getElementById('status').textContent = 'Render failed';
+                document.getElementById('status').className = 'status error';
+            }
+        });
+        
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            teardownImGui();
+            
+            // Clear console
+            consoleOutput.textContent = 'Console output will appear here...';
+            
+            document.getElementById('status').textContent = 'Reset complete';
+            document.getElementById('status').className = 'status info';
+            
+            console.log('Reset complete');
+        });
+        
+        // Reinitialize on backend change (requires teardown)
+        document.getElementById('backendSelect').addEventListener('change', async () => {
+            try {
+                document.getElementById('status').textContent = 'Switching backend...';
+                document.getElementById('status').className = 'status info';
+                teardownImGui();
+                await initImGui();
+                document.getElementById('status').textContent = 'Backend switched';
+                document.getElementById('status').className = 'status success';
+            } catch (e) {
+                document.getElementById('status').textContent = 'Backend switch failed';
+                document.getElementById('status').className = 'status error';
+            }
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Build-time JSX ImGui Demo loaded');
+        });
+    </script>
+</body>
+</html>
