@@ -1,6 +1,4 @@
-import { ImGui, ImGuiImplWeb } from "@mori2003/jsimgui";
-
-import { showJsimguiDemo } from "../demo.js";
+import { ImGui, ImGuiImplWeb, ImVec2 } from "@mori2003/jsimgui";
 
 const canvas = document.querySelector("#render-canvas");
 const context = canvas.getContext("webgpu");
@@ -15,7 +13,16 @@ context.configure({
 
 await ImGuiImplWeb.Init({ canvas, device });
 
-const frame = () => {
+const img = new Image();
+img.crossOrigin = "anonymous";
+img.src = "https://upload.wikimedia.org/wikipedia/commons/2/2f/WebGPU_logo.svg";
+
+let imgRef = ImGuiImplWeb.LoadTexture();
+img.onload = () => {
+	imgRef = ImGuiImplWeb.LoadTexture(img);
+};
+
+function frame() {
 	canvas.width = canvas.clientWidth;
 	canvas.height = canvas.clientHeight;
 
@@ -25,7 +32,14 @@ const frame = () => {
 	ImGui.Text("Hello, world!");
 	ImGui.End();
 
-	showJsimguiDemo(context);
+	ImGui.SetNextWindowPos(new ImVec2(225, 50), ImGui.Cond.Once);
+	ImGui.SetNextWindowSize(new ImVec2(330, 200), ImGui.Cond.Once);
+	ImGui.Begin("jsimgui");
+	ImGui.Text("Welcome to jsimgui!");
+	ImGui.TextDisabled(`Using ImGui v${ImGui.GetVersion()}-docking`);
+	ImGui.Image(imgRef, new ImVec2(120, 110));
+	ImGui.Text("Using WebGPU backend");
+	ImGui.End();
 
 	ImGui.ShowDemoWindow();
 
@@ -52,5 +66,5 @@ const frame = () => {
 	device.queue.submit([commandEncoder.finish()]);
 
 	requestAnimationFrame(frame);
-};
+}
 requestAnimationFrame(frame);
