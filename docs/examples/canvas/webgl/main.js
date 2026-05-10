@@ -3,7 +3,7 @@ import { ImGui, ImGuiImplWeb } from "@mori2003/jsimgui";
 import { showJsimguiDemo } from "../demo.js";
 
 const canvas = document.querySelector("#render-canvas");
-const context = canvas.getContext("webgl");
+const context = canvas.getContext("webgl2") || canvas.getContext("webgl");
 
 await ImGuiImplWeb.Init({ canvas });
 
