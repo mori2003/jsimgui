@@ -21,8 +21,8 @@
 		"./build/"
 	],
 	"type": "module",
-	"types": "./build/imgui.d.ts",
-	"exports": "./build/imgui.js",
+	"types": "./build/mod.d.ts",
+	"exports": "./build/mod.js",
 	"devDependencies": {
 		"@types/node": "latest",
 		"@typescript/native-preview": "7.0.0-dev.20260421.2",
