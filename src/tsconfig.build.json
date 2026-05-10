@@ -1,8 +1,8 @@
 {
-  "include": ["imgui/gen/imgui.ts", "imnodes/imnodes.ts", "implot/implot.ts"],
-  "compilerOptions": {
-    "rootDir": "src",
-    "declaration": true,
-    "erasableSyntaxOnly": true
-  }
+	"include": ["imgui/gen/imgui.ts", "imnodes/imnodes.ts", "implot/implot.ts"],
+	"compilerOptions": {
+		"rootDir": "src",
+		"declaration": true,
+		"erasableSyntaxOnly": true
+	}
 }

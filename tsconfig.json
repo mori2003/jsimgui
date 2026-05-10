@@ -1,9 +1,9 @@
 {
-  "include": ["build.ts", "./src/"],
-  "compilerOptions": {
-    "types": ["node"],
-    "noEmit": true,
-    "allowImportingTsExtensions": true,
-    "erasableSyntaxOnly": true
-  }
+	"include": ["build.ts", "./src/"],
+	"compilerOptions": {
+		"types": ["node"],
+		"noEmit": true,
+		"allowImportingTsExtensions": true,
+		"erasableSyntaxOnly": true
+	}
 }

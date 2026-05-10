@@ -51,45 +51,45 @@ For more information, see the [wiki](https://github.com/mori2003/jsimgui/wiki).
 ```html
 <!DOCTYPE html>
 <html>
-  <head>
-    <style>
-      body {
-        margin: 0;
-      }
+	<head>
+		<style>
+			body {
+				margin: 0;
+			}
 
-      canvas {
-        display: block;
-        width: 100vw;
-        height: 100vh;
-      }
-    </style>
-    <script type="module">
-      import { ImGui, ImGuiImplWeb } from "https://esm.sh/@mori2003/jsimgui";
+			canvas {
+				display: block;
+				width: 100vw;
+				height: 100vh;
+			}
+		</style>
+		<script type="module">
+			import { ImGui, ImGuiImplWeb } from "https://esm.sh/@mori2003/jsimgui";
 
-      const canvas = document.querySelector("#render-canvas");
+			const canvas = document.querySelector("#render-canvas");
 
-      await ImGuiImplWeb.Init({ canvas: canvas });
+			await ImGuiImplWeb.Init({ canvas: canvas });
 
-      function render() {
-        canvas.width = canvas.clientWidth;
-        canvas.height = canvas.clientHeight;
+			function render() {
+				canvas.width = canvas.clientWidth;
+				canvas.height = canvas.clientHeight;
 
-        ImGuiImplWeb.BeginRender();
+				ImGuiImplWeb.BeginRender();
 
-        ImGui.Begin("New Window");
-        ImGui.Text("Hello, World!");
-        ImGui.End();
-        ImGui.ShowDemoWindow();
+				ImGui.Begin("New Window");
+				ImGui.Text("Hello, World!");
+				ImGui.End();
+				ImGui.ShowDemoWindow();
 
-        ImGuiImplWeb.EndRender();
-        requestAnimationFrame(render);
-      }
-      requestAnimationFrame(render);
-    </script>
-  </head>
-  <body>
-    <canvas id="render-canvas"></canvas>
-  </body>
+				ImGuiImplWeb.EndRender();
+				requestAnimationFrame(render);
+			}
+			requestAnimationFrame(render);
+		</script>
+	</head>
+	<body>
+		<canvas id="render-canvas"></canvas>
+	</body>
 </html>
 ```
 

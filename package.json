@@ -1,32 +1,32 @@
 {
-  "$schema": "https://json.schemastore.org/package.json",
-  "name": "@mori2003/jsimgui",
-  "version": "0.13.0",
-  "description": "JavaScript bindings for Dear ImGui.",
-  "keywords": [
-    "imgui",
-    "wasm",
-    "webgl",
-    "webgl2",
-    "webgpu"
-  ],
-  "homepage": "https://github.com/mori2003/jsimgui#readme",
-  "bugs": "https://github.com/mori2003/jsimgui/issues",
-  "license": "MIT",
-  "author": "mori2003",
-  "repository": "github:mori2003/jsimgui",
-  "files": [
-    "LICENSE",
-    "README.md",
-    "./build/"
-  ],
-  "type": "module",
-  "types": "./build/imgui.d.ts",
-  "exports": "./build/imgui.js",
-  "devDependencies": {
-    "@types/node": "latest",
-    "@typescript/native-preview": "7.0.0-dev.20260421.2",
-    "oxfmt": "0.47.0",
-    "oxlint": "1.62.0"
-  }
+	"$schema": "https://json.schemastore.org/package.json",
+	"name": "@mori2003/jsimgui",
+	"version": "0.13.0",
+	"description": "JavaScript bindings for Dear ImGui.",
+	"keywords": [
+		"imgui",
+		"wasm",
+		"webgl",
+		"webgl2",
+		"webgpu"
+	],
+	"homepage": "https://github.com/mori2003/jsimgui#readme",
+	"bugs": "https://github.com/mori2003/jsimgui/issues",
+	"license": "MIT",
+	"author": "mori2003",
+	"repository": "github:mori2003/jsimgui",
+	"files": [
+		"LICENSE",
+		"README.md",
+		"./build/"
+	],
+	"type": "module",
+	"types": "./build/imgui.d.ts",
+	"exports": "./build/imgui.js",
+	"devDependencies": {
+		"@types/node": "latest",
+		"@typescript/native-preview": "7.0.0-dev.20260421.2",
+		"oxfmt": "0.47.0",
+		"oxlint": "1.62.0"
+	}
 }
