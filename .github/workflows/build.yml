@@ -4,9 +4,9 @@ on:
   workflow_call:
 
 env:
-  NODE_VERSION: "24.5.0"
-  EMSDK_VERSION: "4.0.13"
-  PYTHON_VERSION: "3.13"
+  NODE_VERSION: "26.1.0"
+  EMSDK_VERSION: "5.0.7"
+  PYTHON_VERSION: "3.14"
 
 jobs:
   build-matrix:
