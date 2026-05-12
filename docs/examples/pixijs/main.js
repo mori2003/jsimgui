@@ -2,7 +2,7 @@ import { ImGui, ImGuiImplWeb, ImVec2 } from "@mori2003/jsimgui";
 
 const app = new PIXI.Application();
 
-await app.init({ background: "#1099bb", resizeTo: window });
+await app.init({ background: "#1099bb", resizeTo: window, resolution: window.devicePixelRatio });
 
 document.querySelector("main").appendChild(app.canvas);
 

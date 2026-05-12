@@ -23,8 +23,8 @@ img.onload = () => {
 };
 
 function frame() {
-	canvas.width = canvas.clientWidth;
-	canvas.height = canvas.clientHeight;
+	canvas.width = canvas.clientWidth * window.devicePixelRatio;
+	canvas.height = canvas.clientHeight * window.devicePixelRatio;
 
 	ImGuiImplWeb.BeginRender();
 
