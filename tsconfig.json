@@ -1,5 +1,5 @@
 {
-	"include": ["build.ts", "./src/"],
+	"include": ["build.ts", "./src/", "build/"],
 	"compilerOptions": {
 		"types": ["node"],
 		"noEmit": true,

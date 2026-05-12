@@ -142,6 +142,7 @@ const content = [
 	'export * from "./implot.js";',
 ].join("\n");
 writeFileSync("build/mod.js", content);
+writeFileSync("build/mod.d.ts", content);
 
 stdout.write("Formatting Files...\n");
 stdout.write(execSync("node_modules/.bin/oxfmt").toString());
