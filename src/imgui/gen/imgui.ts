@@ -9860,12 +9860,17 @@ const handleKeyboardEvent = (event: KeyboardEvent, keyDown: boolean, io: ImGuiIO
 	}
 };
 
-const setDisplayProperties = (canvas: HTMLCanvasElement) => {
+function setDisplayProperties(canvas: HTMLCanvasElement): void {
 	const io = ImGui.GetIO();
-	const width = Math.floor(canvas.clientWidth);
-	const height = Math.floor(canvas.clientHeight);
-	io.DisplaySize = new ImVec2(width, height);
-};
+	const clientWidth = canvas.clientWidth;
+	const clientHeight = canvas.clientHeight;
+
+	io.DisplaySize = new ImVec2(clientWidth, clientHeight);
+	io.DisplayFramebufferScale = new ImVec2(
+		clientWidth > 0 ? canvas.width / clientWidth : 1,
+		clientHeight > 0 ? canvas.height / clientHeight : 1,
+	);
+}
 
 /**
  * Handles mouse button events.
