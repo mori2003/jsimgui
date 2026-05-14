@@ -2,11 +2,17 @@
 
 import { Mod, ReferenceStruct, ImVec2 } from "./imgui.js";
 
+/** -> enum ImNodesCol_ */
 export type ImNodesCol = number;
+/** -> enum ImNodesStyleVar_ */
 export type ImNodesStyleVar = number;
+/** -> enum ImNodesStyleFlags_ */
 export type ImNodesStyleFlags = number;
+/** -> enum ImNodesPinShape_ */
 export type ImNodesPinShape = number;
+/** -> enum ImNodesAttributeFlags_ */
 export type ImNodesAttributeFlags = number;
+/** -> enum ImNodesMiniMapLocation_ */
 export type ImNodesMiniMapLocation = number;
 
 export class ImNodesContext extends ReferenceStruct {}
@@ -268,10 +274,17 @@ export const ImNodes = {
 		return ImNodesIO.From(Mod.export.ImNodes_GetIO());
 	},
 
+	/**
+	 * Returns the global style struct. See the struct declaration for default values.
+	 */
 	GetStyle(): ImNodesStyle {
 		return ImNodesStyle.From(Mod.export.ImNodes_GetStyle());
 	},
 
+	/**
+	 * Style presets matching the dear imgui styles of the same name. If dest is NULL, the active
+	 * context's ImNodesStyle instance will be used as the destination.
+	 */
 	StyleColorsDark(dest: ImNodesStyle | null = null): void {
 		Mod.export.ImNodes_StyleColorsDark(dest?.ptr ?? null);
 	},
@@ -282,6 +295,10 @@ export const ImNodes = {
 		Mod.export.ImNodes_StyleColorsLight(dest?.ptr ?? null);
 	},
 
+	/**
+	 * The top-level function call. Call this before calling BeginNode/EndNode. Calling this function
+	 * will result the node editor grid workspace being rendered.
+	 */
 	BeginNodeEditor(): void {
 		Mod.export.ImNodes_BeginNodeEditor();
 	},
@@ -289,10 +306,17 @@ export const ImNodes = {
 		Mod.export.ImNodes_EndNodeEditor();
 	},
 
+	/**
+	 * Add a navigable minimap to the editor; call before EndNodeEditor after all
+	 * nodes and links have been specified
+	 */
 	MiniMap(minimap_size_fraction: number = 0.2, location: ImNodesMiniMapLocation = 2): void {
 		Mod.export.ImNodes_MiniMap(minimap_size_fraction, location);
 	},
 
+	/**
+	 * Use PushColorStyle and PopColorStyle to modify ImNodesStyle::Colors mid-frame.
+	 */
 	PushColorStyle(item: ImNodesCol, color: number): void {
 		Mod.export.ImNodes_PushColorStyle(item, color);
 	},
@@ -309,6 +333,9 @@ export const ImNodes = {
 		Mod.export.ImNodes_PopStyleVar(count);
 	},
 
+	/**
+	 * id can be any positive or negative integer, but INT_MIN is currently reserved for internal use.
+	 */
 	BeginNode(id: number): void {
 		Mod.export.ImNodes_BeginNode(id);
 	},
@@ -320,6 +347,11 @@ export const ImNodes = {
 		return ImVec2.From(Mod.export.ImNodes_GetNodeDimensions(id));
 	},
 
+	/**
+	 * Place your node title bar content (such as the node title, using ImGui::Text) between the
+	 * following function calls. These functions have to be called before adding any attributes, or the
+	 * layout of the node will be incorrect.
+	 */
 	BeginNodeTitleBar(): void {
 		Mod.export.ImNodes_BeginNodeTitleBar();
 	},
@@ -327,6 +359,18 @@ export const ImNodes = {
 		Mod.export.ImNodes_EndNodeTitleBar();
 	},
 
+	// Attributes are ImGui UI elements embedded within the node. Attributes can have pin shapes
+	// rendered next to them. Links are created between pins.
+	//
+	// The activity status of an attribute can be checked via the IsAttributeActive() and
+	// IsAnyAttributeActive() function calls. This is one easy way of checking for any changes made to
+	// an attribute's drag float UI, for instance.
+	//
+	// Each attribute id must be unique.
+
+	/**
+	 * Create an input attribute block. The pin is rendered on left side.
+	 */
 	BeginInputAttribute(id: number, shape: ImNodesPinShape = 1): void {
 		Mod.export.ImNodes_BeginInputAttribute(id, shape);
 	},
@@ -334,6 +378,9 @@ export const ImNodes = {
 		Mod.export.ImNodes_EndInputAttribute();
 	},
 
+	/**
+	 * Create an output attribute block. The pin is rendered on the right side.
+	 */
 	BeginOutputAttribute(id: number, shape: ImNodesPinShape = 1): void {
 		Mod.export.ImNodes_BeginOutputAttribute(id, shape);
 	},
@@ -341,6 +388,11 @@ export const ImNodes = {
 		Mod.export.ImNodes_EndOutputAttribute();
 	},
 
+	/**
+	 * Create a static attribute block. A static attribute has no pin, and therefore can't be linked to
+	 * anything. However, you can still use IsAttributeActive() and IsAnyAttributeActive() to check for
+	 * attribute activity.
+	 */
 	BeginStaticAttribute(id: number): void {
 		Mod.export.ImNodes_BeginStaticAttribute(id);
 	},
@@ -348,6 +400,9 @@ export const ImNodes = {
 		Mod.export.ImNodes_EndStaticAttribute();
 	},
 
+	/**
+	 * Push a single AttributeFlags value. By default, only AttributeFlags_None is set.
+	 */
 	PushAttributeFlag(flag: ImNodesAttributeFlags): void {
 		Mod.export.ImNodes_PushAttributeFlag(flag);
 	},
@@ -355,13 +410,30 @@ export const ImNodes = {
 		Mod.export.ImNodes_PopAttributeFlag();
 	},
 
+	/**
+	 * Render a link between attributes.
+	 * The attributes ids used here must match the ids used in Begin(Input|Output)Attribute function
+	 * calls. The order of start_attr and end_attr doesn't make a difference for rendering the link.
+	 */
 	Link(id: number, start_attribute_id: number, end_attribute_id: number): void {
 		Mod.export.ImNodes_Link(id, start_attribute_id, end_attribute_id);
 	},
 
+	/**
+	 * Enable or disable the ability to click and drag a specific node.
+	 */
 	SetNodeDraggable(node_id: number, draggable: boolean): void {
 		Mod.export.ImNodes_SetNodeDraggable(node_id, draggable);
 	},
+
+	// The node's position can be expressed in three coordinate systems:
+	// * screen space coordinates, -- the origin is the upper left corner of the window.
+	// * editor space coordinates -- the origin is the upper left corner of the node editor window
+	// * grid space coordinates, -- the origin is the upper left corner of the node editor window,
+	// translated by the current editor panning vector (see EditorContextGetPanning() and
+	// EditorContextResetPanning())
+
+	// Use the following functions to get and set the node's coordinates in these coordinate systems.
 
 	SetNodeScreenSpacePos(node_id: number, screen_space_pos: ImVec2): void {
 		Mod.export.ImNodes_SetNodeScreenSpacePos(node_id, screen_space_pos);
@@ -383,13 +455,25 @@ export const ImNodes = {
 		return ImVec2.From(Mod.export.ImNodes_GetNodeGridSpacePos(node_id));
 	},
 
+	/**
+	 * If ImNodesStyleFlags_GridSnapping is enabled, snap the specified node's origin to the grid.
+	 */
 	SnapNodeToGrid(node_id: number): void {
 		Mod.export.ImNodes_SnapNodeToGrid(node_id);
 	},
 
+	/**
+	 * Returns true if the current node editor canvas is being hovered over by the mouse, and is not
+	 * blocked by any other windows.
+	 */
 	IsEditorHovered(): boolean {
 		return Mod.export.ImNodes_IsEditorHovered();
 	},
+
+	// The following functions return true if a UI element is being hovered over by the mouse cursor.
+	// Assigns the id of the UI element being hovered over to the function argument. Use these functions
+	// after EndNodeEditor() has been called.
+
 	IsNodeHovered(node_id: [number]): boolean {
 		return Mod.export.ImNodes_IsNodeHovered(node_id);
 	},
@@ -400,24 +484,42 @@ export const ImNodes = {
 		return Mod.export.ImNodes_IsPinHovered(attribute_id);
 	},
 
+	// Use The following two functions to query the number of selected nodes or links in the current
+	// editor. Use after calling EndNodeEditor().
+
 	NumSelectedNodes(): number {
 		return Mod.export.ImNodes_NumSelectedNodes();
 	},
 	NumSelectedLinks(): number {
 		return Mod.export.ImNodes_NumSelectedLinks();
 	},
+
+	// Get the selected node/link ids. The pointer argument should point to an integer array with at
+	// least as many elements as the respective NumSelectedNodes/NumSelectedLinks function call
+	// returned.
+
 	GetSelectedNodes(node_ids: number[]): void {
 		Mod.export.ImNodes_GetSelectedNodes(node_ids);
 	},
 	GetSelectedLinks(link_ids: number[]): void {
 		Mod.export.ImNodes_GetSelectedLinks(link_ids);
 	},
+
+	// Clears the list of selected nodes/links. Useful if you want to delete a selected node or link.
+
 	ClearNodeSelection(): void {
 		Mod.export.ImNodes_ClearNodeSelection();
 	},
 	ClearLinkSelection(): void {
 		Mod.export.ImNodes_ClearLinkSelection();
 	},
+
+	// Use the following functions to add or remove individual nodes or links from the current editors
+	// selection. Note that all functions require the id to be an existing valid id for this editor.
+	// Select-functions has the precondition that the object is currently considered unselected.
+	// Clear-functions has the precondition that the object is currently considered selected.
+	// Preconditions listed above can be checked via IsNodeSelected/IsLinkSelected if not already
+	// known.
 
 	SelectNode(node_id: number): void {
 		Mod.export.ImNodes_SelectNode(node_id);
@@ -438,23 +540,47 @@ export const ImNodes = {
 		return Mod.export.ImNodes_IsLinkSelected(link_id);
 	},
 
+	/**
+	 * Was the previous attribute active? This will continuously return true while the left mouse button
+	 * is being pressed over the UI content of the attribute.
+	 */
 	IsAttributeActive(): boolean {
 		return Mod.export.ImNodes_IsAttributeActive();
 	},
+	/**
+	 * Was any attribute active? If so, sets the active attribute id to the output function argument.
+	 */
 	IsAnyAttributeActive(attribute_id: [number] | null = null): boolean {
 		return Mod.export.ImNodes_IsAnyAttributeActive(attribute_id);
 	},
 
+	// Use the following functions to query a change of state for an existing link, or new link. Call
+	// these after EndNodeEditor().
+
+	/**
+	 * Did the user start dragging a new link from a pin?
+	 */
 	IsLinkStarted(started_at_attribute_id: [number]): boolean {
 		return Mod.export.ImNodes_IsLinkStarted(started_at_attribute_id);
 	},
 
+	/**
+	 * Did the user drop the dragged link before attaching it to a pin?
+	 * There are two different kinds of situations to consider when handling this event:
+	 * 1) a link which is created at a pin and then dropped
+	 * 2) an existing link which is detached from a pin and then dropped
+	 * Use the including_detached_links flag to control whether this function triggers when the user
+	 * detaches a link and drops it.
+	 */
 	IsLinkDropped(
 		started_at_attribute_id: [number] | null = null,
 		including_detached_links: boolean = true,
 	): boolean {
 		return Mod.export.ImNodes_IsLinkDropped(started_at_attribute_id, including_detached_links);
 	},
+	/**
+	 * Did the user finish creating a new link?
+	 */
 	IsLinkCreated(
 		started_at_attribute_id: [number] | null = null,
 		ended_at_attribute_id: [number] | null = null,
@@ -482,9 +608,16 @@ export const ImNodes = {
 		);
 	},
 
+	/**
+	 * Was an existing link detached from a pin by the user? The detached link's id is assigned to the
+	 * output argument link_id.
+	 */
 	IsLinkDestroyed(link_id: [number]): boolean {
 		return Mod.export.ImNodes_IsLinkDestroyed(link_id);
 	},
+
+	// Use the following functions to write the editor context's state to a string, or directly to a
+	// file. The editor context is serialized in the INI file format.
 
 	SaveCurrentEditorStateToIniString(): string {
 		return Mod.export.ImNodes_SaveCurrentEditorStateToIniString();
