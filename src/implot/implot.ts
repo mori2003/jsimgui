@@ -1,5 +1,9 @@
 // @ts-nocheck
 
+// [EXPERIMENTAL | INCOMPLETE]
+// Manually written bindings for implot:
+// https://github.com/epezent/implot using version `v1.0`
+
 import { Mod, ReferenceStruct, ImVec2, ImVec4 } from "./imgui.js";
 
 /** Indicates variable should deduced automatically. */

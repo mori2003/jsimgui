@@ -1,3 +1,7 @@
+// [EXPERIMENTAL | INCOMPLETE]
+// Manually written bindings for implot:
+// https://github.com/epezent/implot using version `v1.0`
+
 #include <util.hpp>
 
 #include <implot.h>

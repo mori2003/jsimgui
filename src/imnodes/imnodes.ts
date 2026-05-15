@@ -1,5 +1,9 @@
 // @ts-nocheck
 
+// [EXPERIMENTAL | INCOMPLETE]
+// Manually written bindings for imnodes:
+// https://github.com/Nelarius/imnodes using version `b2ec254`
+
 import { Mod, ReferenceStruct, ImVec2 } from "./imgui.js";
 
 /** -> enum ImNodesCol_ */

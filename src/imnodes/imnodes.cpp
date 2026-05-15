@@ -1,3 +1,7 @@
+// [EXPERIMENTAL | INCOMPLETE]
+// Manually written bindings for imnodes:
+// https://github.com/Nelarius/imnodes using version `b2ec254`
+
 #include <util.hpp>
 
 #include <imnodes_internal.h>
