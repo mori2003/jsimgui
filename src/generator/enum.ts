@@ -17,22 +17,13 @@ function trimFieldName(fieldName: string, enumName: string): string {
 	return fieldName.startsWith(enumName) ? fieldName.slice(enumName.length) : fieldName;
 }
 
-function trimEnumName(enumName: string, prefix: string): string {
-	const trimmed = enumName.endsWith("_") ? enumName.slice(0, -1) : enumName;
-	return trimmed.startsWith(prefix) ? trimmed.slice(prefix.length) : trimmed;
-}
-
-export function getEnumCodeTs(
-	context: GeneratorContext,
-	enum_: EnumBinding,
-	prefix: string,
-): string {
+export function getEnumCodeTs(context: GeneratorContext, enum_: EnumBinding): string {
 	const config = context.config.enums?.[enum_.name];
 	if (config?.exclude) return "";
 	if (config?.override?.ts) return config.override.ts.join("");
 
 	const comment = getJsDocComment(enum_.comments);
-	const name = trimEnumName(enum_.name, prefix);
+	const name = enum_.name.endsWith("_") ? enum_.name.slice(0, -1) : enum_.name;
 
 	const fields = enum_.fields
 		.map((field) => {
@@ -43,5 +34,5 @@ export function getEnumCodeTs(
 		})
 		.join("");
 
-	return `${comment}${name}: {\n${fields}\n},\n`;
+	return `${comment}export const ${name} = {\n${fields}\n} as const;\n`;
 }

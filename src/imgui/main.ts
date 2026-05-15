@@ -20,7 +20,7 @@ function getFreeTypeEnumTs(): string {
 	return (
 		// NOTE: Extra FreeTypeLoaderFlags added manually since they are not in dear_bindings data.
 		// See: https://github.com/ocornut/imgui/blob/master/misc/freetype/imgui_freetype.h#L29
-		"FreeTypeLoaderFlags: {\n" +
+		"export const FreeTypeLoaderFlags = {\n" +
 		"NoHinting: 1,\n" +
 		"NoAutoHint: 2,\n" +
 		"ForceAutoHint: 4,\n" +
@@ -31,7 +31,7 @@ function getFreeTypeEnumTs(): string {
 		"Monochrome: 128,\n" +
 		"LoadColor: 256,\n" +
 		"Bitmap: 512,\n" +
-		"},\n"
+		"} as const;\n"
 	);
 }
 
@@ -114,7 +114,7 @@ export function generateImGuiBindings(): void {
 	const functions = mapFunctions(data.functions);
 
 	const typedefCodeTs = typedefs.map((typedef) => getTypedefCodeTs(context, typedef)).join("");
-	const enumsCodeTs = enums.map((enum_) => getEnumCodeTs(context, enum_, "ImGui")).join("");
+	const enumsCodeTs = enums.map((enum_) => getEnumCodeTs(context, enum_)).join("\n");
 	const structsCodeTs = structs.map((struct) => getStructCodeTs(context, struct)).join("");
 	const functionsCodeTs = functions
 		.filter((function_) => function_.name.startsWith("ImGui_"))
@@ -132,13 +132,13 @@ export function generateImGuiBindings(): void {
 		"export type ImWchar = number;\n",
 		"const IM_COL32_WHITE = 0xFFFFFFFF;\n",
 		"\n",
-		getValueStructsTs(),
-		structsCodeTs,
-		"export const ImGui = {\n",
 		enumsCodeTs,
 		getFreeTypeEnumTs(),
+		getValueStructsTs(),
+		structsCodeTs,
+		"export class ImGui {\n",
 		functionsCodeTs,
-		"};\n",
+		"}\n",
 		tsEnd,
 	].join("");
 

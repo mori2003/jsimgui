@@ -221,9 +221,9 @@
 		"ImGui_Text": {
 			"override": {
 				"ts": [
-					"    Text(fmt: string): void {\n",
+					"    static Text(fmt: string): void {\n",
 					"        Mod.export.ImGui_Text(fmt);\n",
-					"    },\n"
+					"    }\n"
 				],
 				"cpp": [
 					"bind_fn(\"ImGui_Text\", [](std::string fmt){\n",
@@ -235,9 +235,9 @@
 		"ImGui_TextColored": {
 			"override": {
 				"ts": [
-					"    TextColored(col: ImVec4, fmt: string): void {\n",
+					"    static TextColored(col: ImVec4, fmt: string): void {\n",
 					"        Mod.export.ImGui_TextColored(col, fmt);\n",
-					"    },\n"
+					"    }\n"
 				],
 				"cpp": [
 					"bind_fn(\"ImGui_TextColored\", [](ImVec4 col, std::string fmt){\n",
@@ -249,9 +249,9 @@
 		"ImGui_TextDisabled": {
 			"override": {
 				"ts": [
-					"    TextDisabled(fmt: string): void {\n",
+					"    static TextDisabled(fmt: string): void {\n",
 					"        Mod.export.ImGui_TextDisabled(fmt);\n",
-					"    },\n"
+					"    }\n"
 				],
 				"cpp": [
 					"bind_fn(\"ImGui_TextDisabled\", [](std::string fmt){\n",
@@ -263,9 +263,9 @@
 		"ImGui_TextWrapped": {
 			"override": {
 				"ts": [
-					"    TextWrapped(fmt: string): void {\n",
+					"    static TextWrapped(fmt: string): void {\n",
 					"        Mod.export.ImGui_TextWrapped(fmt);\n",
-					"    },\n"
+					"    }\n"
 				],
 				"cpp": [
 					"bind_fn(\"ImGui_TextWrapped\", [](std::string fmt){\n",
@@ -277,9 +277,9 @@
 		"ImGui_LabelText": {
 			"override": {
 				"ts": [
-					"    LabelText(label: string, fmt: string): void {\n",
+					"    static LabelText(label: string, fmt: string): void {\n",
 					"        Mod.export.ImGui_LabelText(label, fmt);\n",
-					"    },\n"
+					"    }\n"
 				],
 				"cpp": [
 					"bind_fn(\"ImGui_LabelText\", [](std::string label, std::string fmt){\n",
@@ -291,9 +291,9 @@
 		"ImGui_BulletText": {
 			"override": {
 				"ts": [
-					"    BulletText(fmt: string): void {\n",
+					"    static BulletText(fmt: string): void {\n",
 					"        Mod.export.ImGui_BulletText(fmt);\n",
-					"    },\n"
+					"    }\n"
 				],
 				"cpp": [
 					"bind_fn(\"ImGui_BulletText\", [](std::string fmt){\n",
@@ -305,9 +305,9 @@
 		"ImGui_DebugLog": {
 			"override": {
 				"ts": [
-					"    DebugLog(fmt: string): void {\n",
+					"    static DebugLog(fmt: string): void {\n",
 					"        Mod.export.ImGui_DebugLog(fmt);\n",
-					"    },\n"
+					"    }\n"
 				],
 				"cpp": [
 					"bind_fn(\"ImGui_DebugLog\", [](std::string fmt){\n",
@@ -319,9 +319,9 @@
 		"ImGui_LogText": {
 			"override": {
 				"ts": [
-					"    LogText(fmt: string): void {\n",
+					"    static LogText(fmt: string): void {\n",
 					"        Mod.export.ImGui_LogText(fmt);\n",
-					"    },\n"
+					"    }\n"
 				],
 				"cpp": [
 					"bind_fn(\"ImGui_LogText\", [](std::string fmt){\n",
@@ -333,9 +333,9 @@
 		"ImGui_SetTooltip": {
 			"override": {
 				"ts": [
-					"    SetTooltip(fmt: string): void {\n",
+					"    static SetTooltip(fmt: string): void {\n",
 					"        Mod.export.ImGui_SetTooltip(fmt);\n",
-					"    },\n"
+					"    }\n"
 				],
 				"cpp": [
 					"bind_fn(\"ImGui_SetTooltip\", [](std::string fmt){\n",
@@ -347,9 +347,9 @@
 		"ImGui_SetItemTooltip": {
 			"override": {
 				"ts": [
-					"    SetItemTooltip(fmt: string): void {\n",
+					"    static SetItemTooltip(fmt: string): void {\n",
 					"        Mod.export.ImGui_SetItemTooltip(fmt);\n",
-					"    },\n"
+					"    }\n"
 				],
 				"cpp": [
 					"bind_fn(\"ImGui_SetItemTooltip\", [](std::string fmt){\n",
@@ -362,9 +362,9 @@
 		"ImGui_InputText": {
 			"override": {
 				"ts": [
-					"    InputText(label: string, buf: [string], buf_size: number, flags: ImGuiInputTextFlags = 0): boolean {\n",
+					"    static InputText(label: string, buf: [string], buf_size: number, flags: ImGuiInputTextFlags = 0): boolean {\n",
 					"        return Mod.export.ImGui_InputText(label, buf, buf_size, flags);\n",
-					"    },\n"
+					"    }\n"
 				],
 				"cpp": [
 					"bind_fn(\"ImGui_InputText\", [](std::string label, js_val buf, size_t buf_size, ImGuiInputTextFlags flags){\n",
@@ -380,9 +380,9 @@
 		"ImGui_InputTextMultiline": {
 			"override": {
 				"ts": [
-					"    InputTextMultiline(label: string, buf: [string], buf_size: number, size: ImVec2 = new ImVec2(0, 0), flags: ImGuiInputTextFlags = 0): boolean {\n",
+					"    static InputTextMultiline(label: string, buf: [string], buf_size: number, size: ImVec2 = new ImVec2(0, 0), flags: ImGuiInputTextFlags = 0): boolean {\n",
 					"        return Mod.export.ImGui_InputTextMultiline(label, buf, buf_size, size, flags);\n",
-					"    },\n"
+					"    }\n"
 				],
 				"cpp": [
 					"bind_fn(\"ImGui_InputTextMultiline\", [](std::string label, js_val buf, size_t buf_size, ImVec2 size, ImGuiInputTextFlags flags){\n",
@@ -398,9 +398,9 @@
 		"ImGui_InputTextWithHint": {
 			"override": {
 				"ts": [
-					"    InputTextWithHint(label: string, hint: string, buf: [string], buf_size: number, flags: ImGuiInputTextFlags = 0): boolean {\n",
+					"    static InputTextWithHint(label: string, hint: string, buf: [string], buf_size: number, flags: ImGuiInputTextFlags = 0): boolean {\n",
 					"        return Mod.export.ImGui_InputTextWithHint(label, hint, buf, buf_size, flags);\n",
-					"    },\n"
+					"    }\n"
 				],
 				"cpp": [
 					"bind_fn(\"ImGui_InputTextWithHint\", [](std::string label, std::string hint, js_val buf, size_t buf_size, ImGuiInputTextFlags flags){\n",
@@ -416,9 +416,9 @@
 		"ImGui_SetNextWindowSizeConstraints": {
 			"override": {
 				"ts": [
-					"    SetNextWindowSizeConstraints(min: ImVec2, max: ImVec2): void {\n",
+					"    static SetNextWindowSizeConstraints(min: ImVec2, max: ImVec2): void {\n",
 					"        Mod.export.ImGui_SetNextWindowSizeConstraints(min, max);\n",
-					"    },\n"
+					"    }\n"
 				],
 				"cpp": [
 					"bind_fn(\"ImGui_SetNextWindowSizeConstraints\", [](ImVec2 min, ImVec2 max){\n",
@@ -436,9 +436,9 @@
 		"ImGui_SetDragDropPayload": {
 			"override": {
 				"ts": [
-					"    SetDragDropPayload(type: string, data: string, sz: number, cond: ImGuiCond): boolean {\n",
+					"    static SetDragDropPayload(type: string, data: string, sz: number, cond: ImGuiCond): boolean {\n",
 					"        return Mod.export.ImGui_SetDragDropPayload(type, data, sz, cond);\n",
-					"    },\n"
+					"    }\n"
 				],
 				"cpp": [
 					"bind_fn(\"ImGui_SetDragDropPayload\", [](std::string type, std::string data, size_t sz, ImGuiCond cond){\n",

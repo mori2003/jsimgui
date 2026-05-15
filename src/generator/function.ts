@@ -140,5 +140,5 @@ export function getFunctionCodeTs(
 		return `${comment}${name}(${params}): ${returnType} {\n${call}\n}\n`;
 	}
 
-	return `${comment}${name}(${params}): ${returnType} {\n${call}\n},\n`;
+	return `${comment}static ${name}(${params}): ${returnType} {\n${call}\n}\n`;
 }
