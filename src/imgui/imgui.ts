@@ -71,23 +71,23 @@ export class ReferenceStruct {
 
 // MARKER: Generated ImGui bindings will be inserted here.
 
-export const ImGuiImplOpenGL3 = {
-	Init(): boolean {
+export class ImGuiImplOpenGL3 {
+	static Init(): boolean {
 		return Mod.export.cImGui_ImplOpenGL3_Init();
-	},
+	}
 
-	Shutdown(): void {
+	static Shutdown(): void {
 		Mod.export.cImGui_ImplOpenGL3_Shutdown();
-	},
+	}
 
-	NewFrame(): void {
+	static NewFrame(): void {
 		Mod.export.cImGui_ImplOpenGL3_NewFrame();
-	},
+	}
 
-	RenderDrawData(draw_data: ImDrawData): void {
+	static RenderDrawData(draw_data: ImDrawData): void {
 		Mod.export.cImGui_ImplOpenGL3_RenderDrawData(draw_data.ptr);
-	},
-};
+	}
+}
 
 export function loadTextureWebGL(
 	glContext: WebGLRenderingContext | WebGL2RenderingContext,
@@ -138,25 +138,25 @@ export function loadTextureWebGL(
 	return new ImTextureRef(id);
 }
 
-export const ImGuiImplWGPU = {
-	Init(device: GPUDevice): boolean {
+export class ImGuiImplWGPU {
+	static Init(device: GPUDevice): boolean {
 		const handle = Mod.export.WebGPU.importJsDevice(device);
 		return Mod.export.cImGui_ImplWGPU_Init(handle);
-	},
+	}
 
-	Shutdown(): void {
+	static Shutdown(): void {
 		Mod.export.cImGui_ImplWGPU_Shutdown();
-	},
+	}
 
-	NewFrame(): void {
+	static NewFrame(): void {
 		Mod.export.cImGui_ImplWGPU_NewFrame();
-	},
+	}
 
-	RenderDrawData(draw_data: ImDrawData, pass_encoder: GPURenderPassEncoder): void {
+	static RenderDrawData(draw_data: ImDrawData, pass_encoder: GPURenderPassEncoder): void {
 		const handle = Mod.export.WebGPU.importJsRenderPassEncoder(pass_encoder);
 		Mod.export.cImGui_ImplWGPU_RenderDrawData(draw_data.ptr, handle);
-	},
-};
+	}
+}
 
 export function loadTextureWebGPU(
 	device: GPUDevice,
@@ -902,30 +902,28 @@ const initWebGPU = (canvas: HTMLCanvasElement, device: GPUDevice | undefined) =>
  * Object providing easy to use functions for initializing jsimgui as well as other things like
  * loading images and fonts (TODO).
  */
-export const ImGuiImplWeb = {
+export class ImGuiImplWeb {
 	/**
 	 * Returns the exports and runtime methods of the emscripten module.
 	 *
 	 * @returns The emscripten exports object.
 	 */
-
-	// biome-ignore lint/suspicious/noExplicitAny: _
-	GetEmscriptenExports(): any {
+	static GetEmscriptenExports(): any {
 		return Mod.export;
-	},
+	}
 
 	/**
 	 * Returns memory information of the WASM heap, mallinfo and stack.
 	 *
 	 * @returns Object containing the memory information.
 	 */
-	GetMemoryInfo(): MemoryInfo {
+	static GetMemoryInfo(): MemoryInfo {
 		return {
 			heap: Mod.export.get_wasm_heap_info(),
 			mall: Mod.export.get_wasm_mall_info(),
 			stack: Mod.export.get_wasm_stack_info(),
 		};
-	},
+	}
 
 	/**
 	 * Set the callback for saving the Dear ImGui ini settings. The ini settings will be passed as
@@ -933,9 +931,9 @@ export const ImGuiImplWeb = {
 	 *
 	 * @param fn The function to save the ImGui ini settings.
 	 */
-	SetSaveIniSettingsFn(fn: (iniData: string) => void) {
+	static SetSaveIniSettingsFn(fn: (iniData: string) => void) {
 		State.saveIniSettingsFn = fn;
-	},
+	}
 
 	/**
 	 * Set the callback for loading the Dear ImGui ini settings. The callback should return a string
@@ -944,9 +942,9 @@ export const ImGuiImplWeb = {
 	 *
 	 * @param fn The function to load the ImGui ini settings.
 	 */
-	SetLoadIniSettingsFn(fn: () => string) {
+	static SetLoadIniSettingsFn(fn: () => string) {
 		State.loadIniSettingsFn = fn;
-	},
+	}
 
 	/**
 	 * Load a texture/image for the current backend.
@@ -955,7 +953,10 @@ export const ImGuiImplWeb = {
 	 * @param options The options for loading the texture.
 	 * @returns The ImTextureRef of the loaded texture.
 	 */
-	LoadTexture(data?: HTMLImageElement | Uint8Array, options: TextureOptions = {}): ImTextureRef {
+	static LoadTexture(
+		data?: HTMLImageElement | Uint8Array,
+		options: TextureOptions = {},
+	): ImTextureRef {
 		return State.backend === "webgpu"
 			? loadTextureWebGPU(State.device as GPUDevice, data, options)
 			: loadTextureWebGL(
@@ -965,7 +966,7 @@ export const ImGuiImplWeb = {
 					data,
 					options,
 				);
-	},
+	}
 
 	/**
 	 * Load a font file to the filesystem for the current backend. Add it then using
@@ -973,14 +974,14 @@ export const ImGuiImplWeb = {
 	 * @param filename The filename of the font to load.
 	 * @param fontData The font data to load.
 	 */
-	LoadFont(filename: string, fontData: Uint8Array): void {
+	static LoadFont(filename: string, fontData: Uint8Array): void {
 		Mod.export.FS.writeFile(filename, fontData);
-	},
+	}
 
 	/**
 	 * Begins a new ImGui frame. Call this at the beginning of your render loop.
 	 */
-	BeginRender() {
+	static BeginRender() {
 		setDisplayProperties(State.canvas as HTMLCanvasElement);
 
 		if (ImGui.GetIO().WantSaveIniSettings) {
@@ -990,7 +991,7 @@ export const ImGuiImplWeb = {
 
 		State.beginRenderFn?.();
 		ImGui.NewFrame();
-	},
+	}
 
 	/**
 	 * Ends the current ImGui frame. Call this at the end of your render loop. The `passEncoder`
@@ -998,10 +999,10 @@ export const ImGuiImplWeb = {
 	 *
 	 * @param passEncoder The WebGPU render pass encoder to use.
 	 */
-	EndRender(passEncoder?: GPURenderPassEncoder) {
+	static EndRender(passEncoder?: GPURenderPassEncoder) {
 		ImGui.Render();
 		State.endRenderFn?.(passEncoder);
-	},
+	}
 
 	/**
 	 * Initialize Dear ImGui with the specified configuration. This is asynchronous because it
@@ -1009,7 +1010,7 @@ export const ImGuiImplWeb = {
 	 *
 	 * @param options The initialization options: {@linkcode InitOptions}.
 	 */
-	async Init(options: InitOptions): Promise<void> {
+	static async Init(options: InitOptions): Promise<void> {
 		const {
 			canvas,
 			device,
@@ -1043,5 +1044,5 @@ export const ImGuiImplWeb = {
 			initWebGPU(canvas, device);
 			return;
 		}
-	},
-};
+	}
+}
