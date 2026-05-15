@@ -1,4 +1,4 @@
-import { ImGui, ImGuiImplWeb, ImVec2 } from "@mori2003/jsimgui";
+import { ImGui, ImGuiImplWeb, ImVec2, ImGuiCond } from "@mori2003/jsimgui";
 
 const canvas = document.getElementById("render-canvas");
 const engine = new BABYLON.Engine(canvas, true, {}, true);
@@ -44,7 +44,7 @@ engine.runRenderLoop(() => {
 
 	ImGuiImplWeb.BeginRender();
 
-	ImGui.SetNextWindowSize(new ImVec2(400, 200), ImGui.Cond.Once);
+	ImGui.SetNextWindowSize(new ImVec2(400, 200), ImGuiCond.Once);
 	ImGui.Begin("BabylonJS");
 	ImGui.SliderFloat("light.intensity", data.lightIntensity, 0, 1);
 	ImGui.SliderFloat("sphere.position.x", data.spherePosition.x, -2, 2);

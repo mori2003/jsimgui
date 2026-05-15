@@ -1,4 +1,4 @@
-import { ImGui, ImGuiImplWeb, ImVec2 } from "@mori2003/jsimgui";
+import { ImGui, ImGuiImplWeb, ImVec2, ImGuiCond } from "@mori2003/jsimgui";
 
 const app = new PIXI.Application();
 
@@ -35,7 +35,7 @@ app.ticker.add((time) => {
 
 	ImGuiImplWeb.BeginRender();
 
-	ImGui.SetNextWindowSize(new ImVec2(400, 200), ImGui.Cond.Once);
+	ImGui.SetNextWindowSize(new ImVec2(400, 200), ImGuiCond.Once);
 	ImGui.Begin("PixiJS");
 	ImGui.SliderFloat("rotationSpeed", data.rotationSpeed, 0, 1);
 	ImGui.SliderFloat("bunny.scale", data.scale, 0, 5);

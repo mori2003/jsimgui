@@ -1,4 +1,4 @@
-import { ImGui, ImGuiImplWeb, ImVec2 } from "@mori2003/jsimgui";
+import { ImGui, ImGuiImplWeb, ImVec2, ImGuiCond } from "@mori2003/jsimgui";
 import * as THREE from "three";
 
 const canvas = document.querySelector("#render-canvas");
@@ -74,8 +74,8 @@ const cubePosition = [0, 1, 0];
 function frame() {
 	ImGuiImplWeb.BeginRender();
 
-	ImGui.SetNextWindowPos(new ImVec2(10, 10), ImGui.Cond.Once);
-	ImGui.SetNextWindowSize(new ImVec2(330, 175), ImGui.Cond.Once);
+	ImGui.SetNextWindowPos(new ImVec2(10, 10), ImGuiCond.Once);
+	ImGui.SetNextWindowSize(new ImVec2(330, 175), ImGuiCond.Once);
 	ImGui.Begin("Three.js");
 
 	ImGui.SeparatorText("Welcome");
@@ -116,8 +116,8 @@ function frame() {
 	}
 	ImGui.End();
 
-	ImGui.SetNextWindowPos(new ImVec2(10, 200), ImGui.Cond.Once);
-	ImGui.SetNextWindowSize(new ImVec2(400, 500), ImGui.Cond.Once);
+	ImGui.SetNextWindowPos(new ImVec2(10, 200), ImGuiCond.Once);
+	ImGui.SetNextWindowSize(new ImVec2(400, 500), ImGuiCond.Once);
 	ImGui.Begin("Playground");
 
 	if (!stopRotation[0]) {
