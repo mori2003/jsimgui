@@ -100,11 +100,11 @@ if (cfg.freetype) {
 }
 
 if (cfg.extensions) {
-	emccConfig.sources.push("src/imnodes/imnodes.cpp");
+	emccConfig.sources.push("src/extensions/imnodes/imnodes.cpp");
 	emccConfig.sources.push("third_party/imnodes/imnodes.cpp");
 	emccConfig.includes.push("third_party/imnodes/");
 
-	emccConfig.sources.push("src/implot/implot.cpp");
+	emccConfig.sources.push("src/extensions/implot/implot.cpp");
 	emccConfig.sources.push("third_party/implot/implot.cpp");
 	emccConfig.sources.push("third_party/implot/implot_items.cpp");
 	emccConfig.sources.push("third_party/implot/implot_demo.cpp");
@@ -132,10 +132,10 @@ stdout.write("Compiling TS...\n");
 stdout.write(execSync("node_modules/.bin/tsgo --project src/tsconfig.build.json").toString());
 renameSync("src/imgui/gen/imgui.js", "build/imgui.js");
 renameSync("src/imgui/gen/imgui.d.ts", "build/imgui.d.ts");
-renameSync("src/imnodes/imnodes.js", "build/imnodes.js");
-renameSync("src/imnodes/imnodes.d.ts", "build/imnodes.d.ts");
-renameSync("src/implot/implot.js", "build/implot.js");
-renameSync("src/implot/implot.d.ts", "build/implot.d.ts");
+renameSync("src/extensions/imnodes/imnodes.js", "build/imnodes.js");
+renameSync("src/extensions/imnodes/imnodes.d.ts", "build/imnodes.d.ts");
+renameSync("src/extensions/implot/implot.js", "build/implot.js");
+renameSync("src/extensions/implot/implot.d.ts", "build/implot.d.ts");
 const content = [
 	'export * from "./imgui.js";',
 	'export * from "./imnodes.js";',

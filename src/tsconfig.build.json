@@ -1,5 +1,5 @@
 {
-	"include": ["imgui/gen/imgui.ts", "imnodes/imnodes.ts", "implot/implot.ts"],
+	"include": ["imgui/gen/imgui.ts", "extensions/imnodes/imnodes.ts", "extensions/implot/implot.ts"],
 	"compilerOptions": {
 		"rootDir": "src",
 		"declaration": true,
