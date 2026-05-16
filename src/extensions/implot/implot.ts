@@ -9,7 +9,7 @@ import { Mod, ReferenceStruct, ImVec2, ImVec4 } from "./imgui.js";
 /** Indicates variable should deduced automatically. */
 const IMPLOT_AUTO = -1;
 /** Special color used to indicate that a color should be deduced automatically. */
-const IMPLOT_AUTO_COL = new ImVec4(0, 0, 0, -1);
+//const IMPLOT_AUTO_COL = new ImVec4(0, 0, 0, -1);
 
 //-----------------------------------------------------------------------------
 // [SECTION] Enums and Types
@@ -248,7 +248,117 @@ export class ImPlot {
 	// [SECTION] Setup
 	//-----------------------------------------------------------------------------
 
-	// TODO!
+	/**
+	 * Enables an axis or sets the label and/or flags for an existing axis. Leave #label = nullptr for no label.
+	 */
+	static SetupAxis(axis: ImAxis, label: string, flags: ImPlotAxisFlags = 0): void {
+		Mod.export.ImPlot_SetupAxis(axis, label, flags);
+	}
+
+	// Sets an axis range limits. If ImPlotCond_Always is used, the axes limits will be locked. Inversion with v_min > v_max is not supported; use SetupAxisLimits instead.
+	static SetupAxisLimits(
+		axis: ImAxis,
+		v_min: number,
+		v_max: number,
+		cond: ImPlotCond = ImPlotCond.Once,
+	): void {
+		Mod.export.ImPlot_SetupAxisLimits(axis, v_min, v_max, cond);
+	}
+
+	/**
+	 * Links an axis range limits to external values. Set to nullptr for no linkage. The pointer data must remain valid until EndPlot.
+	 */
+	static SetupAxisLinks(axis: ImAxis, link_min: number[], link_max: number[]): void {
+		Mod.export.ImPlot_SetupAxisLinks(axis, link_min, link_max);
+	}
+
+	/**
+	 * Sets the format of numeric axis labels via formatter specifier (default="%g"). Formatted values will be double (i.e. use %f).
+	 */
+	static SetupAxisFormat(axis: ImAxis, fmt: string): void {
+		Mod.export.ImPlot_SetupAxisFormat(axis, fmt);
+	}
+
+	/**
+	 * Sets an axis' ticks and optionally the labels. To keep the default ticks, set #keep_default=true.
+	 */
+	static SetupAxisTicks(
+		axis: ImAxis,
+		values: number[],
+		n_ticks: number,
+		labels: string[] = null,
+		keep_default: boolean = false,
+	): void {
+		Mod.export.ImPlot_SetupAxisTicks(axis, values, n_ticks, labels, keep_default);
+	}
+
+	/**
+	 * Sets an axis' scale using built-in options.
+	 */
+	static SetupAxisScale(axis: ImAxis, scale: ImPlotScale): void {
+		Mod.export.ImPlot_SetupAxisScale(axis, scale);
+	}
+
+	/**
+	 * Sets an axis' limits constraints.
+	 */
+	static SetupAxisLimitsConstraints(axis: ImAxis, v_min: number, v_max: number): void {
+		Mod.export.ImPlot_SetupAxisLimitsConstraints(axis, v_min, v_max);
+	}
+
+	/**
+	 * Sets an axis' zoom constraints.
+	 */
+	static SetupAxisZoomConstraints(axis: ImAxis, z_min: number, z_max: number): void {
+		Mod.export.ImPlot_SetupAxisZoomConstraints(axis, z_min, z_max);
+	}
+
+	/**
+	 * Sets the label and/or flags for primary X and Y axes (shorthand for two calls to SetupAxis).
+	 */
+	static SetupAxes(
+		x_label: string,
+		y_label: string,
+		x_flags: ImPlotAxisFlags = 0,
+		y_flags: ImPlotAxisFlags = 0,
+	): void {
+		Mod.export.ImPlot_SetupAxes(x_label, y_label, x_flags, y_flags);
+	}
+
+	/**
+	 * Sets the primary X and Y axes range limits. If ImPlotCond_Always is used, the axes limits will be locked (shorthand for two calls to SetupAxisLimits).
+	 */
+	static SetupAxesLimits(
+		x_min: number,
+		x_max: number,
+		y_min: number,
+		y_max: number,
+		cond: ImPlotCond = ImPlotCond.Once,
+	): void {
+		Mod.export.ImPlot_SetupAxesLimits(x_min, x_max, y_min, y_max, cond);
+	}
+
+	/**
+	 * Sets up the plot legend. This can also be called immediately after BeginSubplots when using ImPlotSubplotFlags_ShareItems.
+	 */
+	static SetupLegend(location: ImPlotLocation, flags: ImPlotLegendFlags = 0): void {
+		Mod.export.ImPlot_SetupLegend(location, flags);
+	}
+
+	/**
+	 * Set the location of the current plot's mouse position text (default = South|East).
+	 */
+	static SetupMouseText(location: ImPlotLocation, flags: ImPlotMouseTextFlags = 0): void {
+		Mod.export.ImPlot_SetupMouseText(location, flags);
+	}
+
+	/**
+	 * Explicitly finalize plot setup. Once you call this, you cannot make anymore Setup calls for the current plot!
+	 * Note that calling this function is OPTIONAL; it will be called by the first subsequent setup-locking API call.
+	 */
+	static SetupFinish(): void {
+		Mod.export.ImPlot_SetupFinish();
+	}
 
 	//-----------------------------------------------------------------------------
 	// [SECTION] SetNext
@@ -526,23 +636,23 @@ export class ImPlot {
 		Mod.export.ImPlot_PlotInfLines(label_id, values, count);
 	}
 
-	/**
-	 * Plots a pie chart. Center and radius are in plot units. #label_fmt can be set to nullptr for no labels.
-	 */
-	static PlotPieChart(
-		label_ids: string[],
-		values: number[],
-		count: number,
-		x: number,
-		y: number,
-		radius: number,
-		fmt: ImPlotFormatter,
-		// fmt_data: void | null = null,
-		angle0: number = 90,
-		// spec: ImPlotSpec = new ImPlotSpec(),
-	): void {
-		Mod.export.ImPlot_PlotPieChart(label_ids, values, count, x, y, radius, fmt, angle0);
-	}
+	// /**
+	//  * Plots a pie chart. Center and radius are in plot units. #label_fmt can be set to nullptr for no labels.
+	//  */
+	// static PlotPieChart(
+	// 	label_ids: string[],
+	// 	values: number[],
+	// 	count: number,
+	// 	x: number,
+	// 	y: number,
+	// 	radius: number,
+	// 	fmt: ImPlotFormatter,
+	// 	// fmt_data: void | null = null,
+	// 	angle0: number = 90,
+	// 	// spec: ImPlotSpec = new ImPlotSpec(),
+	// ): void {
+	// 	Mod.export.ImPlot_PlotPieChart(label_ids, values, count, x, y, radius, fmt, angle0);
+	// }
 
 	/**
 	 * Plots a 2D heatmap chart. Values are expected to be in row-major order by default. Leave #scale_min and scale_max both at 0 for automatic color scaling, or set them to a predefined range. #label_fmt can be set to nullptr for no labels.
@@ -580,7 +690,7 @@ export class ImPlot {
 		label_id: string,
 		values: number[],
 		count: number,
-		bins: number = ImPlotBin_Sturges,
+		bins: number = ImPlotBin.Sturges,
 		bar_scale: number = 1.0,
 		range: ImPlotRange = new ImPlotRange(),
 		// spec: ImPlotSpec = new ImPlotSpec(),
@@ -674,34 +784,34 @@ export class ImPlot {
 	// // Shows a draggable horizontal guide line at a y-value. #col defaults to ImGuiCol_Text.
 	// IMPLOT_API bool DragLineY(int id, double* y, const ImVec4& col, float thickness = 1, ImPlotDragToolFlags flags = 0, bool* out_clicked = nullptr, bool* out_hovered = nullptr, bool* out_held = nullptr);
 
-	/**
-	 * Shows a draggable and resizeable rectangle.
-	 */
-	static DragRect(
-		id: number,
-		x1: number,
-		y1: number,
-		x2: number,
-		y2: number,
-		col: ImVec4,
-		flags: ImPlotDragToolFlags = 0,
-		out_clicked: [boolean] | null = null,
-		out_hovered: [boolean] | null = null,
-		out_held: [boolean] | null = null,
-	): boolean {
-		return Mod.export.ImPlot_DragRect(
-			id,
-			x1,
-			y1,
-			x2,
-			y2,
-			col,
-			flags,
-			out_clicked,
-			out_hovered,
-			out_held,
-		);
-	}
+	// /**
+	//  * Shows a draggable and resizeable rectangle.
+	//  */
+	// static DragRect(
+	// 	id: number,
+	// 	x1: number,
+	// 	y1: number,
+	// 	x2: number,
+	// 	y2: number,
+	// 	col: ImVec4,
+	// 	flags: ImPlotDragToolFlags = 0,
+	// 	out_clicked: [boolean] | null = null,
+	// 	out_hovered: [boolean] | null = null,
+	// 	out_held: [boolean] | null = null,
+	// ): boolean {
+	// 	return Mod.export.ImPlot_DragRect(
+	// 		id,
+	// 		x1,
+	// 		y1,
+	// 		x2,
+	// 		y2,
+	// 		col,
+	// 		flags,
+	// 		out_clicked,
+	// 		out_hovered,
+	// 		out_held,
+	// 	);
+	// }
 
 	/**
 	 * Shows an annotation callout at a chosen point. Clamping keeps annotations in the plot area. Annotations are always rendered on top.
@@ -1125,30 +1235,30 @@ export class ImPlot {
 	//     2) Pushed an item style color using PushStyleColor().
 	//     3) Set the next item style with a SetNextXXXStyle function.
 
-	/**
-	 * Add a new colormap. The color data will be copied. The colormap can be used by pushing either the returned index or the
-	 * string name with PushColormap. The colormap name must be unique and the size must be greater than 1. You will receive
-	 * an assert otherwise! By default colormaps are considered to be qualitative (i.e. discrete). If you want to create a
-	 * continuous colormap, set #qual=false. This will treat the colors you provide as keys, and ImPlot will build a linearly
-	 * interpolated lookup table. The memory footprint of this table will be exactly ((size-1)*255+1)*4 bytes.
-	 */
-	static AddColormap(
-		name: string,
-		cols: ImVec4[],
-		size: number,
-		qual: boolean = true,
-	): ImPlotColormap {
-		return Mod.export.ImPlot_AddColormap(name, cols, size, qual);
-	}
+	// /**
+	//  * Add a new colormap. The color data will be copied. The colormap can be used by pushing either the returned index or the
+	//  * string name with PushColormap. The colormap name must be unique and the size must be greater than 1. You will receive
+	//  * an assert otherwise! By default colormaps are considered to be qualitative (i.e. discrete). If you want to create a
+	//  * continuous colormap, set #qual=false. This will treat the colors you provide as keys, and ImPlot will build a linearly
+	//  * interpolated lookup table. The memory footprint of this table will be exactly ((size-1)*255+1)*4 bytes.
+	//  */
+	// static AddColormap(
+	// 	name: string,
+	// 	cols: ImVec4[],
+	// 	size: number,
+	// 	qual: boolean = true,
+	// ): ImPlotColormap {
+	// 	return Mod.export.ImPlot_AddColormap(name, cols, size, qual);
+	// }
 
-	static AddColormapImU32(
-		name: string,
-		cols: ImU32[],
-		size: number,
-		qual: boolean = true,
-	): ImPlotColormap {
-		return Mod.export.ImPlot_AddColormap(name, cols, size, qual);
-	}
+	// static AddColormapImU32(
+	// 	name: string,
+	// 	cols: ImU32[],
+	// 	size: number,
+	// 	qual: boolean = true,
+	// ): ImPlotColormap {
+	// 	return Mod.export.ImPlot_AddColormap(name, cols, size, qual);
+	// }
 
 	/**
 	 * Returns the number of available colormaps (i.e. the built-in + user-added count).
@@ -1182,7 +1292,7 @@ export class ImPlot {
 	 * Push a colormap by string name. Use built-in names such as "Default", "Deep", "Jet", etc. or a string you provided to AddColormap. Don't forget to call PopColormap!
 	 */
 	static PushColormapStr(name: string): void {
-		Mod.export.ImPlot_PushColormap(name);
+		Mod.export.ImPlot_PushColormapStr(name);
 	}
 
 	/**
@@ -1293,7 +1403,7 @@ export class ImPlot {
 	 * Render icons similar to those that appear in legends (nifty for data lists).
 	 */
 	static ItemIconImU32(col: ImU32): void {
-		Mod.export.ImPlot_ItemIconU32(col);
+		Mod.export.ImPlot_ItemIconImU32(col);
 	}
 
 	/**
@@ -1303,12 +1413,12 @@ export class ImPlot {
 		Mod.export.ImPlot_ColormapIcon(cmap);
 	}
 
-	/**
-	 * Get the plot draw list for custom rendering to the current plot area. Call between Begin/EndPlot.
-	 */
-	static GetPlotDrawList(): ImDrawListPtr {
-		return ImDrawListPtr.From(Mod.export.ImPlot_GetPlotDrawList());
-	}
+	// /**
+	//  * Get the plot draw list for custom rendering to the current plot area. Call between Begin/EndPlot.
+	//  */
+	// static GetPlotDrawList(): ImDrawListPtr {
+	// 	return ImDrawListPtr.From(Mod.export.ImPlot_GetPlotDrawList());
+	// }
 
 	/**
 	 * Push clip rect for rendering to current plot area. The rect can be expanded or contracted by #expand pixels. Call between Begin/EndPlot.
