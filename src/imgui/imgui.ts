@@ -1028,6 +1028,14 @@ export class ImGuiImplWeb {
 		Mod.export.FS.mount(Mod.export.MEMFS, { root: "." }, ".");
 
 		ImGui.CreateContext();
+
+		if (extensions) {
+			const imnodes = await import("./imnodes.js");
+			const implot = await import("./implot.js");
+			implot.ImPlot.CreateContext();
+			imnodes.ImNodes.CreateContext();
+		}
+
 		setupBrowserIO(canvas);
 
 		if (State.loadIniSettingsFn) {
