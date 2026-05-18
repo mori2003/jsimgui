@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>jsimgui - PlayCanvas Example</title>
+		<style>
+			body {
+				margin: 0;
+			}
+
+			canvas {
+				display: block;
+				width: 100vw;
+				height: 100vh;
+			}
+		</style>
+		<script type="importmap">
+			{
+				"imports": {
+					"@mori2003/jsimgui": "../../../build/mod.js",
+
+					"playcanvas": "https://esm.sh/playcanvas@2.18.1"
+				}
+			}
+		</script>
+		<script src="main.js" type="module"></script>
+	</head>
+
+	<body>
+		<main>
+			<canvas id="render-canvas"></canvas>
+		</main>
+	</body>
+</html>
