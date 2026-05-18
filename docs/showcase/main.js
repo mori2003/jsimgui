@@ -1,4 +1,4 @@
-import { ImGui, ImGuiImplWeb, ImVec2, ImPlot } from "@mori2003/jsimgui";
+import { ImGui, ImGuiImplWeb, ImVec2, ImPlot, ImGuiCond } from "@mori2003/jsimgui";
 
 const canvas = document.querySelector("#render-canvas");
 const context = canvas.getContext("webgl2") || canvas.getContext("webgl");
@@ -13,8 +13,6 @@ let imgRef = ImGuiImplWeb.LoadTexture();
 img.onload = () => {
 	imgRef = ImGuiImplWeb.LoadTexture(img);
 };
-
-ImPlot.CreateContext();
 
 function frame() {
 	canvas.width = canvas.clientWidth * window.devicePixelRatio;
@@ -32,8 +30,8 @@ function frame() {
 	ImPlot.EndPlot();
 	ImGui.End();
 
-	ImGui.SetNextWindowPos(new ImVec2(225, 50), ImGui.Cond.Once);
-	ImGui.SetNextWindowSize(new ImVec2(330, 200), ImGui.Cond.Once);
+	ImGui.SetNextWindowPos(new ImVec2(225, 50), ImGuiCond.Once);
+	ImGui.SetNextWindowSize(new ImVec2(330, 200), ImGuiCond.Once);
 	ImGui.Begin("jsimgui");
 	ImGui.Text("Welcome to jsimgui!");
 	ImGui.TextDisabled(`Using ImGui v${ImGui.GetVersion()}-docking`);
