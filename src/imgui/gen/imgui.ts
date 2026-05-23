@@ -9538,55 +9538,6 @@ export class ImGuiImplOpenGL3 {
 	}
 }
 
-export function loadTextureWebGL(
-	glContext: WebGLRenderingContext | WebGL2RenderingContext,
-	data?: HTMLImageElement | Uint8Array,
-	options: TextureOptions = {},
-): ImTextureRef {
-	const gl = glContext;
-
-	const processTexture = () => {
-		const texture = gl.createTexture();
-
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-		if (!data) {
-			const data = new Uint8Array([0, 0, 0, 0]);
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
-		}
-
-		if (data instanceof HTMLImageElement) {
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, data);
-		}
-
-		if (data instanceof Uint8Array) {
-			const width = options.width ?? 1;
-			const height = options.height ?? 1;
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
-		}
-
-		return texture;
-	};
-
-	const texture = options.processFn
-		? (options.processFn(data, options) as WebGLTexture)
-		: processTexture();
-
-	const id = Mod.export.GL.getNewId(Mod.export.GL.textures);
-	Mod.export.GL.textures[id] = texture;
-
-	if (options.ref) {
-		options.ref._TexID = id;
-		return options.ref;
-	}
-
-	return new ImTextureRef(id);
-}
-
 export class ImGuiImplWGPU {
 	static Init(device: GPUDevice): boolean {
 		const handle = Mod.export.WebGPU.importJsDevice(device);
@@ -9605,79 +9556,6 @@ export class ImGuiImplWGPU {
 		const handle = Mod.export.WebGPU.importJsRenderPassEncoder(pass_encoder);
 		Mod.export.cImGui_ImplWGPU_RenderDrawData(draw_data.ptr, handle);
 	}
-}
-
-export function loadTextureWebGPU(
-	device: GPUDevice,
-	data?: HTMLImageElement | Uint8Array,
-	options: TextureOptions = {},
-): ImTextureRef {
-	const width = data instanceof HTMLImageElement ? data.width : (options.width ?? 1);
-	const height = data instanceof HTMLImageElement ? data.height : (options.height ?? 1);
-
-	const processTexture = () => {
-		const texture = device.createTexture({
-			usage: 0x02 | 0x04 | 0x10,
-			dimension: "2d",
-			size: { width, height, depthOrArrayLayers: 1 },
-			format: "rgba8unorm",
-			mipLevelCount: 1,
-			sampleCount: 1,
-		});
-
-		if (!data) {
-			const data = new Uint8Array([0, 0, 0, 0]);
-			device.queue.writeTexture(
-				{ texture, mipLevel: 0, origin: { x: 0, y: 0, z: 0 }, aspect: "all" },
-				data,
-				{},
-				{ width, height, depthOrArrayLayers: 1 },
-			);
-		}
-
-		if (data instanceof HTMLImageElement) {
-			device.queue.copyExternalImageToTexture(
-				{ source: data },
-				{ texture, mipLevel: 0, origin: { x: 0, y: 0, z: 0 }, aspect: "all" },
-				{ width: data.width, height: data.height, depthOrArrayLayers: 1 },
-			);
-		}
-
-		if (data instanceof Uint8Array) {
-			device.queue.writeTexture(
-				{ texture, mipLevel: 0, origin: { x: 0, y: 0, z: 0 }, aspect: "all" },
-				data.buffer,
-				{},
-				{ width, height, depthOrArrayLayers: 1 },
-			);
-		}
-
-		const textureView = texture.createView({
-			format: "rgba8unorm",
-			dimension: "2d",
-			baseMipLevel: 0,
-			mipLevelCount: 1,
-			baseArrayLayer: 0,
-			arrayLayerCount: 1,
-			aspect: "all",
-		});
-
-		return [texture, textureView];
-	};
-
-	const [texture, textureView] = options.processFn
-		? (options.processFn(data, options) as [GPUTexture, GPUTextureView])
-		: processTexture();
-
-	Mod.export.WebGPU.importJsTexture(texture);
-	const id = Mod.export.WebGPU.importJsTextureView(textureView);
-
-	if (options.ref) {
-		options.ref._TexID = id;
-		return options.ref;
-	}
-
-	return new ImTextureRef(id);
 }
 
 /**
@@ -10396,25 +10274,58 @@ export class ImGuiImplWeb {
 	}
 
 	/**
-	 * Load a texture/image for the current backend.
-	 *
-	 * @param data The image or image data to load.
-	 * @param options The options for loading the texture.
-	 * @returns The ImTextureRef of the loaded texture.
+	 * Register a texture for the current backend to be used in image related functions (`ImGui.Image()`).
 	 */
-	static LoadTexture(
-		data?: HTMLImageElement | Uint8Array,
-		options: TextureOptions = {},
-	): ImTextureRef {
-		return State.backend === "webgpu"
-			? loadTextureWebGPU(State.device as GPUDevice, data, options)
-			: loadTextureWebGL(
-					State.canvas?.getContext(State.backend as "webgl" | "webgl2") as
-						| WebGLRenderingContext
-						| WebGL2RenderingContext,
-					data,
-					options,
-				);
+	static RegisterTexture(texture: WebGLTexture | GPUTexture): ImTextureRef {
+		if (texture instanceof WebGLTexture) {
+			const id = Mod.export.GL.getNewId(Mod.export.GL.textures);
+			Mod.export.GL.textures[id] = texture;
+			return new ImTextureRef(id);
+		}
+
+		if (texture instanceof GPUTexture) {
+			const id = Mod.export.WebGPU.importJsTextureView(texture.createView());
+			return new ImTextureRef(id);
+		}
+	}
+
+	/**
+	 * Returns a dummy (1x1 pixel, black, fully transparent) texture for the current backend.
+	 * This can be useful if you asynchronously load an image, and need to use a placeholder in the meantime.
+	 */
+	static DummyTexture(): ImTextureRef {
+		if (State.backend === "webgl" || State.backend === "webgl2") {
+			const gl = State.canvas?.getContext(State.backend as "webgl" | "webgl2") as
+				| WebGLRenderingContext
+				| WebGL2RenderingContext;
+			const texture = gl.createTexture();
+			gl.bindTexture(gl.TEXTURE_2D, texture);
+			gl.texImage2D(
+				gl.TEXTURE_2D,
+				0,
+				gl.RGBA,
+				1,
+				1,
+				0,
+				gl.RGBA,
+				gl.UNSIGNED_BYTE,
+				new Uint8Array([0, 0, 0, 0]),
+			);
+
+			return ImGuiImplWeb.RegisterTexture(texture);
+		}
+
+		if (State.backend === "webgpu") {
+			const device = State.device as GPUDevice;
+			const texture = device.createTexture({
+				size: [1, 1],
+				format: "rgba8unorm",
+				usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+			});
+			device.queue.writeTexture({ texture }, new Uint8Array([0, 0, 0, 0]), {}, [1, 1]);
+
+			return ImGuiImplWeb.RegisterTexture(texture);
+		}
 	}
 
 	/**
