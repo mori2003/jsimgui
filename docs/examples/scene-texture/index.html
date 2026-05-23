@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>jsimgui - Scene Texture Example</title>
+		<style>
+			body {
+				margin: 0;
+			}
+
+			canvas {
+				display: block;
+				width: 100vw;
+				height: 100vh;
+			}
+		</style>
+		<script type="importmap">
+			{
+				"imports": {
+					"@mori2003/jsimgui": "../../../build/mod.js",
+
+					"three": "https://cdn.jsdelivr.net/npm/three/build/three.module.js",
+					"three/addons/": "https://cdn.jsdelivr.net/npm/three/examples/jsm/"
+				}
+			}
+		</script>
+		<script src="main.js" type="module"></script>
+	</head>
+
+	<body>
+		<main>
+			<canvas id="render-canvas"></canvas>
+		</main>
+	</body>
+</html>
