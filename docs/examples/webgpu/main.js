@@ -17,9 +17,16 @@ const img = new Image();
 img.crossOrigin = "anonymous";
 img.src = "https://upload.wikimedia.org/wikipedia/commons/2/2f/WebGPU_logo.svg";
 
-let imgRef = ImGuiImplWeb.LoadTexture();
+let imgRef = ImGuiImplWeb.DummyTexture();
 img.onload = () => {
-	imgRef = ImGuiImplWeb.LoadTexture(img);
+	const texture = device.createTexture({
+		size: [img.width, img.height],
+		format: "rgba8unorm",
+		usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+	});
+	device.queue.copyExternalImageToTexture({ source: img }, { texture }, [img.width, img.height]);
+
+	imgRef = ImGuiImplWeb.RegisterTexture(texture);
 };
 
 function frame() {
