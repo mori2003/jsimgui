@@ -1722,6 +1722,13 @@ bind_struct<ImGuiWindowClass>("ImGuiWindowClass")
     self->DockingAllowUnclassed = value;
 }), allow_raw_ptrs{})
 
+.function("get_PlatformIconData", override([](ImGuiWindowClass const* self){
+    return self->PlatformIconData;
+}), rvp_ref{}, allow_raw_ptrs{})
+.function("set_PlatformIconData", override([](ImGuiWindowClass* self, void* value){
+    self->PlatformIconData = value;
+}), allow_raw_ptrs{})
+
 ;
 bind_struct<ImGuiPayload>("ImGuiPayload")
 .constructor<>()
@@ -1973,8 +1980,16 @@ bind_struct<ImDrawList>("ImDrawList")
     ImDrawList_AddLine(self, p1, p2, col, thickness);
 }), allow_raw_ptrs{})
 
-.function("ImDrawList_AddRect", override([](ImDrawList* self, ImVec2 p_min, ImVec2 p_max, ImU32 col, float rounding, ImDrawFlags flags, float thickness) -> void {
-    ImDrawList_AddRect(self, p_min, p_max, col, rounding, flags, thickness);
+.function("ImDrawList_AddLineH", override([](ImDrawList* self, float min_x, float max_x, float y, ImU32 col, float thickness) -> void {
+    ImDrawList_AddLineH(self, min_x, max_x, y, col, thickness);
+}), allow_raw_ptrs{})
+
+.function("ImDrawList_AddLineV", override([](ImDrawList* self, float x, float min_y, float max_y, ImU32 col, float thickness) -> void {
+    ImDrawList_AddLineV(self, x, min_y, max_y, col, thickness);
+}), allow_raw_ptrs{})
+
+.function("ImDrawList_AddRect", override([](ImDrawList* self, ImVec2 p_min, ImVec2 p_max, ImU32 col, float rounding, float thickness, ImDrawFlags flags) -> void {
+    ImDrawList_AddRect(self, p_min, p_max, col, rounding, thickness, flags);
 }), allow_raw_ptrs{})
 
 .function("ImDrawList_AddRectFilled", override([](ImDrawList* self, ImVec2 p_min, ImVec2 p_max, ImU32 col, float rounding, ImDrawFlags flags) -> void {
@@ -2041,8 +2056,8 @@ bind_struct<ImDrawList>("ImDrawList")
     ImDrawList_AddBezierQuadratic(self, p1, p2, p3, col, thickness, num_segments);
 }), allow_raw_ptrs{})
 
-.function("ImDrawList_AddPolyline", override([](ImDrawList* self, const ImVec2* points, int num_points, ImU32 col, ImDrawFlags flags, float thickness) -> void {
-    ImDrawList_AddPolyline(self, points, num_points, col, flags, thickness);
+.function("ImDrawList_AddPolyline", override([](ImDrawList* self, const ImVec2* points, int num_points, ImU32 col, float thickness, ImDrawFlags flags) -> void {
+    ImDrawList_AddPolyline(self, points, num_points, col, thickness, flags);
 }), allow_raw_ptrs{})
 
 .function("ImDrawList_AddConvexPolyFilled", override([](ImDrawList* self, const ImVec2* points, int num_points, ImU32 col) -> void {
@@ -2085,8 +2100,8 @@ bind_struct<ImDrawList>("ImDrawList")
     ImDrawList_PathFillConcave(self, col);
 }), allow_raw_ptrs{})
 
-.function("ImDrawList_PathStroke", override([](ImDrawList* self, ImU32 col, ImDrawFlags flags, float thickness) -> void {
-    ImDrawList_PathStroke(self, col, flags, thickness);
+.function("ImDrawList_PathStroke", override([](ImDrawList* self, ImU32 col, float thickness, ImDrawFlags flags) -> void {
+    ImDrawList_PathStroke(self, col, thickness, flags);
 }), allow_raw_ptrs{})
 
 .function("ImDrawList_PathArcTo", override([](ImDrawList* self, ImVec2 center, float radius, float a_min, float a_max, int num_segments) -> void {
@@ -2497,6 +2512,10 @@ bind_struct<ImFontAtlas>("ImFontAtlas")
     ImFontAtlas_Clear(self);
 }), allow_raw_ptrs{})
 
+.function("ImFontAtlas_ClearFonts", override([](ImFontAtlas* self) -> void {
+    ImFontAtlas_ClearFonts(self);
+}), allow_raw_ptrs{})
+
 .function("ImFontAtlas_CompactCache", override([](ImFontAtlas* self) -> void {
     ImFontAtlas_CompactCache(self);
 }), allow_raw_ptrs{})
@@ -2507,10 +2526,6 @@ bind_struct<ImFontAtlas>("ImFontAtlas")
 
 .function("ImFontAtlas_ClearInputData", override([](ImFontAtlas* self) -> void {
     ImFontAtlas_ClearInputData(self);
-}), allow_raw_ptrs{})
-
-.function("ImFontAtlas_ClearFonts", override([](ImFontAtlas* self) -> void {
-    ImFontAtlas_ClearFonts(self);
 }), allow_raw_ptrs{})
 
 .function("ImFontAtlas_ClearTexData", override([](ImFontAtlas* self) -> void {
@@ -2631,6 +2646,13 @@ bind_struct<ImGuiViewport>("ImGuiViewport")
 }), rvp_ref{}, allow_raw_ptrs{})
 .function("set_PlatformUserData", override([](ImGuiViewport* self, void* value){
     self->PlatformUserData = value;
+}), allow_raw_ptrs{})
+
+.function("get_PlatformIconData", override([](ImGuiViewport const* self){
+    return self->PlatformIconData;
+}), rvp_ref{}, allow_raw_ptrs{})
+.function("set_PlatformIconData", override([](ImGuiViewport* self, void* value){
+    self->PlatformIconData = value;
 }), allow_raw_ptrs{})
 
 .function("get_PlatformHandle", override([](ImGuiViewport const* self){
@@ -4171,8 +4193,8 @@ bind_fn("ImGui_SetNextItemShortcut", [](ImGuiKeyChord key_chord, ImGuiInputFlags
     ImGui_SetNextItemShortcut(key_chord, flags);
 });
 
-bind_fn("ImGui_SetItemKeyOwner", [](ImGuiKey key) -> void {
-    ImGui_SetItemKeyOwner(key);
+bind_fn("ImGui_SetItemKeyOwner", [](ImGuiKey key) -> bool {
+    return ImGui_SetItemKeyOwner(key);
 });
 
 bind_fn("ImGui_IsMouseDown", [](ImGuiMouseButton button) -> bool {

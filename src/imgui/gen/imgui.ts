@@ -896,7 +896,7 @@ export const ImGuiTabBarFlags = {
 	// Fitting/Resize policy
 
 	/**
-	 * Shrink down tabs when they don't fit, until width is style.TabMinWidthShrink, then enable scrolling buttons.
+	 * Shrink down tabs when they don't fit, until width is style.TabMinWidthShrink, then enable scrolling. Setting TabMinWidthShrink to FLT_MAX makes this behave like ImGuiTabBarFlags_FittingPolicyScroll.
 	 */
 	FittingPolicyMixed: 128,
 	/**
@@ -1753,7 +1753,7 @@ export const ImGuiBackendFlags = {
 	 */
 	HasMouseHoveredViewport: 4096,
 	/**
-	 * Backend Platform supports honoring viewport->ParentViewport/ParentViewportId value, by applying the corresponding parent/child relation at the Platform level.
+	 * Backend Platform supports honoring viewport->ParentViewport/ParentViewportId value, by applying the corresponding parent/child relationship at the Platform level. Child windows always appear in front of their parent window.
 	 */
 	HasParentViewport: 8192,
 } as const;
@@ -1805,131 +1805,135 @@ export const ImGuiCol = {
 	 * Checkbox tick and RadioButton circle
 	 */
 	CheckMark: 18,
-	SliderGrab: 19,
-	SliderGrabActive: 20,
-	Button: 21,
-	ButtonHovered: 22,
-	ButtonActive: 23,
+	/**
+	 * Checkbox background when Selected, otherwise use FrameBg
+	 */
+	CheckboxSelectedBg: 19,
+	SliderGrab: 20,
+	SliderGrabActive: 21,
+	Button: 22,
+	ButtonHovered: 23,
+	ButtonActive: 24,
 	/**
 	 * Header* colors are used for CollapsingHeader, TreeNode, Selectable, MenuItem
 	 */
-	Header: 24,
-	HeaderHovered: 25,
-	HeaderActive: 26,
-	Separator: 27,
-	SeparatorHovered: 28,
-	SeparatorActive: 29,
+	Header: 25,
+	HeaderHovered: 26,
+	HeaderActive: 27,
+	Separator: 28,
+	SeparatorHovered: 29,
+	SeparatorActive: 30,
 	/**
 	 * Resize grip in lower-right and lower-left corners of windows.
 	 */
-	ResizeGrip: 30,
-	ResizeGripHovered: 31,
-	ResizeGripActive: 32,
+	ResizeGrip: 31,
+	ResizeGripHovered: 32,
+	ResizeGripActive: 33,
 	/**
 	 * InputText cursor/caret
 	 */
-	InputTextCursor: 33,
+	InputTextCursor: 34,
 	/**
 	 * Tab background, when hovered
 	 */
-	TabHovered: 34,
+	TabHovered: 35,
 	/**
 	 * Tab background, when tab-bar is focused & tab is unselected
 	 */
-	Tab: 35,
+	Tab: 36,
 	/**
 	 * Tab background, when tab-bar is focused & tab is selected
 	 */
-	TabSelected: 36,
+	TabSelected: 37,
 	/**
 	 * Tab horizontal overline, when tab-bar is focused & tab is selected
 	 */
-	TabSelectedOverline: 37,
+	TabSelectedOverline: 38,
 	/**
 	 * Tab background, when tab-bar is unfocused & tab is unselected
 	 */
-	TabDimmed: 38,
+	TabDimmed: 39,
 	/**
 	 * Tab background, when tab-bar is unfocused & tab is selected
 	 */
-	TabDimmedSelected: 39,
+	TabDimmedSelected: 40,
 	/**
 	 * .horizontal overline, when tab-bar is unfocused & tab is selected
 	 */
-	TabDimmedSelectedOverline: 40,
+	TabDimmedSelectedOverline: 41,
 	/**
 	 * Preview overlay color when about to docking something
 	 */
-	DockingPreview: 41,
+	DockingPreview: 42,
 	/**
 	 * Background color for empty node (e.g. CentralNode with no window docked into it)
 	 */
-	DockingEmptyBg: 42,
-	PlotLines: 43,
-	PlotLinesHovered: 44,
-	PlotHistogram: 45,
-	PlotHistogramHovered: 46,
+	DockingEmptyBg: 43,
+	PlotLines: 44,
+	PlotLinesHovered: 45,
+	PlotHistogram: 46,
+	PlotHistogramHovered: 47,
 	/**
 	 * Table header background
 	 */
-	TableHeaderBg: 47,
+	TableHeaderBg: 48,
 	/**
 	 * Table outer and header borders (prefer using Alpha=1.0 here)
 	 */
-	TableBorderStrong: 48,
+	TableBorderStrong: 49,
 	/**
 	 * Table inner borders (prefer using Alpha=1.0 here)
 	 */
-	TableBorderLight: 49,
+	TableBorderLight: 50,
 	/**
 	 * Table row background (even rows)
 	 */
-	TableRowBg: 50,
+	TableRowBg: 51,
 	/**
 	 * Table row background (odd rows)
 	 */
-	TableRowBgAlt: 51,
+	TableRowBgAlt: 52,
 	/**
 	 * Hyperlink color
 	 */
-	TextLink: 52,
+	TextLink: 53,
 	/**
 	 * Selected text inside an InputText
 	 */
-	TextSelectedBg: 53,
+	TextSelectedBg: 54,
 	/**
 	 * Tree node hierarchy outlines when using ImGuiTreeNodeFlags_DrawLines
 	 */
-	TreeLines: 54,
+	TreeLines: 55,
 	/**
 	 * Rectangle border highlighting a drop target
 	 */
-	DragDropTarget: 55,
+	DragDropTarget: 56,
 	/**
 	 * Rectangle background highlighting a drop target
 	 */
-	DragDropTargetBg: 56,
+	DragDropTargetBg: 57,
 	/**
 	 * Unsaved Document marker (in window title and tabs)
 	 */
-	UnsavedMarker: 57,
+	UnsavedMarker: 58,
 	/**
 	 * Color of keyboard/gamepad navigation cursor/rectangle, when visible
 	 */
-	NavCursor: 58,
+	NavCursor: 59,
 	/**
 	 * Highlight window when using Ctrl+Tab
 	 */
-	NavWindowingHighlight: 59,
+	NavWindowingHighlight: 60,
 	/**
 	 * Darken/colorize entire screen behind the Ctrl+Tab window list, when active
 	 */
-	NavWindowingDimBg: 60,
+	NavWindowingDimBg: 61,
 	/**
 	 * Darken/colorize entire screen behind a modal window, when one is active
 	 */
-	ModalWindowDimBg: 61,
-	COUNT: 62,
+	ModalWindowDimBg: 62,
+	COUNT: 63,
 } as const;
 
 /**
@@ -2086,34 +2090,38 @@ export const ImGuiStyleVar = {
 	 */
 	TreeLinesRounding: 34,
 	/**
+	 * float     DragDropTargetRounding
+	 */
+	DragDropTargetRounding: 35,
+	/**
 	 * ImVec2    ButtonTextAlign
 	 */
-	ButtonTextAlign: 35,
+	ButtonTextAlign: 36,
 	/**
 	 * ImVec2    SelectableTextAlign
 	 */
-	SelectableTextAlign: 36,
+	SelectableTextAlign: 37,
 	/**
 	 * float     SeparatorSize
 	 */
-	SeparatorSize: 37,
+	SeparatorSize: 38,
 	/**
 	 * float     SeparatorTextBorderSize
 	 */
-	SeparatorTextBorderSize: 38,
+	SeparatorTextBorderSize: 39,
 	/**
 	 * ImVec2    SeparatorTextAlign
 	 */
-	SeparatorTextAlign: 39,
+	SeparatorTextAlign: 40,
 	/**
 	 * ImVec2    SeparatorTextPadding
 	 */
-	SeparatorTextPadding: 40,
+	SeparatorTextPadding: 41,
 	/**
 	 * float     DockingSeparatorSize
 	 */
-	DockingSeparatorSize: 41,
-	COUNT: 42,
+	DockingSeparatorSize: 42,
+	COUNT: 43,
 } as const;
 
 /**
@@ -2862,14 +2870,9 @@ export const ImGuiSelectionRequestType = {
 
 /**
  * Flags for ImDrawList functions
- * (Legacy: bit 0 must always correspond to ImDrawFlags_Closed to be backward compatible with old API using a bool. Bits 1..3 must be unused)
  */
 export const ImDrawFlags = {
 	None: 0,
-	/**
-	 * PathStroke(), AddPolyline(): specify that shape should be closed (Important: this is always == 1 for legacy reason)
-	 */
-	Closed: 1,
 	/**
 	 * AddRect(), AddRectFilled(), PathRect(): enable rounding top-left corner only (when rounding > 0.0f, we default to all corners). Was 0x01.
 	 */
@@ -2890,6 +2893,10 @@ export const ImDrawFlags = {
 	 * AddRect(), AddRectFilled(), PathRect(): disable rounding on all corners (when rounding > 0.0f). This is NOT zero, NOT an implicit flag!
 	 */
 	RoundCornersNone: 256,
+	/**
+	 * PathStroke(), AddPolyline(): specify that shape should be closed (Important: this is always == 1 for legacy reason)
+	 */
+	Closed: 512,
 	RoundCornersTop: 48,
 	RoundCornersBottom: 192,
 	RoundCornersLeft: 80,
@@ -2995,6 +3002,10 @@ export const ImFontFlags = {
 	 * [Internal] Disable loading new baked sizes, disable garbage collecting current ones. e.g. if you want to lock a font to a single size. Important: if you use this to preload given sizes, consider the possibility of multiple font density used on Retina display.
 	 */
 	LockBakedSizes: 8,
+	/**
+	 * [Internal] Reference size was not set explicitly.
+	 */
+	ImplicitRefSize: 16,
 } as const;
 
 /**
@@ -3547,7 +3558,7 @@ export class ImGuiStyle extends ReferenceStruct {
 		this.ptr.set_TabMinWidthShrink(v);
 	}
 	/**
-	 * -1: always visible. 0.0f: visible when hovered. >0.0f: visible when hovered if minimum width.
+	 * -1: always visible. 0.0f: visible when hovered. >0.0f: visible when hovered if minimum width. FLT_MAX: never shrink, will behave like ImGuiTabBarFlags_FittingPolicyScroll.
 	 */
 	get TabCloseButtonMinWidthSelected(): number {
 		return this.ptr.get_TabCloseButtonMinWidthSelected();
@@ -3628,7 +3639,7 @@ export class ImGuiStyle extends ReferenceStruct {
 		this.ptr.set_TreeLinesRounding(v);
 	}
 	/**
-	 * Radius of the drag and drop target frame.
+	 * Radius of the drag and drop target frame. When <0.0f: use FrameRounding.
 	 */
 	get DragDropTargetRounding(): number {
 		return this.ptr.get_DragDropTargetRounding();
@@ -3691,7 +3702,7 @@ export class ImGuiStyle extends ReferenceStruct {
 		this.ptr.set_SelectableTextAlign(v);
 	}
 	/**
-	 * Thickness of border in Separator()
+	 * Thickness of border in Separator(). Must be >= 1.0f.
 	 */
 	get SeparatorSize(): number {
 		return this.ptr.get_SeparatorSize();
@@ -3874,7 +3885,7 @@ export class ImGuiStyle extends ReferenceStruct {
 	}
 
 	/**
-	 * Scale all spacing/padding/thickness values. Do not scale fonts.
+	 * Scale all spacing/padding/thickness values. Do not scale fonts. See comments in definition. Consider not calling this if your initial scale factor if <1.0.
 	 */
 	ScaleAllSizes(scale_factor: number): void {
 		this.ptr.ImGuiStyle_ScaleAllSizes(scale_factor);
@@ -4108,6 +4119,7 @@ export class ImGuiIO extends ReferenceStruct {
 	}
 
 	// Viewport options (when ImGuiConfigFlags_ViewportsEnable is set)
+	// (sorry for the amount of "NoXXXX" flags, which may be harder to reason about! may rework someday)
 
 	/**
 	 * = false;         // Set to make all floating imgui windows always create their own viewport. Otherwise, they are merged into the main host viewports when overlapping it. May also set ImGuiViewportFlags_NoAutoMerge on individual viewport.
@@ -4137,7 +4149,7 @@ export class ImGuiIO extends ReferenceStruct {
 		this.ptr.set_ConfigViewportsNoDecoration(v);
 	}
 	/**
-	 * = true           // When false: set secondary viewports' ParentViewportId to main viewport ID by default. Expects the platform backend to setup a parent/child relationship between the OS windows based on this value. Some backend may ignore this. Set to true if you want viewports to automatically be parent of main viewport, otherwise all viewports will be top-level OS windows.
+	 * = true           // Disable setting OS window parent to main viewport by default. The platform backend is expected to honor `viewport->ParentViewportID` to setup a parent/child relationship between the OS windows (supported if ImGuiBackendFlags_HasParentViewport is set). When parented: child windows always appear in front of their parent. Set to false if you want viewports to automatically be parent of main viewport, otherwise all viewports will be top-level OS windows. Parent/child relationship may be set on a per-window basis using ImGuiWindowClass.
 	 */
 	get ConfigViewportsNoDefaultParent(): boolean {
 		return this.ptr.get_ConfigViewportsNoDefaultParent();
@@ -4973,7 +4985,7 @@ export class ImGuiInputTextCallbackData extends ReferenceStruct {
 		this.ptr.set_UserData(v);
 	}
 	/**
-	 * Widget ID                             // Read-only
+	 * Widget ID                            // Read-only
 	 */
 	get ID(): ImGuiID {
 		return this.ptr.get_ID();
@@ -5052,7 +5064,7 @@ export class ImGuiInputTextCallbackData extends ReferenceStruct {
 		this.ptr.set_BufSize(v);
 	}
 	/**
-	 *                                      // Read-write   // [Completion,History,Always]
+	 *                                      // Read-write   // [Completion,History,Always,CharFilter]
 	 */
 	get CursorPos(): number {
 		return this.ptr.get_CursorPos();
@@ -5061,7 +5073,7 @@ export class ImGuiInputTextCallbackData extends ReferenceStruct {
 		this.ptr.set_CursorPos(v);
 	}
 	/**
-	 *                                      // Read-write   // [Completion,History,Always] == to SelectionEnd when no selection
+	 *                                      // Read-write   // [Completion,History,Always,CharFilter] == to SelectionEnd when no selection
 	 */
 	get SelectionStart(): number {
 		return this.ptr.get_SelectionStart();
@@ -5070,7 +5082,7 @@ export class ImGuiInputTextCallbackData extends ReferenceStruct {
 		this.ptr.set_SelectionStart(v);
 	}
 	/**
-	 *                                      // Read-write   // [Completion,History,Always]
+	 *                                      // Read-write   // [Completion,History,Always,CharFilter]
 	 */
 	get SelectionEnd(): number {
 		return this.ptr.get_SelectionEnd();
@@ -5146,7 +5158,7 @@ export class ImGuiSizeCallbackData extends ReferenceStruct {
  * before we stabilize Docking features. Please be mindful if using this.
  * Provide hints:
  * - To the platform backend via altered viewport flags (enable/disable OS decoration, OS task bar icons, etc.)
- * - To the platform backend for OS level parent/child relationships of viewport.
+ * - To the platform backend for OS level parent/child relationships of viewport (otherwise: default is configured via io.ConfigViewportsNoDefaultParent)
  * - To the docking system for various options and filtering.
  */
 export class ImGuiWindowClass extends ReferenceStruct {
@@ -5230,6 +5242,15 @@ export class ImGuiWindowClass extends ReferenceStruct {
 	}
 	set DockingAllowUnclassed(v: boolean) {
 		this.ptr.set_DockingAllowUnclassed(v);
+	}
+	/**
+	 * [EXPERIMENTAL] Pass opaque data for Platform backend to handle.
+	 */
+	get PlatformIconData(): any {
+		return this.ptr.get_PlatformIconData();
+	}
+	set PlatformIconData(v: any) {
+		this.ptr.set_PlatformIconData(v);
 	}
 }
 /**
@@ -5607,6 +5628,12 @@ export class ImDrawList extends ReferenceStruct {
 	AddLine(p1: ImVec2, p2: ImVec2, col: ImU32, thickness: number = 1.0): void {
 		this.ptr.ImDrawList_AddLine(p1, p2, col, thickness);
 	}
+	AddLineH(min_x: number, max_x: number, y: number, col: ImU32, thickness: number = 1.0): void {
+		this.ptr.ImDrawList_AddLineH(min_x, max_x, y, col, thickness);
+	}
+	AddLineV(x: number, min_y: number, max_y: number, col: ImU32, thickness: number = 1.0): void {
+		this.ptr.ImDrawList_AddLineV(x, min_y, max_y, col, thickness);
+	}
 	/**
 	 * a: upper-left, b: lower-right (== upper-left + size)
 	 */
@@ -5615,10 +5642,10 @@ export class ImDrawList extends ReferenceStruct {
 		p_max: ImVec2,
 		col: ImU32,
 		rounding: number = 0.0,
-		flags: ImDrawFlags = 0,
 		thickness: number = 1.0,
+		flags: ImDrawFlags = 0,
 	): void {
-		this.ptr.ImDrawList_AddRect(p_min, p_max, col, rounding, flags, thickness);
+		this.ptr.ImDrawList_AddRect(p_min, p_max, col, rounding, thickness, flags);
 	}
 	/**
 	 * a: upper-left, b: lower-right (== upper-left + size)
@@ -5771,10 +5798,10 @@ export class ImDrawList extends ReferenceStruct {
 		points: ImVec2,
 		num_points: number,
 		col: ImU32,
-		flags: ImDrawFlags,
 		thickness: number,
+		flags: ImDrawFlags = 0,
 	): void {
-		this.ptr.ImDrawList_AddPolyline(points, num_points, col, flags, thickness);
+		this.ptr.ImDrawList_AddPolyline(points, num_points, col, thickness, flags);
 	}
 	AddConvexPolyFilled(points: ImVec2, num_points: number, col: ImU32): void {
 		this.ptr.ImDrawList_AddConvexPolyFilled(points, num_points, col);
@@ -5853,8 +5880,8 @@ export class ImDrawList extends ReferenceStruct {
 	PathFillConcave(col: ImU32): void {
 		this.ptr.ImDrawList_PathFillConcave(col);
 	}
-	PathStroke(col: ImU32, flags: ImDrawFlags = 0, thickness: number = 1.0): void {
-		this.ptr.ImDrawList_PathStroke(col, flags, thickness);
+	PathStroke(col: ImU32, thickness: number = 1.0, flags: ImDrawFlags = 0): void {
+		this.ptr.ImDrawList_PathStroke(col, thickness, flags);
 	}
 	PathArcTo(
 		center: ImVec2,
@@ -5907,7 +5934,8 @@ export class ImDrawList extends ReferenceStruct {
 	/**
 	 * Advanced: Draw Callbacks
 	 * - May be used to alter render state (change sampler, blending, current shader). May be used to emit custom rendering commands (difficult to do correctly, but possible).
-	 * - Use special ImDrawCallback_ResetRenderState callback to instruct backend to reset its render state to the default.
+	 * - Use special GetPlatformIO().DrawCallback_ResetRenderState callback to instruct backend to reset its render state to the default.
+	 * - See other standard callbacks in GetPlatformIO(), which may or not be supported by your backend.
 	 * - Your rendering loop must check for 'UserCallback' in ImDrawCmd and call the function instead of rendering triangles. All standard backends are honoring this.
 	 * - For some backends, the callback may access selected render-states exposed by the backend in a ImGui_ImplXXXX_RenderState structure pointed to by platform_io.Renderer_RenderState.
 	 * - IMPORTANT: please be mindful of the different level of indirection between using size==0 (copying argument) and using size>0 (copying pointed data into a buffer).
@@ -5915,7 +5943,11 @@ export class ImDrawList extends ReferenceStruct {
 	 *   - If userdata_size > 0,  we copy/store 'userdata_size' bytes pointed to by 'userdata'. We store them in a buffer stored inside the drawlist. ImDrawCmd::UserCallbackData will point inside that buffer so you have to retrieve data from there. Your callback may need to use ImDrawCmd::UserCallbackDataSize if you expect dynamically-sized data.
 	 *   - Support for userdata_size > 0 was added in v1.91.4, October 2024. So earlier code always only allowed to copy/store a simple void*.
 	 */
-	AddCallback(callback: ImDrawCallback, userdata: any, userdata_size: number = 0): void {
+	AddCallback(
+		callback: ImDrawCallback,
+		userdata: any | null = null,
+		userdata_size: number = 0,
+	): void {
 		this.ptr.ImDrawList_AddCallback(callback, userdata, userdata_size);
 	}
 
@@ -6445,10 +6477,16 @@ export class ImFontAtlas extends ReferenceStruct {
 		this.ptr.ImFontAtlas_RemoveFont(font?.ptr ?? null);
 	}
 	/**
-	 * Clear everything (input fonts, output glyphs/textures).
+	 * Clear everything (fonts + textures). Don't call mid-frame!
 	 */
 	Clear(): void {
 		this.ptr.ImFontAtlas_Clear();
+	}
+	/**
+	 * Clear input+output font data/glyphs. You can call this mid-frame if you load new fonts afterwards!
+	 */
+	ClearFonts(): void {
+		this.ptr.ImFontAtlas_ClearFonts();
 	}
 	/**
 	 * Compact cached glyphs and texture.
@@ -6470,12 +6508,6 @@ export class ImFontAtlas extends ReferenceStruct {
 	 */
 	ClearInputData(): void {
 		this.ptr.ImFontAtlas_ClearInputData();
-	}
-	/**
-	 * [OBSOLETE] Clear input+output font data (same as ClearInputData() + glyphs storage, UV coordinates).
-	 */
-	ClearFonts(): void {
-		this.ptr.ImFontAtlas_ClearFonts();
 	}
 	/**
 	 * [OBSOLETE] Clear CPU-side copy of the texture data. Saves RAM once the texture has been copied to graphics memory.
@@ -6684,6 +6716,15 @@ export class ImGuiViewport extends ReferenceStruct {
 	}
 	set PlatformUserData(v: any) {
 		this.ptr.set_PlatformUserData(v);
+	}
+	/**
+	 * void* to hold custom data structure for the OS / platform to specify an icon. Currently unused for exposed to allow experiments.
+	 */
+	get PlatformIconData(): any {
+		return this.ptr.get_PlatformIconData();
+	}
+	set PlatformIconData(v: any) {
+		this.ptr.set_PlatformIconData(v);
 	}
 	/**
 	 * void* to hold higher-level, platform window handle (e.g. HWND for Win32 backend, Uint32 WindowID for SDL, GLFWWindow* for GLFW), for FindViewportByPlatformHandle().
@@ -9300,15 +9341,16 @@ export class ImGui {
 	// Inputs Utilities: Key/Input Ownership [BETA]
 	// - One common use case would be to allow your items to disable standard inputs behaviors such
 	//   as Tab or Alt key handling, Mouse Wheel scrolling, etc.
-	//   e.g. Button(...); SetItemKeyOwner(ImGuiKey_MouseWheelY); to make hovering/activating a button disable wheel for scrolling.
+	//   e.g. `Button(...); if (SetItemKeyOwner(ImGuiKey_MouseWheelY)) { ... }` to make hovering/activating a button disable wheel for scrolling.
 	// - Reminder ImGuiKey enum include access to mouse buttons and gamepad, so key ownership can apply to them.
+	// - The return value of SetItemKeyOwner() says if ownership has been requested for the item, which is a shortcut to calling yet non-public TestKeyOwner() function.
 	// - Many related features are still in imgui_internal.h. For instance, most IsKeyXXX()/IsMouseXXX() functions have an owner-id-aware version.
 
 	/**
-	 * Set key owner to last item ID if it is hovered or active. Equivalent to 'if (IsItemHovered() || IsItemActive()) { SetKeyOwner(key, GetItemID());'.
+	 * Set key owner to last item ID if it is hovered or active. Return true when ownership has been set. Roughly equivalent to 'if (TestKeyOwner(key, GetItemID()) && (IsItemHovered() || IsItemActive())) { SetKeyOwner(key, GetItemID());'.
 	 */
-	static SetItemKeyOwner(key: ImGuiKey): void {
-		Mod.export.ImGui_SetItemKeyOwner(key);
+	static SetItemKeyOwner(key: ImGuiKey): boolean {
+		return Mod.export.ImGui_SetItemKeyOwner(key);
 	}
 
 	// Inputs Utilities: Mouse
