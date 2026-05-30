@@ -13,7 +13,7 @@ export const Mod = {
 		} else if (enableFreeType) {
 			MainExport = extensions
 				? // @ts-expect-error
-					await import("./loader-freetype-extensions.js")
+					await import("./loader-extensions-freetype.js")
 				: // @ts-expect-error
 					await import("./loader-freetype.js");
 		} else {
