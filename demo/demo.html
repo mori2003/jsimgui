@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TXML/TSS Demo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #1e1e1e;
+            color: white;
+        }
+        
+        #container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        #sidebar {
+            width: 300px;
+            background: #2d2d2d;
+            padding: 20px;
+            border-right: 1px solid #444;
+            overflow-y: auto;
+        }
+        
+        #main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #canvas-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        #render-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        #controls {
+            background: #2d2d2d;
+            padding: 15px;
+            border-top: 1px solid #444;
+        }
+        
+        .section {
+            margin-bottom: 20px;
+        }
+        
+        .section h3 {
+            margin: 0 0 10px 0;
+            color: #4CAF50;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 120px;
+            background: #1e1e1e;
+            color: white;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            resize: vertical;
+        }
+        
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        .status {
+            margin-top: 10px;
+            padding: 8px;
+            background: #333;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .error {
+            background: #d32f2f;
+        }
+        
+        .success {
+            background: #388e3c;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="sidebar">
+            <div class="section">
+                <h3>TXML</h3>
+                <textarea id="txml-editor" placeholder="Enter TXML here...">
+<App>
+    <Head>
+        <!-- Metadata goes here -->
+    </Head>
+    <Body>
+        <Window title="TXML/TSS Demo">
+            <Text>Welcome to TXML/TSS!</Text>
+            <Spacing />
+            <Button onClick="handleClick">Click Me!</Button>
+            <SameLine />
+            <Checkbox label="Enable Feature" />
+            <Spacing />
+            <InputText label="Name" hint="Enter your name" />
+            <SliderFloat label="Volume" min="0" max="1" />
+        </Window>
+    </Body>
+</App>
+                </textarea>
+            </div>
+            
+            <div class="section">
+                <h3>TSS</h3>
+                <textarea id="tss-editor" placeholder="Enter TSS here...">
+:root {
+    --primary-color: #4CAF50;
+    --secondary-color: #2196F3;
+    --text-color: #ffffff;
+}
+
+Window {
+    color: var(--text-color);
+}
+
+Button {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+Text {
+    color: var(--text-color);
+}
+                </textarea>
+            </div>
+            
+            <div class="section">
+                <button id="render-btn">Render</button>
+                <button id="reset-btn">Reset</button>
+                <div id="status" class="status">Ready</div>
+            </div>
+        </div>
+        
+        <div id="main">
+            <div id="canvas-container">
+                <canvas id="render-canvas"></canvas>
+            </div>
+            <div id="controls">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <span>Backend:</span>
+                    <select id="backend-select">
+                        <option value="webgl2">WebGL2</option>
+                        <option value="webgpu">WebGPU</option>
+                    </select>
+                    <button id="init-btn">Initialize</button>
+                    <span id="init-status">Not initialized</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Simple mock implementation for demo purposes
+        class MockTXMLTSSRenderer {
+            constructor() {
+                this.eventHandlers = new Map();
+                this.state = new Map();
+            }
+            
+            registerEventHandler(name, callback) {
+                this.eventHandlers.set(name, callback);
+            }
+            
+            render(txml, tss) {
+                // Mock rendering - just log what would be rendered
+                console.log('Rendering TXML:', txml);
+                console.log('Rendering TSS:', tss);
+                
+                // Simulate button click detection
+                if (txml.includes('onClick="handleClick"')) {
+                    const handler = this.eventHandlers.get('handleClick');
+                    if (handler) {
+                        // Simulate button click after a delay
+                        setTimeout(() => {
+                            handler();
+                        }, 1000);
+                    }
+                }
+            }
+            
+            getState() {
+                return this.state;
+            }
+            
+            clearState() {
+                this.state.clear();
+            }
+        }
+        
+        // Global state
+        let renderer = null;
+        let isInitialized = false;
+        
+        // DOM elements
+        const canvas = document.querySelector('#render-canvas');
+        const txmlEditor = document.querySelector('#txml-editor');
+        const tssEditor = document.querySelector('#tss-editor');
+        const renderBtn = document.querySelector('#render-btn');
+        const resetBtn = document.querySelector('#reset-btn');
+        const statusDiv = document.querySelector('#status');
+        const backendSelect = document.querySelector('#backend-select');
+        const initBtn = document.querySelector('#init-btn');
+        const initStatus = document.querySelector('#init-status');
+        
+        // Initialize the TXML/TSS renderer
+        function initRenderer() {
+            renderer = new MockTXMLTSSRenderer();
+            
+            // Register event handlers
+            renderer.registerEventHandler('handleClick', () => {
+                console.log('Button clicked!');
+                updateStatus('Button clicked!', 'success');
+            });
+            
+            updateStatus('Renderer initialized', 'success');
+        }
+        
+        // Mock ImGui initialization
+        async function initImGui() {
+            if (isInitialized) return;
+            
+            try {
+                // Simulate initialization delay
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                isInitialized = true;
+                initStatus.textContent = `Initialized (${backendSelect.value})`;
+                initStatus.style.color = '#4CAF50';
+                
+                updateStatus('jsimgui initialized successfully', 'success');
+                
+            } catch (error) {
+                console.error('Failed to initialize jsimgui:', error);
+                updateStatus(`Initialization failed: ${error.message}`, 'error');
+                initStatus.textContent = 'Failed';
+                initStatus.style.color = '#d32f2f';
+            }
+        }
+        
+        // Update status message
+        function updateStatus(message, type = '') {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+        
+        // Reset to default content
+        function resetContent() {
+            txmlEditor.value = `<App>
+    <Head>
+        <!-- Metadata goes here -->
+    </Head>
+    <Body>
+        <Window title="TXML/TSS Demo">
+            <Text>Welcome to TXML/TSS!</Text>
+            <Spacing />
+            <Button onClick="handleClick">Click Me!</Button>
+            <SameLine />
+            <Checkbox label="Enable Feature" />
+            <Spacing />
+            <InputText label="Name" hint="Enter your name" />
+            <SliderFloat label="Volume" min="0" max="1" />
+        </Window>
+    </Body>
+</App>`;
+
+            tssEditor.value = `:root {
+    --primary-color: #4CAF50;
+    --secondary-color: #2196F3;
+    --text-color: #ffffff;
+}
+
+Window {
+    color: var(--text-color);
+}
+
+Button {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+Text {
+    color: var(--text-color);
+}`;
+
+            updateStatus('Content reset to defaults', 'success');
+        }
+        
+        // Event listeners
+        initBtn.addEventListener('click', async () => {
+            await initImGui();
+            if (isInitialized && !renderer) {
+                initRenderer();
+            }
+        });
+        
+        renderBtn.addEventListener('click', () => {
+            if (!isInitialized) {
+                updateStatus('Please initialize first', 'error');
+                return;
+            }
+            
+            if (!renderer) {
+                initRenderer();
+            }
+            
+            const txml = txmlEditor.value;
+            const tss = tssEditor.value;
+            
+            renderer.render(txml, tss);
+            updateStatus('Rendering...', 'success');
+        });
+        
+        resetBtn.addEventListener('click', () => {
+            console.log('Reset button clicked');
+            resetContent();
+        });
+        
+        // Auto-initialize on load
+        window.addEventListener('load', async () => {
+            updateStatus('Loading...', '');
+            
+            // Initialize renderer
+            initRenderer();
+            
+            // Try to auto-initialize
+            try {
+                await initImGui();
+                if (isInitialized) {
+                    updateStatus('Auto-initialized successfully! Click Render to see the demo.', 'success');
+                }
+            } catch (error) {
+                updateStatus('Auto-initialization failed. Please click Initialize.', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
